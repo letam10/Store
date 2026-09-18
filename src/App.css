@@ -1,0 +1,4 @@
+.container { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+.button { display: inline-flex; padding: 12px 20px; border-radius: 10px; background: #235c46; color: white; font-weight: 600; text-decoration: none; }
+.button:hover { background: #174432; }
+.eyebrow { color: #235c46; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
