@@ -4,6 +4,7 @@ import { createRequestGate } from '../api/requestGate'
 import { adminConversationKey } from './adminState'
 import AdminModule from './AdminModules'
 import { adminModules } from './adminModuleData'
+import { normalizeSearch } from '../storefront/state'
 import './Admin.css'
 
 function localId() {
@@ -39,9 +40,11 @@ export default function Admin() {
   const [report, setReport] = useState(null)
   const [range, setRange] = useState({ from: today.slice(0, 8) + '01', to: today })
   const [activeModule, setActiveModule] = useState('dashboard')
+  const [adminSearch, setAdminSearch] = useState('')
   const logRef = useRef(null)
   const gateRef = useRef(createRequestGate())
   const loadEpochRef = useRef(0)
+  const adminSearchRef = useRef(null)
 
   function clearSensitiveUi({ removeStorageFor = '' } = {}) {
     gateRef.current.cancel()
@@ -116,6 +119,18 @@ export default function Admin() {
   }, [session?.authenticated, session?.username])
 
   useEffect(() => { if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight }, [messages, activity])
+
+  useEffect(() => {
+    const onShortcut = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase('en') === 'k') {
+        event.preventDefault()
+        adminSearchRef.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', onShortcut)
+    return () => window.removeEventListener('keydown', onShortcut)
+  }, [])
+
 
   async function login(event) {
     event.preventDefault()
@@ -243,7 +258,16 @@ export default function Admin() {
         <div className="admin-sidebar__footer"><a href="/">↗ Xem cửa hàng</a><button type="button" onClick={logout}>Đăng xuất</button></div>
       </aside>
       <section className="admin-main">
-        <header className="admin-header"><div><p className="admin-eyebrow">STORE ADMIN / {activeModule.toUpperCase()}</p><h1>{currentLabel}</h1></div><div className="admin-header__actions"><span className="admin-live-dot">● Hệ thống local</span><button type="button" onClick={logout}>Đăng xuất</button></div></header>
+        <header className="admin-header">
+          <div><p className="admin-eyebrow">STORE ADMIN / {activeModule.toUpperCase()}</p><h1>{currentLabel}</h1></div>
+          <div className="admin-global-search">
+            <span aria-hidden="true">⌕</span>
+            <input ref={adminSearchRef} type="search" value={adminSearch} onChange={(event) => setAdminSearch(event.target.value)} placeholder="Tìm module quản trị…" aria-label="Tìm module quản trị" />
+            <kbd>Ctrl K</kbd>
+            {adminSearch && <div className="admin-search-results">{adminModules.filter(([,label]) => normalizeSearch(label).includes(normalizeSearch(adminSearch))).slice(0,6).map(([id,label,icon]) => <button key={id} type="button" onClick={() => { setActiveModule(id); setAdminSearch('') }}><span aria-hidden="true">{icon}</span>{label}</button>)}{adminModules.filter(([,label]) => normalizeSearch(label).includes(normalizeSearch(adminSearch))).length === 0 && <p>Không tìm thấy module.</p>}</div>}
+          </div>
+          <div className="admin-header__actions"><span className="admin-live-dot">● Hệ thống local</span><button type="button" onClick={logout}>Đăng xuất</button></div>
+        </header>
         {pageError && <p className="admin-error" role="alert">{pageError}</p>}
         {activeModule !== 'ai-local' && <AdminModule module={activeModule} />}
         {activeModule === 'ai-local' && <>
