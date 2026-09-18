@@ -278,7 +278,7 @@ export class StoreDb {
         return { state: 'retry', turn: this.db.prepare('SELECT * FROM chat_turns WHERE id = ?').get(existing.id) }
       }
 
-      let conversation = null
+      let conversation
       if (conversationId) {
         conversation = this.getConversation(conversationId)
         if (!conversation || conversation.kind !== kind || conversation.owner_key !== ownerKey) {
