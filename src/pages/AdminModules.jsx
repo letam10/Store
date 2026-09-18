@@ -56,6 +56,45 @@ function StaffAccessPreview(){
  </section>
 }
 
+
+function OrderTypesPreview(){
+ const types=[
+  {name:'Giao tiêu chuẩn',priority:'Bình thường',sla:'48h',status:'Bật',note:'Giao tận nơi theo vùng phục vụ'},
+  {name:'Nhận tại cửa hàng',priority:'Cao',sla:'4h',status:'Bật',note:'Chờ xác nhận khả dụng tại chi nhánh'},
+  {name:'Đơn quà tặng',priority:'Bình thường',sla:'72h',status:'Nháp',note:'Chưa bật cho khách hàng'},
+ ]
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">ORDER WORKFLOWS</p><h2>Quản lý loại đơn hàng</h2><p>Thiết kế luồng xử lý, SLA và mức ưu tiên. Cấu hình bên dưới chưa được backend thực thi.</p></div><span className="admin-preview-badge">Cấu hình demo</span></div>
+   <div className="order-type-grid">{types.map((type)=><article key={type.name}><div className="order-type-head"><span>{type.status}</span><b>{type.name}</b></div><p>{type.note}</p><dl><div><dt>Ưu tiên</dt><dd>{type.priority}</dd></div><div><dt>SLA</dt><dd>{type.sla}</dd></div></dl><button type="button" disabled>Chỉnh cấu hình</button></article>)}</div>
+ </section>
+}
+
+function SupportQueuePreview(){
+ const columns=[
+  {title:'Mới',tone:'new',items:[['CS-300','Lê Hương','Sản phẩm']]},
+  {title:'Đang xử lý',tone:'active',items:[['CS-301','Nguyễn An','Đơn hàng'],['CS-297','Hoàng Nam','Thanh toán']]},
+  {title:'Đã xong',tone:'done',items:[['CS-298','Trần Minh','Địa chỉ']]},
+ ]
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">CUSTOMER CARE QUEUE</p><h2>Quản lý chăm sóc khách hàng</h2><p>Hàng đợi trực quan theo trạng thái xử lý. Thao tác ticket vẫn là preview.</p></div><span className="admin-preview-badge">Queue demo</span></div>
+   <div className="support-board">{columns.map((column)=><section key={column.title} className={'support-column support-column--'+column.tone}><header><b>{column.title}</b><span>{column.items.length}</span></header><div>{column.items.map(([id,customer,topic])=><article key={id}><b>{id}</b><span>{customer}</span><small>{topic}</small><button type="button" disabled>Mở ticket</button></article>)}</div></section>)}</div>
+ </section>
+}
+
+function OvertimeRewardsPreview(){
+ const requests=[
+  {name:'Quốc Bảo',type:'Tăng ca',value:'2 giờ',status:'Chờ duyệt'},
+  {name:'Mai Anh',type:'Khen thưởng',value:'120 điểm',status:'Đã duyệt'},
+  {name:'Thùy Linh',type:'Tăng ca',value:'1.5 giờ',status:'Đã duyệt'},
+ ]
+ const pending=requests.filter((item)=>item.status==='Chờ duyệt').length
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">PEOPLE OPERATIONS</p><h2>Tăng ca & khen thưởng</h2><p>Theo dõi đề xuất OT và ghi nhận thành tích. Các nút duyệt chưa nối backend nhân sự.</p></div><span className="admin-preview-badge">{pending} chờ duyệt</span></div>
+   <div className="people-summary"><div><small>Đề xuất hôm nay</small><strong>{requests.length}</strong></div><div><small>Chờ duyệt</small><strong>{pending}</strong></div><div><small>Đã xử lý</small><strong>{requests.length-pending}</strong></div></div>
+   <div className="people-request-list">{requests.map((item)=><article key={item.name+item.type}><div><b>{item.name}</b><small>{item.type}</small></div><strong>{item.value}</strong><span>{item.status}</span><div><button type="button" disabled>Duyệt</button><button type="button" disabled>Từ chối</button></div></article>)}</div>
+ </section>
+}
+
 export default function AdminModule({module}){
  const [filter,setFilter]=useState('')
  const data=datasets[module]||datasets.statistics
@@ -68,6 +107,9 @@ export default function AdminModule({module}){
  if(module==='rewards-wheel')return <RewardsWheelPreview/>
  if(module==='appearance')return <AppearancePreview/>
  if(module==='staff')return <StaffAccessPreview/>
+ if(module==='order-types')return <OrderTypesPreview/>
+ if(module==='support')return <SupportQueuePreview/>
+ if(module==='overtime')return <OvertimeRewardsPreview/>
  return <section className="admin-module-card">
    <div className="admin-module-head"><div><p className="admin-eyebrow">STORE OPERATIONS</p><h2>{data.title}</h2><p>{data.description}</p></div><button type="button" disabled title="Chưa nối backend">+ Tạo mới</button></div>
    <div className="admin-module-toolbar"><label><span className="sr-only">Lọc {data.title}</span><input type="search" value={filter} onChange={(event)=>setFilter(event.target.value)} placeholder="Lọc nhanh trong bảng…" /></label><span>{rows.length}/{data.rows.length} mục</span></div>
