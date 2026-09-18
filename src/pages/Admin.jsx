@@ -238,7 +238,7 @@ export default function Admin() {
         <a className="admin-brand" href="/admin">store<span>.</span><small>ADMIN</small></a>
         <div className="admin-sidebar__profile"><span>{String(session.username || 'A').slice(0, 1).toUpperCase()}</span><div><b>{session.username}</b><small>Quản trị viên</small></div></div>
         <nav aria-label="Điều hướng quản trị">
-          {adminModules.map(([id, label, icon]) => <button key={id} type="button" className={activeModule === id ? 'is-active' : ''} onClick={() => setActiveModule(id)}><span aria-hidden="true">{icon}</span>{label}</button>)}
+          {adminModules.map(([id, label, icon]) => <button key={id} type="button" aria-current={activeModule === id ? 'page' : undefined} className={activeModule === id ? 'is-active' : ''} onClick={() => setActiveModule(id)}><span aria-hidden="true">{icon}</span>{label}</button>)}
         </nav>
         <div className="admin-sidebar__footer"><a href="/">↗ Xem cửa hàng</a><button type="button" onClick={logout}>Đăng xuất</button></div>
       </aside>
