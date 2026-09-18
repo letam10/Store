@@ -1,8 +1,1 @@
-:root { font-family: 'Segoe UI', Arial, sans-serif; color: #24332a; background: #fafbf7; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; line-height: 1.6; }
-* { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; }
-a { color: inherit; }
-button, input { font: inherit; }
-:focus-visible { outline: 3px solid #67974a; outline-offset: 4px; }
-p { margin: 0; }
-#root { min-height: 100vh; }
+:root{font-family:Inter,'Segoe UI',Arial,sans-serif;color:#183126;background:#f7f8f5;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;line-height:1.55}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:linear-gradient(180deg,#fbfcf9 0,#f5f7f3 100%)}a{color:inherit}button,input,textarea,select{font:inherit}:focus-visible{outline:3px solid #7cab86;outline-offset:3px}p{margin:0}h1,h2,h3{color:#162b22}#root{min-height:100vh}::selection{background:#cfe1d2;color:#17382c}

@@ -1,11 +1,1 @@
-.site-header { background: #fff; border-bottom: 1px solid #e6e8e2; }
-.header-inner { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding-block: 16px; }
-.brand { font-size: 30px; font-weight: 800; letter-spacing: -1.5px; text-decoration: none; }
-.brand span { color: #43815c; }
-.header-inner nav { display: flex; gap: 26px; }
-.header-inner nav a { text-decoration: none; font-size: 14px; }
-.header-inner nav a:hover { text-decoration: underline; }
-.cart-count { padding: 9px 14px; background: #f0f4ee; border-radius: 8px; font-size: 13px; }
-.skip-link { position: absolute; top: -100px; left: 16px; padding: 12px; background: white; z-index: 2; }
-.skip-link:focus { top: 12px; }
-@media (max-width: 480px) { .header-inner nav { order: 3; width: 100%; } }
+.site-header{position:sticky;top:0;z-index:20;background:#fbfcf9e8;border-bottom:1px solid #e3e8e2;backdrop-filter:blur(18px)}.header-inner{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:baseline;gap:2px;font-size:29px;font-weight:900;letter-spacing:-1.8px;text-decoration:none}.brand span{color:#4f8b67}.brand small{margin-left:7px;font-size:8px;letter-spacing:2px;color:#819087}.header-inner nav{display:flex;gap:24px}.header-inner nav a,.account-link{text-decoration:none;font-size:13px;color:#425248}.header-inner nav a:hover,.account-link:hover{color:#17382c}.header-actions{display:flex;align-items:center;gap:10px}.cart-count{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;background:#eaf0eb;border-radius:11px;text-decoration:none;font-size:12px}.cart-count b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:#17382c;color:#fff}.skip-link{position:absolute;top:-100px;left:16px;padding:12px;background:#fff;z-index:40}.skip-link:focus{top:12px}@media(max-width:800px){.header-inner{padding:12px 0;flex-wrap:wrap}.header-inner nav{order:3;width:100%;overflow-x:auto;padding-bottom:2px}.header-actions{margin-left:auto}}@media(max-width:480px){.account-link{display:none}.header-inner nav{gap:18px}.brand small{display:none}}
