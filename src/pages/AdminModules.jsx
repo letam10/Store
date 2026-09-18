@@ -21,6 +21,27 @@ function Dashboard(){
  return <><div className="admin-kpi-grid">{stats.map(([label,value,delta])=><article key={label}><span>{label}</span><strong>{value}</strong><small>{delta} so với kỳ trước</small></article>)}</div><div className="admin-dashboard-grid"><section className="admin-module-card"><p className="admin-eyebrow">Vận hành hôm nay</p><h2>Ưu tiên cần chú ý</h2><div className="admin-task-list"><div><b>07</b><span>Ticket CSKH đang mở</span></div><div><b>03</b><span>Phiếu kho chờ duyệt</span></div><div><b>02</b><span>Nhân viên đề nghị tăng ca</span></div></div></section><section className="admin-module-card"><p className="admin-eyebrow">Lối tắt</p><h2>Thao tác thường dùng</h2><div className="admin-quick-actions"><button type="button" disabled title="Chưa nối backend">+ Tạo hàng hóa</button><button type="button" disabled title="Chưa nối backend">+ Phiếu nhập kho</button><button type="button" disabled title="Chưa nối backend">+ Ticket CSKH</button><button type="button" disabled title="Chưa nối backend">+ Chiến dịch thưởng</button></div></section></div></>
 }
 
+
+function RewardsWheelPreview(){
+ const [spin,setSpin]=useState(0)
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">CAMPAIGN PREVIEW</p><h2>Chế độ quay thưởng</h2><p>Xem thử trải nghiệm vòng quay. Không phát thưởng, không ghi lượt quay và không liên quan thanh toán thật.</p></div><span className="admin-preview-badge">Preview cục bộ</span></div>
+   <div className="reward-layout">
+     <div className="reward-wheel-wrap"><div className="reward-pointer">▼</div><div className="reward-wheel" style={{transform:'rotate('+spin+'deg)'}}><span>5%</span><span>Điểm</span><span>Quà</span><span>10%</span><span>Lại</span><span>Badge</span></div></div>
+     <div className="reward-config"><label>Tên chiến dịch<input defaultValue="Cuối tuần vui vẻ" /></label><label>Số lượt/người<input type="number" min="1" max="20" defaultValue="1" /></label><button type="button" onClick={()=>setSpin((value)=>value+497)}>Quay preview</button><small>Phần thưởng và điều kiện cần được backend xác nhận trước khi triển khai thật.</small></div>
+   </div>
+ </section>
+}
+
+function AppearancePreview(){
+ const [headline,setHeadline]=useState('Mua sắm gọn hơn. Sống nhẹ hơn.')
+ const [tone,setTone]=useState('sage')
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">STOREFRONT EDITOR</p><h2>Trang trí & chỉnh sửa</h2><p>Thử nội dung hero và tone giao diện ngay trong phiên admin.</p></div><span className="admin-preview-badge">Chưa xuất bản</span></div>
+   <div className="appearance-layout"><div className={'appearance-preview appearance-preview--'+tone}><small>STORE EVERYDAY</small><h3>{headline || 'Tiêu đề trang chủ'}</h3><button type="button" disabled>Xem hàng hóa</button></div><div className="appearance-controls"><label>Tiêu đề<input value={headline} onChange={(event)=>setHeadline(event.target.value)} maxLength="80" /></label><label>Tone<select value={tone} onChange={(event)=>setTone(event.target.value)}><option value="sage">Sage</option><option value="sand">Sand</option><option value="ink">Ink</option></select></label><button type="button" disabled title="Chưa nối CMS">Lưu bản nháp (chưa nối)</button></div></div>
+ </section>
+}
+
 export default function AdminModule({module}){
  const [filter,setFilter]=useState('')
  const data=datasets[module]||datasets.statistics
@@ -30,6 +51,8 @@ export default function AdminModule({module}){
    return data.rows.filter((row)=>normalizeSearch(row.join(' ')).includes(needle))
  },[data,filter])
  if(module==='dashboard')return <Dashboard/>
+ if(module==='rewards-wheel')return <RewardsWheelPreview/>
+ if(module==='appearance')return <AppearancePreview/>
  return <section className="admin-module-card">
    <div className="admin-module-head"><div><p className="admin-eyebrow">STORE OPERATIONS</p><h2>{data.title}</h2><p>{data.description}</p></div><button type="button" disabled title="Chưa nối backend">+ Tạo mới</button></div>
    <div className="admin-module-toolbar"><label><span className="sr-only">Lọc {data.title}</span><input type="search" value={filter} onChange={(event)=>setFilter(event.target.value)} placeholder="Lọc nhanh trong bảng…" /></label><span>{rows.length}/{data.rows.length} mục</span></div>
