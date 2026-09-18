@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../api/chat'
 import { createRequestGate } from '../api/requestGate'
+import { adminConversationKey } from './adminState'
 import './Admin.css'
 
 function localId() {
@@ -17,9 +18,6 @@ function formatMoney(value) {
   return new Intl.NumberFormat('vi-VN').format(Number(value || 0)) + ' ₫'
 }
 
-function conversationKey(username) {
-  return 'storeAdminConversationId:' + String(username || '').toLocaleLowerCase('vi')
-}
 
 export default function Admin() {
   const today = useMemo(() => businessToday(), [])
@@ -45,7 +43,7 @@ export default function Admin() {
   function clearSensitiveUi({ removeStorageFor = '' } = {}) {
     gateRef.current.cancel()
     loadEpochRef.current += 1
-    if (removeStorageFor) sessionStorage.removeItem(conversationKey(removeStorageFor))
+    if (removeStorageFor) sessionStorage.removeItem(adminConversationKey(removeStorageFor))
     setSettings(null)
     setContextSize(16384)
     setMessages([])
@@ -77,7 +75,7 @@ export default function Admin() {
     if (!session?.authenticated) return undefined
     clearSensitiveUi()
     const epoch = ++loadEpochRef.current
-    const key = conversationKey(session.username)
+    const key = adminConversationKey(session.username)
 
     apiJson('/api/admin/settings')
       .then((payload) => {
@@ -194,7 +192,7 @@ export default function Admin() {
           if (!gateRef.current.isCurrent(gate.epoch)) return
           if (streamEvent.type === 'conversation') {
             setConversationId(streamEvent.conversationId)
-            sessionStorage.setItem(conversationKey(session.username), streamEvent.conversationId)
+            sessionStorage.setItem(adminConversationKey(session.username), streamEvent.conversationId)
             setCompactStatus(streamEvent.compactStatus || 'not_needed')
           } else if (streamEvent.type === 'status') setActivity(streamEvent.label || 'Đang phân tích')
           else if (streamEvent.type === 'delta') updateAssistant(assistantId, (message) => ({ ...message, content: message.content + streamEvent.content }))
