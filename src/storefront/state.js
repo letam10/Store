@@ -35,6 +35,7 @@ export function routeName(pathname) {
   const path = pathname.replace(/\/+$/, '') || '/'
   if (path === '/') return 'home'
   if (path === '/products') return 'products'
+  if (/^\/products\/[^/]+$/.test(path)) return 'product'
   if (path === '/contact') return 'contact'
   if (path === '/locations') return 'locations'
   if (path === '/cart') return 'cart'
@@ -42,6 +43,11 @@ export function routeName(pathname) {
   if (path === '/login' || path === '/account') return 'account'
   if (path === '/admin' || path.startsWith('/admin/')) return 'admin'
   return 'not-found'
+}
+
+export function productIdFromPath(pathname) {
+  const match = pathname.match(/^\/products\/([^/?#]+)/)
+  return match ? decodeURIComponent(match[1]) : ''
 }
 
 export function normalizeSearch(value) {
@@ -56,4 +62,16 @@ export function productMatches(product, query) {
   const needle = normalizeSearch(query).trim()
   if (!needle) return true
   return normalizeSearch([product.name, product.category, product.label].join(' ')).includes(needle)
+}
+
+export function createDemoOrder(cart, { owner = 'guest', fulfillment = 'delivery', now = Date.now() } = {}) {
+  return {
+    id: 'DEMO-' + Number(now).toString(36).toUpperCase(),
+    owner: normalizeSearch(owner || 'guest').trim() || 'guest',
+    createdAt: new Date(now).toISOString(),
+    fulfillment,
+    itemCount: cartCount(cart),
+    total: cartTotal(cart),
+    status: 'Đơn demo · chưa gửi backend',
+  }
 }

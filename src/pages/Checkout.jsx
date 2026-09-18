@@ -1,21 +1,22 @@
 import { useState } from 'react'
-import { cartTotal } from '../storefront/state'
+import { cartTotal, createDemoOrder } from '../storefront/state'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
 export default function Checkout({ cart, account, onComplete }) {
-  const [done, setDone] = useState(false)
+  const [completedOrder, setCompletedOrder] = useState(null)
   const [fulfillment, setFulfillment] = useState('delivery')
   const total = cartTotal(cart)
 
   function submit(event) {
     event.preventDefault()
-    setDone(true)
-    onComplete()
+    const order = createDemoOrder(cart, { owner: account?.username || 'guest', fulfillment })
+    setCompletedOrder(order)
+    onComplete(order)
   }
 
-  if (done) return <div className="container page-shell"><section className="surface order-success"><span>✓</span><h1>Đơn demo đã được tạo</h1><p className="muted">Prototype chưa kết nối cổng thanh toán hoặc hệ thống kho thật.</p><div className="page-actions" style={{ justifyContent: 'center' }}><a className="button" href="/">Về trang chủ</a></div></section></div>
+  if (completedOrder) return <div className="container page-shell"><section className="surface order-success"><span>✓</span><h1>Đơn demo đã được tạo</h1><p className="order-code">{completedOrder.id}</p><p className="muted">Prototype chưa gửi đơn tới hệ thống nghiệp vụ hoặc cổng thanh toán thật.</p><div className="page-actions" style={{ justifyContent: 'center' }}><a className="button" href={account ? '/account' : '/'}>{account ? 'Xem tài khoản' : 'Về trang chủ'}</a></div></section></div>
   if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Không có hàng để thanh toán</h2><a className="button" href="/products">Chọn sản phẩm</a></section></div>
 
   return <div className="container page-shell">
