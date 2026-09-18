@@ -277,3 +277,100 @@ test('admin CSRF, expiration, no-store and whitespace-normalized login limits', 
     assert.ok(body.csrfToken)
   })
 })
+
+test('model prose and extra JSON fields cannot publish invented business claims', async () => {
+  const malicious = [
+    'Doanh thu đạt một tỷ đồng, tăng gấp đôi so với quý trước.',
+    'Store đổi miễn phí và hoàn tiền toàn bộ.',
+    JSON.stringify({ responseKey: 'product_summary', text: 'Hoàn tiền toàn bộ.' }),
+  ]
+  for (const text of malicious) {
+    await withServer(async ({ baseUrl }) => {
+      const response = await fetch(baseUrl + '/api/support/chat', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ message: 'Tư vấn tai nghe', requestId: 'contract_bad_request' }),
+      })
+      const events = parseEvents(await response.text())
+      const content = events.filter((item) => item.type === 'delta').map((item) => item.content).join('')
+      assert.match(content, /đã bị ẩn/)
+      assert.doesNotMatch(content, /một tỷ|đổi miễn phí|Hoàn tiền toàn bộ/)
+    }, { ollama: new MockOllama([{ text }]) })
+  }
+})
+
+test('verified product metadata survives history reload without duplicate assistant', async () => {
+  await withServer(async ({ baseUrl, ollama }) => {
+    const response = await fetch(baseUrl + '/api/support/chat', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: 'Tư vấn tai nghe', requestId: 'history_contract_001' }),
+    })
+    const cookie = cookiePair(response)
+    const events = parseEvents(await response.text())
+    const id = events.find((item) => item.type === 'conversation').conversationId
+    const restored = await (await fetch(baseUrl + '/api/support/conversations/' + id, { headers: { cookie } })).json()
+    assert.equal(restored.messages.length, 2)
+    assert.equal(restored.messages[1].verified.items[0].price, 890000)
+    assert.equal(restored.messages[1].requestId, 'history_contract_001')
+    assert.match(restored.messages[1].content, /Các sản phẩm liên quan/)
+    assert.ok(ollama.calls[0].format.properties.responseKey.enum.includes('product_summary'))
+  }, { ollama: new MockOllama([{ text: '{"responseKey":"product_summary"}' }]) })
+})
+
+test('failed database completion never publishes done or business content', async () => {
+  await withServer(async ({ baseUrl, storeDb }) => {
+    storeDb.completeTurn = () => false
+    const response = await fetch(baseUrl + '/api/support/chat', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: 'Chính sách đổi trả?', requestId: 'db_failed_completion' }),
+    })
+    const events = parseEvents(await response.text())
+    assert.equal(events.some((item) => item.type === 'done' || item.type === 'delta'), false)
+    assert.equal(events.at(-1).type, 'error')
+  })
+})
+
+test('admin report history survives reload and contract rejects word-only invented numbers', async () => {
+  await withServer(async ({ baseUrl, storeDb }) => {
+    const { cookie, body } = await createAdminSession(baseUrl, storeDb)
+    const response = await fetch(baseUrl + '/api/admin/chat', {
+      method: 'POST', headers: { 'content-type': 'application/json', cookie, 'x-csrf-token': body.csrfToken },
+      body: JSON.stringify({ message: 'Doanh thu tháng này', requestId: 'word_report_001' }),
+    })
+    const events = parseEvents(await response.text())
+    const id = events.find((event) => event.type === 'conversation').conversationId
+    assert.match(events.find((event) => event.type === 'delta').content, /đã bị ẩn/)
+    const history = await (await fetch(baseUrl + '/api/admin/conversations/' + id, { headers: { cookie } })).json()
+    assert.equal(history.messages[1].report.from, '2026-09-01')
+    assert.equal(history.messages[1].report.netRevenue, 2270000)
+    assert.equal(history.messages[1].status, 'complete')
+  }, { ollama: new MockOllama([{ text: 'Doanh thu một tỷ đồng và tăng gấp đôi so với quý trước.' }]) })
+})
+
+test('failed turns restore retry metadata and cannot retry behind a newer question', async () => {
+  const ollama = new MockOllama([{ error: new Error('offline') }, { text: '{"responseKey":"greeting"}' }])
+  await withServer(async ({ baseUrl }) => {
+    const first = await fetch(baseUrl + '/api/support/chat', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: 'Xin chào', requestId: 'failed_history_001' }),
+    })
+    const cookie = cookiePair(first)
+    const events = parseEvents(await first.text())
+    const conversationId = events.find((item) => item.type === 'conversation').conversationId
+    const history = await (await fetch(baseUrl + '/api/support/conversations/' + conversationId, { headers: { cookie } })).json()
+    assert.equal(history.messages[1].status, 'error')
+    assert.equal(history.messages[1].requestId, 'failed_history_001')
+    assert.equal(history.messages[1].retryContent, 'Xin chào')
+    const next = await fetch(baseUrl + '/api/support/chat', {
+      method: 'POST', headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify({ message: 'Chào bạn', conversationId, requestId: 'newer_history_002' }),
+    })
+    await next.text()
+    const oldRetry = await fetch(baseUrl + '/api/support/chat', {
+      method: 'POST', headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify({ message: 'Xin chào', conversationId, requestId: 'failed_history_001' }),
+    })
+    assert.equal(oldRetry.status, 409)
+    assert.equal((await oldRetry.json()).error, 'RETRY_SUPERSEDED')
+    assert.equal(ollama.calls.length, 2)
+  }, { ollama })
+})

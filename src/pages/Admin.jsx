@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../api/chat'
 import { createRequestGate } from '../api/requestGate'
 import { adminConversationKey } from './adminState'
+import { mapServerMessages } from '../components/ui/customerSupportState'
 import AdminModule from './AdminModules'
 import { adminModules } from './adminModuleData'
 import { normalizeSearch } from '../storefront/state'
@@ -44,11 +45,17 @@ export default function Admin() {
   const logRef = useRef(null)
   const gateRef = useRef(createRequestGate())
   const loadEpochRef = useRef(0)
+  const restoreEpochRef = useRef(0)
+  const statsEpochRef = useRef(0)
+  const settingsEpochRef = useRef(0)
   const adminSearchRef = useRef(null)
 
   function clearSensitiveUi({ removeStorageFor = '' } = {}) {
     gateRef.current.cancel()
     loadEpochRef.current += 1
+    restoreEpochRef.current += 1
+    statsEpochRef.current += 1
+    settingsEpochRef.current += 1
     if (removeStorageFor) sessionStorage.removeItem(adminConversationKey(removeStorageFor))
     setSettings(null)
     setContextSize(16384)
@@ -83,14 +90,17 @@ export default function Admin() {
     clearSensitiveUi()
     const epoch = ++loadEpochRef.current
     const key = adminConversationKey(session.username)
+    const settingsEpoch = ++settingsEpochRef.current
+    const restoreEpoch = ++restoreEpochRef.current
+    const reportEpoch = statsEpochRef.current
 
     apiJson('/api/admin/settings')
       .then((payload) => {
-        if (epoch !== loadEpochRef.current) return
+        if (epoch !== loadEpochRef.current || settingsEpoch !== settingsEpochRef.current) return
         setSettings(payload); setContextSize(payload.contextSize)
       })
       .catch((error) => {
-        if (epoch !== loadEpochRef.current) return
+        if (epoch !== loadEpochRef.current || settingsEpoch !== settingsEpochRef.current) return
         if (error.code === 'UNAUTHENTICATED') expireSession()
         else setPageError('Không tải được cấu hình admin.')
       })
@@ -99,16 +109,15 @@ export default function Admin() {
     if (saved) {
       apiJson('/api/admin/conversations/' + encodeURIComponent(saved))
         .then((payload) => {
-          if (epoch !== loadEpochRef.current) return
+          if (epoch !== loadEpochRef.current || restoreEpoch !== restoreEpochRef.current || gateRef.current.locked) return
           setConversationId(payload.conversationId)
           setCompactStatus(payload.compactStatus)
-          setMessages(payload.messages.map((message) => ({
-            id: 'server-' + message.id, role: message.role, content: message.content,
-            sources: message.sources || [], status: 'complete',
-          })))
+          setMessages(mapServerMessages(payload.messages))
+          const lastReport = [...payload.messages].reverse().find((message) => message.report)?.report
+          if (lastReport && statsEpochRef.current === reportEpoch) setReport(lastReport)
         })
         .catch((error) => {
-          if (epoch !== loadEpochRef.current) return
+          if (epoch !== loadEpochRef.current || restoreEpoch !== restoreEpochRef.current || gateRef.current.locked) return
           sessionStorage.removeItem(key)
           if (error.code === 'UNAUTHENTICATED') expireSession()
         })
@@ -136,11 +145,14 @@ export default function Admin() {
     event.preventDefault()
     setLoginError('')
     clearSensitiveUi()
+    const epoch = loadEpochRef.current
     try {
       const payload = await apiJson('/api/admin/login', { method: 'POST', body: JSON.stringify(credentials) })
+      if (epoch !== loadEpochRef.current) return
       setCredentials({ username: '', password: '' })
       setSession(payload)
     } catch (error) {
+      if (epoch !== loadEpochRef.current) return
       setCredentials((current) => ({ ...current, password: '' }))
       setLoginError(error.code === 'RATE_LIMITED' ? 'Đăng nhập bị giới hạn tạm thời.' : 'Sai tài khoản hoặc mật khẩu.')
     }
@@ -150,10 +162,12 @@ export default function Admin() {
     const current = session
     clearSensitiveUi({ removeStorageFor: current?.username })
     setSession(false)
+    const epoch = loadEpochRef.current
     if (!current?.csrfToken) return
     try {
       await apiJson('/api/admin/logout', { method: 'POST', headers: { 'x-csrf-token': current.csrfToken } })
     } catch (error) {
+      if (epoch !== loadEpochRef.current) return
       if (error.code !== 'UNAUTHENTICATED') setLoginError('Phiên local đã được xóa; backend không xác nhận logout.')
     }
   }
@@ -161,12 +175,16 @@ export default function Admin() {
   async function saveContext() {
     if (!session?.csrfToken) return
     setPageError('')
+    const epoch = loadEpochRef.current
+    const requestEpoch = ++settingsEpochRef.current
     try {
       const payload = await apiJson('/api/admin/settings', {
         method: 'PUT', headers: { 'x-csrf-token': session.csrfToken }, body: JSON.stringify({ contextSize }),
       })
+      if (epoch !== loadEpochRef.current || requestEpoch !== settingsEpochRef.current) return
       setSettings((current) => ({ ...current, contextSize: payload.contextSize }))
     } catch (error) {
+      if (epoch !== loadEpochRef.current || requestEpoch !== settingsEpochRef.current) return
       if (error.code === 'UNAUTHENTICATED') expireSession()
       else setPageError('Không lưu được context.')
     }
@@ -175,10 +193,14 @@ export default function Admin() {
   async function loadStats(event) {
     event?.preventDefault()
     setPageError('')
+    const epoch = loadEpochRef.current
+    const requestEpoch = ++statsEpochRef.current
     try {
       const payload = await apiJson('/api/admin/stats?from=' + encodeURIComponent(range.from) + '&to=' + encodeURIComponent(range.to))
+      if (epoch !== loadEpochRef.current || requestEpoch !== statsEpochRef.current) return
       setReport(payload.report)
     } catch (error) {
+      if (epoch !== loadEpochRef.current || requestEpoch !== statsEpochRef.current) return
       setReport(null)
       if (error.code === 'UNAUTHENTICATED') expireSession()
       else setPageError('Khoảng ngày không hợp lệ hoặc không tải được số liệu.')
@@ -189,17 +211,20 @@ export default function Admin() {
     setMessages((previous) => previous.map((message) => message.id === id ? updater(message) : message))
   }
 
-  async function sendMessage(event) {
+  async function sendMessage(event, retry = null) {
     event.preventDefault()
-    const content = draft.trim()
+    const content = (retry?.retryContent || draft).trim()
     if (!content || !session?.csrfToken) return
     const gate = gateRef.current.tryBegin()
     if (!gate) return
-    const assistantId = localId()
-    const requestId = localId()
-    setMessages((previous) => [...previous,
+    restoreEpochRef.current += 1
+    const reportEpoch = ++statsEpochRef.current
+    const assistantId = retry?.id || localId()
+    const requestId = retry?.requestId || localId()
+    if (retry) updateAssistant(assistantId, (message) => ({ ...message, content: '', status: 'streaming', error: '' }))
+    else setMessages((previous) => [...previous,
       { id: localId(), role: 'user', content, status: 'complete' },
-      { id: assistantId, role: 'assistant', content: '', status: 'streaming', sources: [] },
+      { id: assistantId, role: 'assistant', content: '', status: 'streaming', sources: [], requestId, retryContent: content },
     ])
     setDraft(''); setBusy(true); setActivity('Đang phân tích'); setSources([]); setPageError('')
 
@@ -216,14 +241,21 @@ export default function Admin() {
           } else if (streamEvent.type === 'status') setActivity(streamEvent.label || 'Đang phân tích')
           else if (streamEvent.type === 'delta') updateAssistant(assistantId, (message) => ({ ...message, content: message.content + streamEvent.content }))
           else if (streamEvent.type === 'sources') { setSources(streamEvent.sources || []); updateAssistant(assistantId, (message) => ({ ...message, sources: streamEvent.sources || [] })) }
-          else if (streamEvent.type === 'report') setReport(streamEvent.report)
+          else if (streamEvent.type === 'report') {
+            if (reportEpoch === statsEpochRef.current) setReport(streamEvent.report)
+            updateAssistant(assistantId, (message) => ({ ...message, report: streamEvent.report }))
+          }
+          else if (streamEvent.type === 'verified') updateAssistant(assistantId, (message) => ({ ...message, verified: streamEvent.verified }))
           else if (streamEvent.type === 'done') { setCompactStatus(streamEvent.compactStatus || 'not_needed'); updateAssistant(assistantId, (message) => ({ ...message, status: 'complete' })) }
         },
       })
     } catch (error) {
       if (!gateRef.current.isCurrent(gate.epoch)) return
       if (error.code === 'UNAUTHENTICATED') expireSession()
-      else updateAssistant(assistantId, (message) => ({ ...message, status: error.incomplete ? 'incomplete' : 'error', content: message.content || 'Không thể hoàn tất phân tích: ' + error.message }))
+      else {
+        updateAssistant(assistantId, (message) => ({ ...message, status: error.incomplete ? 'incomplete' : 'error', error: error.message, content: message.content || 'Không thể hoàn tất phân tích: ' + error.message }))
+        setDraft((current) => current || content)
+      }
     } finally {
       if (gateRef.current.isCurrent(gate.epoch)) { gateRef.current.finish(gate.epoch); setBusy(false); setActivity('') }
     }
@@ -285,7 +317,19 @@ export default function Admin() {
               {report && <p className="admin-source">Nguồn: backend SQLite · {report.from} → {report.to} · dữ liệu: {report.dataMode}</p>}
             </section>
             <section className="admin-panel admin-chat"><div className="admin-panel__heading"><div><p className="admin-eyebrow">AI NHẬN XÉT</p><h2>Chat admin</h2></div><span>Thinking: Bật</span></div>
-              <div ref={logRef} className="admin-chat__log" role="log" aria-live="polite">{messages.length === 0 && <p className="admin-muted">AI chỉ nhận xét; số liệu xác minh nằm ở bảng backend.</p>}{messages.map((message) => <div key={message.id} className={'admin-chat__message admin-chat__message--' + message.role}><small>{message.role === 'user' ? 'Admin' : 'AI local'}</small><p>{message.content || (busy && message.role === 'assistant' ? '…' : '')}</p>{message.status === 'incomplete' && <small>Chưa xác nhận hoàn tất.</small>}</div>)}{busy && <p className="admin-thinking">{activity || 'Đang phân tích'}</p>}</div>
+              <div ref={logRef} className="admin-chat__log" role="log" aria-live="polite">
+                {messages.length === 0 && <p className="admin-muted">Số liệu và nội dung nghiệp vụ được backend kiểm soát; chưa có phân tích tự do đã xác minh.</p>}
+                {messages.map((message) => <div key={message.id} className={'admin-chat__message admin-chat__message--' + message.role}>
+                  <small>{message.role === 'user' ? 'Admin' : 'AI local'}</small>
+                  <p>{message.content || (busy && message.role === 'assistant' ? '…' : '')}</p>
+                  {message.verified?.text && <p>{message.verified.text}</p>}
+                  {message.report && <p>Nguồn SQLite: {message.report.from} → {message.report.to} · {message.report.dataMode} · Doanh thu ròng: {formatMoney(message.report.netRevenue)}</p>}
+                  {message.sources?.map((source) => <small key={source.id}>{source.label} </small>)}
+                  {['incomplete', 'error', 'stopped', 'pending'].includes(message.status) && <small>Chưa hoàn tất. {message.error}</small>}
+                  {['incomplete', 'error', 'stopped'].includes(message.status) && message.requestId && <button type="button" disabled={busy} onClick={(event) => sendMessage(event, message)}>Thử lại</button>}
+                </div>)}
+                {busy && <p className="admin-thinking">{activity || 'Đang phân tích'}</p>}
+              </div>
               {sources.length > 0 && <div className="admin-chat__sources">{sources.map((source) => <span key={source.id}>Nguồn: {source.label}</span>)}</div>}
               <form className="admin-chat__form" onSubmit={sendMessage}><textarea maxLength={2000} rows="3" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ví dụ: Phân tích doanh thu tháng này…" disabled={busy} />{busy ? <button type="button" onClick={stopStream}>Dừng</button> : <button type="submit" disabled={!draft.trim()}>Gửi</button>}</form>
             </section>

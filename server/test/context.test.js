@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
-import { extractStructuredMemory, prepareConversationContext } from '../src/context.js'
+import { extractStructuredMemory, prepareConversationContext, collectProductHints } from '../src/context.js'
 import { StoreDb } from '../src/db.js'
 
 function tempDb() {
@@ -11,6 +11,24 @@ function tempDb() {
   const db = new StoreDb(join(directory, 'test.sqlite'))
   return { db, cleanup: () => { db.close(); rmSync(directory, { recursive: true, force: true }) } }
 }
+
+test('clarifying reply preserves pending request until backend confirms exact resolution', () => {
+  const memory = extractStructuredMemory([
+    { id: 1, role: 'user', content: 'Kiểm tra đơn ORDER-123 giúp tôi?', sources_json: '[]' },
+    { id: 2, role: 'assistant', content: 'Bạn cho biết thêm thông tin nhé.', sources_json: '[]' },
+  ])
+  assert.equal(memory.pendingRequests.length, 1)
+  const resolved = extractStructuredMemory([
+    { id: 3, role: 'assistant', content: '', sources_json: JSON.stringify([{ id: 'action:1', kind: 'action', confirmed: true, resolvesMessageId: 1 }]) },
+  ], memory)
+  assert.equal(resolved.pendingRequests.length, 0)
+})
+
+test('recent product references precede old compact memory', () => {
+  assert.deepEqual(collectProductHints([
+    { id: 8, role: 'assistant', sources_json: JSON.stringify([{ kind: 'product', id: 'product:2' }]) },
+  ], { entities: [{ kind: 'product', id: '1', messageId: 1 }] }), ['2', '1'])
+})
 
 test('structured extraction keeps facts after character 420 and provenance', () => {
   const longPrefix = 'x'.repeat(600)

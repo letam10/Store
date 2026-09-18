@@ -9,6 +9,7 @@ import {
   isReportRequest,
   resolveReportRange,
   screenSensitiveModelText,
+  responseContract,
 } from './knowledge.js'
 import { OllamaClient } from './ollama.js'
 import { GenerationQueue } from './queue.js'
@@ -63,6 +64,7 @@ function parseJson(value, fallback) {
 
 function safeError(error) {
   const code = error?.code
+  if (code === 'UNAUTHENTICATED') return { code, message: 'Phiên admin đã hết hạn. Vui lòng đăng nhập lại.' }
   if (code === 'QUEUE_FULL') return { code, message: 'AI đang bận và hàng đợi đã đầy.' }
   if (code === 'QUEUE_TIMEOUT') return { code, message: 'Lượt chat chờ quá lâu trong hàng đợi.' }
   if (code === 'MODEL_NOT_FOUND') return { code, message: 'Model Ollama được cấu hình chưa có trên máy.' }
@@ -95,7 +97,7 @@ function createCoordinator() {
   return {
     acquire(key, requestId) {
       const current = active.get(key)
-      if (current && current !== requestId) return null
+      if (current) return null
 
       const heldKeys = new Set([key])
       active.set(key, requestId)
@@ -190,14 +192,7 @@ export function createApp(overrides = {}) {
   }
 
   function publicMessages(conversationId) {
-    return storeDb.getMessages(conversationId)
-      .filter((message) => message.completed === 1)
-      .map((message) => ({
-        id: message.id,
-        role: message.role,
-        content: message.content,
-        sources: parseJson(message.sources_json || '[]', []),
-      }))
+    return storeDb.getPublicHistory(conversationId)
   }
 
   function emitCompletedTurn(res, turn) {
@@ -235,6 +230,9 @@ export function createApp(overrides = {}) {
         return emitCompletedTurn(res, existingTurn)
       }
       if (existingTurn.status === 'running') return res.status(409).json({ error: 'TURN_IN_PROGRESS' })
+      if (storeDb.getMessages(existingTurn.conversation_id).some((item) => item.role === 'user' && item.id > existingTurn.user_message_id)) {
+        return res.status(409).json({ error: 'RETRY_SUPERSEDED', message: 'Đã có lượt mới hơn. Hãy gửi lại yêu cầu dưới dạng tin nhắn mới.' })
+      }
     }
 
     const effectiveConversationId = req.body.conversationId || existingTurn?.conversation_id || ''
@@ -262,6 +260,18 @@ export function createApp(overrides = {}) {
 
     try {
       await generationQueue.run(async (signal) => {
+        const assertActive = () => {
+          if (signal?.aborted) {
+            const error = new Error('Đã hủy'); error.name = 'AbortError'; throw error
+          }
+          if (isAdmin) {
+            const currentSession = storeDb.getAdminSession(hashToken(req.storeAdmin.rawToken))
+            if (!currentSession || currentSession.expires_at <= now().toISOString()) {
+              const error = new Error('Phiên admin đã hết hạn.'); error.code = 'UNAUTHENTICATED'; throw error
+            }
+          }
+        }
+        assertActive()
         const started = storeDb.startTurn({
           ownerKey, kind, conversationId: effectiveConversationId || null,
           requestId, message,
@@ -331,28 +341,35 @@ export function createApp(overrides = {}) {
         if (knowledge.verified) sendEvent(res, 'verified', { verified: knowledge.verified })
         if (knowledge.sources.length) sendEvent(res, 'sources', { sources: knowledge.sources })
 
-        if (deterministic) {
-          storeDb.completeTurn({
-            turnId: turn.id, content: deterministic, sources: knowledge.sources,
+        const persistCompletion = (content) => {
+          assertActive()
+          const saved = storeDb.completeTurn({
+            turnId: turn.id, content, sources: knowledge.sources,
             report, verified: knowledge.verified,
           })
+          if (!saved) throw new Error('Không lưu được trạng thái hoàn tất của lượt chat.')
+        }
+
+        if (deterministic) {
+          persistCompletion(deterministic)
           sendEvent(res, 'delta', { content: deterministic })
           sendEvent(res, 'done', { conversationId: conversation.id, requestId, deterministic: true })
           return
         }
 
+        const sensitiveScope = report ? 'report' : (knowledge.matchedProducts.length ? 'product' : 'general')
+        const contract = responseContract(sensitiveScope)
         const freshConversation = storeDb.getConversation(conversation.id)
         const prepared = prepareConversationContext({
           storeDb,
           conversation: freshConversation,
-          systemPrompt: isAdmin ? ADMIN_PROMPT : SUPPORT_PROMPT,
+          systemPrompt: (isAdmin ? ADMIN_PROMPT : SUPPORT_PROMPT) + '\n' + contract.instruction,
           knowledgeText: knowledge.text,
           numCtx: contextSize,
           outputBudget,
         })
         sendEvent(res, 'status', { status: isAdmin ? 'analyzing' : 'generating', label: isAdmin ? 'Đang phân tích' : 'Đang trả lời' })
 
-        const sensitiveScope = report ? 'report' : (knowledge.matchedProducts.length ? 'product' : null)
         let terminal = null
         let modelContent = ''
         for await (const event of ollama.chatStream({
@@ -361,11 +378,11 @@ export function createApp(overrides = {}) {
           numCtx: contextSize,
           numPredict: outputBudget,
           signal,
+          format: contract.schema,
         })) {
           if (event.type === 'delta') {
             modelContent += event.content
-            partialContent = modelContent
-            if (!sensitiveScope) sendEvent(res, 'delta', { content: event.content })
+            // Model JSON is untrusted, never streamed or persisted as user-visible prose.
           } else if (event.type === 'terminal') {
             terminal = event
           }
@@ -392,23 +409,11 @@ export function createApp(overrides = {}) {
           throw error
         }
 
-        let published = modelContent.trim()
-        if (sensitiveScope) {
-          const screened = screenSensitiveModelText(published, { scope: sensitiveScope })
-          published = screened.accepted
-            ? 'Nhận xét AI (không phải dữ liệu xác minh):\n' + screened.text
-            : screened.text
-          sendEvent(res, 'delta', { content: published })
-        }
+        const screened = screenSensitiveModelText(modelContent, { scope: sensitiveScope, report })
+        const published = screened.text
+        persistCompletion(published)
+        sendEvent(res, 'delta', { content: published })
         partialContent = published
-
-        storeDb.completeTurn({
-          turnId: turn.id,
-          content: published,
-          sources: knowledge.sources,
-          report,
-          verified: knowledge.verified,
-        })
         sendEvent(res, 'done', {
           conversationId: conversation.id,
           requestId,

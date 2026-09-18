@@ -121,8 +121,13 @@ export function extractStructuredMemory(messages, existingMemory = {}) {
       }
     }
 
-    const previousUserIds = [...pending.keys()].filter((id) => id < message.id)
-    if (previousUserIds.length > 0) pending.delete(Math.max(...previousUserIds))
+    // A reply (including a clarification) does not prove that a request is resolved.
+    // Only backend-owned evidence may close the exact referenced request.
+    for (const source of sources) {
+      if (source?.kind === 'action' && source.confirmed === true && Number.isInteger(source.resolvesMessageId)) {
+        pending.delete(source.resolvesMessageId)
+      }
+    }
   }
 
   memory.entities = dedupeBy(memory.entities, (item) => item.kind + ':' + item.id + ':' + item.provenance)
@@ -190,15 +195,18 @@ function promptTokenEstimate({ systemPrompt, knowledgeText, extractionText, memo
 export function collectProductHints(messages, memory = {}) {
   const ids = []
   const normalized = normalizeMemory(memory)
-  for (const entity of normalized.entities) {
-    if (entity.kind === 'product' && entity.id) ids.push(String(entity.id))
-  }
   for (const message of [...messages].reverse()) {
+    if (message.role === 'user') {
+      ids.push(...extractProductIds(message.content))
+    }
     for (const source of parseSources(message.sources_json)) {
       if (source?.kind === 'product' && String(source.id || '').startsWith('product:')) {
         ids.push(String(source.id).slice('product:'.length))
       }
     }
+  }
+  for (const entity of [...normalized.entities].sort((a, b) => (b.messageId || 0) - (a.messageId || 0))) {
+    if (entity.kind === 'product' && entity.id) ids.push(String(entity.id))
   }
   return [...new Set(ids)]
 }

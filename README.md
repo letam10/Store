@@ -70,8 +70,12 @@ Event NDJSON có thể gồm `status`, `conversation`, `verified`, `sources`, `r
 
 - Chính sách chưa được duyệt: backend trả trực tiếp `Store chưa cung cấp thông tin này.`; không hỏi model để tự bịa.
 - Giá sản phẩm được render từ dữ liệu có cấu trúc ở `shared/products.js`.
-- Với tư vấn sản phẩm, dữ liệu Store xác minh được tách khỏi nhận xét AI. Nhận xét AI có số liệu sản phẩm sẽ bị chặn theo hợp đồng xuất bản.
-- Doanh thu do SQLite/backend tính. AI chỉ được nhận xét định tính; nội dung AI chứa số liệu hoặc phạm vi thời gian khác sẽ bị ẩn thay vì trình bày như báo cáo xác minh.
+- Bản hiện tại dùng **hợp đồng phản hồi đóng**: model chọn `responseKey` qua JSON schema, backend kiểm tra mã và render câu tiếng Việt đã định nghĩa. Không dùng regex để chứng nhận văn bản AI tự do (số viết bằng chữ cũng có thể sai).
+- Đánh đổi rõ ràng: đây là MVP tư vấn có giới hạn, **chưa phải trợ lý phân tích tự do/EQ cao**. Muốn mở rộng cần bổ sung hành vi và dữ liệu có thể kiểm chứng, không chỉ nới bộ lọc.
+- Doanh thu do SQLite/backend tính, có khoảng ngày và nguồn riêng. Chưa có dữ liệu kỳ so sánh thì không kết luận tăng trưởng hoặc nguyên nhân biến động.
+- Với lượt gọi model, backend buffer JSON đến terminal hợp lệ và lưu thành công trước khi phát nội dung. Giao thức vẫn là NDJSON nhưng bản an toàn này **không stream từng token văn bản tự do**; giao diện hiển thị trạng thái chờ/phân tích.
+- Chính sách và giá trả trực tiếp từ backend có thể không gọi model; khóa thinking chỉ áp dụng khi có lời gọi Ollama.
+- Lịch sử khôi phục cả thẻ giá, báo cáo, trạng thái lỗi/dừng và requestId. Retry lượt lỗi cũ sau khi đã có câu hỏi mới sẽ bị từ chối; hãy gửi thành tin nhắn mới.
 - Nguồn dữ liệu gắn với phần dữ liệu xác minh, không được coi là bằng chứng rằng mọi câu AI nói đều đúng.
 
 `ENABLE_DEMO_DATA=false` là mặc định an toàn. Khi không có order, `dataMode=none`; dữ liệu được phân biệt `demo`, `real`, `mixed`, `none`.
@@ -89,6 +93,7 @@ Cơ chế hiện tại được mô tả trung thực là **rút gọn trích xu
 - mỗi mục có provenance như `user_claim`, `user_request`, `backend_source`, `backend_confirmed`;
 - lời user không được nâng thành sự thật hay system instruction;
 - lời model không tự trở thành dữ kiện xác minh;
+- câu hỏi bổ sung của assistant không tự đóng yêu cầu khách; chỉ nguồn action backend xác nhận rõ yêu cầu nào đã hoàn thành mới đóng nó;
 - mã sản phẩm/đơn và memory bắt buộc không bị loại bằng cách cắt chuỗi;
 - mốc compact chỉ cập nhật sau khi candidate đã qua kiểm tra ngân sách;
 - nếu rút gọn không an toàn, summary/memory/mốc tốt trước đó được giữ và request nhận lỗi có thể phục hồi.
@@ -108,6 +113,8 @@ Mật khẩu được nhập ẩn và hash bằng scrypt + salt. Phiên dùng co
 
 API admin và API đọc conversation private đặt `Cache-Control: no-store`. Frontend hủy stream khi logout/unmount và xóa report, source, draft, conversation cùng UI nhạy cảm khi đổi phiên.
 
+Response HTTP cũ và restore hội thoại bị bỏ qua nếu phiên/lượt chat đã thay đổi. SQLite chỉ phục hồi turn gián đoạn khi backend khởi động và giành quyền sở hữu database; mở DB để tạo admin không phục hồi turn. Một DB local chỉ phục vụ một tiến trình backend. PID còn sống hoặc không xác minh được sẽ bị từ chối (fail-closed); không dùng cơ chế PID này cho DB chia sẻ qua nhiều máy/container.
+
 ## Kiểm thử không dùng GPU
 
 ```powershell
@@ -123,7 +130,20 @@ npm test
 
 Regression test bao phủ parser Ollama qua HTTP giả lập, terminal frame/EOF/token limit, thinking leakage, restore race, double-send, transaction/idempotency, queue/abort, CSRF/session, ngày tương đối, dataMode, rút gọn trích xuất và model cố tình đưa chính sách/giá/doanh thu sai.
 
-Workflow `.github/workflows/ai-local-ci.yml` chạy đúng các bước trên bằng Node từ `.nvmrc` và tạo `server/package-lock.json` bằng npm nếu cần.
+Workflow `.github/workflows/ai-local-ci.yml` chạy trên nhánh tính năng, `main` và PR vào `main`, dùng Node từ `.nvmrc`, chỉ có quyền đọc. CI không tạo commit/push hay sửa lockfile. Test component mount Admin thật trong JSDOM; đây không phải kiểm thử hiển thị trên trình duyệt hoặc GPU.
+
+Máy có Node 24 không tự chuyển sang Node 22 khi đọc `.nvmrc`. Dùng Node 22.16.0 theo cấu hình dự án trước `npm ci`, đặc biệt với native module `better-sqlite3`. Không dùng lại native dependencies đã cài bởi một major Node khác.
+
+Nếu chưa có trình quản lý phiên bản Node, có thể dùng runtime tách biệt qua npm exec (không thay Node toàn máy). Chạy từ thư mục Store, sau khi dependencies đã được cài bằng Node 22:
+
+```powershell
+# Terminal frontend
+npm exec --yes --package=node@22.16.0 -- node node_modules/vite/bin/vite.js
+# Terminal backend riêng
+npm exec --yes --package=node@22.16.0 -- node server/src/index.js
+```
+
+Đợt sửa trên main đã kiểm chứng local với Node 22.16.0: 53 test (mock API, parser, component React/JSDOM, dữ liệu và các test storefront có sẵn), ESLint và Vite build đều PASS. Không gọi GPU hoặc Ollama thật. Không suy ra độ chính xác/tốc độ của model từ kết quả này.
 
 ## Không nằm trong phạm vi xác minh hiện tại
 

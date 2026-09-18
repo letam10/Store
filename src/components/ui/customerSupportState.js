@@ -4,8 +4,12 @@ export function mapServerMessages(messages) {
     role: message.role,
     content: message.content,
     sources: message.sources || [],
-    verified: null,
-    status: 'complete',
+    verified: message.verified || null,
+    report: message.report || null,
+    status: message.status || 'complete',
+    requestId: message.requestId,
+    retryContent: message.retryContent,
+    error: message.error || '',
   }))
 }
 

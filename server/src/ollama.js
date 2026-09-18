@@ -112,7 +112,7 @@ export class OllamaClient {
     }
   }
 
-  async *chatStream({ messages, think, numCtx, numPredict, signal }) {
+  async *chatStream({ messages, think, numCtx, numPredict, signal, format }) {
     const linked = linkedAbortController(signal, this.timeoutMs)
     let reader = null
     let completedRead = false
@@ -127,6 +127,7 @@ export class OllamaClient {
           messages,
           stream: true,
           think,
+          ...(format ? { format } : {}),
           options: { num_ctx: numCtx, num_predict: numPredict },
         }),
         signal: linked.signal,

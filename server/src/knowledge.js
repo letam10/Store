@@ -33,6 +33,7 @@ export function searchProducts(message, { limit = 4, fallbackIds = [] } = {}) {
 
   const followUp = /\b(cai do|no|mon do|bao nhieu|gia bao nhieu)\b/.test(normalized)
   if (followUp) {
+    if (fallbackIds.length > 1) return []
     const hinted = fallbackIds
       .map((id) => products.find((product) => String(product.id) === String(id)))
       .filter(Boolean)
@@ -108,7 +109,9 @@ export function buildSupportKnowledge(message, { productHints = [] } = {}) {
   }
 
   let deterministic = null
-  if (policyRequested && approvedPolicies.length === 0) {
+  if (/\b(cai do|mon do|no)\b/.test(normalized) && productHints.length > 1 && matchedProducts.length === 0) {
+    deterministic = { kind: 'clarify_product', text: 'Mình đang có nhiều sản phẩm trong hội thoại. Bạn cho biết tên hoặc mã sản phẩm muốn hỏi nhé.' }
+  } else if (policyRequested && approvedPolicies.length === 0) {
     deterministic = { kind: 'policy_missing', text: missingPolicyMessage }
   } else if (priceIntent && matchedProducts.length > 0) {
     deterministic = { kind: 'verified_products', text: renderVerifiedProducts(matchedProducts).text }
@@ -162,28 +165,33 @@ export function buildAdminKnowledge(message, report, { productHints = [] } = {})
 }
 
 export function screenSensitiveModelText(text, { scope }) {
-  const value = String(text || '').trim()
-  if (!value) return { accepted: false, text: 'AI local không tạo được nhận xét có thể xuất bản.' }
-
-  if (scope === 'report') {
-    const normalized = normalizeVietnamese(value)
-    const hasQuantitativeOrOtherPeriod =
-      /\d|₫|%|\bvnd\b/i.test(value) ||
-      /\b(hom nay|hom qua|thang nay|thang truoc|tu ngay|den ngay)\b/.test(normalized)
-    if (hasQuantitativeOrOtherPeriod) {
-      return {
-        accepted: false,
-        text: 'Nhận xét AI có số liệu hoặc phạm vi thời gian không đáp ứng hợp đồng xác minh nên đã bị ẩn. Hãy dùng bảng số liệu backend làm nguồn kiểm chứng.',
-      }
-    }
+  const choices = responseContract(scope).choices
+  let decision
+  try { decision = JSON.parse(text) } catch { /* rejected below */ }
+  if (!decision || Array.isArray(decision) || typeof decision.responseKey !== 'string' || Object.keys(decision).length !== 1 ||
+      !Object.hasOwn(choices, decision.responseKey)) {
+    return { accepted: false, text: 'Nội dung AI không đáp ứng hợp đồng dữ liệu nên đã bị ẩn. Vui lòng dùng dữ liệu Store được hiển thị riêng hoặc làm rõ yêu cầu.' }
   }
+  return { accepted: true, text: choices[decision.responseKey] }
+}
 
-  if (scope === 'product' && /\d|₫|\bvnd\b/i.test(value)) {
-    return {
-      accepted: false,
-      text: 'Nhận xét AI có số liệu sản phẩm chưa được phép xuất bản nên đã bị ẩn. Giá xác minh nằm trong phần dữ liệu Store.',
-    }
+// Closed, server-rendered responses: never certify arbitrary prose with regex.
+// This MVP deliberately trades free-form language for verifiable business output.
+export function responseContract(scope) {
+  const choices = scope === 'report' ? {
+    report_summary: 'Báo cáo backend hiển thị khoảng ngày, doanh thu gộp, hoàn tiền và doanh thu ròng. Chưa có báo cáo đối chiếu nên chưa kết luận tăng trưởng hoặc nguyên nhân biến động.',
+    clarify: 'Bạn muốn phân tích chỉ tiêu nào trong báo cáo đang hiển thị?',
+  } : scope === 'product' ? {
+    product_summary: 'Các sản phẩm liên quan và giá từ nguồn Store được hiển thị riêng. Bạn ưu tiên danh mục hoặc ngân sách nào để thu hẹp lựa chọn?',
+    clarify: 'Bạn cho mình biết tên sản phẩm hoặc nhu cầu cụ thể nhé. Store chưa cung cấp thông tin tồn kho hay cam kết đổi trả cho lượt này.',
+  } : {
+    greeting: 'Chào bạn! Mình có thể giúp tìm sản phẩm và xem thông tin Store đã cung cấp. Bạn muốn tìm sản phẩm nào?',
+    clarify: 'Bạn cho mình biết sản phẩm hoặc thông tin Store cần tìm nhé. Hiện chưa có đủ dữ liệu để xác nhận yêu cầu này.',
+    missing_data: 'Store chưa cung cấp thông tin này.',
   }
-
-  return { accepted: true, text: value }
+  return {
+    choices,
+    instruction: 'Chỉ trả JSON có một trường responseKey. Chọn một mã trong: ' + JSON.stringify(choices) + '. Không thêm văn bản, số liệu hoặc cam kết ngoài schema.',
+    schema: { type: 'object', properties: { responseKey: { type: 'string', enum: Object.keys(choices) } }, required: ['responseKey'], additionalProperties: false },
+  }
 }

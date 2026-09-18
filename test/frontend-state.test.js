@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createRequestGate } from '../src/api/requestGate.js'
-import { applyRestore, createRestoreGuard } from '../src/components/ui/customerSupportState.js'
+import { applyRestore, createRestoreGuard, mapServerMessages } from '../src/components/ui/customerSupportState.js'
 import { adminConversationKey } from '../src/pages/adminState.js'
 
 test('slow restore cannot overwrite first active streaming turn', () => {
@@ -63,4 +63,14 @@ test('restore guard preserves exactly one local user/assistant pair during first
 test('admin conversation storage is isolated by normalized account identity', () => {
   assert.equal(adminConversationKey(' Alice '), adminConversationKey('alice'))
   assert.notEqual(adminConversationKey('alice'), adminConversationKey('bob'))
+})
+
+test('restore preserves verified data, report and retry metadata', () => {
+  const [message] = mapServerMessages([{ id: 'turn-1', role: 'assistant', content: '',
+    verified: { text: 'price' }, report: { netRevenue: 100 }, status: 'error',
+    requestId: 'retry-123', retryContent: 'hello' }])
+  assert.equal(message.verified.text, 'price')
+  assert.equal(message.report.netRevenue, 100)
+  assert.equal(message.status, 'error')
+  assert.equal(message.requestId, 'retry-123')
 })

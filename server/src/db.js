@@ -30,16 +30,23 @@ export class StoreDb {
     this.db.pragma('journal_mode = WAL')
     this.db.pragma('foreign_keys = ON')
     this.#migrate()
-    this.#recoverInterruptedTurns()
     if (seedDemoData) this.seedDemoOrders()
   }
 
   close() {
+    if (this.backendOwner) {
+      this.db.prepare('DELETE FROM backend_owner WHERE token = ?').run(this.backendOwner)
+    }
     this.db.close()
   }
 
   #migrate() {
     this.db.exec(`
+      CREATE TABLE IF NOT EXISTS backend_owner (
+        singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
+        pid INTEGER NOT NULL,
+        token TEXT NOT NULL
+      );
       CREATE TABLE IF NOT EXISTS admins (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -98,6 +105,7 @@ export class StoreDb {
         kind TEXT NOT NULL CHECK(kind IN ('support', 'admin')),
         conversation_id TEXT NOT NULL,
         user_message_id INTEGER NOT NULL,
+        assistant_message_id INTEGER,
         user_content TEXT NOT NULL,
         status TEXT NOT NULL CHECK(status IN ('running', 'completed', 'failed', 'stopped')),
         assistant_content TEXT NOT NULL DEFAULT '',
@@ -129,14 +137,29 @@ export class StoreDb {
     if (!columns.includes('memory_json')) {
       this.db.exec("ALTER TABLE conversations ADD COLUMN memory_json TEXT NOT NULL DEFAULT '{}'")
     }
+    const turnColumns = this.db.prepare('PRAGMA table_info(chat_turns)').all().map((column) => column.name)
+    if (!turnColumns.includes('assistant_message_id')) this.db.exec('ALTER TABLE chat_turns ADD COLUMN assistant_message_id INTEGER')
   }
 
-  #recoverInterruptedTurns() {
-    this.db.prepare(`
+  claimBackend() {
+    const token = randomUUID()
+    this.db.transaction(() => {
+      const owner = this.db.prepare('SELECT * FROM backend_owner WHERE singleton = 1').get()
+      if (owner) {
+        let alive = true
+        try { process.kill(owner.pid, 0) } catch (error) {
+          if (error.code === 'ESRCH') alive = false
+        }
+        if (alive) throw new Error('Database đang thuộc một backend còn hoạt động; không phục hồi lượt chat.')
+      }
+      this.db.prepare('INSERT OR REPLACE INTO backend_owner (singleton, pid, token) VALUES (1, ?, ?)').run(process.pid, token)
+      this.db.prepare(`
       UPDATE chat_turns
       SET status = 'failed', error_code = 'SERVER_RESTART', updated_at = ?
       WHERE status = 'running'
-    `).run(nowIso())
+      `).run(nowIso())
+    }).immediate()
+    this.backendOwner = token
   }
 
   seedDemoOrders() {
@@ -241,6 +264,45 @@ export class StoreDb {
     ).all(conversationId)
   }
 
+  getPublicHistory(conversationId) {
+    const messages = this.getMessages(conversationId)
+    const turns = this.db.prepare('SELECT * FROM chat_turns WHERE conversation_id = ? ORDER BY id').all(conversationId)
+    const linked = new Set(turns.map((turn) => turn.user_message_id))
+    const assistantIds = new Set()
+    for (const turn of turns) {
+      if (turn.status !== 'completed') continue
+      if (turn.assistant_message_id) { assistantIds.add(turn.assistant_message_id); continue }
+      const nextUser = messages.find((message) => message.id > turn.user_message_id && message.role === 'user')
+      const reply = messages.find((message) => message.id > turn.user_message_id &&
+        (!nextUser || message.id < nextUser.id) && message.role === 'assistant' && message.content === turn.assistant_content)
+      if (reply) assistantIds.add(reply.id)
+    }
+    const result = []
+    // Preserve historical messages created before turn metadata existed.
+    for (const message of messages) {
+      if (message.role === 'user' && linked.has(message.id)) continue
+      if (assistantIds.has(message.id)) continue
+      result.push({ ...message, sources: parseJson(message.sources_json, []), status: 'complete', position: message.id })
+    }
+    for (const turn of turns) {
+      result.push({ id: turn.user_message_id, role: 'user', content: turn.user_content, sources: [], status: 'complete', position: turn.user_message_id })
+      result.push({
+        id: 'turn-' + turn.id, role: 'assistant', content: turn.assistant_content,
+        sources: parseJson(turn.sources_json, []), verified: parseJson(turn.verified_json, null),
+        report: parseJson(turn.report_json, null),
+        status: turn.status === 'completed' ? 'complete' : turn.status === 'failed' ? 'error' : turn.status === 'running' ? 'pending' : 'stopped',
+        requestId: turn.request_id, retryContent: turn.user_content,
+        error: turn.error_code ? 'Lượt trước chưa hoàn tất. Bạn có thể thử lại.' : '',
+        position: turn.user_message_id + 0.5,
+      })
+    }
+    return result.sort((a, b) => a.position - b.position).map((message) => {
+      const copy = { ...message }
+      delete copy.position
+      return copy
+    })
+  }
+
   addMessage({ conversationId, role, content, sources = [], completed = true }) {
     const now = nowIso()
     const result = this.db.prepare(`
@@ -309,7 +371,7 @@ export class StoreDb {
     const transaction = this.db.transaction(() => {
       const turn = this.db.prepare('SELECT * FROM chat_turns WHERE id = ?').get(turnId)
       if (!turn || turn.status !== 'running') return false
-      this.addMessage({
+      const assistantMessageId = this.addMessage({
         conversationId: turn.conversation_id,
         role: 'assistant',
         content,
@@ -318,10 +380,10 @@ export class StoreDb {
       })
       this.db.prepare(`
         UPDATE chat_turns
-        SET status = 'completed', assistant_content = ?, sources_json = ?, report_json = ?, verified_json = ?,
+        SET status = 'completed', assistant_content = ?, sources_json = ?, report_json = ?, verified_json = ?, assistant_message_id = ?,
             error_code = NULL, updated_at = ?
         WHERE id = ?
-      `).run(content, JSON.stringify(sources), JSON.stringify(report), JSON.stringify(verified), nowIso(), turnId)
+      `).run(content, JSON.stringify(sources), JSON.stringify(report), JSON.stringify(verified), assistantMessageId, nowIso(), turnId)
       return true
     })
     return transaction()

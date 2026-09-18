@@ -232,11 +232,12 @@ export default function CustomerSupport() {
                   <p className="customer-support__bubble">{message.content || (message.status === 'streaming' ? '…' : message.error || 'Không có nội dung.')}</p>
                   {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>Dữ liệu Store đã xác minh</strong><p>{message.verified.text}</p></div>}
                   {message.sources?.length > 0 && <div className="customer-support__sources">{message.sources.map((source) => <span key={source.id}>{source.label}</span>)}</div>}
-                  {(message.status === 'error' || message.status === 'incomplete') && <>
+                  {(['error', 'incomplete', 'stopped'].includes(message.status)) && <>
                     <small className="customer-support__state">{message.status === 'incomplete' ? 'Nội dung trên chưa được xác nhận hoàn tất.' : message.error}</small>
                     <button className="customer-support__retry" type="button" disabled={busy} onClick={() => startRequest(message.retryContent, { assistantId: message.id, requestId: message.requestId })}>Thử lại</button>
                   </>}
                   {message.status === 'stopped' && <small className="customer-support__state">Đã dừng · câu trả lời này không được lưu là hoàn tất.</small>}
+                  {message.status === 'pending' && <small className="customer-support__state">Lượt trước vẫn đang xử lý. Hãy tải lại hội thoại sau khi hoàn tất.</small>}
                 </div>
               </div>
             ))}
