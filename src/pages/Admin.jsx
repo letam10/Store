@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../api/chat'
 import { createRequestGate } from '../api/requestGate'
 import { adminConversationKey } from './adminState'
-import AdminModule, { adminModules } from './AdminModules'
+import AdminModule from './AdminModules'
+import { adminModules } from './adminModuleData'
 import './Admin.css'
 
 function localId() {
