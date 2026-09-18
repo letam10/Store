@@ -4,7 +4,7 @@ export const MAX_REPORT_RANGE_DAYS = 366
 export function normalizeVietnamese(value) {
   return String(value ?? '')
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/gi, (match) => match === 'Đ' ? 'D' : 'd')
     .toLocaleLowerCase('vi')
 }
@@ -38,8 +38,9 @@ function shiftCalendar(parts, days) {
 }
 
 export function parseIsoDate(value) {
-  if (!/^d{4}-d{2}-d{2}$/.test(String(value || ''))) return null
-  const [year, month, day] = String(value).split('-').map(Number)
+  const text = String(value || '')
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null
+  const [year, month, day] = text.split('-').map(Number)
   const date = new Date(Date.UTC(year, month - 1, day))
   if (
     date.getUTCFullYear() !== year ||
@@ -59,7 +60,7 @@ export function validateDateRange(from, to, { maxDays = MAX_REPORT_RANGE_DAYS } 
   return { ok: true, from, to, spanDays }
 }
 
-function monthRange(parts) {
+function fullMonthRange(parts) {
   const first = { year: parts.year, month: parts.month, day: 1 }
   const nextMonth = new Date(Date.UTC(parts.year, parts.month, 1))
   const last = shiftCalendar(fromUtcDate(nextMonth), -1)
@@ -69,11 +70,9 @@ function monthRange(parts) {
 export function resolveReportRange(message, { now = new Date(), timeZone = STORE_TIMEZONE } = {}) {
   const raw = String(message || '')
   const normalized = normalizeVietnamese(raw)
-  const isoTokens = raw.match(/d{4}-d{2}-d{2}/g) || []
+  const isoTokens = raw.match(/\b\d{4}-\d{2}-\d{2}\b/g) || []
 
-  if (isoTokens.length > 2) {
-    return { status: 'clarify', reason: 'TOO_MANY_DATES' }
-  }
+  if (isoTokens.length > 2) return { status: 'clarify', reason: 'TOO_MANY_DATES' }
   if (isoTokens.some((value) => !parseIsoDate(value))) {
     return { status: 'invalid', reason: 'INVALID_DATE' }
   }
@@ -88,20 +87,25 @@ export function resolveReportRange(message, { now = new Date(), timeZone = STORE
   }
 
   const today = datePartsInTimeZone(now, timeZone)
-  if (/hom nay/.test(normalized)) {
+  if (/\bhom nay\b/.test(normalized)) {
     const value = toIso(today)
     return { status: 'resolved', from: value, to: value, source: 'relative_today' }
   }
-  if (/hom qua/.test(normalized)) {
+  if (/\bhom qua\b/.test(normalized)) {
     const value = toIso(shiftCalendar(today, -1))
     return { status: 'resolved', from: value, to: value, source: 'relative_yesterday' }
   }
-  if (/thang nay/.test(normalized)) {
-    return { status: 'resolved', ...monthRange(today), source: 'relative_this_month' }
+  if (/\bthang nay\b/.test(normalized)) {
+    return {
+      status: 'resolved',
+      from: toIso({ year: today.year, month: today.month, day: 1 }),
+      to: toIso(today),
+      source: 'relative_this_month',
+    }
   }
-  if (/thang truoc/.test(normalized)) {
+  if (/\bthang truoc\b/.test(normalized)) {
     const previous = fromUtcDate(new Date(Date.UTC(today.year, today.month - 2, 1)))
-    return { status: 'resolved', ...monthRange(previous), source: 'relative_previous_month' }
+    return { status: 'resolved', ...fullMonthRange(previous), source: 'relative_previous_month' }
   }
 
   return { status: 'clarify', reason: 'RANGE_NOT_SPECIFIED' }

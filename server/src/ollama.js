@@ -9,12 +9,15 @@ function linkedAbortController(signal, timeoutMs) {
   const controller = new AbortController()
   let timedOut = false
   const onAbort = () => controller.abort()
+
   if (signal?.aborted) controller.abort()
   else signal?.addEventListener('abort', onAbort, { once: true })
+
   const timer = setTimeout(() => {
     timedOut = true
     controller.abort()
   }, timeoutMs)
+
   return {
     signal: controller.signal,
     wasTimedOut: () => timedOut,
@@ -35,9 +38,7 @@ function classifyTerminalFrame(frame, numPredict) {
   if (['length', 'max_tokens', 'token_limit', 'max_length'].includes(normalized)) {
     return { status: 'max_tokens', doneReason: reason || 'length' }
   }
-  if (reason && reason !== 'stop') {
-    return { status: 'incomplete', doneReason: reason }
-  }
+  if (reason && reason !== 'stop') return { status: 'incomplete', doneReason: reason }
   if (!reason && Number.isInteger(frame.eval_count) && frame.eval_count >= numPredict) {
     return { status: 'max_tokens', doneReason: 'eval_count_reached_num_predict' }
   }
@@ -69,9 +70,7 @@ function validateFrame(frame, { terminalSeen, numPredict }) {
     throw ollamaError('Frame Ollama chưa hoàn tất phải có message.', 'OLLAMA_BAD_FRAME')
   }
 
-  if (!frame.done) {
-    return { type: 'delta', content: frame.message?.content || '' }
-  }
+  if (!frame.done) return { type: 'delta', content: frame.message?.content || '' }
 
   const terminal = classifyTerminalFrame(frame, numPredict)
   return {
@@ -118,6 +117,7 @@ export class OllamaClient {
     let reader = null
     let completedRead = false
     let terminalSeen = false
+
     try {
       const response = await fetch(this.baseUrl + '/api/chat', {
         method: 'POST',
@@ -160,8 +160,7 @@ export class OllamaClient {
         const { value, done } = await reader.read()
         if (done) break
         buffer += decoder.decode(value, { stream: true })
-        let newline = buffer.indexOf('
-')
+        let newline = buffer.indexOf('\n')
         while (newline >= 0) {
           const event = processLine(buffer.slice(0, newline))
           buffer = buffer.slice(newline + 1)
@@ -170,8 +169,7 @@ export class OllamaClient {
             if (event.finalContent) yield { type: 'delta', content: event.finalContent }
             yield { ...event, finalContent: undefined }
           }
-          newline = buffer.indexOf('
-')
+          newline = buffer.indexOf('\n')
         }
       }
 

@@ -7,8 +7,7 @@ const envPath = resolve(serverRoot, '.env')
 
 function loadLocalEnv() {
   if (!existsSync(envPath)) return
-  const lines = readFileSync(envPath, 'utf8').split(/?
-/)
+  const lines = readFileSync(envPath, 'utf8').split(/\r?\n/)
   for (const line of lines) {
     const trimmed = line.trim()
     if (!trimmed || trimmed.startsWith('#')) continue
@@ -42,7 +41,7 @@ const configuredDbPath = process.env.DB_PATH || 'data/store.sqlite'
 export const config = Object.freeze({
   serverRoot,
   port: integerEnv('PORT', 3001, { min: 1, max: 65535 }),
-  ollamaUrl: (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').replace(//+$/, ''),
+  ollamaUrl: (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').replace(/\/+$/, ''),
   ollamaModel: process.env.OLLAMA_MODEL || 'qwen3.5:4b',
   dbPath: resolve(serverRoot, configuredDbPath),
   supportContextSize: allowedContext(process.env.SUPPORT_NUM_CTX, 8192),

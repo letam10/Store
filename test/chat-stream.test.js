@@ -14,20 +14,49 @@ function responseFrom(parts, { status = 200 } = {}) {
 
 test('frontend requires done event even after deltas', async () => {
   const original = globalThis.fetch
-  globalThis.fetch = async () => responseFrom(['{"type":"delta","content":"partial"}
-'])
+  globalThis.fetch = async () => responseFrom(['{"type":"delta","content":"partial"}\n'])
   try {
-    await assert.rejects(() => streamChat({ endpoint: '/x', message: 'x', requestId: 'request_12345' }), (error) => error instanceof ApiStreamError && error.code === 'INCOMPLETE_STREAM')
-  } finally { globalThis.fetch = original }
+    await assert.rejects(
+      () => streamChat({ endpoint: '/x', message: 'x', requestId: 'request_12345' }),
+      (error) => error instanceof ApiStreamError && error.code === 'INCOMPLETE_STREAM',
+    )
+  } finally {
+    globalThis.fetch = original
+  }
 })
 
 test('frontend accepts split unicode stream ending with done', async () => {
   const original = globalThis.fetch
   const events = []
-  globalThis.fetch = async () => responseFrom(['{"type":"delta","content":"Xin ', '🌱"}
-{"type":"done","conversationId":"c1"}'])
+  globalThis.fetch = async () => responseFrom([
+    '{"type":"delta","content":"Xin ',
+    '🌱"}\n{"type":"done","conversationId":"c1"}',
+  ])
   try {
-    await streamChat({ endpoint: '/x', message: 'x', requestId: 'request_12345', onEvent: (event) => events.push(event) })
+    await streamChat({
+      endpoint: '/x',
+      message: 'x',
+      requestId: 'request_12345',
+      onEvent: (event) => events.push(event),
+    })
     assert.equal(events.at(-1).type, 'done')
-  } finally { globalThis.fetch = original }
+  } finally {
+    globalThis.fetch = original
+  }
+})
+
+test('frontend rejects event after done', async () => {
+  const original = globalThis.fetch
+  globalThis.fetch = async () => responseFrom([
+    '{"type":"done","conversationId":"c1"}\n',
+    '{"type":"delta","content":"late"}\n',
+  ])
+  try {
+    await assert.rejects(
+      () => streamChat({ endpoint: '/x', message: 'x', requestId: 'request_12345' }),
+      (error) => error instanceof ApiStreamError && error.code === 'BAD_STREAM',
+    )
+  } finally {
+    globalThis.fetch = original
+  }
 })
