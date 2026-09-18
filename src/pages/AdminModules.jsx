@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+import { normalizeSearch } from '../storefront/state'
 import './AdminModules.css'
 
 const datasets={
@@ -20,7 +22,18 @@ function Dashboard(){
 }
 
 export default function AdminModule({module}){
- if(module==='dashboard')return <Dashboard/>
+ const [filter,setFilter]=useState('')
  const data=datasets[module]||datasets.statistics
- return <section className="admin-module-card"><div className="admin-module-head"><div><p className="admin-eyebrow">STORE OPERATIONS</p><h2>{data.title}</h2><p>{data.description}</p></div><button type="button" disabled title="Chưa nối backend">+ Tạo mới</button></div><div className="admin-table-wrap"><table><caption className="sr-only">{data.title}</caption><thead><tr>{data.columns.map((c)=><th key={c}>{c}</th>)}<th>Thao tác</th></tr></thead><tbody>{data.rows.map((row,index)=><tr key={index}>{row.map((cell)=><td key={cell}>{cell}</td>)}<td><button className="table-action" type="button">Mở</button></td></tr>)}</tbody></table></div><p className="admin-demo-note">Dữ liệu trong module này hiện là dữ liệu giao diện mẫu; chưa ghi vào database nghiệp vụ.</p></section>
+ const rows=useMemo(()=>{
+   const needle=normalizeSearch(filter).trim()
+   if(!needle)return data.rows
+   return data.rows.filter((row)=>normalizeSearch(row.join(' ')).includes(needle))
+ },[data,filter])
+ if(module==='dashboard')return <Dashboard/>
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">STORE OPERATIONS</p><h2>{data.title}</h2><p>{data.description}</p></div><button type="button" disabled title="Chưa nối backend">+ Tạo mới</button></div>
+   <div className="admin-module-toolbar"><label><span className="sr-only">Lọc {data.title}</span><input type="search" value={filter} onChange={(event)=>setFilter(event.target.value)} placeholder="Lọc nhanh trong bảng…" /></label><span>{rows.length}/{data.rows.length} mục</span></div>
+   <div className="admin-table-wrap"><table><caption className="sr-only">{data.title}</caption><thead><tr>{data.columns.map((column)=><th key={column}>{column}</th>)}<th>Thao tác</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=><td className={cellIndex===row.length-1?'admin-status-cell':''} key={cell}>{cell}</td>)}<td><button className="table-action" type="button" disabled title="Chưa nối backend">Mở</button></td></tr>)}</tbody></table>{rows.length===0&&<p className="admin-empty">Không có mục nào khớp bộ lọc.</p>}</div>
+   <p className="admin-demo-note">Dữ liệu trong module này hiện là dữ liệu giao diện mẫu; chưa ghi vào database nghiệp vụ.</p>
+ </section>
 }
