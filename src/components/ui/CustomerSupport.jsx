@@ -68,9 +68,13 @@ export default function CustomerSupport() {
     return () => { disposed = true; restoreGuardRef.current.invalidate() }
   }, [])
 
-  useEffect(() => () => {
-    restoreGuardRef.current.invalidate()
-    gateRef.current.cancel()
+  useEffect(() => {
+    const restoreGuard = restoreGuardRef.current
+    const gate = gateRef.current
+    return () => {
+      restoreGuard.invalidate()
+      gate.cancel()
+    }
   }, [])
 
   useEffect(() => { if (isOpen) inputRef.current?.focus() }, [isOpen])
