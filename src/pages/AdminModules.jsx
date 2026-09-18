@@ -42,6 +42,20 @@ function AppearancePreview(){
  </section>
 }
 
+
+function StaffAccessPreview(){
+ const roles=[
+   ['Quản trị viên',['Dashboard','Hàng hóa','Kho','Thống kê','AI local']],
+   ['Nhân viên kho',['Hàng hóa','Lưu thông','Xuất nhập kho']],
+   ['CSKH',['Khách hàng','Đơn hàng','CSKH']],
+ ]
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">STAFF & ACCESS</p><h2>Quản lý nhân viên</h2><p>Preview vai trò và phạm vi truy cập. Backend hiện chưa thực thi RBAC cho các module giao diện này.</p></div><span className="admin-preview-badge">Quyền demo</span></div>
+   <div className="role-grid">{roles.map(([name,permissions])=><article key={name}><div><b>{name}</b><small>{permissions.length} quyền mẫu</small></div><div className="role-tags">{permissions.map((item)=><span key={item}>{item}</span>)}</div><button type="button" disabled>Chỉnh quyền</button></article>)}</div>
+   <div className="admin-table-wrap staff-table"><table><caption className="sr-only">Danh sách nhân viên demo</caption><thead><tr><th>Nhân viên</th><th>Vai trò</th><th>Ca hôm nay</th><th>Trạng thái</th></tr></thead><tbody>{datasets.staff.rows.map((row)=><tr key={row[0]}>{row.map((cell,index)=><td className={index===row.length-1?'admin-status-cell':''} key={cell}>{cell}</td>)}</tr>)}</tbody></table></div>
+ </section>
+}
+
 export default function AdminModule({module}){
  const [filter,setFilter]=useState('')
  const data=datasets[module]||datasets.statistics
@@ -53,6 +67,7 @@ export default function AdminModule({module}){
  if(module==='dashboard')return <Dashboard/>
  if(module==='rewards-wheel')return <RewardsWheelPreview/>
  if(module==='appearance')return <AppearancePreview/>
+ if(module==='staff')return <StaffAccessPreview/>
  return <section className="admin-module-card">
    <div className="admin-module-head"><div><p className="admin-eyebrow">STORE OPERATIONS</p><h2>{data.title}</h2><p>{data.description}</p></div><button type="button" disabled title="Chưa nối backend">+ Tạo mới</button></div>
    <div className="admin-module-toolbar"><label><span className="sr-only">Lọc {data.title}</span><input type="search" value={filter} onChange={(event)=>setFilter(event.target.value)} placeholder="Lọc nhanh trong bảng…" /></label><span>{rows.length}/{data.rows.length} mục</span></div>
