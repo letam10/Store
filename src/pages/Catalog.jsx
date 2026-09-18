@@ -5,7 +5,7 @@ import './Storefront.css'
 
 export default function Catalog({ onAddToCart }) {
   const [category, setCategory] = useState('Tất cả')
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
   const [sort, setSort] = useState('featured')
   const categories = ['Tất cả', ...new Set(products.map((item) => item.category))]
   const visible = useMemo(() => {
@@ -26,6 +26,6 @@ export default function Catalog({ onAddToCart }) {
     </section>
     <div className="category-pills">{categories.map((item)=><button key={item} className={item===category?'is-active':''} onClick={()=>setCategory(item)} type="button">{item}</button>)}</div>
     <div className="product-grid catalog-grid">{visible.map((product)=><ProductCard key={product.id} product={product} onAddToCart={onAddToCart}/>)}</div>
-    {visible.length===0&&<div className="surface empty-panel"><h2>Không tìm thấy sản phẩm</h2><p className="muted">Thử từ khóa hoặc danh mục khác.</p></div>}
+    {visible.length===0&&<div className="surface empty-panel"><h2>Không tìm thấy sản phẩm</h2><p className="muted">Thử từ khóa ngắn hơn, bỏ bớt thuộc tính hoặc chọn “Tất cả”.</p><div className="page-actions" style={{justifyContent:'center'}}><button className="button button--soft" type="button" onClick={()=>{setQuery('');setCategory('Tất cả')}}>Xóa bộ lọc</button></div></div>}
   </div>
 }
