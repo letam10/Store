@@ -169,7 +169,7 @@ export function buildExtractionText(messages, existingExtraction = '') {
 export function estimateTokens(value) {
   const text = typeof value === 'string' ? value : JSON.stringify(value)
   // Không có tokenizer qwen trong backend. Số byte UTF-8 được dùng như một upper-bound heuristic
-  // cho phần text, cộng overhead riêng và chỉ dùng 50% num_ctx cho input. Đây không phải
+  // cho phần text, cộng overhead riêng và chỉ dùng 65% num_ctx cho input. Đây không phải
   // kết quả tokenizer chính xác và không phải bảo đảm tuyệt đối cho mọi phiên bản Ollama/model.
   return Buffer.byteLength(text || '', 'utf8') + 1
 }
@@ -220,7 +220,7 @@ export function prepareConversationContext({
   let memory = normalizeMemory(originalMemory)
   let marker = originalMarker
   let activeMessages = allMessages.filter((message) => message.id > marker)
-  const hardBudget = Math.floor(numCtx * 0.5)
+  const hardBudget = Math.floor(numCtx * 0.65)
 
   let estimated = promptTokenEstimate({
     systemPrompt,
