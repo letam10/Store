@@ -221,17 +221,21 @@ test('queue full and abort while queued do not create turns, next request can pr
       headers: { 'content-type': 'application/json', cookie: 'store_support_id=owner-b' },
       body: JSON.stringify({ message: 'queued', requestId: 'request_queue_abort' }),
     })
-    abortController.abort()
-    try { await queued.text() } catch {}
 
+    // Kiểm tra queue-full khi slot chờ vẫn đang bị chiếm.
     const full = await fetch(baseUrl + '/api/support/chat', {
       method: 'POST', headers: { 'content-type': 'application/json', cookie: 'store_support_id=owner-c' },
       body: JSON.stringify({ message: 'full', requestId: 'request_queue_full' }),
     })
     const fullEvents = parseEvents(await full.text())
     assert.equal(fullEvents.at(-1).code, 'QUEUE_FULL')
-    assert.equal(storeDb.getTurn(ownerFromSupportCookie('store_support_id=owner-b'), 'request_queue_abort'), null)
     assert.equal(storeDb.getTurn(ownerFromSupportCookie('store_support_id=owner-c'), 'request_queue_full'), null)
+
+    // Sau đó hủy request đang chờ và xác nhận admission chưa ghi turn.
+    abortController.abort()
+    try { await queued.text() } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 10))
+    assert.equal(storeDb.getTurn(ownerFromSupportCookie('store_support_id=owner-b'), 'request_queue_abort'), null)
 
     releaseModel()
     await (await first).text()
