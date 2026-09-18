@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react'
-import { getMembershipPlan } from '../storefront/promotions'
+import { demoVouchers, getMembershipPlan } from '../storefront/promotions'
 import { orderMatches } from '../storefront/state'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
 
-export default function Account({ account, orders = [], membershipTier='standard', onLogin, onLogout }) {
+export default function Account({ account, orders = [], membershipTier='standard', selectedVoucher='', onSelectVoucher, onLogin, onLogout }) {
   const [username, setUsername] = useState('')
   const [orderQuery, setOrderQuery] = useState('')
   const visibleOrders = useMemo(() => orders.filter((order) => orderMatches(order, orderQuery)), [orders, orderQuery])
   const plan=getMembershipPlan(membershipTier)
+  const wallet=demoVouchers.filter((voucher)=>voucher.tiers.includes(membershipTier))
 
   function submit(event) {
     event.preventDefault()
@@ -29,6 +30,11 @@ export default function Account({ account, orders = [], membershipTier='standard
       </section>
       <section className="surface account-card"><p className="eyebrow">Quản trị</p><h2>Bạn là admin?</h2><p className="muted">Khu vực admin dùng xác thực backend riêng và không dùng phiên khách demo.</p><div className="page-actions"><a className="button button--soft" href="/admin">Đi tới Admin</a></div></section>
     </div>
+    {account && <section className="surface account-wallet">
+      <div className="account-orders__head"><div><p className="eyebrow">Kho voucher demo</p><h2>Ưu đãi theo hạng {plan.name}</h2></div><a href="/rewards">Nhận thêm từ vòng quay →</a></div>
+      <div className="account-voucher-grid">{wallet.map((voucher)=><article key={voucher.code} className={selectedVoucher===voucher.code?'is-selected':''}><div><span>{voucher.label}</span><code>{voucher.code}</code></div><p>{voucher.description}</p><button type="button" onClick={()=>onSelectVoucher?.(voucher.code)}>{selectedVoucher===voucher.code?'Đang giữ':'Giữ cho checkout'}</button></article>)}</div>
+      <p className="checkout-disclaimer">Các voucher này chỉ là dữ liệu demo. Checkout vẫn kiểm tra điều kiện đơn hàng trước khi áp dụng.</p>
+    </section>}
     {account && <section className="surface account-orders">
       <div className="account-orders__head"><div><p className="eyebrow">Lịch sử cục bộ</p><h2>Đơn demo của tài khoản này</h2></div><span>{orders.length} đơn</span></div>
       {orders.length > 0 && <div className="account-order-toolbar"><label className="field"><span>Tra cứu đơn demo</span><input type="search" value={orderQuery} onChange={(event)=>setOrderQuery(event.target.value)} placeholder="Mã đơn, voucher, hạng thành viên…" /></label><span>{visibleOrders.length}/{orders.length} kết quả</span></div>}
