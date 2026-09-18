@@ -65,10 +65,11 @@ export default function Admin() {
 
   useEffect(() => {
     let disposed = false
+    const gate = gateRef.current
     apiJson('/api/admin/session')
       .then((payload) => { if (!disposed) setSession(payload) })
       .catch(() => { if (!disposed) setSession(false) })
-    return () => { disposed = true; gateRef.current.cancel(); loadEpochRef.current += 1 }
+    return () => { disposed = true; gate.cancel(); loadEpochRef.current += 1 }
   }, [])
 
   useEffect(() => {
