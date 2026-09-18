@@ -1,3 +1,4 @@
+import { products } from '../../data/products'
 import './Header.css'
 
 const links = [
@@ -16,7 +17,8 @@ export default function Header({ cartCount, account }) {
         <a className="brand" href="/">store<span>.</span><small>EVERYDAY</small></a>
         <form className="site-search" action="/products" method="get" role="search">
           <label className="sr-only" htmlFor="site-search-input">Tìm sản phẩm</label>
-          <input id="site-search-input" name="q" type="search" placeholder="Tìm sản phẩm, danh mục…" defaultValue={new URLSearchParams(window.location.search).get('q') || ''} />
+          <input id="site-search-input" name="q" type="search" list="site-search-suggestions" placeholder="Tìm sản phẩm, danh mục…" defaultValue={new URLSearchParams(window.location.search).get('q') || ''} />
+          <datalist id="site-search-suggestions">{products.map((product)=><option key={product.id} value={product.name} />)}</datalist>
           <button type="submit" aria-label="Tìm kiếm">⌕</button>
         </form>
         <nav aria-label="Điều hướng chính">
