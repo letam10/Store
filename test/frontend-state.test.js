@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createRequestGate } from '../src/api/requestGate.js'
 import { applyRestore, createRestoreGuard } from '../src/components/ui/customerSupportState.js'
+import { adminConversationKey } from '../src/pages/adminState.js'
 
 test('slow restore cannot overwrite first active streaming turn', () => {
   const gate = createRequestGate()
@@ -37,4 +38,29 @@ test('synchronous request gate rejects rapid double send and cancel releases it'
   assert.equal(gate.tryBegin(), null)
   gate.cancel()
   assert.ok(gate.tryBegin())
+})
+
+
+test('restore guard preserves exactly one local user/assistant pair during first stream', () => {
+  const gate = createRequestGate()
+  const restore = createRestoreGuard('saved')
+  const token = restore.begin()
+  const active = gate.tryBegin()
+  restore.invalidate()
+  const current = [
+    { id: 'u1', role: 'user', content: 'hello' },
+    { id: 'a1', role: 'assistant', content: 'partial', status: 'streaming' },
+  ]
+  const result = applyRestore(current, [{ id: 7, role: 'user', content: 'server copy' }], {
+    canApply: restore.canApply(token, { requestActive: gate.locked, currentConversationId: 'new-id' }),
+  })
+  assert.equal(result.length, 2)
+  assert.equal(result.filter((item) => item.role === 'user').length, 1)
+  assert.equal(result.filter((item) => item.role === 'assistant').length, 1)
+  gate.finish(active.epoch)
+})
+
+test('admin conversation storage is isolated by normalized account identity', () => {
+  assert.equal(adminConversationKey(' Alice '), adminConversationKey('alice'))
+  assert.notEqual(adminConversationKey('alice'), adminConversationKey('bob'))
 })
