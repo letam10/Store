@@ -40,6 +40,8 @@ export function routeName(pathname) {
   if (path === '/locations') return 'locations'
   if (path === '/cart') return 'cart'
   if (path === '/checkout') return 'checkout'
+  if (path === '/membership') return 'membership'
+  if (path === '/rewards') return 'rewards'
   if (path === '/login' || path === '/account') return 'account'
   if (path === '/admin' || path.startsWith('/admin/')) return 'admin'
   return 'not-found'
@@ -72,14 +74,20 @@ export function filterProducts(products, { category = 'Tất cả', query = '', 
     && (!limit || Number(product.price) <= limit))
 }
 
-export function createDemoOrder(cart, { owner = 'guest', fulfillment = 'delivery', now = Date.now() } = {}) {
+export function createDemoOrder(cart, { owner = 'guest', fulfillment = 'delivery', now = Date.now(), voucherCode = '', discount = 0, membershipTier = 'standard' } = {}) {
+  const subtotal=cartTotal(cart)
+  const safeDiscount=Math.max(0,Math.min(subtotal,Number(discount)||0))
   return {
     id: 'DEMO-' + Number(now).toString(36).toUpperCase(),
     owner: normalizeSearch(owner || 'guest').trim() || 'guest',
     createdAt: new Date(now).toISOString(),
     fulfillment,
     itemCount: cartCount(cart),
-    total: cartTotal(cart),
+    subtotal,
+    discount:safeDiscount,
+    total:subtotal-safeDiscount,
+    voucherCode:String(voucherCode||'').toUpperCase(),
+    membershipTier,
     status: 'Đơn demo · chưa gửi backend',
   }
 }
@@ -87,5 +95,5 @@ export function createDemoOrder(cart, { owner = 'guest', fulfillment = 'delivery
 export function orderMatches(order, query) {
   const needle = normalizeSearch(query).trim()
   if (!needle) return true
-  return normalizeSearch([order.id, order.status, order.fulfillment, order.itemCount].join(' ')).includes(needle)
+  return normalizeSearch([order.id, order.status, order.fulfillment, order.itemCount, order.voucherCode, order.membershipTier].join(' ')).includes(needle)
 }

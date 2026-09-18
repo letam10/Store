@@ -10,6 +10,8 @@ import Locations from './pages/Locations'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Account from './pages/Account'
+import Membership from './pages/Membership'
+import Rewards from './pages/Rewards'
 import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
 import { addCartItem, cartCount, loadJson, normalizeSearch, routeName, setCartQuantity } from './storefront/state'
@@ -18,15 +20,18 @@ import './App.css'
 const CART_KEY = 'storeCartV1'
 const ACCOUNT_KEY = 'storeCustomerAccountV1'
 const ORDERS_KEY = 'storeDemoOrdersV1'
+const MEMBERSHIPS_KEY = 'storeDemoMembershipsV1'
 
 export default function App() {
   const [cart, setCart] = useState(() => loadJson(CART_KEY, []))
   const [account, setAccount] = useState(() => loadJson(ACCOUNT_KEY, null))
   const [orders, setOrders] = useState(() => loadJson(ORDERS_KEY, []))
+  const [memberships,setMemberships]=useState(()=>loadJson(MEMBERSHIPS_KEY,{}))
   const route = useMemo(() => routeName(window.location.pathname), [])
 
   useEffect(() => { localStorage.setItem(CART_KEY, JSON.stringify(cart)) }, [cart])
   useEffect(() => { localStorage.setItem(ORDERS_KEY, JSON.stringify(orders)) }, [orders])
+  useEffect(() => { localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(memberships)) }, [memberships])
   useEffect(() => {
     if (account) localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account))
     else localStorage.removeItem(ACCOUNT_KEY)
@@ -40,23 +45,29 @@ export default function App() {
     setOrders((current) => [order, ...current].slice(0, 20))
     setCart([])
   }
-  const accountOrders = account?.username
-    ? orders.filter((order) => order.owner === normalizeSearch(account.username).trim())
-    : []
+  const ownerKey=account?.username?normalizeSearch(account.username).trim():''
+  const membershipTier=ownerKey ? memberships[ownerKey] || 'standard' : 'standard'
+  const activateMembership=(tier)=>{
+    if(!ownerKey)return
+    setMemberships((current)=>({...current,[ownerKey]:tier}))
+  }
+  const accountOrders = ownerKey ? orders.filter((order) => order.owner === ownerKey) : []
 
   let page = <NotFound />
   if (route === 'home') page = <Home onAddToCart={addToCart} />
   else if (route === 'products') page = <Catalog onAddToCart={addToCart} />
-  else if (route === 'product') page = <ProductDetail onAddToCart={addToCart} />
+  else if (route === 'product') page = <ProductDetail onAddToCart={addToCart} membershipTier={membershipTier} />
   else if (route === 'contact') page = <Contact />
   else if (route === 'locations') page = <Locations />
   else if (route === 'cart') page = <Cart cart={cart} onQuantity={updateQuantity} />
-  else if (route === 'checkout') page = <Checkout cart={cart} account={account} onComplete={completeOrder} />
-  else if (route === 'account') page = <Account account={account} orders={accountOrders} onLogin={setAccount} onLogout={() => setAccount(null)} />
+  else if (route === 'checkout') page = <Checkout cart={cart} account={account} membershipTier={membershipTier} onComplete={completeOrder} />
+  else if (route === 'membership') page = <Membership account={account} tier={membershipTier} onActivate={activateMembership} />
+  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} />
+  else if (route === 'account') page = <Account account={account} orders={accountOrders} membershipTier={membershipTier} onLogin={setAccount} onLogout={() => setAccount(null)} />
 
   return (
     <div className="site-frame">
-      <Header cartCount={cartCount(cart)} account={account} />
+      <Header cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} />
       <main id="main-content">{page}</main>
       <Footer />
       <CustomerSupport />
