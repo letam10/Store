@@ -69,7 +69,7 @@ export default function App() {
   else if (route === 'cart') page = <Cart cart={cart} onQuantity={updateQuantity} />
   else if (route === 'checkout') page = <Checkout cart={cart} account={account} membershipTier={membershipTier} selectedVoucher={selectedVoucher} onVoucherChange={setSelectedVoucher} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership account={account} tier={membershipTier} onActivate={activateMembership} />
-  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} />
+  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} selectedVoucher={selectedVoucher} onSelectVoucher={setSelectedVoucher} />
   else if (route === 'account') page = <Account account={account} orders={accountOrders} membershipTier={membershipTier} onLogin={setAccount} onLogout={() => setAccount(null)} />
 
   return (
