@@ -13,5 +13,13 @@ test('resolves Vietnamese relative ranges across month/year boundaries', () => {
   const now = new Date('2026-01-01T00:30:00+07:00')
   assert.deepEqual(resolveReportRange('hôm qua', { now }), { status: 'resolved', from: '2025-12-31', to: '2025-12-31', source: 'relative_yesterday' })
   assert.deepEqual(resolveReportRange('tháng trước', { now }), { status: 'resolved', from: '2025-12-01', to: '2025-12-31', source: 'relative_previous_month' })
+  assert.deepEqual(resolveReportRange('tháng này', { now }), { status: 'resolved', from: '2026-01-01', to: '2026-01-01', source: 'relative_this_month' })
   assert.equal(resolveReportRange('báo cáo gần đây', { now }).status, 'clarify')
+})
+
+
+test('rejects malformed ISO dates before range calculation', () => {
+  assert.equal(parseIsoDate('2026-9-01'), null)
+  assert.equal(parseIsoDate('2026-04-31'), null)
+  assert.equal(validateDateRange('2026-02-29', '2026-03-01').code, 'INVALID_DATE')
 })
