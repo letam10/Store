@@ -65,7 +65,7 @@ test('thinking is never emitted', async () => {
 })
 
 test('distinguishes timeout and already-aborted signal', async () => {
-  await withFakeOllama((req, res) => {}, async (baseUrl) => {
+  await withFakeOllama((req, res) => { void req; void res }, async (baseUrl) => {
     const client = new OllamaClient({ baseUrl, model: 'm', timeoutMs: 30 })
     await assert.rejects(() => collect(client), (error) => error.code === 'OLLAMA_TIMEOUT')
     const controller = new AbortController(); controller.abort()
