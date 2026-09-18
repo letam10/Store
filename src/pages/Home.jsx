@@ -1,4 +1,5 @@
 import ProductCard from '../components/ui/ProductCard'
+import LeadCapture from '../components/ui/LeadCapture'
 import { products } from '../data/products'
 import './Home.css'
 
@@ -38,6 +39,11 @@ export default function Home({ onAddToCart }) {
           <div className="section-heading"><div><p className="eyebrow">Sản phẩm nổi bật</p><h2>Được chọn nhiều</h2></div><a href="/products">Xem tất cả →</a></div>
           <div className="product-grid">{products.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>
         </section>
+        <section className="promo-hub">
+          <article className="promo-hub__vip"><p className="eyebrow">Store Membership</p><h2>VIP & Ưu tú</h2><p>Mở thêm voucher và trải nghiệm thành viên demo. Giá/quyền lợi hiện chỉ là dữ liệu prototype.</p><a className="button" href="/membership">Xem hạng thành viên</a></article>
+          <article className="promo-hub__lucky"><span aria-hidden="true">✦</span><p className="eyebrow">Store Lucky</p><h2>Quay thử vận may</h2><p>Vòng quay demo có thể mở voucher thử nghiệm cho checkout.</p><a className="button button--soft" href="/rewards">Quay ngay</a></article>
+        </section>
+        <LeadCapture />
         <section className="story-grid">
           <div className="story-card"><p className="eyebrow">Store care</p><h2>Mua xong vẫn có người hỗ trợ.</h2><p>Chat hỗ trợ AI local nằm ở góc màn hình; các câu hỏi về giá dùng dữ liệu Store có cấu trúc.</p><a href="/contact">Kênh liên hệ →</a></div>
           <div className="story-card story-card--dark"><span>📍</span><h2>Ghé cửa hàng gần bạn</h2><p>Xem địa chỉ, giờ mở cửa và thông tin nhận hàng trực tiếp.</p><a href="/locations">Xem địa chỉ →</a></div>
