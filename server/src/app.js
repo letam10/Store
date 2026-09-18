@@ -91,12 +91,29 @@ function validateChatBody(body) {
 
 function createCoordinator() {
   const active = new Map()
+
   return {
     acquire(key, requestId) {
-      if (active.has(key)) return null
+      const current = active.get(key)
+      if (current && current !== requestId) return null
+
+      const heldKeys = new Set([key])
       active.set(key, requestId)
-      return () => {
-        if (active.get(key) === requestId) active.delete(key)
+
+      return {
+        bind(alias) {
+          const aliasOwner = active.get(alias)
+          if (aliasOwner && aliasOwner !== requestId) return false
+          active.set(alias, requestId)
+          heldKeys.add(alias)
+          return true
+        },
+        release() {
+          for (const heldKey of heldKeys) {
+            if (active.get(heldKey) === requestId) active.delete(heldKey)
+          }
+          heldKeys.clear()
+        },
       }
     },
   }
@@ -226,8 +243,8 @@ export function createApp(overrides = {}) {
     }
 
     const lockKey = effectiveConversationId ? 'conversation:' + effectiveConversationId : 'new:' + ownerKey
-    const release = coordinator.acquire(lockKey, requestId)
-    if (!release) return res.status(409).json({ error: 'CONVERSATION_BUSY' })
+    const lease = coordinator.acquire(lockKey, requestId)
+    if (!lease) return res.status(409).json({ error: 'CONVERSATION_BUSY' })
 
     const requestAbort = new AbortController()
     const onAborted = () => requestAbort.abort()
@@ -267,6 +284,11 @@ export function createApp(overrides = {}) {
         }
         turn = started.turn
         const conversation = storeDb.getConversation(turn.conversation_id)
+        if (!lease.bind('conversation:' + conversation.id)) {
+          const error = new Error('Hội thoại đang có lượt khác chạy.')
+          error.code = 'CONVERSATION_BUSY'
+          throw error
+        }
         sendEvent(res, 'conversation', {
           conversationId: conversation.id,
           requestId,
@@ -407,7 +429,7 @@ export function createApp(overrides = {}) {
         sendEvent(res, 'error', { ...safeError(error), partial: Boolean(partialContent) })
       }
     } finally {
-      release()
+      lease.release()
       req.removeListener('aborted', onAborted)
       res.removeListener('close', onClose)
       if (!res.writableEnded && !res.destroyed) res.end()
