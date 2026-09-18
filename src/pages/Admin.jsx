@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../api/chat'
 import { createRequestGate } from '../api/requestGate'
 import { adminConversationKey } from './adminState'
+import AdminModule, { adminModules } from './AdminModules'
 import './Admin.css'
 
 function localId() {
@@ -36,6 +37,7 @@ export default function Admin() {
   const [sources, setSources] = useState([])
   const [report, setReport] = useState(null)
   const [range, setRange] = useState({ from: today.slice(0, 8) + '01', to: today })
+  const [activeModule, setActiveModule] = useState('dashboard')
   const logRef = useRef(null)
   const gateRef = useRef(createRequestGate())
   const loadEpochRef = useRef(0)
@@ -227,27 +229,44 @@ export default function Admin() {
     </form></main>
   )
 
+  const currentLabel = adminModules.find(([id]) => id === activeModule)?.[1] || 'Tổng quan'
+
   return (
-    <main className="admin-shell">
-      <header className="admin-header"><div><p className="admin-eyebrow">STORE ADMIN · AI LOCAL</p><h1>Phân tích nội bộ</h1></div><div className="admin-header__actions"><span>{session.username}</span><button type="button" onClick={logout}>Đăng xuất</button></div></header>
-      {pageError && <p className="admin-error" role="alert">{pageError}</p>}
-      <section className="admin-meta" aria-label="Cấu hình AI">
-        <div><small>Model</small><strong>{settings?.model || 'qwen3.5:4b'}</strong></div><div><small>Thinking</small><strong>Bật · khóa tại backend</strong></div><div><small>Rút gọn</small><strong>{compactStatus}</strong></div>
-        <div className="admin-context"><label>Context<select value={contextSize} onChange={(event) => setContextSize(Number(event.target.value))}>{(settings?.allowedContextSizes || [8192,16384,32768,65536]).map((size) => <option key={size} value={size}>{size === 65536 ? '64K · thử nghiệm' : (size / 1024) + 'K'}</option>)}</select></label><button type="button" onClick={saveContext}>Lưu</button></div>
+    <main className="admin-shell admin-shell--workspace">
+      <aside className="admin-sidebar">
+        <a className="admin-brand" href="/admin">store<span>.</span><small>ADMIN</small></a>
+        <div className="admin-sidebar__profile"><span>{String(session.username || 'A').slice(0, 1).toUpperCase()}</span><div><b>{session.username}</b><small>Quản trị viên</small></div></div>
+        <nav aria-label="Điều hướng quản trị">
+          {adminModules.map(([id, label, icon]) => <button key={id} type="button" className={activeModule === id ? 'is-active' : ''} onClick={() => setActiveModule(id)}><span aria-hidden="true">{icon}</span>{label}</button>)}
+        </nav>
+        <div className="admin-sidebar__footer"><a href="/">↗ Xem cửa hàng</a><button type="button" onClick={logout}>Đăng xuất</button></div>
+      </aside>
+      <section className="admin-main">
+        <header className="admin-header"><div><p className="admin-eyebrow">STORE ADMIN / {activeModule.toUpperCase()}</p><h1>{currentLabel}</h1></div><div className="admin-header__actions"><span className="admin-live-dot">● Hệ thống local</span><button type="button" onClick={logout}>Đăng xuất</button></div></header>
+        {pageError && <p className="admin-error" role="alert">{pageError}</p>}
+        {activeModule !== 'ai-local' && <AdminModule module={activeModule} />}
+        {activeModule === 'ai-local' && <>
+          <section className="admin-meta" aria-label="Cấu hình AI">
+            <div><small>Model</small><strong>{settings?.model || 'qwen3.5:4b'}</strong></div>
+            <div><small>Thinking</small><strong>Bật · khóa tại backend</strong></div>
+            <div><small>Rút gọn</small><strong>{compactStatus}</strong></div>
+            <div className="admin-context"><label>Context<select value={contextSize} onChange={(event) => setContextSize(Number(event.target.value))}>{(settings?.allowedContextSizes || [8192,16384,32768,65536]).map((size) => <option key={size} value={size}>{size === 65536 ? '64K · thử nghiệm' : (size / 1024) + 'K'}</option>)}</select></label><button type="button" onClick={saveContext}>Lưu</button></div>
+          </section>
+          <p className="admin-warning">64K chỉ là cấu hình thử nghiệm; chưa benchmark gần đầy context trên RTX 3050 6GB.</p>
+          <div className="admin-grid">
+            <section className="admin-panel"><div className="admin-panel__heading"><div><p className="admin-eyebrow">SỐ LIỆU GỐC</p><h2>Doanh thu backend</h2></div><span>Asia/Ho_Chi_Minh</span></div>
+              <form className="admin-range" onSubmit={loadStats}><label>Từ<input type="date" value={range.from} onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))} /></label><label>Đến<input type="date" value={range.to} onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))} /></label><button type="submit">Tải số liệu</button></form>
+              {report ? <dl className="admin-stats"><div><dt>Doanh thu gộp</dt><dd>{formatMoney(report.grossRevenue)}</dd></div><div><dt>Hoàn tiền đã trừ</dt><dd>{formatMoney(report.refunds)}</dd></div><div><dt>Doanh thu ròng</dt><dd>{formatMoney(report.netRevenue)}</dd></div><div><dt>Đơn được tính</dt><dd>{report.includedOrders}</dd></div></dl> : <p className="admin-muted">Chọn khoảng thời gian để lấy số liệu backend.</p>}
+              {report && <p className="admin-source">Nguồn: backend SQLite · {report.from} → {report.to} · dữ liệu: {report.dataMode}</p>}
+            </section>
+            <section className="admin-panel admin-chat"><div className="admin-panel__heading"><div><p className="admin-eyebrow">AI NHẬN XÉT</p><h2>Chat admin</h2></div><span>Thinking: Bật</span></div>
+              <div ref={logRef} className="admin-chat__log" role="log" aria-live="polite">{messages.length === 0 && <p className="admin-muted">AI chỉ nhận xét; số liệu xác minh nằm ở bảng backend.</p>}{messages.map((message) => <div key={message.id} className={'admin-chat__message admin-chat__message--' + message.role}><small>{message.role === 'user' ? 'Admin' : 'AI local'}</small><p>{message.content || (busy && message.role === 'assistant' ? '…' : '')}</p>{message.status === 'incomplete' && <small>Chưa xác nhận hoàn tất.</small>}</div>)}{busy && <p className="admin-thinking">{activity || 'Đang phân tích'}</p>}</div>
+              {sources.length > 0 && <div className="admin-chat__sources">{sources.map((source) => <span key={source.id}>Nguồn: {source.label}</span>)}</div>}
+              <form className="admin-chat__form" onSubmit={sendMessage}><textarea maxLength={2000} rows="3" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ví dụ: Phân tích doanh thu tháng này…" disabled={busy} />{busy ? <button type="button" onClick={stopStream}>Dừng</button> : <button type="submit" disabled={!draft.trim()}>Gửi</button>}</form>
+            </section>
+          </div>
+        </>}
       </section>
-      <p className="admin-warning">64K chỉ là cấu hình thử nghiệm; chưa benchmark gần đầy context trên RTX 3050 6GB.</p>
-      <div className="admin-grid">
-        <section className="admin-panel"><div className="admin-panel__heading"><div><p className="admin-eyebrow">SỐ LIỆU GỐC</p><h2>Doanh thu backend</h2></div><span>Asia/Ho_Chi_Minh</span></div>
-          <form className="admin-range" onSubmit={loadStats}><label>Từ<input type="date" value={range.from} onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))} /></label><label>Đến<input type="date" value={range.to} onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))} /></label><button type="submit">Tải số liệu</button></form>
-          {report ? <dl className="admin-stats"><div><dt>Doanh thu gộp</dt><dd>{formatMoney(report.grossRevenue)}</dd></div><div><dt>Hoàn tiền đã trừ</dt><dd>{formatMoney(report.refunds)}</dd></div><div><dt>Doanh thu ròng</dt><dd>{formatMoney(report.netRevenue)}</dd></div><div><dt>Đơn được tính</dt><dd>{report.includedOrders}</dd></div></dl> : <p className="admin-muted">Chọn khoảng thời gian để lấy số liệu backend.</p>}
-          {report && <p className="admin-source">Nguồn: backend SQLite · {report.from} → {report.to} · dữ liệu: {report.dataMode}</p>}
-        </section>
-        <section className="admin-panel admin-chat"><div className="admin-panel__heading"><div><p className="admin-eyebrow">AI NHẬN XÉT</p><h2>Chat admin</h2></div><span>Thinking: Bật</span></div>
-          <div ref={logRef} className="admin-chat__log" role="log" aria-live="polite">{messages.length === 0 && <p className="admin-muted">AI chỉ nhận xét; số liệu xác minh nằm ở bảng backend.</p>}{messages.map((message) => <div key={message.id} className={'admin-chat__message admin-chat__message--' + message.role}><small>{message.role === 'user' ? 'Admin' : 'AI local'}</small><p>{message.content || (busy && message.role === 'assistant' ? '…' : '')}</p>{message.status === 'incomplete' && <small>Chưa xác nhận hoàn tất.</small>}</div>)}{busy && <p className="admin-thinking">{activity || 'Đang phân tích'}</p>}</div>
-          {sources.length > 0 && <div className="admin-chat__sources">{sources.map((source) => <span key={source.id}>Nguồn: {source.label}</span>)}</div>}
-          <form className="admin-chat__form" onSubmit={sendMessage}><textarea maxLength={2000} rows="3" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ví dụ: Phân tích doanh thu tháng này…" disabled={busy} />{busy ? <button type="button" onClick={stopStream}>Dừng</button> : <button type="submit" disabled={!draft.trim()}>Gửi</button>}</form>
-        </section>
-      </div>
     </main>
   )
 }
