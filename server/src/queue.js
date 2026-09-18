@@ -1,7 +1,7 @@
-function abortError() {
-  const error = new Error('Tác vụ đã bị hủy.')
-  error.name = 'AbortError'
-  error.code = 'ABORTED'
+function queueError(code, message) {
+  const error = new Error(message)
+  error.code = code
+  if (code === 'ABORTED') error.name = 'AbortError'
   return error
 }
 
@@ -17,34 +17,53 @@ export class GenerationQueue {
     return { active: this.active, queued: this.waiting.length }
   }
 
-  run(task, signal) {
-    if (signal?.aborted) return Promise.reject(abortError())
+  run(task, signal, { waitTimeoutMs = 30000 } = {}) {
+    if (signal?.aborted) return Promise.reject(queueError('ABORTED', 'Tác vụ đã bị hủy.'))
     if (this.active >= this.concurrency && this.waiting.length >= this.maxQueued) {
-      const error = new Error('Hàng đợi AI đang đầy.')
-      error.code = 'QUEUE_FULL'
-      return Promise.reject(error)
+      return Promise.reject(queueError('QUEUE_FULL', 'Hàng đợi AI đang đầy.'))
     }
 
     return new Promise((resolve, reject) => {
-      const item = { task, signal, resolve, reject, onAbort: null }
+      const item = { task, signal, resolve, reject, onAbort: null, waitTimer: null, started: false }
+      const cleanupWaiting = () => {
+        if (item.waitTimer) clearTimeout(item.waitTimer)
+        item.waitTimer = null
+        signal?.removeEventListener('abort', item.onAbort)
+      }
       item.onAbort = () => {
+        if (item.started) return
         const index = this.waiting.indexOf(item)
-        if (index >= 0) {
-          this.waiting.splice(index, 1)
-          reject(abortError())
-        }
+        if (index >= 0) this.waiting.splice(index, 1)
+        cleanupWaiting()
+        reject(queueError('ABORTED', 'Tác vụ đã bị hủy khi đang chờ.'))
       }
       signal?.addEventListener('abort', item.onAbort, { once: true })
 
-      if (this.active < this.concurrency) this.#start(item)
-      else this.waiting.push(item)
+      if (this.active < this.concurrency) {
+        cleanupWaiting()
+        this.#start(item)
+      } else {
+        if (Number.isFinite(waitTimeoutMs) && waitTimeoutMs > 0) {
+          item.waitTimer = setTimeout(() => {
+            if (item.started) return
+            const index = this.waiting.indexOf(item)
+            if (index >= 0) this.waiting.splice(index, 1)
+            cleanupWaiting()
+            reject(queueError('QUEUE_TIMEOUT', 'Tác vụ chờ AI quá lâu.'))
+          }, waitTimeoutMs)
+        }
+        this.waiting.push(item)
+      }
     })
   }
 
   #start(item) {
+    item.started = true
+    if (item.waitTimer) clearTimeout(item.waitTimer)
+    item.waitTimer = null
     item.signal?.removeEventListener('abort', item.onAbort)
     if (item.signal?.aborted) {
-      item.reject(abortError())
+      item.reject(queueError('ABORTED', 'Tác vụ đã bị hủy.'))
       this.#drain()
       return
     }

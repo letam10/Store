@@ -1,29 +1,16 @@
 # Store
 
-Store là frontend React + Vite kèm backend Node.js/Express cho AI local qua Ollama. Nhánh `feat/ai-local` triển khai chat khách non-thinking, chat admin thinking, SQLite local, context/compact và số liệu demo.
+Store dùng React + Vite ở frontend và Node.js/Express + SQLite ở backend. AI chạy qua Ollama local; trình duyệt chỉ gọi `/api`, không gọi Ollama trực tiếp.
 
-> Dữ liệu sản phẩm, đơn hàng và doanh thu hiện vẫn là **demo**. Không dùng số liệu demo như dữ liệu kinh doanh thật.
+## Runtime đã chốt
 
-## Kiến trúc
-
-```text
-React/Vite -> /api -> Express -> quyền + tra cứu dữ liệu -> Ollama local
-                     |
-                     +-> SQLite local
-```
-
-- Trình duyệt không gọi Ollama trực tiếp.
-- Ollama mặc định chỉ ở `http://127.0.0.1:11434`.
+- Node.js: **22.16.0** (`.nvmrc`). `package.json` chấp nhận Node `>=22.12.0 <23`.
+- npm: dùng phiên bản đi kèm Node 22.
+- Ollama URL mặc định: `http://127.0.0.1:11434`.
 - Model mặc định: `qwen3.5:4b`.
-- Khách: backend khóa `think: false`.
-- Admin đã đăng nhập: backend khóa `think: true`.
-- Thinking thô không được gửi ra frontend hoặc lưu làm lịch sử.
-- Hàng đợi sinh nội dung mặc định concurrency = 1.
-- Không triển khai LoRA/cloud trong đợt này.
+- Backend không tự tải model.
 
-## Cài đặt
-
-Yêu cầu: Node.js phù hợp với Vite 8/better-sqlite3, npm và Ollama local.
+## Cài đặt tái lập
 
 Frontend:
 
@@ -36,24 +23,18 @@ Backend:
 
 ```powershell
 cd server
-npm install
-Copy-Item .env.example .env
+npm ci
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 npm run dev
 ```
 
-Vite dev proxy `/api` tới `http://127.0.0.1:3001`.
+Không dùng lệnh copy `.env` theo cách ghi đè cấu hình đang có.
 
-Kiểm tra Ollama:
-
-```powershell
-ollama list
-```
-
-Backend không tự tải model. Nếu máy chưa có `qwen3.5:4b`, `GET /api/health` sẽ báo model chưa sẵn sàng.
+Vite proxy `/api` tới `http://127.0.0.1:3001`.
 
 ## Cấu hình backend
 
-Sửa `server/.env` (không commit file này).
+`server/.env.example` không chứa bí mật. Các giá trị chính:
 
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
@@ -61,129 +42,96 @@ Sửa `server/.env` (không commit file này).
 | `OLLAMA_URL` | `http://127.0.0.1:11434` | Ollama local |
 | `OLLAMA_MODEL` | `qwen3.5:4b` | model dùng chung khách/admin |
 | `DB_PATH` | `data/store.sqlite` | SQLite local |
+| `ENABLE_DEMO_DATA` | `false` | chỉ seed đơn demo khi chủ động bật |
 | `SUPPORT_NUM_CTX` | `8192` | context khách |
 | `ADMIN_DEFAULT_NUM_CTX` | `16384` | context admin mặc định |
 | `SUPPORT_NUM_PREDICT` | `384` | giới hạn đầu ra khách |
 | `ADMIN_NUM_PREDICT` | `1024` | giới hạn đầu ra admin |
-| `OLLAMA_TIMEOUT_MS` | `120000` | timeout |
-| `GENERATION_QUEUE_MAX` | `4` | số tác vụ chờ tối đa |
-| `COOKIE_SECURE` | `false` | đặt `true` khi chạy HTTPS |
+| `OLLAMA_TIMEOUT_MS` | `120000` | timeout Ollama |
+| `GENERATION_QUEUE_MAX` | `4` | số lượt chờ tối đa |
+| `GENERATION_QUEUE_WAIT_MS` | `30000` | thời gian chờ queue tối đa |
+| `COOKIE_SECURE` | `false` | đặt `true` khi dùng HTTPS |
 
-Context admin chỉ cho phép 8K/16K/32K/64K. **64K = 65536 là thử nghiệm**, không phải chứng nhận chạy ổn trên RTX 3050 6GB. Không tự fallback GPU hoặc tự đổi context.
+Context admin cho phép 8K/16K/32K/64K. **64K = 65536 chỉ là cấu hình thử nghiệm**, không phải bằng chứng chạy ổn trên RTX 3050 6GB.
 
-## Tạo admin an toàn
+## Chat và stream
 
-Không hardcode mật khẩu vào source hoặc command line.
+- Khách: backend khóa `think: false`.
+- Admin hợp lệ: backend khóa `think: true`.
+- Thinking thô bị bỏ ở parser Ollama, không gửi ra frontend và không lưu lịch sử.
+- Ollama phải gửi terminal frame `done: true`. EOF sớm, timeout, abort hoặc hết giới hạn đầu ra không được lưu là assistant hoàn tất.
+- Frontend cũng bắt buộc nhận event `done`; nếu stream đứt, phần đã nhận được đánh dấu chưa hoàn tất và có thể thử lại.
+- Mỗi lượt frontend có `requestId`; retry cùng `requestId` được replay hoặc chạy lại theo trạng thái turn, không dedupe bằng nội dung tin nhắn.
+- Một conversation chỉ có một lượt đang chạy. Hàng đợi GPU mặc định concurrency = 1.
+
+Event NDJSON có thể gồm `status`, `conversation`, `verified`, `sources`, `report`, `delta`, `done`, `error`.
+
+## Độ đúng và dữ liệu quan trọng
+
+- Chính sách chưa được duyệt: backend trả trực tiếp `Store chưa cung cấp thông tin này.`; không hỏi model để tự bịa.
+- Giá sản phẩm được render từ dữ liệu có cấu trúc ở `shared/products.js`.
+- Với tư vấn sản phẩm, dữ liệu Store xác minh được tách khỏi nhận xét AI. Nhận xét AI có số liệu sản phẩm sẽ bị chặn theo hợp đồng xuất bản.
+- Doanh thu do SQLite/backend tính. AI chỉ được nhận xét định tính; nội dung AI chứa số liệu hoặc phạm vi thời gian khác sẽ bị ẩn thay vì trình bày như báo cáo xác minh.
+- Nguồn dữ liệu gắn với phần dữ liệu xác minh, không được coi là bằng chứng rằng mọi câu AI nói đều đúng.
+
+`ENABLE_DEMO_DATA=false` là mặc định an toàn. Khi không có order, `dataMode=none`; dữ liệu được phân biệt `demo`, `real`, `mixed`, `none`.
+
+## Báo cáo thời gian
+
+Backend hiểu `hôm nay`, `hôm qua`, `tháng này`, `tháng trước` theo `Asia/Ho_Chi_Minh`. Ngày ISO được kiểm tra ngày có thật, năm nhuận, thứ tự khoảng và giới hạn tối đa 366 ngày. Câu báo cáo không nêu phạm vi rõ ràng sẽ hỏi lại thay vì tự chọn tháng hiện tại.
+
+## Rút gọn hội thoại
+
+Cơ chế hiện tại được mô tả trung thực là **rút gọn trích xuất**, không phải “compact thông minh”:
+
+- lịch sử gốc vẫn nằm trong SQLite;
+- `memory_json` lưu riêng entity, sở thích, request chưa giải quyết, nguồn backend và action backend đã xác nhận;
+- mỗi mục có provenance như `user_claim`, `user_request`, `backend_source`, `backend_confirmed`;
+- lời user không được nâng thành sự thật hay system instruction;
+- lời model không tự trở thành dữ kiện xác minh;
+- mã sản phẩm/đơn và memory bắt buộc không bị loại bằng cách cắt chuỗi;
+- mốc compact chỉ cập nhật sau khi candidate đã qua kiểm tra ngân sách;
+- nếu rút gọn không an toàn, summary/memory/mốc tốt trước đó được giữ và request nhận lỗi có thể phục hồi.
+
+Backend hiện **không có tokenizer Qwen**. Ước lượng dùng số byte UTF-8 và chỉ cho input dùng 50% `num_ctx` để chừa biên cho sai số, output và thinking. Đây vẫn là heuristic, **không phải bảo đảm token chính xác**.
+
+## Admin
+
+Tạo admin mà không hardcode password:
 
 ```powershell
 cd server
 npm run create-admin -- owner
 ```
 
-Script yêu cầu terminal tương tác, ẩn mật khẩu và dùng scrypt + salt trước khi lưu SQLite. Mật khẩu tối thiểu 12 ký tự.
+Mật khẩu được nhập ẩn và hash bằng scrypt + salt. Phiên dùng cookie HttpOnly + SameSite=Strict; chat/settings/logout yêu cầu CSRF. Login có limiter riêng theo IP và tài khoản đã normalize; limiter có giới hạn số key trong bộ nhớ.
 
-Sau đó mở:
+API admin và API đọc conversation private đặt `Cache-Control: no-store`. Frontend hủy stream khi logout/unmount và xóa report, source, draft, conversation cùng UI nhạy cảm khi đổi phiên.
 
-```text
-http://localhost:5173/admin
-```
-
-Phiên admin dùng cookie HttpOnly + SameSite=Strict; thao tác thay đổi cấu hình/chat admin yêu cầu CSRF token của phiên. Đăng nhập có giới hạn thử sai.
-
-## API chính
-
-- `GET /api/health`: backend, Ollama, model, queue.
-- `POST /api/support/chat`: chat khách, non-thinking bắt buộc.
-- `GET /api/support/conversations/:id`: chỉ owner cookie tương ứng.
-- `POST /api/admin/login`, `POST /api/admin/logout`, `GET /api/admin/session`.
-- `POST /api/admin/chat`: admin hợp lệ, thinking bắt buộc.
-- `GET/PUT /api/admin/settings`: model/context/compact.
-- `GET /api/admin/stats?from=YYYY-MM-DD&to=YYYY-MM-DD`: số liệu backend.
-- `GET /api/admin/conversations/:id`: chỉ admin sở hữu hội thoại.
-
-Client chat chỉ gửi `message` và tùy chọn `conversationId`. Các trường như role, model, think, Ollama URL hay tool list bị từ chối.
-
-Streaming dùng NDJSON có các event: `conversation`, `status`, `delta`, `sources`, `report`, `done`, `error`. Backend không proxy nguyên stream nội bộ của Ollama và bỏ qua trường thinking.
-
-## Dữ liệu và độ chính xác
-
-Nguồn sản phẩm dùng chung ở `shared/products.js`; `src/data/products.js` chỉ re-export để frontend cũ tiếp tục chạy.
-
-Chính sách được duyệt ở `shared/storePolicies.js`. Hiện danh sách trống; khi hỏi chính sách chưa có, backend cung cấp chỉ dẫn trả lời:
-
-> Store chưa cung cấp thông tin này.
-
-Không thêm chính sách đổi trả/hoàn tiền/bảo hành/giao hàng nếu chủ dự án chưa duyệt.
-
-SQLite seed một ít đơn hàng demo để kiểm tra dashboard. Doanh thu do backend tính với:
-- timezone: `Asia/Ho_Chi_Minh`;
-- trạng thái được tính: `paid`, `completed`;
-- `cancelled` bị loại;
-- refund được trừ khỏi doanh thu ròng.
-
-Dashboard hiển thị số liệu backend riêng với AI nhận xét. AI không phải nguồn xác minh số liệu.
-
-## Context và compact
-
-- Lịch sử gốc luôn được giữ trong SQLite.
-- Compact xảy ra trước ngưỡng an toàn 80% context.
-- Giữ system prompt, phần gần nhất của hội thoại và tóm tắt backend.
-- Tóm tắt phân biệt “người dùng nói” với tham chiếu dữ liệu đã xác minh.
-- Giá/tồn kho/doanh thu luôn phải tra cứu lại; summary không thay thế nguồn động.
-- Không lưu/reuse thinking.
-- Token hiện dùng **ước lượng bảo thủ**, không phải tokenizer chính xác của qwen; UI/API ghi rõ `tokenEstimate: true`.
-- Nếu compact không đưa context về mức an toàn, backend giữ lịch sử gốc và trả lỗi yêu cầu mở hội thoại mới.
-
-Compact không bảo đảm nhớ hoàn hảo và không làm 64K tự nhiên vừa VRAM.
-
-## Kiểm thử
-
-Các test backend dùng mock Ollama, không gọi GPU:
+## Kiểm thử không dùng GPU
 
 ```powershell
+npm ci
+npm test
+npm run lint
+npm run build
+
 cd server
-npm install
+npm ci
 npm test
 ```
 
-Test hiện bao phủ tối thiểu:
-- khách luôn `think: false`;
-- client không được tự gửi trường `think`;
-- admin chưa đăng nhập bị từ chối;
-- admin hợp lệ luôn `think: true`;
-- hội thoại khách không đọc chéo owner;
-- compact giữ phân biệt lời người dùng / nguồn sản phẩm;
-- chính sách thiếu không được tự bịa.
+Regression test bao phủ parser Ollama qua HTTP giả lập, terminal frame/EOF/token limit, thinking leakage, restore race, double-send, transaction/idempotency, queue/abort, CSRF/session, ngày tương đối, dataMode, rút gọn trích xuất và model cố tình đưa chính sách/giá/doanh thu sai.
 
-Kiểm tra frontend:
+Workflow `.github/workflows/ai-local-ci.yml` chạy đúng các bước trên bằng Node từ `.nvmrc` và tạo `server/package-lock.json` bằng npm nếu cần.
 
-```powershell
-npm run lint
-npm run build
-```
+## Không nằm trong phạm vi xác minh hiện tại
 
-## Trạng thái xác minh
-
-- Mock Ollama integration: có test trong repo, cần chạy sau `npm install` trên máy clone.
-- Ollama thật / `qwen3.5:4b`: **NOT_TESTED** trong bàn giao này.
+- Ollama thật / `qwen3.5:4b`: **NOT_TESTED** nếu chưa chạy trên máy dự án.
 - RTX 3050 6GB: **NOT_TESTED**.
 - Context gần đầy 64K: **NOT_TESTED**.
-- RTX 4060 của chủ dự án: không benchmark trong đợt này, nên không có số liệu để nhầm với RTX 3050.
+- RTX 4060: không dùng kết quả để suy ra RTX 3050.
 - Tốc độ token/s: **NOT_TESTED**.
+- LoRA/training/cloud: không triển khai trong đợt này.
 
-Không chạy benchmark GPU dài nếu chưa được chủ dự án đồng ý.
-
-## File local không được commit
-
-`.env`, SQLite thật, hội thoại riêng tư, model, dataset, checkpoint, cache, `node_modules` và output training đều nằm trong ignore. Không tạo backup/archive tự động.
-
-## Phạm vi hiện chưa làm
-
-- Thanh toán thật.
-- Hoàn tiền hoặc sửa đơn tự động.
-- Database nghiệp vụ production.
-- Phân quyền nhiều cấp admin.
-- Vector database/embedding.
-- LoRA/training.
-- Cloud AI.
-- Benchmark GPU/context thực tế.
+Không commit `.env`, database thật, hội thoại riêng tư, model, dataset, cache hoặc `node_modules`.

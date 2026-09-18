@@ -10,8 +10,11 @@
 .customer-support__chevron { display: flex; transition: transform 180ms ease; }
 .customer-support--open .customer-support__chevron { transform: rotate(180deg); }
 .customer-support__panel { display: flex; flex-direction: column; height: min(520px, calc(100dvh - 132px)); min-height: 0; overflow: hidden; border: 1px solid #dfe7df; border-top: 0; border-radius: 0 0 18px 18px; background: #fff; animation: support-reveal 160ms ease-out; }
-.customer-support__intro { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; padding: 15px 16px 10px; color: #69786d; font-size: 9px; letter-spacing: 1px; font-weight: 600; }
+.customer-support__intro { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; padding: 15px 16px 8px; color: #69786d; font-size: 9px; letter-spacing: 1px; font-weight: 600; }
 .customer-support__badge { padding: 3px 8px; border-radius: 20px; background: #f1f4ee; letter-spacing: 0; font-size: 10px; white-space: nowrap; }
+.customer-support__toolbar { display: flex; justify-content: flex-end; padding: 0 16px 6px; }
+.customer-support__toolbar button { border: 0; background: transparent; color: #4f6e5a; font-size: 10px; cursor: pointer; }
+.customer-support__toolbar button:disabled { opacity: .5; cursor: not-allowed; }
 .customer-support__messages { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 16px 16px; scrollbar-width: thin; }
 .customer-support__welcome, .customer-support__incoming { display: flex; gap: 9px; align-items: flex-start; }
 .customer-support__incoming { margin-top: 18px; padding-right: 20px; }
@@ -23,6 +26,9 @@
 .customer-support__bubble p { margin: 0; }
 .customer-support__outgoing { display: flex; flex-direction: column; align-items: flex-end; margin-top: 18px; padding-left: 25px; }
 .customer-support__outgoing .customer-support__bubble { border-radius: 14px 0 14px 14px; background: #235c46; color: #fff; max-width: 100%; }
+.customer-support__verified { margin-top: 7px; padding: 9px 10px; border: 1px solid #dce8d9; border-radius: 9px; background: #fbfdf9; color: #405448; font-size: 10px; line-height: 1.5; }
+.customer-support__verified strong { display: block; margin-bottom: 3px; }
+.customer-support__verified p { margin: 0; white-space: pre-wrap; }
 .customer-support__sources { display: grid; gap: 3px; margin-top: 6px; font-size: 9px; color: #6d7a71; }
 .customer-support__sources span::before { content: "Nguồn: "; font-weight: 600; }
 .customer-support__state { display: block; margin-top: 6px; color: #7b6f63; font-size: 9px; line-height: 1.4; }

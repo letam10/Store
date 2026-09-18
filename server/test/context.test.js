@@ -1,33 +1,66 @@
 import assert from 'node:assert/strict'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import test from 'node:test'
-import { buildCompactSummary, estimateTokens } from '../src/context.js'
-import { buildSupportKnowledge } from '../src/knowledge.js'
+import { extractStructuredMemory, prepareConversationContext } from '../src/context.js'
+import { StoreDb } from '../src/db.js'
 
-test('token estimate is explicitly heuristic and positive', () => {
-  assert.ok(estimateTokens('Xin chào Store') > 0)
-})
+function tempDb() {
+  const directory = mkdtempSync(join(tmpdir(), 'store-context-test-'))
+  const db = new StoreDb(join(directory, 'test.sqlite'))
+  return { db, cleanup: () => { db.close(); rmSync(directory, { recursive: true, force: true }) } }
+}
 
-test('compact summary distinguishes user statements and verified product references', () => {
-  const summary = buildCompactSummary([
-    {
-      role: 'user',
-      content: 'Tôi thích tai nghe.',
-      sources_json: '[]',
-    },
-    {
-      role: 'assistant',
-      content: 'Tai nghe Everyday đang có giá trong dữ liệu Store.',
-      sources_json: JSON.stringify([{ kind: 'product', id: 'product:1' }]),
-    },
+test('structured extraction keeps facts after character 420 and provenance', () => {
+  const longPrefix = 'x'.repeat(600)
+  const memory = extractStructuredMemory([
+    { id: 1, role: 'user', content: longPrefix + ' Tôi thích Tai nghe Everyday và mã đơn ORDER-ABC-123.', sources_json: '[]' },
+    { id: 2, role: 'assistant', content: 'model text', sources_json: JSON.stringify([{ kind: 'product', id: 'product:1', label: 'backend product' }]) },
   ])
-
-  assert.match(summary, /Người dùng nói:/)
-  assert.match(summary, /product:1/)
-  assert.match(summary, /Giá\/tồn kho phải tra cứu lại/)
+  assert.ok(memory.preferences.some((item) => item.text.includes('Tai nghe Everyday') && item.provenance === 'user_claim'))
+  assert.ok(memory.entities.some((item) => item.kind === 'order' && item.id === 'ORDER-ABC-123' && item.provenance === 'user_claim'))
+  assert.ok(memory.entities.some((item) => item.kind === 'product' && item.id === '1' && item.provenance === 'backend_source'))
 })
 
-test('missing policy never invents an exchange or refund rule', () => {
-  const knowledge = buildSupportKnowledge('Chính sách đổi trả và hoàn tiền thế nào?')
-  assert.match(knowledge.text, /Store chưa cung cấp thông tin này/)
-  assert.ok(knowledge.sources.some((source) => source.id === 'policy:none'))
+test('prepareConversationContext preserves early structured facts across repeated extraction', () => {
+  const { db, cleanup } = tempDb()
+  try {
+    const conversation = db.createConversation({ kind: 'support', ownerKey: 'owner' })
+    db.addMessage({ conversationId: conversation.id, role: 'user', content: 'Tôi thích tai nghe, mã đơn ORDER-OLD-999.' })
+    db.addMessage({ conversationId: conversation.id, role: 'assistant', content: 'ok', sources: [{ kind: 'product', id: 'product:1', label: 'p1' }] })
+    for (let index = 0; index < 20; index += 1) {
+      db.addMessage({ conversationId: conversation.id, role: 'user', content: 'Câu hỏi dài ' + index + ' '.repeat(50) + 'x'.repeat(200) })
+      db.addMessage({ conversationId: conversation.id, role: 'assistant', content: 'Trả lời ' + index })
+    }
+    prepareConversationContext({ storeDb: db, conversation: db.getConversation(conversation.id), systemPrompt: 's', knowledgeText: 'k', numCtx: 8192, outputBudget: 128 })
+    const afterFirst = db.getConversation(conversation.id)
+    const memoryFirst = db.getConversationMemory(afterFirst)
+    assert.ok(memoryFirst.entities.some((item) => item.id === 'ORDER-OLD-999'))
+    assert.ok(memoryFirst.entities.some((item) => item.kind === 'product' && item.id === '1'))
+
+    for (let index = 20; index < 38; index += 1) {
+      db.addMessage({ conversationId: conversation.id, role: 'user', content: 'Tiếp ' + index + ' ' + 'y'.repeat(220) })
+      db.addMessage({ conversationId: conversation.id, role: 'assistant', content: 'ok ' + index })
+    }
+    prepareConversationContext({ storeDb: db, conversation: db.getConversation(conversation.id), systemPrompt: 's', knowledgeText: 'k', numCtx: 8192, outputBudget: 128 })
+    const memorySecond = db.getConversationMemory(db.getConversation(conversation.id))
+    assert.ok(memorySecond.entities.some((item) => item.id === 'ORDER-OLD-999'))
+    assert.ok(memorySecond.preferences.some((item) => item.provenance === 'user_claim'))
+  } finally { cleanup() }
+})
+
+test('failed extraction keeps prior summary, memory and marker intact', () => {
+  const { db, cleanup } = tempDb()
+  try {
+    const conversation = db.createConversation({ kind: 'support', ownerKey: 'owner' })
+    db.updateCompact({ conversationId: conversation.id, summary: 'good-summary', memory: { version: 1, entities: [{ kind: 'product', id: '1', provenance: 'backend_source' }], preferences: [], pendingRequests: [], evidence: [], confirmedActions: [] }, status: 'extracted', lastCompactedMessageId: 7 })
+    for (let index = 0; index < 10; index += 1) db.addMessage({ conversationId: conversation.id, role: 'user', content: 'z'.repeat(2000) })
+    assert.throws(() => prepareConversationContext({ storeDb: db, conversation: db.getConversation(conversation.id), systemPrompt: 's'.repeat(2000), knowledgeText: 'k'.repeat(2000), numCtx: 8192, outputBudget: 1024 }))
+    const after = db.getConversation(conversation.id)
+    assert.equal(after.summary, 'good-summary')
+    assert.equal(after.last_compacted_message_id, 7)
+    assert.equal(db.getConversationMemory(after).entities[0].id, '1')
+    assert.equal(after.compact_status, 'failed')
+  } finally { cleanup() }
 })

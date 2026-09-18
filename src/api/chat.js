@@ -1,8 +1,9 @@
 export class ApiStreamError extends Error {
-  constructor(message, code = 'API_ERROR') {
+  constructor(message, code = 'API_ERROR', extra = {}) {
     super(message)
     this.name = 'ApiStreamError'
     this.code = code
+    Object.assign(this, extra)
   }
 }
 
@@ -28,10 +29,27 @@ export async function apiJson(url, options = {}) {
   return response.json()
 }
 
+function validateEvent(event) {
+  if (!event || typeof event !== 'object' || Array.isArray(event) || typeof event.type !== 'string') {
+    throw new ApiStreamError('Backend trả về event không hợp lệ.', 'BAD_STREAM_EVENT')
+  }
+  if (event.type === 'delta' && typeof event.content !== 'string') {
+    throw new ApiStreamError('Event delta thiếu content hợp lệ.', 'BAD_STREAM_EVENT')
+  }
+  if (event.type === 'done' && typeof event.conversationId !== 'string') {
+    throw new ApiStreamError('Event done thiếu conversationId.', 'BAD_STREAM_EVENT')
+  }
+  if (event.type === 'error' && typeof event.code !== 'string') {
+    throw new ApiStreamError('Event error thiếu code.', 'BAD_STREAM_EVENT')
+  }
+  return event
+}
+
 export async function streamChat({
   endpoint,
   message,
   conversationId,
+  requestId,
   csrfToken,
   signal,
   onEvent,
@@ -46,6 +64,7 @@ export async function streamChat({
     },
     body: JSON.stringify({
       message,
+      requestId,
       ...(conversationId ? { conversationId } : {}),
     }),
   })
@@ -56,19 +75,25 @@ export async function streamChat({
   const reader = response.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
+  let terminalReceived = false
+  let cleanEof = false
 
-  async function consume(line) {
+  const consume = (line) => {
     const trimmed = line.trim()
     if (!trimmed) return
     let event
-    try {
-      event = JSON.parse(trimmed)
-    } catch {
-      throw new ApiStreamError('Backend trả về stream không hợp lệ.', 'BAD_STREAM')
+    try { event = validateEvent(JSON.parse(trimmed)) }
+    catch (error) {
+      if (error instanceof ApiStreamError) throw error
+      throw new ApiStreamError('Backend trả về stream JSON không hợp lệ.', 'BAD_STREAM')
     }
+    if (terminalReceived) throw new ApiStreamError('Backend gửi event sau done.', 'BAD_STREAM')
     onEvent?.(event)
+    if (event.type === 'done') terminalReceived = true
     if (event.type === 'error') {
-      throw new ApiStreamError(event.message || 'AI local không thể trả lời.', event.code || 'AI_ERROR')
+      throw new ApiStreamError(event.message || 'AI local không thể trả lời.', event.code, {
+        incomplete: Boolean(event.incomplete || event.partial),
+      })
     }
   }
 
@@ -79,15 +104,21 @@ export async function streamChat({
       buffer += decoder.decode(value, { stream: true })
       let newline = buffer.indexOf('\n')
       while (newline >= 0) {
-        const line = buffer.slice(0, newline)
+        consume(buffer.slice(0, newline))
         buffer = buffer.slice(newline + 1)
-        await consume(line)
         newline = buffer.indexOf('\n')
       }
     }
     buffer += decoder.decode()
-    if (buffer.trim()) await consume(buffer)
+    if (buffer.trim()) consume(buffer)
+    cleanEof = true
+    if (!terminalReceived) {
+      throw new ApiStreamError('Kết nối kết thúc trước event done.', 'INCOMPLETE_STREAM', { incomplete: true })
+    }
   } finally {
-    reader.releaseLock()
+    if (!cleanEof || !terminalReceived || signal?.aborted) {
+      try { await reader.cancel() } catch { /* best effort */ }
+    }
+    try { reader.releaseLock() } catch { /* already released */ }
   }
 }

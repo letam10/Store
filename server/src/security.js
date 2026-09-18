@@ -28,6 +28,10 @@ export function verifyPassword(password, salt, expectedHash) {
   }
 }
 
+export function normalizeUsername(value) {
+  return String(value ?? '').trim().toLocaleLowerCase('vi')
+}
+
 export function parseCookies(header = '') {
   const result = {}
   for (const part of header.split(';')) {
@@ -68,23 +72,65 @@ export function clearCookie(res, name, options = {}) {
 }
 
 export class SlidingWindowLimiter {
-  constructor({ limit, windowMs }) {
+  constructor({ limit, windowMs, maxKeys = 5000, sweepEvery = 100 }) {
     this.limit = limit
     this.windowMs = windowMs
+    this.maxKeys = maxKeys
+    this.sweepEvery = sweepEvery
     this.entries = new Map()
+    this.operations = 0
+  }
+
+  get size() {
+    return this.entries.size
+  }
+
+  #sweep(now) {
+    const cutoff = now - this.windowMs
+    for (const [key, entry] of this.entries) {
+      const timestamps = entry.timestamps.filter((timestamp) => timestamp > cutoff)
+      if (timestamps.length === 0) this.entries.delete(key)
+      else this.entries.set(key, { timestamps, touchedAt: entry.touchedAt })
+    }
+  }
+
+  #evictOldest() {
+    let oldestKey = null
+    let oldestTouched = Infinity
+    for (const [key, entry] of this.entries) {
+      if (entry.touchedAt < oldestTouched) {
+        oldestTouched = entry.touchedAt
+        oldestKey = key
+      }
+    }
+    if (oldestKey !== null) this.entries.delete(oldestKey)
   }
 
   consume(key) {
     const now = Date.now()
+    this.operations += 1
+    if (this.operations % this.sweepEvery === 0) this.#sweep(now)
+
     const cutoff = now - this.windowMs
-    const previous = (this.entries.get(key) || []).filter((timestamp) => timestamp > cutoff)
-    if (previous.length >= this.limit) {
-      const retryAfterMs = Math.max(1000, previous[0] + this.windowMs - now)
-      this.entries.set(key, previous)
-      return { allowed: false, retryAfterMs }
+    const normalizedKey = String(key)
+    const existing = this.entries.get(normalizedKey)
+    const timestamps = (existing?.timestamps || []).filter((timestamp) => timestamp > cutoff)
+
+    if (!existing && this.entries.size >= this.maxKeys) {
+      this.#sweep(now)
+      if (this.entries.size >= this.maxKeys) this.#evictOldest()
     }
-    previous.push(now)
-    this.entries.set(key, previous)
+
+    if (timestamps.length >= this.limit) {
+      this.entries.set(normalizedKey, { timestamps, touchedAt: now })
+      return {
+        allowed: false,
+        retryAfterMs: Math.max(1000, timestamps[0] + this.windowMs - now),
+      }
+    }
+
+    timestamps.push(now)
+    this.entries.set(normalizedKey, { timestamps, touchedAt: now })
     return { allowed: true, retryAfterMs: 0 }
   }
 }

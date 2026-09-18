@@ -10,14 +10,28 @@ const DEMO_ORDERS = Object.freeze([
   ['DEMO-1004', '2026-09-09', 'cancelled', 159000, 0, 1],
 ])
 
+function nowIso() {
+  return new Date().toISOString()
+}
+
+function parseJson(value, fallback) {
+  try {
+    const parsed = JSON.parse(value)
+    return parsed ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
 export class StoreDb {
-  constructor(path) {
+  constructor(path, { seedDemoData = false } = {}) {
     mkdirSync(dirname(path), { recursive: true })
     this.db = new Database(path)
     this.db.pragma('journal_mode = WAL')
     this.db.pragma('foreign_keys = ON')
     this.#migrate()
-    this.#seedDemoOrders()
+    this.#recoverInterruptedTurns()
+    if (seedDemoData) this.seedDemoOrders()
   }
 
   close() {
@@ -53,6 +67,7 @@ export class StoreDb {
         kind TEXT NOT NULL CHECK(kind IN ('support', 'admin')),
         owner_key TEXT NOT NULL,
         summary TEXT NOT NULL DEFAULT '',
+        memory_json TEXT NOT NULL DEFAULT '{}',
         compact_status TEXT NOT NULL DEFAULT 'not_needed',
         last_compacted_message_id INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
@@ -76,18 +91,55 @@ export class StoreDb {
       CREATE INDEX IF NOT EXISTS idx_messages_conversation
         ON messages(conversation_id, id);
 
+      CREATE TABLE IF NOT EXISTS chat_turns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        request_id TEXT NOT NULL,
+        owner_key TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK(kind IN ('support', 'admin')),
+        conversation_id TEXT NOT NULL,
+        user_message_id INTEGER NOT NULL,
+        user_content TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('running', 'completed', 'failed', 'stopped')),
+        assistant_content TEXT NOT NULL DEFAULT '',
+        sources_json TEXT NOT NULL DEFAULT '[]',
+        report_json TEXT NOT NULL DEFAULT 'null',
+        verified_json TEXT NOT NULL DEFAULT 'null',
+        error_code TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE(owner_key, request_id),
+        FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_message_id) REFERENCES messages(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_chat_turns_conversation
+        ON chat_turns(conversation_id, id);
+
       CREATE TABLE IF NOT EXISTS orders (
         id TEXT PRIMARY KEY,
         business_date TEXT NOT NULL,
         status TEXT NOT NULL,
         total_amount INTEGER NOT NULL CHECK(total_amount >= 0),
         refund_amount INTEGER NOT NULL DEFAULT 0 CHECK(refund_amount >= 0),
-        is_demo INTEGER NOT NULL DEFAULT 1
+        is_demo INTEGER NOT NULL DEFAULT 0
       );
     `)
+
+    const columns = this.db.prepare('PRAGMA table_info(conversations)').all().map((column) => column.name)
+    if (!columns.includes('memory_json')) {
+      this.db.exec("ALTER TABLE conversations ADD COLUMN memory_json TEXT NOT NULL DEFAULT '{}'")
+    }
   }
 
-  #seedDemoOrders() {
+  #recoverInterruptedTurns() {
+    this.db.prepare(`
+      UPDATE chat_turns
+      SET status = 'failed', error_code = 'SERVER_RESTART', updated_at = ?
+      WHERE status = 'running'
+    `).run(nowIso())
+  }
+
+  seedDemoOrders() {
     const insert = this.db.prepare(
       'INSERT OR IGNORE INTO orders (id, business_date, status, total_amount, refund_amount, is_demo) VALUES (?, ?, ?, ?, ?, ?)',
     )
@@ -97,12 +149,23 @@ export class StoreDb {
     transaction(DEMO_ORDERS)
   }
 
+  clearOrders() {
+    this.db.prepare('DELETE FROM orders').run()
+  }
+
+  insertOrder({ id, businessDate, status, totalAmount, refundAmount = 0, isDemo = false }) {
+    this.db.prepare(`
+      INSERT INTO orders (id, business_date, status, total_amount, refund_amount, is_demo)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(id, businessDate, status, totalAmount, refundAmount, isDemo ? 1 : 0)
+  }
+
   getSetting(key) {
     return this.db.prepare('SELECT value FROM settings WHERE key = ?').get(key)?.value ?? null
   }
 
   setSetting(key, value) {
-    const now = new Date().toISOString()
+    const now = nowIso()
     this.db.prepare(`
       INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
@@ -110,10 +173,9 @@ export class StoreDb {
   }
 
   createAdmin({ username, passwordSalt, passwordHash }) {
-    const now = new Date().toISOString()
     return this.db.prepare(
       'INSERT INTO admins (username, password_salt, password_hash, created_at) VALUES (?, ?, ?, ?)',
-    ).run(username, passwordSalt, passwordHash, now)
+    ).run(username, passwordSalt, passwordHash, nowIso())
   }
 
   getAdminByUsername(username) {
@@ -121,10 +183,9 @@ export class StoreDb {
   }
 
   createAdminSession({ tokenHash, adminId, expiresAt }) {
-    const now = new Date().toISOString()
     this.db.prepare(
       'INSERT INTO admin_sessions (token_hash, admin_id, expires_at, created_at) VALUES (?, ?, ?, ?)',
-    ).run(tokenHash, adminId, expiresAt, now)
+    ).run(tokenHash, adminId, expiresAt, nowIso())
   }
 
   getAdminSession(tokenHash) {
@@ -136,21 +197,26 @@ export class StoreDb {
     `).get(tokenHash) ?? null
   }
 
+  expireAdminSessionForTest(tokenHash) {
+    this.db.prepare('UPDATE admin_sessions SET expires_at = ? WHERE token_hash = ?').run('2000-01-01T00:00:00.000Z', tokenHash)
+  }
+
   deleteAdminSession(tokenHash) {
     this.db.prepare('DELETE FROM admin_sessions WHERE token_hash = ?').run(tokenHash)
   }
 
   cleanupExpiredSessions() {
-    this.db.prepare('DELETE FROM admin_sessions WHERE expires_at <= ?').run(new Date().toISOString())
+    this.db.prepare('DELETE FROM admin_sessions WHERE expires_at <= ?').run(nowIso())
   }
 
   createConversation({ kind, ownerKey }) {
-    const now = new Date().toISOString()
+    const now = nowIso()
     const conversation = {
       id: randomUUID(),
       kind,
       owner_key: ownerKey,
       summary: '',
+      memory_json: '{}',
       compact_status: 'not_needed',
       last_compacted_message_id: 0,
       created_at: now,
@@ -158,9 +224,9 @@ export class StoreDb {
     }
     this.db.prepare(`
       INSERT INTO conversations
-        (id, kind, owner_key, summary, compact_status, last_compacted_message_id, created_at, updated_at)
+        (id, kind, owner_key, summary, memory_json, compact_status, last_compacted_message_id, created_at, updated_at)
       VALUES
-        (@id, @kind, @owner_key, @summary, @compact_status, @last_compacted_message_id, @created_at, @updated_at)
+        (@id, @kind, @owner_key, @summary, @memory_json, @compact_status, @last_compacted_message_id, @created_at, @updated_at)
     `).run(conversation)
     return conversation
   }
@@ -175,14 +241,8 @@ export class StoreDb {
     ).all(conversationId)
   }
 
-  getLastMessage(conversationId) {
-    return this.db.prepare(
-      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY id DESC LIMIT 1',
-    ).get(conversationId) ?? null
-  }
-
   addMessage({ conversationId, role, content, sources = [], completed = true }) {
-    const now = new Date().toISOString()
+    const now = nowIso()
     const result = this.db.prepare(`
       INSERT INTO messages (conversation_id, role, content, completed, sources_json, created_at)
       VALUES (?, ?, ?, ?, ?, ?)
@@ -191,12 +251,109 @@ export class StoreDb {
     return Number(result.lastInsertRowid)
   }
 
-  updateCompact({ conversationId, summary, status, lastCompactedMessageId }) {
+  getTurn(ownerKey, requestId) {
+    return this.db.prepare(
+      'SELECT * FROM chat_turns WHERE owner_key = ? AND request_id = ?',
+    ).get(ownerKey, requestId) ?? null
+  }
+
+  startTurn({ ownerKey, kind, conversationId, requestId, message }) {
+    const transaction = this.db.transaction(() => {
+      const existing = this.getTurn(ownerKey, requestId)
+      if (existing) {
+        if (existing.kind !== kind || existing.user_content !== message) {
+          return { state: 'conflict', turn: existing }
+        }
+        if (conversationId && existing.conversation_id !== conversationId) {
+          return { state: 'conflict', turn: existing }
+        }
+        if (existing.status === 'completed') return { state: 'completed', turn: existing }
+        if (existing.status === 'running') return { state: 'running', turn: existing }
+        this.db.prepare(`
+          UPDATE chat_turns
+          SET status = 'running', assistant_content = '', sources_json = '[]', report_json = 'null',
+              verified_json = 'null', error_code = NULL, updated_at = ?
+          WHERE id = ?
+        `).run(nowIso(), existing.id)
+        return { state: 'retry', turn: this.db.prepare('SELECT * FROM chat_turns WHERE id = ?').get(existing.id) }
+      }
+
+      let conversation = null
+      if (conversationId) {
+        conversation = this.getConversation(conversationId)
+        if (!conversation || conversation.kind !== kind || conversation.owner_key !== ownerKey) {
+          return { state: 'conversation_not_found', turn: null }
+        }
+      } else {
+        conversation = this.createConversation({ kind, ownerKey })
+      }
+
+      const userMessageId = this.addMessage({
+        conversationId: conversation.id,
+        role: 'user',
+        content: message,
+      })
+      const now = nowIso()
+      const result = this.db.prepare(`
+        INSERT INTO chat_turns
+          (request_id, owner_key, kind, conversation_id, user_message_id, user_content, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'running', ?, ?)
+      `).run(requestId, ownerKey, kind, conversation.id, userMessageId, message, now, now)
+      const turn = this.db.prepare('SELECT * FROM chat_turns WHERE id = ?').get(Number(result.lastInsertRowid))
+      return { state: 'created', turn }
+    })
+    return transaction()
+  }
+
+  completeTurn({ turnId, content, sources = [], report = null, verified = null }) {
+    const transaction = this.db.transaction(() => {
+      const turn = this.db.prepare('SELECT * FROM chat_turns WHERE id = ?').get(turnId)
+      if (!turn || turn.status !== 'running') return false
+      this.addMessage({
+        conversationId: turn.conversation_id,
+        role: 'assistant',
+        content,
+        sources,
+        completed: true,
+      })
+      this.db.prepare(`
+        UPDATE chat_turns
+        SET status = 'completed', assistant_content = ?, sources_json = ?, report_json = ?, verified_json = ?,
+            error_code = NULL, updated_at = ?
+        WHERE id = ?
+      `).run(content, JSON.stringify(sources), JSON.stringify(report), JSON.stringify(verified), nowIso(), turnId)
+      return true
+    })
+    return transaction()
+  }
+
+  failTurn(turnId, { status = 'failed', errorCode = 'AI_ERROR', partialContent = '' } = {}) {
     this.db.prepare(`
-      UPDATE conversations
-      SET summary = ?, compact_status = ?, last_compacted_message_id = ?, updated_at = ?
-      WHERE id = ?
-    `).run(summary, status, lastCompactedMessageId, new Date().toISOString(), conversationId)
+      UPDATE chat_turns
+      SET status = ?, assistant_content = ?, error_code = ?, updated_at = ?
+      WHERE id = ? AND status = 'running'
+    `).run(status, partialContent, errorCode, nowIso(), turnId)
+  }
+
+  getConversationMemory(conversation) {
+    return parseJson(conversation?.memory_json || '{}', {})
+  }
+
+  updateCompact({ conversationId, summary, memory, status, lastCompactedMessageId }) {
+    const transaction = this.db.transaction(() => {
+      this.db.prepare(`
+        UPDATE conversations
+        SET summary = ?, memory_json = ?, compact_status = ?, last_compacted_message_id = ?, updated_at = ?
+        WHERE id = ?
+      `).run(summary, JSON.stringify(memory), status, lastCompactedMessageId, nowIso(), conversationId)
+    })
+    transaction()
+  }
+
+  markCompactFailure(conversationId) {
+    this.db.prepare(`
+      UPDATE conversations SET compact_status = 'failed', updated_at = ? WHERE id = ?
+    `).run(nowIso(), conversationId)
   }
 
   calculateRevenue({ from, to }) {
@@ -207,10 +364,19 @@ export class StoreDb {
         COALESCE(SUM(CASE WHEN status IN ('paid', 'completed') THEN total_amount ELSE 0 END), 0) AS gross_revenue,
         COALESCE(SUM(CASE WHEN status IN ('paid', 'completed') THEN refund_amount ELSE 0 END), 0) AS refunds,
         COALESCE(SUM(CASE WHEN status IN ('paid', 'completed') THEN total_amount - refund_amount ELSE 0 END), 0) AS net_revenue,
-        SUM(CASE WHEN is_demo = 1 THEN 1 ELSE 0 END) AS demo_orders
+        SUM(CASE WHEN is_demo = 1 THEN 1 ELSE 0 END) AS demo_orders,
+        SUM(CASE WHEN is_demo = 0 THEN 1 ELSE 0 END) AS real_orders
       FROM orders
       WHERE business_date BETWEEN ? AND ?
     `).get(from, to)
+
+    const allOrders = Number(row.all_orders || 0)
+    const demoOrders = Number(row.demo_orders || 0)
+    const realOrders = Number(row.real_orders || 0)
+    let dataMode = 'none'
+    if (allOrders > 0 && demoOrders === allOrders) dataMode = 'demo'
+    else if (allOrders > 0 && realOrders === allOrders) dataMode = 'real'
+    else if (allOrders > 0) dataMode = 'mixed'
 
     return {
       from,
@@ -218,15 +384,13 @@ export class StoreDb {
       timezone: 'Asia/Ho_Chi_Minh',
       includedStatuses: ['paid', 'completed'],
       excludedStatuses: ['cancelled'],
-      allOrders: Number(row.all_orders || 0),
+      allOrders,
       includedOrders: Number(row.included_orders || 0),
       grossRevenue: Number(row.gross_revenue || 0),
       refunds: Number(row.refunds || 0),
       netRevenue: Number(row.net_revenue || 0),
       currency: 'VND',
-      dataMode: Number(row.all_orders || 0) > 0 && Number(row.demo_orders || 0) === Number(row.all_orders || 0)
-        ? 'demo'
-        : 'mixed-or-real',
+      dataMode,
     }
   }
 }

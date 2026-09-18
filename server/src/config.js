@@ -7,7 +7,8 @@ const envPath = resolve(serverRoot, '.env')
 
 function loadLocalEnv() {
   if (!existsSync(envPath)) return
-  const lines = readFileSync(envPath, 'utf8').split(/\r?\n/)
+  const lines = readFileSync(envPath, 'utf8').split(/?
+/)
   for (const line of lines) {
     const trimmed = line.trim()
     if (!trimmed || trimmed.startsWith('#')) continue
@@ -41,7 +42,7 @@ const configuredDbPath = process.env.DB_PATH || 'data/store.sqlite'
 export const config = Object.freeze({
   serverRoot,
   port: integerEnv('PORT', 3001, { min: 1, max: 65535 }),
-  ollamaUrl: (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').replace(/\/+$/, ''),
+  ollamaUrl: (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').replace(//+$/, ''),
   ollamaModel: process.env.OLLAMA_MODEL || 'qwen3.5:4b',
   dbPath: resolve(serverRoot, configuredDbPath),
   supportContextSize: allowedContext(process.env.SUPPORT_NUM_CTX, 8192),
@@ -50,5 +51,7 @@ export const config = Object.freeze({
   adminNumPredict: integerEnv('ADMIN_NUM_PREDICT', 1024, { min: 64, max: 8192 }),
   ollamaTimeoutMs: integerEnv('OLLAMA_TIMEOUT_MS', 120000, { min: 5000, max: 600000 }),
   generationQueueMax: integerEnv('GENERATION_QUEUE_MAX', 4, { min: 0, max: 50 }),
+  generationQueueWaitMs: integerEnv('GENERATION_QUEUE_WAIT_MS', 30000, { min: 1000, max: 300000 }),
   cookieSecure: process.env.COOKIE_SECURE === 'true',
+  enableDemoData: process.env.ENABLE_DEMO_DATA === 'true',
 })
