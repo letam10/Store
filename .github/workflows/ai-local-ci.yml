@@ -48,9 +48,29 @@ jobs:
       - name: Frontend regression tests
         run: npm test
 
-      - name: Backend regression tests
+      - name: Backend app regressions
         working-directory: server
-        run: timeout 90s npm test
+        run: timeout 30s node --test test/app.test.js
+
+      - name: Backend context regressions
+        working-directory: server
+        run: timeout 30s node --test test/context.test.js
+
+      - name: Backend Ollama HTTP regressions
+        working-directory: server
+        run: timeout 30s node --test test/ollama-http.test.js
+
+      - name: Backend date regressions
+        working-directory: server
+        run: timeout 30s node --test test/dates.test.js
+
+      - name: Backend knowledge/data regressions
+        working-directory: server
+        run: timeout 30s node --test test/knowledge-db.test.js
+
+      - name: Backend security/queue regressions
+        working-directory: server
+        run: timeout 30s node --test test/security-queue.test.js
 
       - name: Lint
         run: npm run lint
