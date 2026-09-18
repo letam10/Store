@@ -44,9 +44,14 @@ test('prepareConversationContext preserves early structured facts across repeate
       db.addMessage({ conversationId: conversation.id, role: 'assistant', content: 'ok ' + index })
     }
     prepareConversationContext({ storeDb: db, conversation: db.getConversation(conversation.id), systemPrompt: 's', knowledgeText: 'k', numCtx: 8192, outputBudget: 128 })
-    const memorySecond = db.getConversationMemory(db.getConversation(conversation.id))
+    const afterSecond = db.getConversation(conversation.id)
+    const memorySecond = db.getConversationMemory(afterSecond)
     assert.ok(memorySecond.entities.some((item) => item.id === 'ORDER-OLD-999'))
     assert.ok(memorySecond.preferences.some((item) => item.provenance === 'user_claim'))
+    assert.match(afterSecond.summary, /ORDER-OLD-999/)
+    const prepared = prepareConversationContext({ storeDb: db, conversation: afterSecond, systemPrompt: 's', knowledgeText: 'k', numCtx: 65536, outputBudget: 128 })
+    const memoryMessage = prepared.messages.find((item) => item.content.includes('BỘ NHỚ HỘI THOẠI'))
+    assert.equal(memoryMessage.role, 'user')
   } finally { cleanup() }
 })
 
