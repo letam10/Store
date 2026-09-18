@@ -43,20 +43,22 @@ export default function CustomerSupport() {
   useEffect(() => {
     const initialId = initialConversationIdRef.current
     if (!initialId) return undefined
-    const token = restoreGuardRef.current.begin()
+    const restoreGuard = restoreGuardRef.current
+    const gate = gateRef.current
+    const token = restoreGuard.begin()
     let disposed = false
     apiJson('/api/support/conversations/' + encodeURIComponent(initialId))
       .then((payload) => {
         if (disposed) return
-        const canApply = restoreGuardRef.current.canApply(token, {
-          requestActive: gateRef.current.locked,
+        const canApply = restoreGuard.canApply(token, {
+          requestActive: gate.locked,
           currentConversationId: conversationIdRef.current,
         })
         setMessages((current) => applyRestore(current, payload.messages, { canApply }))
       })
       .catch((error) => {
-        if (disposed || !restoreGuardRef.current.canApply(token, {
-          requestActive: gateRef.current.locked,
+        if (disposed || !restoreGuard.canApply(token, {
+          requestActive: gate.locked,
           currentConversationId: conversationIdRef.current,
         })) return
         if (error.code === 'CONVERSATION_NOT_FOUND') {
@@ -65,7 +67,7 @@ export default function CustomerSupport() {
           setConversationId('')
         }
       })
-    return () => { disposed = true; restoreGuardRef.current.invalidate() }
+    return () => { disposed = true; restoreGuard.invalidate() }
   }, [])
 
   useEffect(() => {
