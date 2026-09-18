@@ -43,3 +43,17 @@ export function routeName(pathname) {
   if (path === '/admin' || path.startsWith('/admin/')) return 'admin'
   return 'not-found'
 }
+
+export function normalizeSearch(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, (match) => match === 'Đ' ? 'D' : 'd')
+    .toLocaleLowerCase('vi')
+}
+
+export function productMatches(product, query) {
+  const needle = normalizeSearch(query).trim()
+  if (!needle) return true
+  return normalizeSearch([product.name, product.category, product.label].join(' ')).includes(needle)
+}
