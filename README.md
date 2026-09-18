@@ -4,8 +4,11 @@ Store dùng React + Vite ở frontend và Node.js/Express + SQLite ở backend. 
 
 ## Runtime đã chốt
 
-- Node.js: **22.16.0** (`.nvmrc`). `package.json` chấp nhận Node `>=22.12.0 <23`.
-- npm: dùng phiên bản đi kèm Node 22.
+- Node.js: **24.19.0** — dùng bản hiện có trên máy, thống nhất frontend/backend/CI.
+- npm: **11.17.0**. Cả hai `package.json` khai báo chính xác `engines` và `packageManager`; `.npmrc` bật `engine-strict=true` để ngăn cài nhầm runtime.
+- `.nvmrc` chỉ ghi phiên bản chuẩn cho công cụ/CI; **không yêu cầu cài trình quản lý Node hay runtime phụ**.
+- Quy tắc cho mọi AI/thành viên: trước khi cài/chạy, kiểm tra `node -v` và `npm -v`. Không tự chuyển sang Node 22/26, không dùng `npm exec --package=node@...`, không bỏ qua kiểm tra engines. Nếu sai phiên bản, báo lại thay vì âm thầm đổi Node/npm toàn máy.
+- Nâng phiên bản sau này là thay đổi có chủ đích: cập nhật đồng bộ runtime, manifests, lockfiles, CI và README rồi chạy lại test/native SQLite. Không tự nâng chỉ vì có bản mới.
 - Ollama URL mặc định: `http://127.0.0.1:11434`.
 - Model mặc định: `qwen3.5:4b`.
 - Backend không tự tải model.
@@ -132,18 +135,31 @@ Regression test bao phủ parser Ollama qua HTTP giả lập, terminal frame/EOF
 
 Workflow `.github/workflows/ai-local-ci.yml` chạy trên nhánh tính năng, `main` và PR vào `main`, dùng Node từ `.nvmrc`, chỉ có quyền đọc. CI không tạo commit/push hay sửa lockfile. Test component mount Admin thật trong JSDOM; đây không phải kiểm thử hiển thị trên trình duyệt hoặc GPU.
 
-Máy có Node 24 không tự chuyển sang Node 22 khi đọc `.nvmrc`. Dùng Node 22.16.0 theo cấu hình dự án trước `npm ci`, đặc biệt với native module `better-sqlite3`. Không dùng lại native dependencies đã cài bởi một major Node khác.
+## Native SQLite và đổi runtime
 
-Nếu chưa có trình quản lý phiên bản Node, có thể dùng runtime tách biệt qua npm exec (không thay Node toàn máy). Chạy từ thư mục Store, sau khi dependencies đã được cài bằng Node 22:
+`better-sqlite3` có binary native phụ thuộc Node ABI. Binary cài từ Node 22 (ABI 127) không dùng được với Node 24 trên máy (ABI 137). Đây là lỗi trộn runtime, không phải dữ liệu SQLite bị hỏng.
+
+Sau khi xác nhận đúng Node 24.19.0/npm 11.17.0, dừng backend của chính bạn trước khi cài lại dependencies:
 
 ```powershell
-# Terminal frontend
-npm exec --yes --package=node@22.16.0 -- node node_modules/vite/bin/vite.js
-# Terminal backend riêng
-npm exec --yes --package=node@22.16.0 -- node server/src/index.js
+node -v
+npm -v
+npm ci
+npm --prefix server ci
 ```
 
-Đợt sửa trên main đã kiểm chứng local với Node 22.16.0: 53 test (mock API, parser, component React/JSDOM, dữ liệu và các test storefront có sẵn), ESLint và Vite build đều PASS. Không gọi GPU hoặc Ollama thật. Không suy ra độ chính xác/tốc độ của model từ kết quả này.
+`npm ci` thay dependencies trong `node_modules`, không xóa `.env`, database hoặc source. Không xóa database để chữa lỗi ABI và không copy `node_modules` từ máy/major Node khác. Phiên bản `better-sqlite3` thực tế được khóa trong `server/package-lock.json`; `^12.4.1` là khoảng cho phép, không phải cam kết đang cài đúng 12.4.1.
+
+Chạy frontend bằng `npm run dev`; mở terminal riêng ở gốc Store và chạy backend bằng `npm run dev:api`. Không cần runtime Node phụ.
+
+### Kết quả chuyển runtime trên máy
+
+- Node `v24.19.0`, npm `11.17.0`, Node ABI `137`.
+- Giữ `better-sqlite3` theo lockfile hiện tại: `12.11.1`; binary đã được cài lại bằng Node 24. Kiểm tra SQLite trong bộ nhớ: tạo bảng, ghi và đọc thành công, không tác động database thật.
+- Frontend: 21 test PASS; backend: 33 test PASS; tổng 54 test PASS.
+- `npm run lint` và `npm run build`: PASS.
+- CI đã được cấu hình cùng Node/npm; kết quả local trên đây không phải tuyên bố CI mới đã chạy.
+- Không gọi Ollama/GPU. Runtime PASS không chứng minh chất lượng AI, tốc độ token/s hoặc context 64K.
 
 ## Không nằm trong phạm vi xác minh hiện tại
 

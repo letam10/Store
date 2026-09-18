@@ -30,6 +30,14 @@ jobs:
             package-lock.json
             server/package-lock.json
 
+      - name: Pin npm
+        run: npm install --global npm@11.17.0
+
+      - name: Verify runtime
+        run: |
+          node -e "if (process.versions.node !== '24.19.0') process.exit(1)"
+          test "$(npm --version)" = "11.17.0"
+
       - name: Install frontend dependencies
         run: npm ci
 
