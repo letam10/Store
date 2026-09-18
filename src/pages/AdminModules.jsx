@@ -57,6 +57,28 @@ function StaffAccessPreview(){
 }
 
 
+function CustomersPreview(){
+ const [query,setQuery]=useState('')
+ const [segment,setSegment]=useState('Tất cả')
+ const customers=[
+  {name:'Nguyễn An',group:'Thân thiết',order:'ST-1048',status:'Đang hoạt động'},
+  {name:'Trần Minh',group:'Mới',order:'ST-1046',status:'Cần chăm sóc'},
+  {name:'Lê Hương',group:'VIP',order:'ST-1032',status:'Ưu tiên'},
+  {name:'Hoàng Nam',group:'Mới',order:'ST-1029',status:'Đang hoạt động'},
+ ]
+ const visible=customers.filter((customer)=>{
+  const segmentMatch=segment==='Tất cả'||customer.group===segment||customer.status===segment
+  return segmentMatch&&normalizeSearch([customer.name,customer.group,customer.order,customer.status].join(' ')).includes(normalizeSearch(query).trim())
+ })
+ const segments=['Tất cả','VIP','Mới','Cần chăm sóc']
+ return <section className="admin-module-card">
+   <div className="admin-module-head"><div><p className="admin-eyebrow">CUSTOMER SEGMENTS</p><h2>Quản lý khách hàng</h2><p>Tìm kiếm và phân nhóm khách hàng để ưu tiên chăm sóc. Dữ liệu hiện là mẫu giao diện.</p></div><span className="admin-preview-badge">{customers.length} khách demo</span></div>
+   <div className="customer-segments">{segments.map((item)=><button key={item} type="button" className={segment===item?'is-active':''} onClick={()=>setSegment(item)}>{item}<span>{item==='Tất cả'?customers.length:customers.filter((customer)=>customer.group===item||customer.status===item).length}</span></button>)}</div>
+   <div className="admin-module-toolbar"><label><span className="sr-only">Tìm khách hàng</span><input type="search" value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Tên, mã đơn, nhóm hoặc trạng thái…" /></label><span>{visible.length}/{customers.length} khách</span></div>
+   <div className="customer-grid">{visible.map((customer)=><article key={customer.name}><div className="customer-avatar" aria-hidden="true">{customer.name.slice(0,1)}</div><div><b>{customer.name}</b><small>{customer.group} · {customer.order}</small></div><span>{customer.status}</span><button type="button" disabled title="Chưa nối backend khách hàng">Mở hồ sơ</button></article>)}{visible.length===0&&<p className="admin-empty">Không có khách hàng phù hợp.</p>}</div>
+ </section>
+}
+
 function OrderTypesPreview(){
  const types=[
   {name:'Giao tiêu chuẩn',priority:'Bình thường',sla:'48h',status:'Bật',note:'Giao tận nơi theo vùng phục vụ'},
@@ -104,6 +126,7 @@ export default function AdminModule({module}){
    return data.rows.filter((row)=>normalizeSearch(row.join(' ')).includes(needle))
  },[data,filter])
  if(module==='dashboard')return <Dashboard/>
+ if(module==='customers')return <CustomersPreview/>
  if(module==='rewards-wheel')return <RewardsWheelPreview/>
  if(module==='appearance')return <AppearancePreview/>
  if(module==='staff')return <StaffAccessPreview/>
