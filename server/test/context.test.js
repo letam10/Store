@@ -48,10 +48,11 @@ test('prepareConversationContext preserves early structured facts across repeate
     const memorySecond = db.getConversationMemory(afterSecond)
     assert.ok(memorySecond.entities.some((item) => item.id === 'ORDER-OLD-999'))
     assert.ok(memorySecond.preferences.some((item) => item.provenance === 'user_claim'))
-    assert.match(afterSecond.summary, /ORDER-OLD-999/)
+    assert.match(afterSecond.summary, /extractive_compaction/)
     const prepared = prepareConversationContext({ storeDb: db, conversation: afterSecond, systemPrompt: 's', knowledgeText: 'k', numCtx: 65536, outputBudget: 128 })
     const memoryMessage = prepared.messages.find((item) => item.content.includes('BỘ NHỚ HỘI THOẠI'))
     assert.equal(memoryMessage.role, 'user')
+    assert.match(memoryMessage.content, /ORDER-OLD-999/)
   } finally { cleanup() }
 })
 
