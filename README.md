@@ -93,7 +93,7 @@ Cơ chế hiện tại được mô tả trung thực là **rút gọn trích xu
 - mốc compact chỉ cập nhật sau khi candidate đã qua kiểm tra ngân sách;
 - nếu rút gọn không an toàn, summary/memory/mốc tốt trước đó được giữ và request nhận lỗi có thể phục hồi.
 
-Backend hiện **không có tokenizer Qwen**. Ước lượng dùng số byte UTF-8 và chỉ cho input dùng 50% `num_ctx` để chừa biên cho sai số, output và thinking. Đây vẫn là heuristic, **không phải bảo đảm token chính xác**.
+Backend hiện **không có tokenizer Qwen**. Ước lượng dùng số byte UTF-8 và chỉ cho input dùng 65% `num_ctx` để chừa biên cho sai số, output và thinking. Đây vẫn là heuristic, **không phải bảo đảm token chính xác**.
 
 ## Admin
 
