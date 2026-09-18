@@ -1,8 +1,6 @@
 import './AdminModules.css'
 
-export const adminModules=[
-  ['dashboard','Tổng quan','⌂'],['customers','Khách hàng','◉'],['products','Hàng hóa','◫'],['logistics','Lưu thông','⇄'],['inventory','Xuất nhập kho','▦'],['appearance','Trang trí & chỉnh sửa','✦'],['statistics','Thống kê','▥'],['ai-local','AI local','✺'],['order-types','Loại đơn hàng','≡'],['support','CSKH','☏'],['rewards-wheel','Quay thưởng','◌'],['staff','Nhân viên','♙'],['overtime','Tăng ca & khen thưởng','★'],
-]
+import { adminModules } from './adminModuleData'
 
 const datasets={
   customers:{title:'Quản lý khách hàng',description:'Theo dõi tài khoản, phân nhóm và trạng thái chăm sóc.',columns:['Khách hàng','Nhóm','Đơn gần nhất','Trạng thái'],rows:[['Nguyễn An','Thân thiết','ST-1048','Đang hoạt động'],['Trần Minh','Mới','ST-1046','Cần chăm sóc'],['Lê Hương','VIP','ST-1032','Ưu tiên']]},
