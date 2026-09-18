@@ -189,7 +189,7 @@ test('same conversation rejects concurrent second turn', async () => {
       const chunk = await reader.read()
       buffer += decoder.decode(chunk.value || new Uint8Array(), { stream: true })
       for (const line of buffer.split('\n').filter(Boolean)) {
-        try { const event = JSON.parse(line); if (event.type === 'conversation') conversationId = event.conversationId } catch {}
+        try { const event = JSON.parse(line); if (event.type === 'conversation') conversationId = event.conversationId } catch { /* partial line; keep reading */ }
       }
     }
     const second = await fetch(baseUrl + '/api/support/chat', {
@@ -199,7 +199,7 @@ test('same conversation rejects concurrent second turn', async () => {
     assert.equal(second.status, 409)
     assert.equal((await second.json()).error, 'CONVERSATION_BUSY')
     releaseModel()
-    while (!(await reader.read()).done) {}
+    while (!(await reader.read()).done) { /* drain first response */ }
   }, { ollama })
 })
 
@@ -233,7 +233,7 @@ test('queue full and abort while queued do not create turns, next request can pr
 
     // Sau đó hủy request đang chờ và xác nhận admission chưa ghi turn.
     abortController.abort()
-    try { await queued.text() } catch {}
+    try { await queued.text() } catch { /* expected client abort */ }
     await new Promise((resolve) => setTimeout(resolve, 10))
     assert.equal(storeDb.getTurn(ownerFromSupportCookie('store_support_id=owner-b'), 'request_queue_abort'), null)
 
