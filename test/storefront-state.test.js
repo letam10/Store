@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { addCartItem, cartCount, cartTotal, createDemoOrder, orderMatches, productIdFromPath, productMatches, routeName, setCartQuantity } from '../src/storefront/state.js'
+import { addCartItem, cartCount, cartTotal, createDemoOrder, filterProducts, orderMatches, productIdFromPath, productMatches, routeName, setCartQuantity } from '../src/storefront/state.js'
 
 const product={id:1,name:'A',price:100}
 test('cart helpers add, increment, total and remove deterministically',()=>{
@@ -29,6 +29,15 @@ test('product search matches accents, category and label',()=>{
  assert.equal(productMatches(item,'phu kien'),true)
  assert.equal(productMatches(item,'moi'),true)
  assert.equal(productMatches(item,'tai nghe'),false)
+})
+test('product filters combine category query and maximum price',()=>{
+ const list=[
+  {name:'Tai nghe',category:'Công nghệ',label:'Mới',price:900000},
+  {name:'Túi Tote',category:'Phụ kiện',label:'Mới',price:250000},
+ ]
+ assert.equal(filterProducts(list,{category:'Phụ kiện',maxPrice:300000}).length,1)
+ assert.equal(filterProducts(list,{query:'moi',maxPrice:300000})[0].name,'Túi Tote')
+ assert.equal(filterProducts(list,{query:'tai nghe',maxPrice:300000}).length,0)
 })
 test('demo order stores only non-sensitive summary fields',()=>{
  const order=createDemoOrder([{id:1,price:100,quantity:2}],{owner:' Andy ',fulfillment:'pickup',now:1})

@@ -64,6 +64,14 @@ export function productMatches(product, query) {
   return normalizeSearch([product.name, product.category, product.label].join(' ')).includes(needle)
 }
 
+export function filterProducts(products, { category = 'Tất cả', query = '', maxPrice = 0 } = {}) {
+  const limit = Number(maxPrice) || 0
+  return products.filter((product) =>
+    (category === 'Tất cả' || product.category === category)
+    && productMatches(product, query)
+    && (!limit || Number(product.price) <= limit))
+}
+
 export function createDemoOrder(cart, { owner = 'guest', fulfillment = 'delivery', now = Date.now() } = {}) {
   return {
     id: 'DEMO-' + Number(now).toString(36).toUpperCase(),
