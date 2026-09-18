@@ -2,6 +2,12 @@ import ProductCard from '../components/ui/ProductCard'
 import { products } from '../data/products'
 import './Home.css'
 
+const categories = [...new Set(products.map((product) => product.category))].map((category) => ({
+  name: category,
+  symbol: products.find((product) => product.category === category)?.symbol || '•',
+  count: products.filter((product) => product.category === category).length,
+}))
+
 export default function Home({ onAddToCart }) {
   return (
     <>
@@ -22,6 +28,12 @@ export default function Home({ onAddToCart }) {
       </section>
       <div className="container">
         <section className="benefit-strip" aria-label="Lợi ích"><div><b>01</b><span>Chọn nhanh theo danh mục</span></div><div><b>02</b><span>Giỏ hàng lưu trên thiết bị</span></div><div><b>03</b><span>Liên hệ và địa chỉ rõ ràng</span></div></section>
+        <section className="home-section home-category-section">
+          <div className="section-heading"><div><p className="eyebrow">Mua theo danh mục</p><h2>Đi thẳng tới thứ bạn cần</h2></div><a href="/products">Tất cả hàng hóa →</a></div>
+          <div className="home-category-grid">
+            {categories.map((category) => <a key={category.name} href={'/products?q=' + encodeURIComponent(category.name)}><span aria-hidden="true">{category.symbol}</span><div><b>{category.name}</b><small>{category.count} sản phẩm demo</small></div><i aria-hidden="true">→</i></a>)}
+          </div>
+        </section>
         <section className="home-section">
           <div className="section-heading"><div><p className="eyebrow">Sản phẩm nổi bật</p><h2>Được chọn nhiều</h2></div><a href="/products">Xem tất cả →</a></div>
           <div className="product-grid">{products.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>

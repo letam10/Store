@@ -75,3 +75,9 @@ export function createDemoOrder(cart, { owner = 'guest', fulfillment = 'delivery
     status: 'Đơn demo · chưa gửi backend',
   }
 }
+
+export function orderMatches(order, query) {
+  const needle = normalizeSearch(query).trim()
+  if (!needle) return true
+  return normalizeSearch([order.id, order.status, order.fulfillment, order.itemCount].join(' ')).includes(needle)
+}

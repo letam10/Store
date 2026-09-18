@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { addCartItem, cartCount, cartTotal, createDemoOrder, productIdFromPath, productMatches, routeName, setCartQuantity } from '../src/storefront/state.js'
+import { addCartItem, cartCount, cartTotal, createDemoOrder, orderMatches, productIdFromPath, productMatches, routeName, setCartQuantity } from '../src/storefront/state.js'
 
 const product={id:1,name:'A',price:100}
 test('cart helpers add, increment, total and remove deterministically',()=>{
@@ -38,4 +38,11 @@ test('demo order stores only non-sensitive summary fields',()=>{
  assert.equal(order.fulfillment,'pickup')
  assert.equal('address' in order,false)
  assert.equal('phone' in order,false)
+})
+test('order search matches code status and fulfillment without accents',()=>{
+ const order={id:'DEMO-ABC',status:'Đơn demo · chưa gửi backend',fulfillment:'pickup',itemCount:2}
+ assert.equal(orderMatches(order,'abc'),true)
+ assert.equal(orderMatches(order,'chua gui'),true)
+ assert.equal(orderMatches(order,'pickup'),true)
+ assert.equal(orderMatches(order,'delivery'),false)
 })

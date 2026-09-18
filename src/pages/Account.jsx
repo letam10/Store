@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { orderMatches } from '../storefront/state'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -6,6 +7,9 @@ const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 
 
 export default function Account({ account, orders = [], onLogin, onLogout }) {
   const [username, setUsername] = useState('')
+  const [orderQuery, setOrderQuery] = useState('')
+  const visibleOrders = useMemo(() => orders.filter((order) => orderMatches(order, orderQuery)), [orders, orderQuery])
+
   function submit(event) {
     event.preventDefault()
     const value = username.trim()
@@ -23,6 +27,10 @@ export default function Account({ account, orders = [], onLogin, onLogout }) {
       </section>
       <section className="surface account-card"><p className="eyebrow">Quản trị</p><h2>Bạn là admin?</h2><p className="muted">Khu vực admin dùng xác thực backend riêng và không dùng phiên khách demo.</p><div className="page-actions"><a className="button button--soft" href="/admin">Đi tới Admin</a></div></section>
     </div>
-    {account && <section className="surface account-orders"><div className="account-orders__head"><div><p className="eyebrow">Lịch sử cục bộ</p><h2>Đơn demo của tài khoản này</h2></div><span>{orders.length} đơn</span></div>{orders.length === 0 ? <p className="muted">Chưa có đơn demo nào được tạo khi đăng nhập bằng tài khoản này.</p> : <div className="account-order-list">{orders.map((order)=><article key={order.id}><div><b>{order.id}</b><small>{date.format(new Date(order.createdAt))}</small></div><div><span>{order.itemCount} sản phẩm · {order.fulfillment === 'pickup' ? 'Nhận tại cửa hàng' : 'Giao tận nơi'}</span><strong>{money.format(order.total)}</strong></div><small>{order.status}</small></article>)}</div>}</section>}
+    {account && <section className="surface account-orders">
+      <div className="account-orders__head"><div><p className="eyebrow">Lịch sử cục bộ</p><h2>Đơn demo của tài khoản này</h2></div><span>{orders.length} đơn</span></div>
+      {orders.length > 0 && <div className="account-order-toolbar"><label className="field"><span>Tra cứu đơn demo</span><input type="search" value={orderQuery} onChange={(event)=>setOrderQuery(event.target.value)} placeholder="Mã đơn, trạng thái, pickup…" /></label><span>{visibleOrders.length}/{orders.length} kết quả</span></div>}
+      {orders.length === 0 ? <p className="muted">Chưa có đơn demo nào được tạo khi đăng nhập bằng tài khoản này.</p> : visibleOrders.length === 0 ? <div className="account-order-empty"><b>Không tìm thấy đơn phù hợp.</b><button type="button" onClick={()=>setOrderQuery('')}>Xóa bộ lọc</button></div> : <div className="account-order-list">{visibleOrders.map((order)=><article key={order.id}><div><b>{order.id}</b><small>{date.format(new Date(order.createdAt))}</small></div><div><span>{order.itemCount} sản phẩm · {order.fulfillment === 'pickup' ? 'Nhận tại cửa hàng' : 'Giao tận nơi'}</span><strong>{money.format(order.total)}</strong></div><small>{order.status}</small></article>)}</div>}
+    </section>}
   </div>
 }
