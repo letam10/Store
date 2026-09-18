@@ -1,7 +1,5 @@
 import './AdminModules.css'
 
-import { adminModules } from './adminModuleData'
-
 const datasets={
   customers:{title:'Quản lý khách hàng',description:'Theo dõi tài khoản, phân nhóm và trạng thái chăm sóc.',columns:['Khách hàng','Nhóm','Đơn gần nhất','Trạng thái'],rows:[['Nguyễn An','Thân thiết','ST-1048','Đang hoạt động'],['Trần Minh','Mới','ST-1046','Cần chăm sóc'],['Lê Hương','VIP','ST-1032','Ưu tiên']]},
   products:{title:'Quản lý hàng hóa',description:'Danh mục sản phẩm, giá niêm yết và trạng thái bán.',columns:['Sản phẩm','Danh mục','Giá','Trạng thái'],rows:[['Tai nghe Everyday','Công nghệ','890.000 ₫','Đang bán'],['Túi Everyday Tote','Phụ kiện','249.000 ₫','Đang bán'],['Đồng hồ Minimal','Phụ kiện','1.290.000 ₫','Đang bán']]},
