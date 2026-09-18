@@ -1,9 +1,11 @@
 # AI local
 
-Thư mục độc lập với frontend. Chưa cài model hay runtime.
+Store dùng Ollama local qua backend `server/`. Frontend không được gọi Ollama trực tiếp.
 
-- training/: mã nguồn và cấu hình training.
-- models/, datasets/, checkpoints/, outputs/, work/: tạo khi cần, đã được .gitignore loại khỏi Git.
-- Không import model hoặc mã Python từ src/. Frontend sẽ gọi backend qua API; backend gọi dịch vụ AI.
-- Không đưa secrets hoặc dữ liệu cá nhân vào repo, kể cả repo private.
-- Tác vụ GPU vừa/nặng phải xác minh chọn NVIDIA RTX 4060 trước khi chạy; không fallback iGPU.
+- Model mặc định: `qwen3.5:4b`.
+- Cùng một model phục vụ khách và admin; backend quyết định `think`.
+- Không tải model vào `src/` hoặc `public/`.
+- `models/`, `datasets/`, `checkpoints/`, `outputs/`, `work/` đã bị ignore.
+- Không đưa secrets, database thật hoặc hội thoại riêng tư vào Git.
+- LoRA/training **không nằm trong phạm vi đợt triển khai này**; `training/` chỉ là placeholder cũ.
+- Benchmark GPU dài chỉ chạy khi được chủ dự án đồng ý. Kết quả RTX 4060 không được ghi thành kết quả RTX 3050 6GB.

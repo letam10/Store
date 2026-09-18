@@ -1,0 +1,24 @@
+name: storefront-ui-ci
+on:
+  push:
+    branches:
+      - nhanh/giaodienv1
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - name: Backend regression smoke
+        working-directory: server
+        run: |
+          npm ci
+          npm test
