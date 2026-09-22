@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createRequestGate } from '../src/api/requestGate.js'
 import { applyRestore, createRestoreGuard, mapServerMessages } from '../src/components/ui/customerSupportState.js'
-import { adminConversationKey } from '../src/pages/adminState.js'
 
 test('slow restore cannot overwrite first active streaming turn', () => {
   const gate = createRequestGate()
@@ -60,10 +59,6 @@ test('restore guard preserves exactly one local user/assistant pair during first
   gate.finish(active.epoch)
 })
 
-test('admin conversation storage is isolated by normalized account identity', () => {
-  assert.equal(adminConversationKey(' Alice '), adminConversationKey('alice'))
-  assert.notEqual(adminConversationKey('alice'), adminConversationKey('bob'))
-})
 
 test('restore preserves verified data, report and retry metadata', () => {
   const [message] = mapServerMessages([{ id: 'turn-1', role: 'assistant', content: '',

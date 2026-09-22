@@ -22,7 +22,7 @@ test('routeName covers storefront, promotions and admin routes',()=>{
  assert.equal(routeName('/checkout'),'checkout')
  assert.equal(routeName('/membership'),'membership')
  assert.equal(routeName('/rewards'),'rewards')
- assert.equal(routeName('/admin/settings'),'admin')
+ assert.equal(routeName('/admin/settings'),'not-found')
  assert.equal(routeName('/missing'),'not-found')
 })
 test('product search matches accents, category and label',()=>{

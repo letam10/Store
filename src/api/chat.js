@@ -1,3 +1,4 @@
+import { apiEndpoint, apiCredentials } from './endpoint.js'
 export class ApiStreamError extends Error {
   constructor(message, code = 'API_ERROR', extra = {}) {
     super(message)
@@ -17,8 +18,8 @@ async function readError(response) {
 }
 
 export async function apiJson(url, options = {}) {
-  const response = await fetch(url, {
-    credentials: 'same-origin',
+  const response = await fetch(apiEndpoint(url), {
+    credentials: apiCredentials,
     ...options,
     headers: {
       ...(options.body ? { 'content-type': 'application/json' } : {}),
@@ -54,9 +55,9 @@ export async function streamChat({
   signal,
   onEvent,
 }) {
-  const response = await fetch(endpoint, {
+  const response = await fetch(apiEndpoint(endpoint), {
     method: 'POST',
-    credentials: 'same-origin',
+    credentials: apiCredentials,
     signal,
     headers: {
       'content-type': 'application/json',

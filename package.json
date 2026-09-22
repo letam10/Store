@@ -13,9 +13,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "node --test test/*.test.js",
-    "preview": "vite preview",
-    "dev:api": "npm --prefix server run dev",
-    "test:api": "npm --prefix server test"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.2.8",

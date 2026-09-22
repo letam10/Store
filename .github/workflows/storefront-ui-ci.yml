@@ -1,8 +1,9 @@
 name: storefront-ui-ci
 on:
   push:
-    branches:
-      - nhanh/giaodienv1
+  pull_request:
+permissions:
+  contents: read
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -13,12 +14,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - run: npm install --global npm@11.17.0
       - run: npm ci
       - run: npm test
       - run: npm run lint
       - run: npm run build
-      - name: Backend regression smoke
-        working-directory: server
-        run: |
-          npm ci
-          npm test

@@ -16,7 +16,7 @@ export default function ProductDetail({ onAddToCart, membershipTier='standard', 
   return <div className="container page-shell">
     <nav className="breadcrumbs" aria-label="Đường dẫn"><a href="/">Trang chủ</a><span>/</span><a href="/products">Hàng hóa</a><span>/</span><span>{product.name}</span></nav>
     <div className="product-detail-layout">
-      <section className={`product-detail-art product-detail-art--${product.tone}`} aria-label={'Hình minh họa ' + product.name}><span>{product.symbol}</span><small>{product.label}</small></section>
+      <section className={`product-detail-art product-detail-art--${product.tone}`} aria-label={'Hình minh họa ' + product.name}><img src={'/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[product.id] || 'headphones') + '.svg'} alt={'Minh họa ' + product.name} width="440" height="380" /><small>{product.label}</small></section>
       <section className="product-detail-info">
         <div className="product-member-line"><p className="eyebrow">{product.category}</p><span>{plan.badge}</span></div>
         <h1>{product.name}</h1>

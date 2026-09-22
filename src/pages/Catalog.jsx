@@ -36,7 +36,7 @@ export default function Catalog({ onAddToCart }) {
       <div className="catalog-suggestions"><span>Gợi ý:</span>{['tai nghe','túi','đồng hồ','đời sống'].map((term)=><button type="button" key={term} onClick={()=>setQuery(term)}>{term}</button>)}</div>
       {filtersActive && <button className="catalog-reset" type="button" onClick={resetFilters}>Xóa toàn bộ bộ lọc</button>}
     </div>
-    <div className="category-pills">{categories.map((item)=><button key={item} className={item===category?'is-active':''} onClick={()=>setCategory(item)} type="button">{item}</button>)}</div>
+    <div className="category-pills" aria-label="Danh mục sản phẩm">{categories.map((item)=><button key={item} className={item===category?'is-active':''} aria-pressed={item===category} onClick={()=>setCategory(item)} type="button">{item}</button>)}</div>
     <div className="product-grid catalog-grid">{visible.map((product)=><ProductCard key={product.id} product={product} onAddToCart={onAddToCart}/>)}</div>
     {visible.length===0&&<div className="surface empty-panel"><h2>Không tìm thấy sản phẩm</h2><p className="muted">Thử từ khóa ngắn hơn, tăng mức giá hoặc chọn “Tất cả”.</p><div className="page-actions" style={{justifyContent:'center'}}><button className="button button--soft" type="button" onClick={resetFilters}>Xóa bộ lọc</button></div></div>}
   </div>

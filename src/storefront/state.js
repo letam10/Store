@@ -43,7 +43,6 @@ export function routeName(pathname) {
   if (path === '/membership') return 'membership'
   if (path === '/rewards') return 'rewards'
   if (path === '/login' || path === '/account') return 'account'
-  if (path === '/admin' || path.startsWith('/admin/')) return 'admin'
   return 'not-found'
 }
 

@@ -12,10 +12,10 @@ import Checkout from './pages/Checkout'
 import Account from './pages/Account'
 import Membership from './pages/Membership'
 import Rewards from './pages/Rewards'
-import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
 import { addCartItem, cartCount, loadJson, normalizeSearch, routeName, setCartQuantity } from './storefront/state'
 import './App.css'
+import './storefront/design.css'
 
 const CART_KEY = 'storeCartV1'
 const ACCOUNT_KEY = 'storeCustomerAccountV1'
@@ -24,6 +24,8 @@ const MEMBERSHIPS_KEY = 'storeDemoMembershipsV1'
 const VOUCHER_KEY = 'storeSelectedDemoVoucherV1'
 
 export default function App() {
+  const [notice, setNotice] = useState('')
+  useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 3500); return () => clearTimeout(timer) }, [notice])
   const [cart, setCart] = useState(() => loadJson(CART_KEY, []))
   const [account, setAccount] = useState(() => loadJson(ACCOUNT_KEY, null))
   const [orders, setOrders] = useState(() => loadJson(ORDERS_KEY, []))
@@ -43,9 +45,8 @@ export default function App() {
     else localStorage.removeItem(ACCOUNT_KEY)
   }, [account])
 
-  if (route === 'admin') return <Admin />
 
-  const addToCart = (product) => setCart((current) => addCartItem(current, product))
+  const addToCart = (product) => { setCart((current) => addCartItem(current, product)); setNotice('Đã thêm ' + product.name + ' vào giỏ hàng.') }
   const updateQuantity = (id, quantity) => setCart((current) => setCartQuantity(current, id, quantity))
   const completeOrder = (order) => {
     setOrders((current) => [order, ...current].slice(0, 20))
@@ -77,6 +78,7 @@ export default function App() {
       <Header cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} />
       <main id="main-content">{page}</main>
       <Footer />
+      {notice && <div className="cart-notice" role="status"><span>✓ {notice}</span><a href="/cart">Xem giỏ hàng →</a><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div>}
       <CustomerSupport />
     </div>
   )

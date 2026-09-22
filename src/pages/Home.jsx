@@ -3,52 +3,57 @@ import LeadCapture from '../components/ui/LeadCapture'
 import { products } from '../data/products'
 import './Home.css'
 
-const categories = [...new Set(products.map((product) => product.category))].map((category) => ({
-  name: category,
-  symbol: products.find((product) => product.category === category)?.symbol || '•',
-  count: products.filter((product) => product.category === category).length,
-}))
+const categories = [
+  { name: 'Công nghệ', text: 'Nhịp sống kết nối', image: 'headphones', tone: 'green' },
+  { name: 'Phụ kiện', text: 'Mang theo cá tính', image: 'bag', tone: 'sand' },
+  { name: 'Đời sống', text: 'Chút vui mỗi ngày', image: 'cup', tone: 'rose' },
+]
 
 export default function Home({ onAddToCart }) {
-  return (
-    <>
-      <section className="home-hero">
-        <div className="container hero-layout">
-          <div className="hero-copy">
-            <p className="eyebrow">Store everyday / 2026</p>
-            <h1>Mua sắm gọn hơn.<br /><span>Sống nhẹ hơn.</span></h1>
-            <p>Những món đồ thiết thực cho công nghệ, phụ kiện và đời sống. Tìm nhanh, giá rõ, giỏ hàng đơn giản.</p>
-            <div className="hero-actions"><a className="button" href="/products">Xem hàng hóa</a><a className="button button--soft" href="/locations">Tìm cửa hàng</a></div>
-            <div className="hero-trust"><span>✓ Giá hiển thị rõ</span><span>✓ Hỗ trợ AI local</span><span>✓ Giao diện thân thiện mobile</span></div>
-          </div>
-          <div className="hero-showcase" aria-hidden="true">
-            <div className="hero-card hero-card--main"><span>🎧</span><b>Everyday sound</b><small>Nhẹ · Gọn · Dễ dùng</small></div>
-            <div className="hero-card hero-card--mini">New<br /><strong>2026</strong></div>
-          </div>
-        </div>
-      </section>
-      <div className="container">
-        <section className="benefit-strip" aria-label="Lợi ích"><div><b>01</b><span>Chọn nhanh theo danh mục</span></div><div><b>02</b><span>Giỏ hàng lưu trên thiết bị</span></div><div><b>03</b><span>Liên hệ và địa chỉ rõ ràng</span></div></section>
-        <section className="home-section home-category-section">
-          <div className="section-heading"><div><p className="eyebrow">Mua theo danh mục</p><h2>Đi thẳng tới thứ bạn cần</h2></div><a href="/products">Tất cả hàng hóa →</a></div>
-          <div className="home-category-grid">
-            {categories.map((category) => <a key={category.name} href={'/products?q=' + encodeURIComponent(category.name)}><span aria-hidden="true">{category.symbol}</span><div><b>{category.name}</b><small>{category.count} sản phẩm demo</small></div><i aria-hidden="true">→</i></a>)}
-          </div>
-        </section>
-        <section className="home-section">
-          <div className="section-heading"><div><p className="eyebrow">Sản phẩm nổi bật</p><h2>Được chọn nhiều</h2></div><a href="/products">Xem tất cả →</a></div>
-          <div className="product-grid">{products.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>
-        </section>
-        <section className="promo-hub">
-          <article className="promo-hub__vip"><p className="eyebrow">Store Membership</p><h2>VIP & Ưu tú</h2><p>Mở thêm voucher và trải nghiệm thành viên demo. Giá/quyền lợi hiện chỉ là dữ liệu prototype.</p><a className="button" href="/membership">Xem hạng thành viên</a></article>
-          <article className="promo-hub__lucky"><span aria-hidden="true">✦</span><p className="eyebrow">Store Lucky</p><h2>Quay thử vận may</h2><p>Vòng quay demo có thể mở voucher thử nghiệm cho checkout.</p><a className="button button--soft" href="/rewards">Quay ngay</a></article>
-        </section>
-        <LeadCapture />
-        <section className="story-grid">
-          <div className="story-card"><p className="eyebrow">Store care</p><h2>Mua xong vẫn có người hỗ trợ.</h2><p>Chat hỗ trợ AI local nằm ở góc màn hình; các câu hỏi về giá dùng dữ liệu Store có cấu trúc.</p><a href="/contact">Kênh liên hệ →</a></div>
-          <div className="story-card story-card--dark"><span>📍</span><h2>Ghé cửa hàng gần bạn</h2><p>Xem địa chỉ, giờ mở cửa và thông tin nhận hàng trực tiếp.</p><a href="/locations">Xem địa chỉ →</a></div>
-        </section>
+  return <>
+    <section className="shop-hero container">
+      <div className="shop-hero-copy">
+        <p className="eyebrow">THE EVERYDAY EDIT — BỘ SƯU TẬP 2026</p>
+        <h1>Đồ dùng tốt.<br />Ngày <em>thảnh thơi.</em></h1>
+        <p>Không cần quá nhiều. Chỉ cần những món đồ phù hợp với bạn — từ góc làm việc đến những chuyến đi.</p>
+        <a className="button" href="/products">Khám phá cửa hàng <span aria-hidden="true">↗</span></a>
+        <div className="hero-footnote"><span>01 / 03</span><span>Công nghệ · Phụ kiện · Đời sống</span></div>
       </div>
-    </>
-  )
+      <a className="shop-hero-art" href="/products/1" aria-label="Khám phá tai nghe Everyday">
+        <span className="hero-orbit" aria-hidden="true" />
+        <span className="hero-art-caption">LESS, BUT BETTER.</span>
+        <img src="/products/headphones.svg" alt="Minh họa tai nghe Everyday màu xanh" width="440" height="380" />
+        <div className="hero-product-tag"><div><small>ĐIỂM NHẤN MỖI NGÀY</small><strong>Tai nghe Everyday</strong><span>890.000 ₫ · Sản phẩm demo</span></div><b aria-hidden="true">↗</b></div>
+      </a>
+    </section>
+    <div className="container">
+      <section className="shopping-shortcuts" aria-label="Mua sắm dễ dàng">
+        <a href="/products"><span aria-hidden="true">⌕</span><div><b>Tìm đúng món bạn cần</b><small>Lọc danh mục, mức giá, tên sản phẩm</small></div></a>
+        <a href="/cart"><span aria-hidden="true">▣</span><div><b>Giỏ hàng luôn sẵn</b><small>Lưu trên trình duyệt của bạn</small></div></a>
+        <a href="/contact"><span aria-hidden="true">☏</span><div><b>Cần một chút tư vấn?</b><small>Xem kênh liên hệ và hỗ trợ</small></div></a>
+      </section>
+      <section className="home-section">
+        <div className="section-heading"><div><p className="eyebrow">BẮT ĐẦU TỪ ĐIỀU BẠN THÍCH</p><h2>Mỗi ngày, một lựa chọn tốt.</h2></div><a href="/products">Tất cả danh mục ↗</a></div>
+        <div className="editorial-categories">{categories.map((category) => <a className={'category-tile category-tile--' + category.tone} key={category.name} href={'/products?q=' + encodeURIComponent(category.name)}>
+          <div><small>{category.text}</small><h3>{category.name}</h3></div>
+          <img src={'/products/' + category.image + '.svg'} alt="" width="440" height="380" loading="lazy" />
+          <span className="tile-arrow" aria-hidden="true">↗</span>
+        </a>)}</div>
+      </section>
+      <section className="home-section">
+        <div className="section-heading"><div><p className="eyebrow">TUYỂN CHỌN TỪ STORE</p><h2>Những món đáng khám phá</h2></div><a href="/products">Xem tất cả sản phẩm ↗</a></div>
+        <div className="product-grid">{products.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>
+      </section>
+      <section className="editorial-banner">
+        <div><p className="eyebrow">MỘT CHÚT CHẬM LẠI</p><h2>Dành chỗ cho<br />những điều giản đơn.</h2><p>Một chiếc ly quen, một góc ngồi yêu thích. Bắt đầu buổi sáng theo cách của bạn.</p><a className="button" href="/products?q=Đời+sống">Khám phá đồ dùng đời sống ↗</a></div>
+        <img src="/products/cup.svg" alt="Minh họa ly cà phê Morning" width="440" height="380" loading="lazy" />
+      </section>
+      <section className="member-links" aria-label="Khám phá thêm">
+        <a href="/membership"><span>01 — STORE MEMBERSHIP</span><h2>Thêm quyền lợi.<br />Thêm niềm vui.</h2><p>Khám phá các hạng thành viên thử nghiệm.</p><b>Xem thành viên ↗</b></a>
+        <a href="/rewards"><span>02 — STORE LUCKY</span><h2>Một vòng quay,<br />một bất ngờ nhỏ.</h2><p>Thử vòng quay và voucher demo, không giải thưởng thật.</p><b>Trải nghiệm vòng quay ↗</b></a>
+      </section>
+      <LeadCapture />
+      <section className="visit-strip"><div><p className="eyebrow">STORE, GẦN BẠN HƠN</p><h2>Muốn xem trước khi chọn?</h2></div><a className="button button--soft" href="/locations">Thông tin cửa hàng ↗</a></section>
+    </div>
+  </>
 }
