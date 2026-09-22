@@ -34,12 +34,3 @@ export function evaluateVoucher(code, subtotal, tier='standard') {
 export function availableVouchers(subtotal, tier='standard') {
   return demoVouchers.filter((voucher)=>evaluateVoucher(voucher.code,subtotal,tier).valid)
 }
-
-export function spinDemoReward(turn=0, tier='standard') {
-  const base=['STORE50',null,'EVERYDAY10',null]
-  const rewards=tier==='elite' ? [...base,'VIP100','ELITE15'] : tier==='vip' ? [...base,'VIP100'] : base
-  const index=Math.abs(Number(turn)||0) % rewards.length
-  const code=rewards[index]
-  if(!code) return { kind:'message', title:'Gần trúng rồi!', message:'Lượt demo này chưa có voucher. Thử vòng tiếp theo.' }
-  return { kind:'voucher', title:'Bạn nhận được '+code, voucher:getVoucher(code) }
-}

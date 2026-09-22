@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { availableVouchers, evaluateVoucher, getMembershipPlan, spinDemoReward } from '../src/storefront/promotions.js'
+import { availableVouchers, evaluateVoucher, getMembershipPlan } from '../src/storefront/promotions.js'
 
 test('voucher engine enforces subtotal and membership tier',()=>{
  assert.equal(evaluateVoucher('STORE50',499000,'standard').valid,false)
@@ -18,9 +18,7 @@ test('available vouchers only returns currently eligible demo offers',()=>{
  assert.equal(elite.includes('ELITE15'),true)
 })
 
-test('membership and lucky spin remain deterministic for tests',()=>{
+test('membership falls back safely',()=>{
  assert.equal(getMembershipPlan('vip').name,'VIP')
  assert.equal(getMembershipPlan('missing').id,'standard')
- assert.equal(spinDemoReward(1,'standard').kind,'message')
- assert.equal(spinDemoReward(4,'vip').voucher.code,'VIP100')
 })

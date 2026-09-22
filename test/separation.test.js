@@ -12,7 +12,7 @@ test('customer project has no admin/backend source or imports', () => {
   const walk = (folder) => readdirSync(folder, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory() ? walk(join(folder, entry.name)) : [join(folder, entry.name)])
   for (const path of walk('src').filter((path) => /\.(js|jsx)$/.test(path))) {
-    assert.doesNotMatch(readFileSync(path, 'utf8'), /(?:from\s+['"][^'"]*Admin|\/api\/admin)/)
+    assert.doesNotMatch(readFileSync(path, 'utf8'), /(?:from\s+['"][^'"]*Admin|\/api\/admin|href\s*=\s*['"]\/admin|Bạn là admin|Đi tới Admin)/)
   }
   assert.equal(routeName('/admin'), 'not-found')
   assert.equal(routeName('/admin/settings'), 'not-found')
