@@ -2,6 +2,20 @@ import { useState } from 'react'
 import { customerApi } from '../api/customer'
 import './Auth.css'
 
+async function migrateOldBrowserAccount(username, password) {
+  let users
+  try { users = JSON.parse(localStorage.getItem('storeDemoUsersV1') || '[]') } catch { return null }
+  if (!Array.isArray(users)) return null
+  const user = users.find((item) => item.username?.toLowerCase() === username.toLowerCase() || item.email === username.toLowerCase())
+  if (!user || typeof user.salt !== 'string' || typeof user.hash !== 'string' || !/^(?:[a-f0-9]{2})+$/i.test(user.salt)) return null
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits'])
+  const salt = Uint8Array.from(user.salt.match(/../g), (byte) => Number.parseInt(byte, 16))
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' }, key, 256)
+  const hash = Array.from(new Uint8Array(bits), (byte) => byte.toString(16).padStart(2, '0')).join('')
+  if (hash !== user.hash) return null
+  return customerApi('/api/customer/register', { method: 'POST', body: JSON.stringify({ username: user.username, email: user.email, password }) })
+}
+
 export default function Auth({ mode, next = '/account', onLogin, onNavigate }) {
   const view = mode === '/register' ? 'register' : mode === '/forgot-password' ? 'forgot' : 'login'
   const [error, setError] = useState('')
@@ -22,9 +36,16 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate }) {
     }
     setBusy(true)
     try {
-      const payload = await customerApi('/api/customer/' + (view === 'register' ? 'register' : 'login'), {
-        method: 'POST', body: JSON.stringify(view === 'register' ? { username, email, password } : { username, password }),
-      })
+      let payload
+      try {
+        payload = await customerApi('/api/customer/' + (view === 'register' ? 'register' : 'login'), {
+          method: 'POST', body: JSON.stringify(view === 'register' ? { username, email, password } : { username, password }),
+        })
+      } catch (failure) {
+        if (view !== 'login' || failure.code !== 'INVALID_CREDENTIALS') throw failure
+        payload = await migrateOldBrowserAccount(username, password)
+        if (!payload) throw failure
+      }
       onLogin(payload.account)
       onNavigate(next.startsWith('/') && !next.startsWith('//') ? next : '/account')
     } catch (failure) { setError(failure.message || 'Không thể hoàn tất thao tác demo.') }

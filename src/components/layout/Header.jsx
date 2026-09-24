@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { products } from '../../data/products'
+import { getMembershipPlan } from '../../storefront/promotions'
 import './Header.css'
 
 const links = [
@@ -11,7 +12,7 @@ const links = [
   ['/contact', 'Địa chỉ & liên hệ'],
 ]
 
-export default function Header({ cartCount, account, membershipTier = 'standard', theme = 'light', onThemeChange }) {
+export default function Header({ cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const searchRef = useRef(null)
@@ -37,7 +38,7 @@ export default function Header({ cartCount, account, membershipTier = 'standard'
         <div className="header-actions">
           <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => setSearchOpen(true)}>⌕</button>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
-          <a className="account-link" href="/account">{account?.username ? (membershipTier !== 'standard' ? membershipTier.toUpperCase() + ' · ' : '') + account.username : 'Đăng nhập'}</a>
+          <a className="account-link" href="/account">{account?.username ? getMembershipPlan(membershipTier).badge + ' · ' + account.username : 'Đăng nhập'}</a>
           <a className="cart-count" href="/cart" aria-label={'Giỏ hàng có ' + cartCount + ' sản phẩm'}><span aria-hidden="true">🛒</span><span className="cart-count__text">Giỏ hàng</span><b>{cartCount}</b></a>
           <button className="header-menu-trigger" type="button" aria-label="Mở menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((current) => !current)}>☰</button>
         </div>

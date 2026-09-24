@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { build } from 'esbuild'
 import { JSDOM } from 'jsdom'
+import { pbkdf2Sync, webcrypto } from 'node:crypto'
 
 const bundle = await build({
   entryPoints: ['src/main.jsx'], bundle: true, platform: 'browser', format: 'iife', write: false,
@@ -44,6 +45,12 @@ test('guest can browse and add cart but checkout, favorites and chat require log
     window.document.querySelector('a[href="/checkout"]').click()
     await waitFor(() => window.location.pathname === '/checkout' && Boolean(window.document.querySelector('.auth-panel')))
     assert.equal(window.document.querySelector('.checkout-card'), null)
+    window.document.querySelector('.auth-back').click()
+    await waitFor(() => window.location.pathname === '/')
+    window.document.querySelector('a[href="/rewards"]').click()
+    await waitFor(() => window.location.pathname === '/rewards' && Boolean(window.document.querySelector('.lucky-wheel')))
+    window.document.querySelector('.lucky-spin').click()
+    await waitFor(() => window.location.pathname === '/login' && Boolean(window.document.querySelector('.auth-panel')))
     window.document.querySelector('.auth-back').click()
     await waitFor(() => window.location.pathname === '/')
     window.document.querySelector('.product-favorite').click()
@@ -93,6 +100,41 @@ test('server-backed registration loads account without saving a browser password
     login.elements.password.value = 'demo-password-123'
     login.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
     await waitFor(() => Boolean(window.document.querySelector('.account-profile')))
+  } finally { window.close() }
+})
+
+test('old browser demo credentials migrate only after password verification', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/login', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  window.scrollTo = () => {}
+  window.TextEncoder = TextEncoder
+  Object.defineProperty(window.crypto, 'subtle', { value: webcrypto.subtle })
+  const salt = '0123456789abcdef0123456789abcdef'
+  window.localStorage.setItem('storeDemoUsersV1', JSON.stringify([{ username: 'old-user', email: 'old@example.com', salt,
+    hash: pbkdf2Sync('old-password', Buffer.from(salt, 'hex'), 120000, 32, 'sha256').toString('hex') }]))
+  let registered = 0
+  const account = { id: 2, username: 'old-user', email: 'old@example.com', points: 0, tier: 'bronze', spinCredits: 0, csrfToken: 'csrf-old' }
+  window.fetch = async (url) => {
+    const path = String(url)
+    if (path.includes('/customer/login')) return response(401, { error: 'INVALID_CREDENTIALS' })
+    if (path.includes('/customer/register')) { registered += 1; return response(201, { account }) }
+    if (path.includes('/customer/session')) return response(registered ? 200 : 401, registered ? { authenticated: true, account } : { error: 'LOGIN_REQUIRED' })
+    if (path.includes('/customer/orders')) return response(200, { orders: [] })
+    if (path.includes('/customer/vouchers')) return response(200, { vouchers: [] })
+    if (path.includes('/customer/favorites')) return response(200, { ids: [] })
+    if (path.includes('/catalog')) return response(200, { products: [] })
+    return response(200, {})
+  }
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => Boolean(window.document.querySelector('.auth-panel form')))
+    const login = window.document.querySelector('.auth-panel form')
+    login.elements.username.value = 'old-user'
+    login.elements.password.value = 'old-password'
+    login.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
+    await waitFor(() => window.location.pathname === '/account' && Boolean(window.document.querySelector('.account-profile')))
+    assert.equal(registered, 1)
+    assert.ok(window.localStorage.getItem('storeDemoUsersV1'))
   } finally { window.close() }
 })
 

@@ -99,5 +99,6 @@ export function createDemoOrder(cart, { owner = 'guest', fulfillment = 'delivery
 export function orderMatches(order, query) {
   const needle = normalizeSearch(query).trim()
   if (!needle) return true
-  return normalizeSearch([order.id, order.status, order.fulfillment, order.itemCount, order.voucherCode, order.membershipTier].join(' ')).includes(needle)
+  return normalizeSearch([order.id, order.status, order.fulfillment, order.itemCount, order.voucherCode,
+    ...(order.voucherCodes || []), order.membershipTier, order.tier].join(' ')).includes(needle)
 }

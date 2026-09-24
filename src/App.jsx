@@ -47,7 +47,7 @@ export default function App() {
   const viewedLocation = useRef(null)
   const products = useMemo(() => enrichProducts(offers), [offers])
   const route = routeName(location.pathname)
-  const protectedPage = ['account', 'checkout', 'membership', 'rewards', 'favorites'].includes(route)
+  const protectedPage = ['account', 'checkout', 'membership', 'favorites'].includes(route)
   const isAuth = route === 'auth' || (protectedPage && !account)
   const liveCart = useMemo(() => cart.map((item) => {
     const currentProduct = products.find((product) => String(product.id) === String(item.id))
@@ -219,7 +219,7 @@ export default function App() {
   else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} />
   else if (route === 'checkout') page = <Checkout cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
-  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
+  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'favorites') page = <Favorites products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
   else if (route === 'account') page = <Account account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 

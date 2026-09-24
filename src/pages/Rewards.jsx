@@ -7,7 +7,7 @@ import './Rewards.css'
 
 const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short' })
 
-export default function Rewards({ account, tier = 'bronze', wallet = [], onReward, selectedVoucherCodes = [], onToggleVoucher }) {
+export default function Rewards({ account, tier = 'bronze', wallet = [], onReward, onRequireLogin, selectedVoucherCodes = [], onToggleVoucher }) {
   const [rotation, setRotation] = useState(0)
   const [result, setResult] = useState(null)
   const [spinning, setSpinning] = useState(false)
@@ -18,6 +18,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
   const closeRef = useRef(null)
   const sectors = rewardSectors()
   const plan = getMembershipPlan(tier)
+  const credits = account?.spinCredits || 0
   useEffect(() => () => clearTimeout(timer.current), [])
   useEffect(() => { if (result) closeRef.current?.focus() }, [result])
 
@@ -30,7 +31,8 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
   }
 
   async function spin() {
-    if (spinning || account.spinCredits < 1) return
+    if (!account) { onRequireLogin?.(); return }
+    if (spinning || credits < 1) return
     setSpinning(true)
     setResult(null)
     setError('')
@@ -64,17 +66,17 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
             <circle cx="180" cy="180" r="32" fill="#254535" stroke="#fffdf7" strokeWidth="5" />
           </svg><span className="lucky-wheel__hub" aria-hidden="true">store.</span>
         </div>
-        <button className="button lucky-spin" type="button" onClick={spin} disabled={spinning || account.spinCredits < 1}>{spinning ? 'Đang quay…' : 'Quay may mắn'}</button>
-        <p className="lucky-wheel__hint" role="status">Còn {account.spinCredits} lượt quay{account.spinCredits < 1 ? ' · Thanh toán đủ 100.000 ₫ để nhận lượt mới.' : ''}</p>
+        <button className="button lucky-spin" type="button" onClick={spin} disabled={spinning || (account && credits < 1)}>{spinning ? 'Đang quay…' : account ? 'Quay may mắn' : 'Đăng nhập để quay'}</button>
+        <p className="lucky-wheel__hint" role="status">{account ? `Còn ${credits} lượt quay${credits < 1 ? ' · Thanh toán đủ 100.000 ₫ để nhận lượt mới.' : ''}` : 'Đăng nhập để dùng lượt quay đã tích từ đơn hàng.'}</p>
         {error && <p role="alert">{error}</p>}
       </section>
       <section className="surface rewards-info">
-        <span className="membership-badge">{plan.badge}</span><h2>Voucher mới nhận của {account.username}</h2>
+        <span className="membership-badge">{plan.badge}</span><h2>{account ? 'Voucher mới nhận của ' + account.username : 'Voucher mới nhận'}</h2>
         {wallet.length ? <div className="reward-wallet-list">{wallet.slice(0, 10).map((voucher) => <article key={voucher.code}>
           <div><strong>{voucher.label}</strong><code>{voucher.code}</code></div>
           <small>Hạn dùng: {date.format(new Date(voucher.expiresAt))}</small>
           <button type="button" onClick={() => onToggleVoucher?.(voucher.code)}>{selectedVoucherCodes.includes(voucher.code) ? 'Bỏ chọn' : 'Chọn cho thanh toán'}</button>
-        </article>)}</div> : <p className="reward-wallet-empty">Chưa có voucher.</p>}
+        </article>)}</div> : <div className="reward-wallet-empty" aria-label="Chưa có voucher" />}
         <div className="page-actions"><a className="button button--soft" href="/account">Thông tin cá nhân</a><a className="button button--soft" href="/products">Tiếp tục mua sắm</a></div>
       </section>
     </div>
