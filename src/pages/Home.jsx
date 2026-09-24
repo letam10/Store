@@ -42,7 +42,7 @@ export default function Home({ onAddToCart }) {
       </section>
       <section className="home-section">
         <div className="section-heading"><div><p className="eyebrow">TUYỂN CHỌN TỪ STORE</p><h2>Những món đáng khám phá</h2></div><a href="/products">Xem tất cả sản phẩm ↗</a></div>
-        <div className="product-grid">{products.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>
+        <div className="product-grid">{products.slice(0, 4).map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>
       </section>
       <section className="editorial-banner">
         <div><p className="eyebrow">MỘT CHÚT CHẬM LẠI</p><h2>Dành chỗ cho<br />những điều giản đơn.</h2><p>Một chiếc ly quen, một góc ngồi yêu thích. Bắt đầu buổi sáng theo cách của bạn.</p><a className="button" href="/products?q=Đời+sống">Khám phá đồ dùng đời sống ↗</a></div>

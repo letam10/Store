@@ -183,3 +183,8 @@ button:disabled { cursor: not-allowed; }
   .site-footer { padding-bottom: 72px; }
 }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none!important; animation:none!important; } }
+.product-card { display: flex; flex-direction: column; }
+.product-info { display: flex; flex: 1; flex-direction: column; }
+.product-info h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.product-bottom { margin-top: auto; }
+.product-detail-art--imported img { width: min(100%, 280px); }

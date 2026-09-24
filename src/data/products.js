@@ -1,2 +1,5 @@
-// Giữ đường dẫn import cũ cho frontend, nhưng dùng cùng nguồn dữ liệu với backend.
-export { products, productDataMeta } from '../../shared/products.js'
+import importedProducts from './imported-products.json'
+import { products as featuredProducts, productDataMeta } from '../../shared/products.js'
+
+export const products = [...featuredProducts, ...importedProducts]
+export { productDataMeta }

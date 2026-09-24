@@ -7,7 +7,7 @@ export default function ProductCard({ product, onAddToCart }) {
     <a className="product-art-link" href={href} aria-label={'Xem chi tiết ' + product.name}>
       <div className={`product-art product-art--${product.tone}`}>
         <span className="product-label">{product.label}</span>
-        {pictures[product.id] ? <img src={'/products/' + pictures[product.id] + '.svg'} alt={'Minh họa ' + product.name} width="440" height="380" loading="lazy" /> : <span className="product-symbol" aria-hidden="true">{product.symbol}</span>}
+        {product.image || pictures[product.id] ? <img src={product.image || '/products/' + pictures[product.id] + '.svg'} alt={'Ảnh ' + product.name} width="440" height="380" loading="lazy" /> : <span className="product-symbol" aria-hidden="true">{product.symbol}</span>}
         <span className="product-view">Xem chi tiết ↗</span>
       </div>
     </a>

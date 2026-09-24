@@ -16,7 +16,7 @@ export default function ProductDetail({ onAddToCart, membershipTier='standard', 
   return <div className="container page-shell">
     <nav className="breadcrumbs" aria-label="Đường dẫn"><a href="/">Trang chủ</a><span>/</span><a href="/products">Hàng hóa</a><span>/</span><span>{product.name}</span></nav>
     <div className="product-detail-layout">
-      <section className={`product-detail-art product-detail-art--${product.tone}`} aria-label={'Hình minh họa ' + product.name}><img src={'/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[product.id] || 'headphones') + '.svg'} alt={'Minh họa ' + product.name} width="440" height="380" /><small>{product.label}</small></section>
+      <section className={`product-detail-art product-detail-art--${product.tone}${product.source ? ' product-detail-art--imported' : ''}`} aria-label={'Hình minh họa ' + product.name}><img src={product.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[product.id] || 'headphones') + '.svg'} alt={'Ảnh ' + product.name} width="440" height="380" /><small>{product.label}</small></section>
       <section className="product-detail-info">
         <div className="product-member-line"><p className="eyebrow">{product.category}</p><span>{plan.badge}</span></div>
         <h1>{product.name}</h1>
@@ -26,7 +26,7 @@ export default function ProductDetail({ onAddToCart, membershipTier='standard', 
         <div className="product-vouchers"><div className="product-vouchers__head"><b>Voucher demo</b><a href="/membership">Xem quyền lợi thành viên</a></div>{visibleVouchers.map((voucher)=><button className={selectedVoucher===voucher.code?'is-selected':''} key={voucher.code} type="button" onClick={()=>onSelectVoucher?.(voucher.code)}><span>{voucher.label}</span><code>{voucher.code}</code><small>{voucher.description}</small></button>)}</div>
         <div className="product-detail-actions"><button className="button" type="button" onClick={()=>onAddToCart(product)}>Thêm vào giỏ</button><a className="button button--soft" href="/cart">Xem giỏ hàng</a></div>
         {selectedVoucher&&<p className="voucher-saved" role="status">Đã giữ mã <b>{selectedVoucher}</b> cho checkout demo. Điều kiện sẽ được kiểm tra lại ở bước thanh toán.</p>}
-        <div className="product-detail-note"><b>Dữ liệu: {productDataMeta.mode === 'demo' ? 'demo' : productDataMeta.mode}</b><span>Store chưa cung cấp tồn kho theo chi nhánh cho dữ liệu này.</span></div>
+        <div className="product-detail-note"><b>Dữ liệu: {productDataMeta.mode === 'demo' ? 'demo' : productDataMeta.mode}</b><span>Store chưa cung cấp tồn kho theo chi nhánh cho dữ liệu này.</span>{product.source && <span>Giá VND chỉ minh họa. Ảnh: <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).</span>}</div>
       </section>
     </div>
     <section className="surface product-detail-service"><div><b>Giá có nguồn</b><span>Giá hiển thị lấy từ nguồn dữ liệu sản phẩm chung của Store.</span></div><div><b>Voucher có điều kiện</b><span>Checkout demo kiểm tra mức đơn và hạng thành viên trước khi giảm.</span></div><div><b>Hỗ trợ local</b><span>Chat hỗ trợ dùng API Store, không gọi Ollama trực tiếp từ trình duyệt.</span></div></section>

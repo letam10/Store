@@ -38,6 +38,7 @@ export default function Catalog({ onAddToCart }) {
     </div>
     <div className="category-pills" aria-label="Danh mục sản phẩm">{categories.map((item)=><button key={item} className={item===category?'is-active':''} aria-pressed={item===category} onClick={()=>setCategory(item)} type="button">{item}</button>)}</div>
     <div className="product-grid catalog-grid">{visible.map((product)=><ProductCard key={product.id} product={product} onAddToCart={onAddToCart}/>)}</div>
+    <p className="muted">{products.filter((product) => product.source === 'mock-store-api').length} sản phẩm nhập từ API cửa hàng mẫu để thử giao diện. Giá VND chỉ mang tính minh họa; ảnh từ <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).</p>
     {visible.length===0&&<div className="surface empty-panel"><h2>Không tìm thấy sản phẩm</h2><p className="muted">Thử từ khóa ngắn hơn, tăng mức giá hoặc chọn “Tất cả”.</p><div className="page-actions" style={{justifyContent:'center'}}><button className="button button--soft" type="button" onClick={resetFilters}>Xóa bộ lọc</button></div></div>}
   </div>
 }
