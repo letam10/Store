@@ -3,10 +3,10 @@ const currency = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: '
 const pictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
 export default function ProductCard({ product, onAddToCart }) {
   const href = '/products/' + product.id
-  return <article className={'product-card' + (product.stockCount === 0 ? ' product-card--out' : '')}>
+  return <article className={'product-card' + (product.stockCount === 0 ? ' product-card--out' : '') + (product.discountPercent > 0 ? ' product-card--sale' : '')}>
     <a className="product-art-link" href={href} aria-label={'Xem chi tiết ' + product.name}>
       <div className={`product-art product-art--${product.tone}`}>
-        <span className="product-label">{product.discountPercent > 0 ? '-' + product.discountPercent + '%' : product.label}</span>
+        <span className={'product-label' + (product.discountPercent > 0 ? ' product-label--sale' : '')}>{product.discountPercent > 0 ? '-' + product.discountPercent + '%' : product.label}</span>
         {product.image || pictures[product.id] ? <img src={product.image || '/products/' + pictures[product.id] + '.svg'} alt={'Ảnh ' + product.name} width="440" height="380" loading="lazy" /> : <span className="product-symbol" aria-hidden="true">{product.symbol}</span>}
         <span className="product-view">Xem chi tiết ↗</span>
       </div>

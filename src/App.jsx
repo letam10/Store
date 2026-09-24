@@ -18,6 +18,7 @@ import { addCartItem, canPurchase, cartCount, loadJson, normalizeSearch, routeNa
 import './App.css'
 import './storefront/design.css'
 import './storefront/updates.css'
+import './storefront/phase2.css'
 
 const CART_KEY = 'storeCartV1'
 const ACCOUNT_KEY = 'storeCustomerAccountV1'

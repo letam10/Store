@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { products } from '../../data/products'
 import './Header.css'
 
@@ -5,32 +6,49 @@ const links = [
   ['/', 'Trang chủ'],
   ['/products', 'Hàng hóa'],
   ['/rewards', 'May mắn'],
-  ['/membership', 'VIP'],
+  ['/membership', 'Thành viên'],
   ['/contact', 'Địa chỉ & liên hệ'],
 ]
 
-export default function Header({ cartCount, account, membershipTier='standard', theme='light', onThemeChange }) {
+export default function Header({ cartCount, account, membershipTier = 'standard', theme = 'light', onThemeChange }) {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const searchRef = useRef(null)
   const pathname = window.location.pathname
-  return (
+
+  useEffect(() => {
+    if (!searchOpen) return undefined
+    searchRef.current?.focus()
+    const closeOnEscape = (event) => { if (event.key === 'Escape') setSearchOpen(false) }
+    document.addEventListener('keydown', closeOnEscape)
+    return () => document.removeEventListener('keydown', closeOnEscape)
+  }, [searchOpen])
+
+  return <>
     <header className="site-header">
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <div className="container header-inner">
-        <a className="brand" href="/">store<span>.</span><small>EVERYDAY</small></a>
-        <form className="site-search" action="/products" method="get" role="search">
-          <label className="sr-only" htmlFor="site-search-input">Tìm sản phẩm</label>
-          <input id="site-search-input" name="q" type="search" list="site-search-suggestions" placeholder="Tìm sản phẩm, danh mục…" defaultValue={new URLSearchParams(window.location.search).get('q') || ''} />
-          <datalist id="site-search-suggestions">{products.map((product)=><option key={product.id} value={product.name} />)}</datalist>
-          <button type="submit" aria-label="Tìm kiếm">⌕</button>
-        </form>
-        <nav aria-label="Điều hướng chính">
-          {links.map(([href,label]) => <a key={href} href={href} aria-current={pathname === href ? 'page' : undefined}>{label}</a>)}
+        <a className="brand" href="/"><img src="/store-avatar.svg" alt="" width="40" height="40" />store<span>.</span></a>
+        <nav className={'header-nav' + (menuOpen ? ' is-open' : '')} aria-label="Điều hướng chính">
+          {links.map(([href, label]) => <a key={href} href={href} aria-current={pathname === href ? 'page' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
         </nav>
         <div className="header-actions">
+          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => setSearchOpen(true)}>⌕</button>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
-          <a className="account-link" href="/account">{account?.username ? (membershipTier!=='standard' ? membershipTier.toUpperCase()+' · ' : '') + account.username : 'Đăng nhập'}</a>
-          <a className="cart-count" href="/cart" aria-label={'Giỏ hàng có ' + cartCount + ' sản phẩm'}><span aria-hidden="true">🛒</span> Giỏ hàng <b>{cartCount}</b></a>
+          <a className="account-link" href="/account">{account?.username ? (membershipTier !== 'standard' ? membershipTier.toUpperCase() + ' · ' : '') + account.username : 'Đăng nhập'}</a>
+          <a className="cart-count" href="/cart" aria-label={'Giỏ hàng có ' + cartCount + ' sản phẩm'}><span aria-hidden="true">🛒</span><span className="cart-count__text">Giỏ hàng</span><b>{cartCount}</b></a>
+          <button className="header-menu-trigger" type="button" aria-label="Mở menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((current) => !current)}>☰</button>
         </div>
       </div>
     </header>
-  )
+    {searchOpen && <div className="header-search-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSearchOpen(false) }}>
+      <form className="site-search header-search-popover" action="/products" method="get" role="search" onSubmit={() => setSearchOpen(false)}>
+        <label className="sr-only" htmlFor="site-search-input">Tìm sản phẩm</label>
+        <input ref={searchRef} id="site-search-input" name="q" type="search" list="site-search-suggestions" placeholder="Tìm tên sản phẩm hoặc danh mục…" defaultValue={new URLSearchParams(window.location.search).get('q') || ''} />
+        <datalist id="site-search-suggestions">{products.slice(0, 50).map((product) => <option key={product.id} value={product.name} />)}</datalist>
+        <button type="submit" aria-label="Tìm kiếm">⌕</button>
+        <button className="header-search-close" type="button" aria-label="Đóng tìm kiếm" onClick={() => setSearchOpen(false)}>×</button>
+      </form>
+    </div>}
+  </>
 }
