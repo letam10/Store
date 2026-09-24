@@ -202,6 +202,7 @@ export default function CustomerSupport() {
 
   return (
     <aside className={'customer-support' + (isOpen ? ' customer-support--open' : '')} aria-label="Hỗ trợ khách hàng" onKeyDown={handleKeyDown}>
+      <button className="customer-support__to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} title="Lên đầu trang" aria-label="Lên đầu trang ngay">↑</button>
       <button ref={toggleRef} className="customer-support__toggle" type="button" aria-label={isOpen ? 'Thu gọn hỗ trợ khách hàng' : 'Mở hỗ trợ khách hàng'} aria-expanded={isOpen} aria-controls="store-support-panel" onClick={() => setIsOpen((previous) => !previous)}>
         <span className="customer-support__icon"><SupportIcon /></span>
         <span className="customer-support__heading"><strong>Hỗ trợ khách hàng</strong><span>AI local của Store</span></span>

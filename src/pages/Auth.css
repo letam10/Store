@@ -1,0 +1,11 @@
+.auth-screen{min-height:100dvh;display:grid;place-items:center;padding:30px 16px;background:radial-gradient(circle at 12% 15%,#ffcf96 0,transparent 28%),radial-gradient(circle at 85% 80%,#9d94fb 0,transparent 34%),linear-gradient(130deg,#f4b7cc,#c6c4ff 55%,#a4e4dd)}
+.auth-panel{width:min(100%,480px);padding:clamp(28px,5vw,48px);border:1px solid #ffffff9e;border-radius:28px;background:#fffaf9ee;box-shadow:0 28px 90px #5b4a8b38;backdrop-filter:blur(22px)}
+.auth-back{display:inline-block;margin-bottom:26px;color:#675c78;text-decoration:none;font-size:13px;font-weight:700}
+.auth-mark{display:block;color:#262344;font-size:38px;line-height:1;font-weight:900;letter-spacing:-2px}.auth-mark span{color:#f67488}
+.auth-kicker{margin:30px 0 8px;color:#a54e88;font-size:11px;font-weight:900;letter-spacing:2px}
+.auth-panel h1{margin:0;color:#292445;font-size:clamp(30px,5vw,40px);line-height:1.12;letter-spacing:-1.5px}
+.auth-intro{margin:12px 0 23px;color:#746d86;font-size:14px;line-height:1.6}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;padding:5px;margin-bottom:22px;border-radius:13px;background:#ede9f4}.auth-tabs a{padding:10px;text-align:center;text-decoration:none;color:#706784;font-weight:800;font-size:14px;border-radius:10px}.auth-tabs a.is-active{background:#fff;color:#52357c;box-shadow:0 3px 12px #5442871d}
+.auth-panel form{display:grid;gap:15px}.auth-panel form label{display:grid;gap:6px;color:#4d4667;font-size:13px;font-weight:800}.auth-panel form input{width:100%;padding:13px 15px;border:1px solid #ded5e8;border-radius:11px;background:#fff;color:#292445;font-size:15px}.auth-panel form input:focus{border-color:#9b6ce5;outline:3px solid #dac2fc}
+.auth-panel form>button{min-height:50px;margin-top:4px;border:0;border-radius:11px;background:linear-gradient(110deg,#f35d8b,#8456d8);color:#fff;box-shadow:0 10px 25px #9a5abb3b;font-size:15px;font-weight:900;cursor:pointer}.auth-panel form>button:disabled{opacity:.6}
+.auth-forgot{justify-self:end;color:#8c4caa;font-size:13px;font-weight:700;text-decoration:none}.auth-disclaimer{margin-top:22px;color:#7e7890;font-size:11px;line-height:1.6}.auth-error,.auth-message{padding:12px;border-radius:9px;font-size:13px}.auth-error{background:#fff0ee;color:#9e384a}.auth-message{background:#efedf9;color:#543d78}

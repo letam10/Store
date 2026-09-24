@@ -16,9 +16,11 @@ function RewardWheel({ account, tier = 'standard', selectedVoucher = '', onSelec
   const [duration, setDuration] = useState(5000)
   const pending = useRef(null)
   const timer = useRef(null)
+  const closeRef = useRef(null)
   const sectors = rewardSectors(tier)
   const plan = getMembershipPlan(tier)
   useEffect(() => () => clearTimeout(timer.current), [])
+  useEffect(() => { if (result) closeRef.current?.focus() }, [result])
 
   function finish() {
     if (!pending.current) return
@@ -81,15 +83,17 @@ function RewardWheel({ account, tier = 'standard', selectedVoucher = '', onSelec
         <ul className="reward-odds" aria-label="Tỷ lệ demo">{odds.map((item) => <li key={item.key}><span>{item.label}</span><strong>{item.count}/6 · {(item.count / 6 * 100).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}%</strong></li>)}</ul>
         <small>Tỷ lệ hiển thị được làm tròn. Các lượt độc lập, không đảm bảo trúng sau một số lượt cố định. Đây là tỷ lệ demo, chưa phải chiến dịch chính thức.</small>
         {selectedVoucher && <p className="reward-selected">Voucher đang giữ: <b>{selectedVoucher}</b></p>}
-        {result && <div className="reward-result" role="status" data-sector={result.sectorId}>
-          <b>{result.title}</b>
+        <div className="page-actions"><a className="button button--soft" href="/membership">Xem VIP & Ưu tú</a><a className="button button--soft" href="/products">Tiếp tục mua sắm</a></div>
+      </section>
+    </div>
+    {result && <div className="reward-modal-backdrop"><div className="reward-modal surface" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title" data-sector={result.sectorId}>
+          <span className="reward-modal__icon" aria-hidden="true">{result.kind === 'voucher' ? '✦' : '☆'}</span>
+          <h2 id="reward-modal-title">{result.title}</h2>
           {result.kind === 'voucher' ? <><strong>{result.voucher.label}</strong><code>{result.voucher.code}</code><small>{result.voucher.description}</small><div className="reward-result__actions">
             <button className="button" type="button" onClick={() => onSelectVoucher?.(result.voucher.code)}>{selectedVoucher === result.voucher.code ? 'Đang giữ mã này' : 'Giữ mã này'}</button>
             <a className="button button--soft" href="/cart">Đi tới giỏ hàng</a>
           </div></> : <p>{result.message}</p>}
-        </div>}
-        <div className="page-actions"><a className="button button--soft" href="/membership">Xem VIP & Ưu tú</a><a className="button button--soft" href="/products">Tiếp tục mua sắm</a></div>
-      </section>
-    </div>
+          <button ref={closeRef} className="reward-modal__close" type="button" onClick={() => setResult(null)}>Đóng</button>
+        </div></div>}
   </div>
 }

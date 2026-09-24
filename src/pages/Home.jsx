@@ -1,59 +1,66 @@
+import { useEffect, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import LeadCapture from '../components/ui/LeadCapture'
-import { products } from '../data/products'
+import { mostViewed } from '../storefront/catalog'
 import './Home.css'
 
-const categories = [
-  { name: 'Công nghệ', text: 'Nhịp sống kết nối', image: 'headphones', tone: 'green' },
-  { name: 'Phụ kiện', text: 'Mang theo cá tính', image: 'bag', tone: 'sand' },
-  { name: 'Đời sống', text: 'Chút vui mỗi ngày', image: 'cup', tone: 'rose' },
+const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+const rows = [
+  { category: 'Trang sức', subtitle: 'Điểm nhấn nhỏ, cá tính riêng' },
+  { category: 'Trang phục', subtitle: 'Sẵn sàng cho mỗi ngày' },
+  { category: 'Điện tử', subtitle: 'Công nghệ gần gũi' },
+  { category: 'Linh kiện', subtitle: 'Chi tiết làm nên khác biệt' },
 ]
 
-export default function Home({ onAddToCart }) {
+function ProductRow({ title, subtitle, products, onAddToCart, link }) {
+  return <section className="home-section">
+    <div className="section-heading"><div><p className="eyebrow">{subtitle}</p><h2>{title}</h2></div><a href={link}>Xem thêm →</a></div>
+    {products.length ? <div className="product-grid">{products.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div> : <p className="surface home-empty-sale">Chưa có sản phẩm giảm giá. Quản trị viên có thể đặt mức giảm trong mục Hàng hóa.</p>}
+  </section>
+}
+
+export default function Home({ products, onAddToCart }) {
+  const [slide, setSlide] = useState(0)
+  const featured = mostViewed(products, 5)
+  const heroProduct = featured[slide % featured.length]
+  useEffect(() => {
+    if (featured.length < 2) return undefined
+    const timer = setInterval(() => setSlide((current) => current + 1), 5000)
+    return () => clearInterval(timer)
+  }, [featured.length])
+  const sale = products.filter((product) => product.discountPercent > 0 && product.stockCount !== 0).slice(0, 4)
+
   return <>
     <section className="shop-hero container">
       <div className="shop-hero-copy">
-        <p className="eyebrow">THE EVERYDAY EDIT — BỘ SƯU TẬP 2026</p>
-        <h1>Đồ dùng tốt.<br />Ngày <em>thảnh thơi.</em></h1>
-        <p>Không cần quá nhiều. Chỉ cần những món đồ phù hợp với bạn — từ góc làm việc đến những chuyến đi.</p>
+        <p className="eyebrow">STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY</p>
+        <h1>Chọn món bạn yêu.<br /><em>Sống theo cách riêng.</em></h1>
+        <p>Khám phá sản phẩm nổi bật, ưu đãi demo và các nhóm hàng dễ tìm. Sản phẩm được yêu thích nhất sẽ tự xuất hiện ở đây.</p>
         <a className="button" href="/products">Khám phá cửa hàng <span aria-hidden="true">↗</span></a>
-        <div className="hero-footnote"><span>01 / 03</span><span>Công nghệ · Phụ kiện · Đời sống</span></div>
+        <div className="hero-footnote"><span>{String(slide % featured.length + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span><span>Thay đổi sau mỗi 5 giây</span></div>
+        <div className="hero-dots" aria-label="Chọn sản phẩm nổi bật">{featured.map((product, index) => <button key={product.id} type="button" className={slide % featured.length === index ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={'Xem ' + product.name} aria-pressed={slide % featured.length === index} />)}</div>
       </div>
-      <a className="shop-hero-art" href="/products/1" aria-label="Khám phá tai nghe Everyday">
-        <span className="hero-orbit" aria-hidden="true" />
-        <span className="hero-art-caption">LESS, BUT BETTER.</span>
-        <img src="/products/headphones.svg" alt="Minh họa tai nghe Everyday màu xanh" width="440" height="380" />
-        <div className="hero-product-tag"><div><small>ĐIỂM NHẤN MỖI NGÀY</small><strong>Tai nghe Everyday</strong><span>890.000 ₫ · Sản phẩm demo</span></div><b aria-hidden="true">↗</b></div>
-      </a>
+      {heroProduct && <a className="shop-hero-art" href={'/products/' + heroProduct.id} aria-label={'Xem chi tiết ' + heroProduct.name}>
+        <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">TOP VIEWED · DEMO</span>
+        <img key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" />
+        <div className="hero-product-tag"><div><small>{heroProduct.viewCount} LƯỢT XEM CHI TIẾT</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)} · Sản phẩm demo</span></div><b aria-hidden="true">↗</b></div>
+      </a>}
     </section>
     <div className="container">
-      <section className="shopping-shortcuts" aria-label="Mua sắm dễ dàng">
-        <a href="/products"><span aria-hidden="true">⌕</span><div><b>Tìm đúng món bạn cần</b><small>Lọc danh mục, mức giá, tên sản phẩm</small></div></a>
-        <a href="/cart"><span aria-hidden="true">▣</span><div><b>Giỏ hàng luôn sẵn</b><small>Lưu trên trình duyệt của bạn</small></div></a>
-        <a href="/contact"><span aria-hidden="true">☏</span><div><b>Cần một chút tư vấn?</b><small>Xem kênh liên hệ và hỗ trợ</small></div></a>
+      <section className="shopping-shortcuts" aria-label="Lối tắt mua sắm">
+        <a href="/products"><span aria-hidden="true">⌕</span><div><b>Tìm đúng món bạn cần</b><small>Lọc theo danh mục và mức giá</small></div></a>
+        <a href="/cart"><span aria-hidden="true">▣</span><div><b>Giỏ hàng của bạn</b><small>Tích chọn món muốn thanh toán</small></div></a>
+        <a href="/contact"><span aria-hidden="true">☏</span><div><b>Địa chỉ & liên hệ</b><small>Xem bản đồ và kênh hỗ trợ</small></div></a>
       </section>
-      <section className="home-section">
-        <div className="section-heading"><div><p className="eyebrow">BẮT ĐẦU TỪ ĐIỀU BẠN THÍCH</p><h2>Mỗi ngày, một lựa chọn tốt.</h2></div><a href="/products">Tất cả danh mục ↗</a></div>
-        <div className="editorial-categories">{categories.map((category) => <a className={'category-tile category-tile--' + category.tone} key={category.name} href={'/products?q=' + encodeURIComponent(category.name)}>
-          <div><small>{category.text}</small><h3>{category.name}</h3></div>
-          <img src={'/products/' + category.image + '.svg'} alt="" width="440" height="380" loading="lazy" />
-          <span className="tile-arrow" aria-hidden="true">↗</span>
-        </a>)}</div>
-      </section>
-      <section className="home-section">
-        <div className="section-heading"><div><p className="eyebrow">TUYỂN CHỌN TỪ STORE</p><h2>Những món đáng khám phá</h2></div><a href="/products">Xem tất cả sản phẩm ↗</a></div>
-        <div className="product-grid">{products.slice(0, 4).map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>
-      </section>
-      <section className="editorial-banner">
-        <div><p className="eyebrow">MỘT CHÚT CHẬM LẠI</p><h2>Dành chỗ cho<br />những điều giản đơn.</h2><p>Một chiếc ly quen, một góc ngồi yêu thích. Bắt đầu buổi sáng theo cách của bạn.</p><a className="button" href="/products?q=Đời+sống">Khám phá đồ dùng đời sống ↗</a></div>
-        <img src="/products/cup.svg" alt="Minh họa ly cà phê Morning" width="440" height="380" loading="lazy" />
-      </section>
+      <ProductRow title="Sản phẩm nổi bật" subtitle="ĐƯỢC XEM NHIỀU NHẤT" products={featured.slice(0, 4)} onAddToCart={onAddToCart} link="/products?sort=popular" />
+      <ProductRow title="Đang giảm giá" subtitle="ƯU ĐÃI DEMO TỪ QUẢN TRỊ" products={sale} onAddToCart={onAddToCart} link="/products?sort=discount" />
+      {rows.map(({ category, subtitle }) => <ProductRow key={category} title={category} subtitle={subtitle} products={products.filter((product) => product.category === category && product.stockCount !== 0).slice(0, 4)} onAddToCart={onAddToCart} link={'/products?category=' + encodeURIComponent(category)} />)}
       <section className="member-links" aria-label="Khám phá thêm">
         <a href="/membership"><span>01 — STORE MEMBERSHIP</span><h2>Thêm quyền lợi.<br />Thêm niềm vui.</h2><p>Khám phá các hạng thành viên thử nghiệm.</p><b>Xem thành viên ↗</b></a>
-        <a href="/rewards"><span>02 — STORE LUCKY</span><h2>Một vòng quay,<br />một bất ngờ nhỏ.</h2><p>Thử vòng quay và voucher demo, không giải thưởng thật.</p><b>Trải nghiệm vòng quay ↗</b></a>
+        <a href="/rewards"><span>02 — STORE LUCKY</span><h2>Một vòng quay,<br />một bất ngờ nhỏ.</h2><p>Thử vòng quay và voucher demo.</p><b>Trải nghiệm vòng quay ↗</b></a>
       </section>
       <LeadCapture />
-      <section className="visit-strip"><div><p className="eyebrow">STORE, GẦN BẠN HƠN</p><h2>Muốn xem trước khi chọn?</h2></div><a className="button button--soft" href="/locations">Thông tin cửa hàng ↗</a></section>
+      <section className="visit-strip"><div><p className="eyebrow">STORE, GẦN BẠN HƠN</p><h2>Muốn tìm đường hoặc liên hệ?</h2></div><a className="button button--soft" href="/contact">Xem địa chỉ & liên hệ ↗</a></section>
     </div>
   </>
 }

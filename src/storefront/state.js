@@ -15,6 +15,10 @@ export function cartTotal(cart) {
   return cart.reduce((total, item) => total + Number(item.price || 0) * Number(item.quantity || 0), 0)
 }
 
+export function canPurchase(item) {
+  return item.stockCount == null || Number(item.quantity) <= Number(item.stockCount)
+}
+
 export function addCartItem(cart, product) {
   const found = cart.find((item) => String(item.id) === String(product.id))
   if (!found) return [...cart, { ...product, quantity: 1 }]
@@ -36,13 +40,13 @@ export function routeName(pathname) {
   if (path === '/') return 'home'
   if (path === '/products') return 'products'
   if (/^\/products\/[^/]+$/.test(path)) return 'product'
-  if (path === '/contact') return 'contact'
-  if (path === '/locations') return 'locations'
+  if (path === '/contact' || path === '/locations') return 'contact'
   if (path === '/cart') return 'cart'
   if (path === '/checkout') return 'checkout'
   if (path === '/membership') return 'membership'
   if (path === '/rewards') return 'rewards'
-  if (path === '/login' || path === '/account') return 'account'
+  if (path === '/account') return 'account'
+  if (path === '/login' || path === '/register' || path === '/forgot-password') return 'auth'
   return 'not-found'
 }
 

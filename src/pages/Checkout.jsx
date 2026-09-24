@@ -32,11 +32,11 @@ export default function Checkout({ cart, account, membershipTier='standard', sel
       membershipTier,
     })
     setCompletedOrder(order)
-    onComplete(order)
+    onComplete(order, cart)
   }
 
   if (completedOrder) return <div className="container page-shell"><section className="surface order-success"><span>✓</span><h1>Đơn demo đã được tạo</h1><p className="order-code">{completedOrder.id}</p>{completedOrder.discount>0&&<p className="order-saving">Voucher {completedOrder.voucherCode}: -{money.format(completedOrder.discount)}</p>}<p className="muted">Prototype chưa gửi đơn tới hệ thống nghiệp vụ hoặc cổng thanh toán thật.</p><div className="page-actions" style={{ justifyContent: 'center' }}><a className="button" href={account ? '/account' : '/'}>{account ? 'Xem tài khoản' : 'Về trang chủ'}</a></div></section></div>
-  if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Không có hàng để thanh toán</h2><a className="button" href="/products">Chọn sản phẩm</a></section></div>
+  if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Chưa chọn sản phẩm để thanh toán</h2><p className="muted">Quay lại giỏ và tích chọn những món muốn mua.</p><a className="button" href="/cart">Về giỏ hàng</a></section></div>
 
   return <div className="container page-shell">
     <div className="checkout-progress" aria-label="Tiến trình mua hàng"><span className="is-done">1 · Giỏ hàng</span><span className="is-active">2 · Giao nhận</span><span>3 · Xác nhận</span></div>

@@ -1,12 +1,14 @@
-import { products, productDataMeta } from '../data/products'
+import { productDataMeta } from '../data/products'
 import { demoVouchers, getMembershipPlan } from '../storefront/promotions'
 import { productIdFromPath } from '../storefront/state'
+import { similarProducts } from '../storefront/catalog'
+import ProductCard from '../components/ui/ProductCard'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
-export default function ProductDetail({ onAddToCart, membershipTier='standard', selectedVoucher='', onSelectVoucher }) {
-  const productId = productIdFromPath(window.location.pathname)
+export default function ProductDetail({ products, pathname, onAddToCart, membershipTier='standard', selectedVoucher='', onSelectVoucher }) {
+  const productId = productIdFromPath(pathname)
   const product = products.find((item) => String(item.id) === String(productId))
   const plan=getMembershipPlan(membershipTier)
   const visibleVouchers=demoVouchers.filter((voucher)=>voucher.tiers.includes(membershipTier)).slice(0,3)
@@ -14,21 +16,24 @@ export default function ProductDetail({ onAddToCart, membershipTier='standard', 
   if (!product) return <div className="container page-shell"><section className="surface empty-panel"><h1>Không tìm thấy sản phẩm</h1><p className="muted">Sản phẩm có thể đã đổi đường dẫn hoặc chưa tồn tại trong dữ liệu Store.</p><div className="page-actions" style={{justifyContent:'center'}}><a className="button" href="/products">Về danh sách hàng hóa</a></div></section></div>
 
   return <div className="container page-shell">
+    <button className="product-back" type="button" onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = '/products')}>← Quay lại trang trước</button>
     <nav className="breadcrumbs" aria-label="Đường dẫn"><a href="/">Trang chủ</a><span>/</span><a href="/products">Hàng hóa</a><span>/</span><span>{product.name}</span></nav>
     <div className="product-detail-layout">
       <section className={`product-detail-art product-detail-art--${product.tone}${product.source ? ' product-detail-art--imported' : ''}`} aria-label={'Hình minh họa ' + product.name}><img src={product.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[product.id] || 'headphones') + '.svg'} alt={'Ảnh ' + product.name} width="440" height="380" /><small>{product.label}</small></section>
       <section className="product-detail-info">
         <div className="product-member-line"><p className="eyebrow">{product.category}</p><span>{plan.badge}</span></div>
         <h1>{product.name}</h1>
-        <strong className="product-detail-price">{money.format(product.price)}</strong>
+        <strong className="product-detail-price">{money.format(product.price)} {product.discountPercent > 0 && <><del>{money.format(product.originalPrice)}</del><span className="detail-discount">Giảm {product.discountPercent}%</span></>}</strong>
+        <p className="muted">{product.viewCount} lượt xem chi tiết · {product.stockCount === 0 ? 'Hết hàng' : product.stockCount === null ? 'Chưa cập nhật tồn kho' : 'Còn ' + product.stockCount + ' sản phẩm demo'}</p>
         <p className="product-detail-description">{product.description}</p>
         <ul className="product-feature-list">{product.features.map((feature)=><li key={feature}>✓ {feature}</li>)}</ul>
         <div className="product-vouchers"><div className="product-vouchers__head"><b>Voucher demo</b><a href="/membership">Xem quyền lợi thành viên</a></div>{visibleVouchers.map((voucher)=><button className={selectedVoucher===voucher.code?'is-selected':''} key={voucher.code} type="button" onClick={()=>onSelectVoucher?.(voucher.code)}><span>{voucher.label}</span><code>{voucher.code}</code><small>{voucher.description}</small></button>)}</div>
-        <div className="product-detail-actions"><button className="button" type="button" onClick={()=>onAddToCart(product)}>Thêm vào giỏ</button><a className="button button--soft" href="/cart">Xem giỏ hàng</a></div>
+        <div className="product-detail-actions"><button className="button" type="button" disabled={product.stockCount === 0} onClick={()=>onAddToCart(product)}>{product.stockCount === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}</button><a className="button button--soft" href="/cart">Xem giỏ hàng</a></div>
         {selectedVoucher&&<p className="voucher-saved" role="status">Đã giữ mã <b>{selectedVoucher}</b> cho checkout demo. Điều kiện sẽ được kiểm tra lại ở bước thanh toán.</p>}
         <div className="product-detail-note"><b>Dữ liệu: {productDataMeta.mode === 'demo' ? 'demo' : productDataMeta.mode}</b><span>Store chưa cung cấp tồn kho theo chi nhánh cho dữ liệu này.</span>{product.source && <span>Giá VND chỉ minh họa. Ảnh: <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).</span>}</div>
       </section>
     </div>
     <section className="surface product-detail-service"><div><b>Giá có nguồn</b><span>Giá hiển thị lấy từ nguồn dữ liệu sản phẩm chung của Store.</span></div><div><b>Voucher có điều kiện</b><span>Checkout demo kiểm tra mức đơn và hạng thành viên trước khi giảm.</span></div><div><b>Hỗ trợ local</b><span>Chat hỗ trợ dùng API Store, không gọi Ollama trực tiếp từ trình duyệt.</span></div></section>
+    {product.stockCount === 0 && <section className="home-section similar-section"><div className="section-heading"><div><p className="eyebrow">GỢI Ý THAY THẾ</p><h2>Sản phẩm tương tự còn hàng</h2></div></div><div className="product-grid">{similarProducts(products, product).map((item) => <ProductCard key={item.id} product={item} onAddToCart={onAddToCart} />)}</div></section>}
   </div>
 }
