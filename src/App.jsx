@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import CustomerSupport from './components/ui/CustomerSupport'
@@ -59,7 +59,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem(CART_KEY, JSON.stringify(cart)) }, [cart])
   useEffect(() => { localStorage.setItem(THEME_KEY, theme); document.documentElement.dataset.theme = theme }, [theme])
 
-  async function refreshCustomer() {
+  const refreshCustomer = useCallback(async () => {
     try {
       const session = await customerApi('/api/customer/session')
       setAccount(session.account)
@@ -68,11 +68,12 @@ export default function App() {
       ])
       setOrders(ordersResponse.orders || [])
       setWallet(vouchersResponse.vouchers || [])
+      setSelectedVoucherCodes((current) => current.filter((code) => (vouchersResponse.vouchers || []).some((voucher) => voucher.code === code)))
       setFavoriteIds(favoritesResponse.ids || [])
     } catch {
       setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
     } finally { setAuthReady(true) }
-  }
+  }, [])
 
   useEffect(() => {
     customerApi('/api/customer/session')
@@ -83,11 +84,18 @@ export default function App() {
         ])
         setOrders(ordersResponse.orders || [])
         setWallet(vouchersResponse.vouchers || [])
+        setSelectedVoucherCodes((current) => current.filter((code) => (vouchersResponse.vouchers || []).some((voucher) => voucher.code === code)))
         setFavoriteIds(favoritesResponse.ids || [])
       })
       .catch(() => { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) })
       .finally(() => setAuthReady(true))
   }, [])
+
+  useEffect(() => {
+    window.addEventListener('focus', refreshCustomer)
+    const timer = setInterval(refreshCustomer, 60000)
+    return () => { window.removeEventListener('focus', refreshCustomer); clearInterval(timer) }
+  }, [refreshCustomer])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -206,7 +214,7 @@ export default function App() {
   else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { setAccount(value); refreshCustomer() }} onNavigate={navigate} />
   else if (route === 'home') page = <Home products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
-  else if (route === 'product') page = <ProductDetail products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
+  else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'contact') page = <Contact />
   else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} />
   else if (route === 'checkout') page = <Checkout cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />

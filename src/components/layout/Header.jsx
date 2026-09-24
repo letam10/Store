@@ -32,6 +32,7 @@ export default function Header({ cartCount, account, membershipTier = 'standard'
         <a className="brand" href="/"><img src="/store-avatar.svg" alt="" width="40" height="40" />store<span>.</span></a>
         <nav className={'header-nav' + (menuOpen ? ' is-open' : '')} aria-label="Điều hướng chính">
           {links.map(([href, label]) => <a key={href} href={href} aria-current={pathname === href ? 'page' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
+          <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? 'Tài khoản của bạn' : 'Đăng nhập / Đăng ký'}</a>
         </nav>
         <div className="header-actions">
           <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => setSearchOpen(true)}>⌕</button>

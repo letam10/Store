@@ -43,7 +43,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
 
   useEffect(() => {
     const initialId = initialConversationIdRef.current
-    if (!initialId) return undefined
+    if (!account || !initialId) return undefined
     const restoreGuard = restoreGuardRef.current
     const gate = gateRef.current
     const token = restoreGuard.begin()
@@ -69,7 +69,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
         }
       })
     return () => { disposed = true; restoreGuard.invalidate() }
-  }, [])
+  }, [account])
 
   useEffect(() => {
     const restoreGuard = restoreGuardRef.current
@@ -126,6 +126,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
     try {
       await streamChat({
         endpoint: '/api/support/chat',
+        csrfToken: account?.csrfToken,
         message: clean,
         conversationId: conversationIdRef.current,
         requestId: resolvedRequestId,

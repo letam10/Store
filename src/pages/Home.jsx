@@ -42,15 +42,15 @@ export default function Home({ products, onAddToCart, favoriteIds = [], onToggle
       <div className="shop-hero-copy">
         <p className="eyebrow">STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY</p>
         <h1>Chọn món bạn yêu.<br /><em>Sống theo cách riêng.</em></h1>
-        <p>Khám phá sản phẩm nổi bật, ưu đãi demo và các nhóm hàng dễ tìm. Sản phẩm được yêu thích nhất sẽ tự xuất hiện ở đây.</p>
+        <p>Khám phá sản phẩm nổi bật, ưu đãi và các nhóm hàng dễ tìm. Sản phẩm được xem nhiều nhất sẽ tự xuất hiện ở đây.</p>
         <a className="button" href="/products">Khám phá cửa hàng <span aria-hidden="true">↗</span></a>
         <div className="hero-footnote"><span>{String(slide % featured.length + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span><span>Thay đổi sau mỗi 5 giây</span></div>
         <div className="hero-dots" aria-label="Chọn sản phẩm nổi bật">{featured.map((product, index) => <button key={product.id} type="button" className={slide % featured.length === index ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={'Xem ' + product.name} aria-pressed={slide % featured.length === index} />)}</div>
       </div>
       {heroProduct && <a className="shop-hero-art" href={'/products/' + heroProduct.id} aria-label={'Xem chi tiết ' + heroProduct.name}>
-        <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">TOP VIEWED · DEMO</span>
+        <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">ĐƯỢC XEM NHIỀU</span>
         <img key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" />
-        <div className="hero-product-tag"><div><small>{heroProduct.viewCount} LƯỢT XEM CHI TIẾT</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)} · Sản phẩm demo</span></div><b aria-hidden="true">↗</b></div>
+        <div className="hero-product-tag"><div><small>{heroProduct.viewCount} LƯỢT XEM CHI TIẾT</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)} · Giá dữ liệu mẫu</span></div><b aria-hidden="true">↗</b></div>
       </a>}
     </section>
     <div className="container">
@@ -63,8 +63,8 @@ export default function Home({ products, onAddToCart, favoriteIds = [], onToggle
       <ProductRow title="Đang giảm giá" subtitle="ƯU ĐÃI TỪ QUẢN TRỊ" products={sale} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?discount=1&sort=discount" sale />
       {rows.map(({ category, subtitle }) => <ProductRow key={category} title={category} subtitle={subtitle} products={products.filter((product) => product.category === category && product.stockCount !== 0)} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link={'/products?category=' + encodeURIComponent(category)} />)}
       <section className="member-links" aria-label="Khám phá thêm">
-        <a href="/membership"><span>01 — STORE MEMBERSHIP</span><h2>Thêm quyền lợi.<br />Thêm niềm vui.</h2><p>Khám phá các hạng thành viên thử nghiệm.</p><b>Xem thành viên ↗</b></a>
-        <a href="/rewards"><span>02 — STORE LUCKY</span><h2>Một vòng quay,<br />một bất ngờ nhỏ.</h2><p>Thử vòng quay và voucher demo.</p><b>Trải nghiệm vòng quay ↗</b></a>
+        <a href="/membership"><span>01 — THÀNH VIÊN STORE</span><h2>Thêm quyền lợi.<br />Thêm niềm vui.</h2><p>Khám phá bốn hạng thành viên tích điểm.</p><b>Xem thành viên ↗</b></a>
+        <a href="/rewards"><span>02 — STORE LUCKY</span><h2>Một vòng quay,<br />một bất ngờ nhỏ.</h2><p>Dùng lượt quay đã tích để nhận voucher.</p><b>Đến vòng quay ↗</b></a>
       </section>
       <LeadCapture />
       <section className="visit-strip"><div><p className="eyebrow">STORE, GẦN BẠN HƠN</p><h2>Muốn tìm đường hoặc liên hệ?</h2></div><a className="button button--soft" href="/contact">Xem địa chỉ & liên hệ ↗</a></section>

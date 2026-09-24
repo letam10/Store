@@ -1,4 +1,5 @@
 .product-card { position: relative; }
+.mobile-account-link { display: none !important; }
 .product-favorite { position: absolute; z-index: 3; right: 11px; top: 11px; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #d7e5d6; border-radius: 50%; background: #fffef0ed; color: #b33c43; font-size: 22px; cursor: pointer; }
 .product-favorite.is-active { background: #b33c43; border-color: #b33c43; color: white; }
 .product-detail-layout { align-items: start; }
@@ -50,5 +51,7 @@
 :root[data-theme='dark'] .checkout-voucher-list label { background: #22362a; }
 :root[data-theme='dark'] .reward-wallet-list article { background: #22362a; }
 :root[data-theme='dark'] .reward-wallet-list article button { background: #34563d; }
+@media(min-width:1001px) { .home-row-grid { grid-template-columns: repeat(6, minmax(0,1fr)); } .home-row-grid .product-card:nth-child(n+5) { display: flex; } }
 @media(max-width:1050px) { .membership-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media(max-width:1000px) { .mobile-account-link { display: block !important; } .shop-hero { grid-template-columns: 1fr; } .shop-hero-art { min-height: 380px; padding-bottom: 94px; } .shop-hero-art > img { max-width: 320px; max-height: 280px; object-fit: contain; } .hero-dots { flex-wrap: wrap; } }
 @media(max-width:760px) { .customer-support--open { width: calc(100vw - 24px); } .membership-grid { grid-template-columns: 1fr; } }
