@@ -1,0 +1,54 @@
+.product-card { position: relative; }
+.product-favorite { position: absolute; z-index: 3; right: 11px; top: 11px; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #d7e5d6; border-radius: 50%; background: #fffef0ed; color: #b33c43; font-size: 22px; cursor: pointer; }
+.product-favorite.is-active { background: #b33c43; border-color: #b33c43; color: white; }
+.product-detail-layout { align-items: start; }
+.product-detail-art { align-self: start; justify-content: flex-start; padding: 30px 20px 22px; }
+.product-detail-art img { display: block; max-height: 480px; object-fit: contain; }
+.detail-subhead { margin: 24px 0 8px; font-size: 20px; }
+.product-detail-full { display: grid; gap: 24px; margin-top: 32px; padding: clamp(22px, 4vw, 46px); }
+.detail-block { min-width: 0; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.detail-block:last-child { border-bottom: 0; padding-bottom: 0; }
+.detail-block h2 { margin: 0 0 14px; font-size: clamp(23px, 3vw, 30px); }
+.detail-block p { line-height: 1.7; }
+.detail-review-form { display: grid; gap: 12px; max-width: 680px; margin-bottom: 24px; }
+.detail-review-form label { display: grid; gap: 6px; font-weight: 700; }
+.detail-review-form select, .detail-review-form textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--ink); font: inherit; }
+.detail-review-form .button { justify-self: start; }
+.detail-review-list { display: grid; gap: 12px; }
+.detail-review-list article { padding: 16px; border: 1px solid var(--line); border-radius: 12px; }
+.detail-review-list small { display: block; margin-top: 4px; opacity: .7; }
+.detail-review-list p { margin-bottom: 0; }
+.detail-admin-reply { margin-top: 12px; padding: 10px 14px; border-left: 3px solid #4c9265; background: #eaf4eb; }
+.detail-gallery { display: flex; gap: 10px; flex-wrap: wrap; }
+.detail-gallery button { width: 112px; height: 112px; border: 1px solid var(--line); border-radius: 10px; background: white; cursor: pointer; }
+.detail-gallery button[aria-pressed='true'] { border-color: #378257; box-shadow: 0 0 0 2px #37825755; }
+.detail-gallery img { width: 100%; height: 100%; object-fit: contain; }
+.detail-vouchers { display: flex; gap: 8px; flex-wrap: wrap; }
+.detail-vouchers button { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.checkout-voucher-list { display: grid; gap: 8px; margin-top: 12px; }
+.checkout-voucher-list label { display: flex; gap: 10px; align-items: start; padding: 10px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; }
+.checkout-voucher-list input { margin-top: 5px; accent-color: #30784d; }
+.checkout-voucher-list label span { display: grid; gap: 3px; }
+.checkout-voucher-list small { color: var(--muted); }
+.membership-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.membership-card { background: var(--paper); color: var(--ink); border-color: var(--line); }
+.membership-card h2, .membership-card strong { color: var(--ink); }
+.membership-card p, .membership-card li { color: var(--muted); }
+.reward-wallet-list { display: grid; gap: 10px; margin: 18px 0; }
+.reward-wallet-list article { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.reward-wallet-list article div { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.reward-wallet-list article button { justify-self: start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.reward-wallet-empty { min-height: 120px; display: grid; place-items: center; border: 1px dashed var(--line); border-radius: 10px; }
+.customer-support--open { width: 507px; }
+.customer-support--open .customer-support__panel { height: min(676px, calc(100dvh - 132px)); }
+.home-section--sale::before { content: '✦ ƯU ĐÃI ĐANG CÓ ✦'; display: block; width: fit-content; margin-bottom: 16px; padding: 5px 11px; border-radius: 999px; background: #bd3b2a; color: white; font-size: 12px; font-weight: 900; letter-spacing: .09em; }
+:root[data-theme='dark'] .membership-card { background: #22352a; border-color: #56715b; }
+:root[data-theme='dark'] .membership-card h2, :root[data-theme='dark'] .membership-card strong { color: #f0f8ed; }
+:root[data-theme='dark'] .membership-card p, :root[data-theme='dark'] .membership-card li { color: #c9d9c8; }
+:root[data-theme='dark'] .detail-admin-reply { background: #294834; }
+:root[data-theme='dark'] .detail-gallery button { background: #263d2f; }
+:root[data-theme='dark'] .checkout-voucher-list label { background: #22362a; }
+:root[data-theme='dark'] .reward-wallet-list article { background: #22362a; }
+:root[data-theme='dark'] .reward-wallet-list article button { background: #34563d; }
+@media(max-width:1050px) { .membership-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media(max-width:760px) { .customer-support--open { width: calc(100vw - 24px); } .membership-grid { grid-template-columns: 1fr; } }

@@ -1,76 +1,88 @@
-import { useMemo, useState } from 'react'
-import { availableVouchers, evaluateVoucher, getMembershipPlan } from '../storefront/promotions'
-import { cartTotal, createDemoOrder } from '../storefront/state'
+import { useEffect, useMemo, useState } from 'react'
+import { customerApi } from '../api/customer'
+import { getMembershipPlan } from '../storefront/promotions'
+import { cartTotal } from '../storefront/state'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+const destinations = [
+  ['hcm', 'TP. Hồ Chí Minh'], ['binh-duong', 'Bình Dương cũ · TP. Hồ Chí Minh'],
+  ['ba-ria-vung-tau', 'Bà Rịa - Vũng Tàu cũ · TP. Hồ Chí Minh'], ['hanoi', 'Hà Nội'],
+  ['nearby', 'Ngoại thành lân cận'], ['far', 'Tỉnh xa hơn'],
+]
 
-export default function Checkout({ cart, account, membershipTier='standard', selectedVoucher='', onVoucherChange, onComplete }) {
+export default function Checkout({ cart, account, membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [], onToggleVoucher, onComplete }) {
   const [completedOrder, setCompletedOrder] = useState(null)
   const [fulfillment, setFulfillment] = useState('delivery')
-  const [voucherInput,setVoucherInput]=useState(selectedVoucher)
-  const subtotal = cartTotal(cart)
-  const evaluation=useMemo(()=>voucherInput.trim()?evaluateVoucher(voucherInput,subtotal,membershipTier):{valid:false,discount:0,reason:''},[voucherInput,subtotal,membershipTier])
-  const discount=evaluation.valid?evaluation.discount:0
-  const total=subtotal-discount
-  const plan=getMembershipPlan(membershipTier)
-  const quickVouchers=availableVouchers(subtotal,membershipTier)
+  const [region, setRegion] = useState('hcm')
+  const [distanceKm, setDistanceKm] = useState(0)
+  const [quote, setQuote] = useState(null)
+  const [quoteError, setQuoteError] = useState('')
+  const [busy, setBusy] = useState(false)
+  const items = useMemo(() => cart.map((item) => ({ id: item.id, quantity: item.quantity })), [cart])
+  const itemKey = JSON.stringify(items)
+  const plan = getMembershipPlan(membershipTier)
+  const request = { items, fulfillment, region, distanceKm: Number(distanceKm), voucherCodes: selectedVoucherCodes }
 
-  function applyVoucher(code){
-    const normalized=String(code).trim().toUpperCase()
-    setVoucherInput(normalized)
-    onVoucherChange?.(normalized)
-  }
+  useEffect(() => {
+    const selectedItems = JSON.parse(itemKey)
+    if (!selectedItems.length) return undefined
+    const controller = new AbortController()
+    customerApi('/api/customer/quote', { method: 'POST', csrfToken: account.csrfToken,
+      body: JSON.stringify({ items: selectedItems, fulfillment, region, distanceKm: Number(distanceKm), voucherCodes: selectedVoucherCodes }), signal: controller.signal })
+      .then((result) => { setQuote(result); setQuoteError('') })
+      .catch((error) => { if (!controller.signal.aborted) { setQuote(null); setQuoteError(error.message) } })
+    return () => controller.abort()
+  }, [account.csrfToken, itemKey, fulfillment, region, distanceKm, selectedVoucherCodes])
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault()
-    const order = createDemoOrder(cart, {
-      owner: account?.username || 'guest',
-      fulfillment,
-      voucherCode:evaluation.valid?voucherInput:'',
-      discount,
-      membershipTier,
-    })
-    setCompletedOrder(order)
-    onComplete(order, cart)
+    setBusy(true); setQuoteError('')
+    const fields = new FormData(event.currentTarget)
+    try {
+      const payload = await customerApi('/api/customer/orders', { method: 'POST', csrfToken: account.csrfToken,
+        body: JSON.stringify({ ...request, recipient: fields.get('recipient'), phone: fields.get('phone'), address: fields.get('address') || '' }) })
+      setCompletedOrder(payload.order)
+      onComplete(payload.order, cart)
+    } catch (error) { setQuoteError(error.message) }
+    finally { setBusy(false) }
   }
 
-  if (completedOrder) return <div className="container page-shell"><section className="surface order-success"><span>✓</span><h1>Đơn demo đã được tạo</h1><p className="order-code">{completedOrder.id}</p>{completedOrder.discount>0&&<p className="order-saving">Voucher {completedOrder.voucherCode}: -{money.format(completedOrder.discount)}</p>}<p className="muted">Prototype chưa gửi đơn tới hệ thống nghiệp vụ hoặc cổng thanh toán thật.</p><div className="page-actions" style={{ justifyContent: 'center' }}><a className="button" href={account ? '/account' : '/'}>{account ? 'Xem tài khoản' : 'Về trang chủ'}</a></div></section></div>
-  if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Chưa chọn sản phẩm để thanh toán</h2><p className="muted">Quay lại giỏ và tích chọn những món muốn mua.</p><a className="button" href="/cart">Về giỏ hàng</a></section></div>
+  if (completedOrder) return <div className="container page-shell"><section className="surface order-success"><span>✓</span><h1>Đơn đã được tạo</h1><p className="order-code">{completedOrder.id}</p><p>Tổng cần thanh toán: {money.format(completedOrder.total)}</p><p className="muted">Điểm và lượt quay được cộng sau khi quản trị viên ghi nhận thanh toán.</p><a className="button" href="/account">Xem đơn hàng</a></section></div>
+  if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Chưa chọn sản phẩm để thanh toán</h2><a className="button" href="/cart">Về giỏ hàng</a></section></div>
 
   return <div className="container page-shell">
-    <div className="checkout-progress" aria-label="Tiến trình mua hàng"><span className="is-done">1 · Giỏ hàng</span><span className="is-active">2 · Giao nhận</span><span>3 · Xác nhận</span></div>
-    <header className="page-head"><div><p className="eyebrow">Mua hàng</p><h1>Thông tin giao nhận.</h1></div><p className="muted">Bạn có thể mua dưới dạng khách; không bắt buộc tạo tài khoản.</p></header>
+    <header className="page-head"><div><p className="eyebrow">Mua hàng</p><h1>Thông tin giao nhận</h1></div><span className="membership-badge">{plan.badge}</span></header>
     <div className="checkout-layout">
       <form className="surface checkout-card" onSubmit={submit}>
-        <fieldset className="fulfillment-picker">
-          <legend>Cách nhận hàng</legend>
-          <label className={fulfillment === 'delivery' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="delivery" checked={fulfillment === 'delivery'} onChange={() => setFulfillment('delivery')} /><span><b>Giao tận nơi</b><small>Phí và khả năng phục vụ được xác nhận theo địa chỉ.</small></span></label>
-          <label className={fulfillment === 'pickup' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="pickup" checked={fulfillment === 'pickup'} onChange={() => setFulfillment('pickup')} /><span><b>Nhận tại cửa hàng</b><small>Prototype chưa kiểm tra tồn kho theo chi nhánh.</small></span></label>
+        <fieldset className="fulfillment-picker"><legend>Cách nhận hàng</legend>
+          <label className={fulfillment === 'delivery' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="delivery" checked={fulfillment === 'delivery'} onChange={() => setFulfillment('delivery')} /><span><b>Giao tận nơi</b><small>Phí giao theo khu vực.</small></span></label>
+          <label className={fulfillment === 'pickup' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="pickup" checked={fulfillment === 'pickup'} onChange={() => setFulfillment('pickup')} /><span><b>Nhận tại cửa hàng</b><small>Không tính phí giao.</small></span></label>
         </fieldset>
-        <section className="checkout-voucher"><div className="checkout-voucher__head"><div><span className="membership-badge">{plan.badge}</span><b>Voucher demo</b></div><a href="/rewards">Vòng quay may mắn →</a></div><div className="checkout-voucher__input"><input value={voucherInput} onChange={(event)=>setVoucherInput(event.target.value.toUpperCase())} placeholder="Nhập mã voucher" maxLength="20" /><button type="button" onClick={()=>applyVoucher(voucherInput)}>Áp dụng</button></div>{voucherInput&&<p className={evaluation.valid?'voucher-valid':'voucher-invalid'} role="status">{evaluation.valid?'✓ Giảm '+money.format(discount):evaluation.reason}</p>}{quickVouchers.length>0&&<div className="checkout-voucher__quick">{quickVouchers.map((voucher)=><button key={voucher.code} type="button" onClick={()=>applyVoucher(voucher.code)}>{voucher.code}</button>)}</div>}<small>Voucher và mức giảm chỉ là dữ liệu demo, chưa phải chương trình khuyến mại Store đã duyệt.</small></section>
+        <section className="checkout-voucher"><div className="checkout-voucher__head"><b>Voucher của bạn · có thể dùng nhiều mã</b><a href="/rewards">Vòng quay →</a></div>
+          {wallet.length ? <div className="checkout-voucher-list">{wallet.map((voucher) => <label key={voucher.code}><input type="checkbox" checked={selectedVoucherCodes.includes(voucher.code)} onChange={() => onToggleVoucher(voucher.code)} /><span><b>{voucher.label}</b><code>{voucher.code}</code><small>Hạn {new Date(voucher.expiresAt).toLocaleDateString('vi-VN')}</small></span></label>)}</div> : <p className="muted">Bạn chưa có voucher.</p>}
+        </section>
         <div className="form-grid">
-          <label className="field"><span>Tên người nhận</span><input required defaultValue={account?.username || ''} /></label>
-          <label className="field"><span>Số điện thoại</span><input required inputMode="tel" autoComplete="tel" /></label>
-          {fulfillment === 'delivery' ? <>
-            <label className="field field--wide"><span>Địa chỉ nhận hàng</span><input required autoComplete="street-address" /></label>
-            <label className="field"><span>Thành phố</span><input required defaultValue="TP.HCM" /></label>
-          </> : <label className="field field--wide"><span>Cửa hàng nhận</span><select required><option value="">Chọn cửa hàng</option><option>Store Central · Quận 1, TP.HCM</option><option>Store East · TP. Thủ Đức</option><option>Store Coast · Vũng Tàu</option></select></label>}
-          <label className="field"><span>Phương thức</span><select><option>Thanh toán khi nhận hàng</option><option disabled>Thanh toán trực tuyến (chưa kết nối)</option></select></label>
-          <label className="field field--wide"><span>Ghi chú</span><textarea rows="4" placeholder="Tùy chọn" /></label>
+          <label className="field"><span>Tên người nhận</span><input name="recipient" required defaultValue={account.username} /></label>
+          <label className="field"><span>Số điện thoại</span><input name="phone" required inputMode="tel" autoComplete="tel" /></label>
+          {fulfillment === 'delivery' && <>
+            <label className="field field--wide"><span>Địa chỉ nhận hàng</span><input name="address" required autoComplete="street-address" /></label>
+            <label className="field"><span>Khu vực</span><select value={region} onChange={(event) => setRegion(event.target.value)}>{destinations.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+            {region === 'far' && <label className="field"><span>Khoảng cách ngoài tỉnh (km)</span><input type="number" min="0" max="3000" step="1" value={distanceKm} onChange={(event) => setDistanceKm(event.target.value)} required /></label>}
+          </>}
+          <label className="field"><span>Phương thức</span><select><option>Thanh toán khi nhận hàng</option></select></label>
         </div>
-        <div className="checkout-assurance"><span>🔒 Không thu thập thông tin thẻ trong prototype</span><span>↩ Có thể quay lại giỏ trước khi xác nhận</span></div>
-        <button className="button" type="submit">Xác nhận đơn demo · {money.format(total)}</button>
+        <p className="checkout-disclaimer">TP. Hồ Chí Minh gồm Bình Dương và Bà Rịa - Vũng Tàu cũ: 30.000 ₫. Hà Nội: 30.000 ₫. Ngoại thành lân cận: 60.000 ₫. Tỉnh xa: thêm 1.000 ₫/km ngoài tỉnh. Hạng Vàng miễn phí trong thành phố Store, Kim Cương miễn phí toàn quốc.</p>
+        {quoteError && <p className="voucher-invalid" role="alert">{quoteError}</p>}
+        <button className="button" type="submit" disabled={busy || !quote}>{busy ? 'Đang tạo đơn…' : 'Xác nhận đơn · ' + money.format(quote?.total ?? cartTotal(cart))}</button>
       </form>
-      <aside className="surface summary-card">
-        <p className="eyebrow">Đơn của bạn</p>
+      <aside className="surface summary-card"><p className="eyebrow">Đơn của bạn</p>
         {cart.map((item) => <div className="summary-row" key={item.id}><span>{item.name} × {item.quantity}</span><b>{money.format(item.price * item.quantity)}</b></div>)}
-        <div className="summary-row"><span>Cách nhận</span><b>{fulfillment === 'delivery' ? 'Giao tận nơi' : 'Nhận tại cửa hàng'}</b></div>
-        <div className="summary-row"><span>Tạm tính</span><span>{money.format(subtotal)}</span></div>
-        <div className="summary-row"><span>Voucher</span><b>{discount>0?'-'+money.format(discount):'—'}</b></div>
-        <div className="summary-row"><span>Phí vận chuyển</span><span>{fulfillment === 'delivery' ? 'Xác nhận theo địa chỉ' : 'Không áp dụng trong demo'}</span></div>
-        <div className="summary-row summary-row--total"><span>Tổng demo</span><span>{money.format(total)}</span></div>
-        <p className="checkout-disclaimer">Không có khoản thanh toán nào được thực hiện ở bản prototype này.</p>
+        <div className="summary-row"><span>Tạm tính</span><span>{money.format(quote?.subtotal ?? cartTotal(cart))}</span></div>
+        <div className="summary-row"><span>Voucher + hạng {plan.name}</span><b>-{money.format(quote?.discount ?? 0)}</b></div>
+        <div className="summary-row"><span>Phí giao hàng</span><span>{money.format(quote?.shippingFee ?? 0)}</span></div>
+        <div className="summary-row summary-row--total"><span>Tổng</span><span>{money.format(quote?.total ?? 0)}</span></div>
+        <p className="checkout-disclaimer">Giá và hàng hóa là dữ liệu mẫu; không có cổng thanh toán trực tuyến trong phiên bản này.</p>
       </aside>
     </div>
   </div>

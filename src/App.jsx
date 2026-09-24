@@ -9,22 +9,21 @@ import Contact from './pages/Contact'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Account from './pages/Account'
+import Favorites from './pages/Favorites'
 import Auth from './pages/Auth'
 import Membership from './pages/Membership'
 import Rewards from './pages/Rewards'
 import NotFound from './pages/NotFound'
 import { enrichProducts } from './storefront/catalog'
-import { addCartItem, canPurchase, cartCount, loadJson, normalizeSearch, routeName, setCartQuantity } from './storefront/state'
+import { customerApi } from './api/customer'
+import { addCartItem, canPurchase, cartCount, loadJson, routeName, setCartQuantity } from './storefront/state'
 import './App.css'
 import './storefront/design.css'
 import './storefront/updates.css'
 import './storefront/phase2.css'
+import './storefront/commerce.css'
 
 const CART_KEY = 'storeCartV1'
-const ACCOUNT_KEY = 'storeCustomerAccountV1'
-const ORDERS_KEY = 'storeDemoOrdersV1'
-const MEMBERSHIPS_KEY = 'storeDemoMembershipsV1'
-const VOUCHER_KEY = 'storeSelectedDemoVoucherV1'
 const THEME_KEY = 'storeThemeV1'
 
 function currentLocation() {
@@ -34,10 +33,12 @@ function currentLocation() {
 export default function App() {
   const [notice, setNotice] = useState('')
   const [cart, setCart] = useState(() => loadJson(CART_KEY, []))
-  const [account, setAccount] = useState(() => loadJson(ACCOUNT_KEY, null))
-  const [orders, setOrders] = useState(() => loadJson(ORDERS_KEY, []))
-  const [memberships, setMemberships] = useState(() => loadJson(MEMBERSHIPS_KEY, {}))
-  const [selectedVoucher, setSelectedVoucher] = useState(() => localStorage.getItem(VOUCHER_KEY) || '')
+  const [account, setAccount] = useState(null)
+  const [authReady, setAuthReady] = useState(false)
+  const [orders, setOrders] = useState([])
+  const [wallet, setWallet] = useState([])
+  const [favoriteIds, setFavoriteIds] = useState([])
+  const [selectedVoucherCodes, setSelectedVoucherCodes] = useState([])
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light')
   const [offers, setOffers] = useState([])
   const [location, setLocation] = useState(currentLocation)
@@ -46,7 +47,8 @@ export default function App() {
   const viewedLocation = useRef(null)
   const products = useMemo(() => enrichProducts(offers), [offers])
   const route = routeName(location.pathname)
-  const isAuth = route === 'auth' || (route === 'account' && !account)
+  const protectedPage = ['account', 'checkout', 'membership', 'rewards', 'favorites'].includes(route)
+  const isAuth = route === 'auth' || (protectedPage && !account)
   const liveCart = useMemo(() => cart.map((item) => {
     const currentProduct = products.find((product) => String(product.id) === String(item.id))
     return { ...item, ...currentProduct, quantity: item.quantity, selected: item.selected === true }
@@ -55,11 +57,37 @@ export default function App() {
 
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 3500); return () => clearTimeout(timer) }, [notice])
   useEffect(() => { localStorage.setItem(CART_KEY, JSON.stringify(cart)) }, [cart])
-  useEffect(() => { localStorage.setItem(ORDERS_KEY, JSON.stringify(orders)) }, [orders])
-  useEffect(() => { localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(memberships)) }, [memberships])
-  useEffect(() => { if (selectedVoucher) localStorage.setItem(VOUCHER_KEY, selectedVoucher); else localStorage.removeItem(VOUCHER_KEY) }, [selectedVoucher])
-  useEffect(() => { if (account) localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account)); else localStorage.removeItem(ACCOUNT_KEY) }, [account])
   useEffect(() => { localStorage.setItem(THEME_KEY, theme); document.documentElement.dataset.theme = theme }, [theme])
+
+  async function refreshCustomer() {
+    try {
+      const session = await customerApi('/api/customer/session')
+      setAccount(session.account)
+      const [ordersResponse, vouchersResponse, favoritesResponse] = await Promise.all([
+        customerApi('/api/customer/orders'), customerApi('/api/customer/vouchers'), customerApi('/api/customer/favorites'),
+      ])
+      setOrders(ordersResponse.orders || [])
+      setWallet(vouchersResponse.vouchers || [])
+      setFavoriteIds(favoritesResponse.ids || [])
+    } catch {
+      setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
+    } finally { setAuthReady(true) }
+  }
+
+  useEffect(() => {
+    customerApi('/api/customer/session')
+      .then(async (session) => {
+        setAccount(session.account)
+        const [ordersResponse, vouchersResponse, favoritesResponse] = await Promise.all([
+          customerApi('/api/customer/orders'), customerApi('/api/customer/vouchers'), customerApi('/api/customer/favorites'),
+        ])
+        setOrders(ordersResponse.orders || [])
+        setWallet(vouchersResponse.vouchers || [])
+        setFavoriteIds(favoritesResponse.ids || [])
+      })
+      .catch(() => { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) })
+      .finally(() => setAuthReady(true))
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -147,33 +175,51 @@ export default function App() {
   const updateQuantity = (id, quantity) => setCart((current) => setCartQuantity(current, id, quantity))
   const toggleCartItem = (id) => setCart((current) => current.map((item) => String(item.id) === String(id) ? { ...item, selected: !item.selected } : item))
   const completeOrder = (order, purchasedItems) => {
-    setOrders((current) => [order, ...current].slice(0, 20))
+    setOrders((current) => [order, ...current])
     const purchasedIds = new Set(purchasedItems.map((item) => String(item.id)))
     setCart((current) => current.filter((item) => !purchasedIds.has(String(item.id))))
-    setSelectedVoucher('')
+    setSelectedVoucherCodes([])
+    refreshCustomer()
   }
-  const ownerKey = account?.username ? normalizeSearch(account.username).trim() : ''
-  const membershipTier = ownerKey ? memberships[ownerKey] || 'standard' : 'standard'
-  const activateMembership = (tier) => { if (ownerKey) setMemberships((current) => ({ ...current, [ownerKey]: tier })) }
-  const accountOrders = ownerKey ? orders.filter((order) => order.owner === ownerKey) : []
+  const membershipTier = account?.tier || 'bronze'
+  function requireLogin() { navigate('/login?next=' + encodeURIComponent(location.pathname + location.search)) }
+  async function toggleFavorite(id) {
+    if (!account) { requireLogin(); return }
+    const saved = favoriteIds.includes(String(id))
+    try {
+      await customerApi('/api/customer/favorites/' + encodeURIComponent(id), {
+        method: saved ? 'DELETE' : 'PUT', csrfToken: account.csrfToken,
+      })
+      setFavoriteIds((current) => saved ? current.filter((item) => item !== String(id)) : [String(id), ...current])
+    } catch (error) { setNotice(error.message) }
+  }
+  function toggleVoucher(code) {
+    setSelectedVoucherCodes((current) => current.includes(code) ? current.filter((item) => item !== code) : [...current, code])
+  }
+  async function logout() {
+    try { await customerApi('/api/customer/logout', { method: 'POST', csrfToken: account.csrfToken }) } catch { /* Clear local account view even if the session expired. */ }
+    setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
+  }
 
   let page = <NotFound />
-  if (route === 'home') page = <Home products={products} onAddToCart={addToCart} />
-  else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} />
-  else if (route === 'product') page = <ProductDetail products={products} pathname={location.pathname} onAddToCart={addToCart} membershipTier={membershipTier} selectedVoucher={selectedVoucher} onSelectVoucher={setSelectedVoucher} />
+  if (!authReady && protectedPage) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
+  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { setAccount(value); refreshCustomer() }} onNavigate={navigate} />
+  else if (route === 'home') page = <Home products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
+  else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
+  else if (route === 'product') page = <ProductDetail products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'contact') page = <Contact />
   else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} />
-  else if (route === 'checkout') page = <Checkout cart={selectedCart} account={account} membershipTier={membershipTier} selectedVoucher={selectedVoucher} onVoucherChange={setSelectedVoucher} onComplete={completeOrder} />
-  else if (route === 'membership') page = <Membership account={account} tier={membershipTier} onActivate={activateMembership} />
-  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} selectedVoucher={selectedVoucher} onSelectVoucher={setSelectedVoucher} />
-  else if (route === 'account' && account) page = <Account account={account} orders={accountOrders} membershipTier={membershipTier} selectedVoucher={selectedVoucher} onSelectVoucher={setSelectedVoucher} onLogout={() => setAccount(null)} />
-  else if (isAuth) page = <Auth key={location.pathname} mode={location.pathname} onLogin={setAccount} onNavigate={navigate} />
+  else if (route === 'checkout') page = <Checkout cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
+  else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
+  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
+  else if (route === 'favorites') page = <Favorites products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
+  else if (route === 'account') page = <Account account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 
   return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} onClick={handleLink} onSubmitCapture={handleSearch}>
     {!isAuth && <Header cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
     <main id="main-content">{page}</main>
     {!isAuth && <Footer />}
     {!isAuth && notice && <div className="cart-notice" role="status"><span>✓ {notice}</span><a href="/cart">Xem giỏ hàng →</a><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div>}
-    {!isAuth && <CustomerSupport />}
+    {!isAuth && <CustomerSupport account={account} onRequireLogin={requireLogin} />}
   </div>
 }

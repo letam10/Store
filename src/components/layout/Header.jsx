@@ -5,6 +5,7 @@ import './Header.css'
 const links = [
   ['/', 'Trang chủ'],
   ['/products', 'Hàng hóa'],
+  ['/favorites', 'Yêu thích'],
   ['/rewards', 'May mắn'],
   ['/membership', 'Thành viên'],
   ['/contact', 'Địa chỉ & liên hệ'],

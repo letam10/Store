@@ -11,7 +11,7 @@ test('demo catalog groups jewelry, apparel, electronics and components', () => {
 
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
-  assert.equal(imported.length, 204)
+  assert.equal(imported.length, 504)
   assert.equal(imported[4].discountPercent, 15)
   const changed = enrichProducts([{ id: imported[4].id, discountPercent: 20, stockCount: 0, viewCount: 100 }, { id: imported[5].id, discountPercent: 5, stockCount: 2, viewCount: 10 }])
   assert.equal(changed[4].price, Math.round(changed[4].originalPrice * .8 / 10) * 10)

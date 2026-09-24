@@ -4,7 +4,7 @@ import { filterProducts } from '../storefront/state'
 import { mostViewed } from '../storefront/catalog'
 import './Storefront.css'
 
-export default function Catalog({ products, search, onAddToCart }) {
+export default function Catalog({ products, search, onAddToCart, favoriteIds = [], onToggleFavorite }) {
   const params = new URLSearchParams(search)
   const [category, setCategory] = useState(params.get('category') || 'Tất cả')
   const [query, setQuery] = useState(params.get('q') || '')
@@ -50,7 +50,7 @@ export default function Catalog({ products, search, onAddToCart }) {
         <p className="catalog-sidebar__hint">Bộ lọc luôn ở bên cạnh khi bạn cuộn danh sách.</p>
       </aside>
       <div className="catalog-results">
-        <div className="product-grid catalog-grid">{visible.slice(0, visibleCount).map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div>
+        <div className="product-grid catalog-grid">{visible.slice(0, visibleCount).map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} isFavorite={favoriteIds.includes(String(product.id))} onToggleFavorite={onToggleFavorite} />)}</div>
         {visibleCount < visible.length && <div className="catalog-load-more"><button className="button" type="button" onClick={() => setVisibleCount((count) => count + 25)}>Xem thêm 25 sản phẩm</button></div>}
         {visible.length === 0 && <div className="surface empty-panel"><h2>Không tìm thấy sản phẩm</h2><p className="muted">Thử từ khóa khác hoặc bỏ bộ lọc.</p><button className="button button--soft" type="button" onClick={resetFilters}>Xóa bộ lọc</button></div>}
         <p className="muted catalog-attribution">{products.filter((product) => product.source === 'mock-store-api').length} sản phẩm nhập từ API mẫu. Giá VND chỉ minh họa; ảnh từ <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).</p>

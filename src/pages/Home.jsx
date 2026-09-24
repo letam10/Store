@@ -12,7 +12,7 @@ const rows = [
   { category: 'Linh kiện', subtitle: 'Chi tiết làm nên khác biệt' },
 ]
 
-function ProductRow({ title, subtitle, products, onAddToCart, link, sale = false }) {
+function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onToggleFavorite, link, sale = false }) {
   const [offset, setOffset] = useState(0)
   useEffect(() => {
     if (products.length <= 6) return undefined
@@ -22,11 +22,11 @@ function ProductRow({ title, subtitle, products, onAddToCart, link, sale = false
   const visible = products.length <= 6 ? products : Array.from({ length: 6 }, (_, index) => products[(offset + index) % products.length])
   return <section className={'home-section home-product-row' + (sale ? ' home-section--sale' : '')}>
     <div className="section-heading"><div><p className="eyebrow">{subtitle}</p><h2>{title}</h2></div><a href={link}>Xem thêm →</a></div>
-    {visible.length ? <div className="product-grid home-row-grid" key={offset} aria-live="off">{visible.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />)}</div> : <p className="surface home-empty-sale">Chưa có sản phẩm giảm giá. Quản trị viên có thể đặt mức giảm trong mục Hàng hóa.</p>}
+    {visible.length ? <div className="product-grid home-row-grid" key={offset} aria-live="off">{visible.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} isFavorite={favoriteIds.includes(String(product.id))} onToggleFavorite={onToggleFavorite} />)}</div> : <p className="surface home-empty-sale">Chưa có sản phẩm giảm giá. Quản trị viên có thể đặt mức giảm trong mục Hàng hóa.</p>}
   </section>
 }
 
-export default function Home({ products, onAddToCart }) {
+export default function Home({ products, onAddToCart, favoriteIds = [], onToggleFavorite }) {
   const [slide, setSlide] = useState(0)
   const featured = mostViewed(products, 20)
   const heroProduct = featured[slide % featured.length]
@@ -59,9 +59,9 @@ export default function Home({ products, onAddToCart }) {
         <a href="/cart"><span aria-hidden="true">▣</span><div><b>Giỏ hàng của bạn</b><small>Tích chọn món muốn thanh toán</small></div></a>
         <a href="/contact"><span aria-hidden="true">☏</span><div><b>Địa chỉ & liên hệ</b><small>Xem bản đồ và kênh hỗ trợ</small></div></a>
       </section>
-      <ProductRow title="Sản phẩm nổi bật" subtitle="TOP 20 ĐƯỢC XEM NHIỀU NHẤT" products={featured} onAddToCart={onAddToCart} link="/products?featured=1&sort=popular" />
-      <ProductRow title="Đang giảm giá" subtitle="ƯU ĐÃI DEMO TỪ QUẢN TRỊ" products={sale} onAddToCart={onAddToCart} link="/products?discount=1&sort=discount" sale />
-      {rows.map(({ category, subtitle }) => <ProductRow key={category} title={category} subtitle={subtitle} products={products.filter((product) => product.category === category && product.stockCount !== 0)} onAddToCart={onAddToCart} link={'/products?category=' + encodeURIComponent(category)} />)}
+      <ProductRow title="Sản phẩm nổi bật" subtitle="TOP 20 ĐƯỢC XEM NHIỀU NHẤT" products={featured} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?featured=1&sort=popular" />
+      <ProductRow title="Đang giảm giá" subtitle="ƯU ĐÃI TỪ QUẢN TRỊ" products={sale} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?discount=1&sort=discount" sale />
+      {rows.map(({ category, subtitle }) => <ProductRow key={category} title={category} subtitle={subtitle} products={products.filter((product) => product.category === category && product.stockCount !== 0)} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link={'/products?category=' + encodeURIComponent(category)} />)}
       <section className="member-links" aria-label="Khám phá thêm">
         <a href="/membership"><span>01 — STORE MEMBERSHIP</span><h2>Thêm quyền lợi.<br />Thêm niềm vui.</h2><p>Khám phá các hạng thành viên thử nghiệm.</p><b>Xem thành viên ↗</b></a>
         <a href="/rewards"><span>02 — STORE LUCKY</span><h2>Một vòng quay,<br />một bất ngờ nhỏ.</h2><p>Thử vòng quay và voucher demo.</p><b>Trải nghiệm vòng quay ↗</b></a>

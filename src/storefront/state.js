@@ -46,6 +46,7 @@ export function routeName(pathname) {
   if (path === '/membership') return 'membership'
   if (path === '/rewards') return 'rewards'
   if (path === '/account') return 'account'
+  if (path === '/favorites') return 'favorites'
   if (path === '/login' || path === '/register' || path === '/forgot-password') return 'auth'
   return 'not-found'
 }

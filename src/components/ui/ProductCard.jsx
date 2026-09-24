@@ -1,9 +1,10 @@
 import './ProductCard.css'
 const currency = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const pictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
-export default function ProductCard({ product, onAddToCart }) {
+export default function ProductCard({ product, onAddToCart, isFavorite = false, onToggleFavorite }) {
   const href = '/products/' + product.id
   return <article className={'product-card' + (product.stockCount === 0 ? ' product-card--out' : '') + (product.discountPercent > 0 ? ' product-card--sale' : '')}>
+    {onToggleFavorite && <button className={'product-favorite' + (isFavorite ? ' is-active' : '')} type="button" aria-label={isFavorite ? 'Bỏ yêu thích ' + product.name : 'Yêu thích ' + product.name} aria-pressed={isFavorite} onClick={() => onToggleFavorite(product.id)}>{isFavorite ? '♥' : '♡'}</button>}
     <a className="product-art-link" href={href} aria-label={'Xem chi tiết ' + product.name}>
       <div className={`product-art product-art--${product.tone}`}>
         <span className={'product-label' + (product.discountPercent > 0 ? ' product-label--sale' : '')}>{product.discountPercent > 0 ? '-' + product.discountPercent + '%' : product.label}</span>
