@@ -43,6 +43,7 @@ export default function App() {
   const [offers, setOffers] = useState([])
   const [location, setLocation] = useState(currentLocation)
   const scrollPositions = useRef(new Map())
+  const customerEpoch = useRef(0)
   const navigationAction = useRef('initial')
   const viewedLocation = useRef(null)
   const products = useMemo(() => enrichProducts(offers), [offers])
@@ -60,35 +61,42 @@ export default function App() {
   useEffect(() => { localStorage.setItem(THEME_KEY, theme); document.documentElement.dataset.theme = theme }, [theme])
 
   const refreshCustomer = useCallback(async () => {
+    const epoch = customerEpoch.current
     try {
       const session = await customerApi('/api/customer/session')
+      if (epoch !== customerEpoch.current) return
       setAccount(session.account)
       const [ordersResponse, vouchersResponse, favoritesResponse] = await Promise.all([
         customerApi('/api/customer/orders'), customerApi('/api/customer/vouchers'), customerApi('/api/customer/favorites'),
       ])
+      if (epoch !== customerEpoch.current) return
       setOrders(ordersResponse.orders || [])
       setWallet(vouchersResponse.vouchers || [])
       setSelectedVoucherCodes((current) => current.filter((code) => (vouchersResponse.vouchers || []).some((voucher) => voucher.code === code)))
       setFavoriteIds(favoritesResponse.ids || [])
     } catch {
+      if (epoch !== customerEpoch.current) return
       setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
-    } finally { setAuthReady(true) }
+    } finally { if (epoch === customerEpoch.current) setAuthReady(true) }
   }, [])
 
   useEffect(() => {
+    const epoch = customerEpoch.current
     customerApi('/api/customer/session')
       .then(async (session) => {
+        if (epoch !== customerEpoch.current) return
         setAccount(session.account)
         const [ordersResponse, vouchersResponse, favoritesResponse] = await Promise.all([
           customerApi('/api/customer/orders'), customerApi('/api/customer/vouchers'), customerApi('/api/customer/favorites'),
         ])
+        if (epoch !== customerEpoch.current) return
         setOrders(ordersResponse.orders || [])
         setWallet(vouchersResponse.vouchers || [])
         setSelectedVoucherCodes((current) => current.filter((code) => (vouchersResponse.vouchers || []).some((voucher) => voucher.code === code)))
         setFavoriteIds(favoritesResponse.ids || [])
       })
-      .catch(() => { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) })
-      .finally(() => setAuthReady(true))
+      .catch(() => { if (epoch === customerEpoch.current) { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) } })
+      .finally(() => { if (epoch === customerEpoch.current) setAuthReady(true) })
   }, [])
 
   useEffect(() => {
@@ -205,13 +213,14 @@ export default function App() {
     setSelectedVoucherCodes((current) => current.includes(code) ? current.filter((item) => item !== code) : [...current, code])
   }
   async function logout() {
+    customerEpoch.current += 1
     try { await customerApi('/api/customer/logout', { method: 'POST', csrfToken: account.csrfToken }) } catch { /* Clear local account view even if the session expired. */ }
     setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
   }
 
   let page = <NotFound />
-  if (!authReady && protectedPage) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
-  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { setAccount(value); refreshCustomer() }} onNavigate={navigate} />
+  if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
+  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} />
   else if (route === 'home') page = <Home products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
