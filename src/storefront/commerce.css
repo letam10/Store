@@ -1,5 +1,5 @@
 .product-card { position: relative; }
-.product-card--sale { border: 1px solid transparent !important; background: linear-gradient(var(--paper), var(--paper)) padding-box, linear-gradient(135deg, #d33834, #f19a35) border-box; }
+.product-card--sale { border: 0 !important; background: var(--paper) !important; }
 .product-label--sale { font-size: 14.4px !important; }
 .mobile-account-link { display: none !important; }
 .product-favorite { position: absolute; z-index: 3; right: 11px; top: 11px; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #d7e5d6; border-radius: 50%; background: #fffef0ed; color: #b33c43; font-size: 22px; cursor: pointer; }
