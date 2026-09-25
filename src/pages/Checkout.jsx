@@ -7,7 +7,7 @@ import './Storefront.css'
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const destinations = [
   ['hcm', 'TP. Hồ Chí Minh'], ['binh-duong', 'Bình Dương cũ · TP. Hồ Chí Minh'],
-  ['ba-ria-vung-tau', 'Bà Rịa - Vũng Tàu cũ · TP. Hồ Chí Minh'], ['hanoi', 'Hà Nội'],
+  ['ba-ria-vung-tau', 'Bà Rịa - Vũng Tàu cũ · TP. Hồ Chí Minh'],
   ['nearby', 'Ngoại thành lân cận'], ['far', 'Tỉnh xa hơn'],
 ]
 
@@ -72,7 +72,7 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
           </>}
           <label className="field"><span>Phương thức</span><select><option>Thanh toán khi nhận hàng</option></select></label>
         </div>
-        <p className="checkout-disclaimer">TP. Hồ Chí Minh gồm Bình Dương và Bà Rịa - Vũng Tàu cũ: 30.000 ₫. Hà Nội: 30.000 ₫. Ngoại thành lân cận: 60.000 ₫. Tỉnh xa: 60.000 ₫ + 1.000 ₫ cho mỗi km.</p>
+        <p className="checkout-disclaimer">TP. Hồ Chí Minh gồm Bình Dương và Bà Rịa - Vũng Tàu cũ: 30.000 ₫. Ngoại thành lân cận: 60.000 ₫. Tỉnh xa: 60.000 ₫ + 1.000 ₫ cho mỗi km.</p>
         {quoteError && <p className="voucher-invalid" role="alert">{quoteError}</p>}
         <button className="button" type="submit" disabled={busy || !quote}>{busy ? 'Đang tạo đơn…' : 'Xác nhận đơn · ' + money.format(quote?.total ?? cartTotal(cart))}</button>
       </form>
