@@ -18,7 +18,8 @@ npm test, npm run lint, npm run build. Thư mục dist là bản frontend để 
 - src/components/: layout và thành phần dùng chung.
 - src/storefront/design.css và updates.css: giao diện khách responsive, sáng/tối; đăng nhập có bảng màu riêng.
 - public/products/: hình minh họa SVG local; không phải ảnh sản phẩm thật.
-- shared/: bốn sản phẩm/chính sách demo có sẵn. 200 sản phẩm nhập ở `src/data/imported-products.json`; giá/ưu đãi/tồn kho và lượt xem demo được bổ sung từ API Store-Admin khi API khả dụng.
+- shared/: bốn sản phẩm/chính sách demo có sẵn. Catalog hiện có đúng 1.000 sản phẩm phía khách: 4 sản phẩm nền và 996 sản phẩm nhập tại `src/data/imported-products.json`; dữ liệu được phân nhóm Laptop, Linh kiện, Đồ gia dụng, Trang sức, Thực phẩm và các nhóm liên quan.
+- Nguồn demo: Amazon Berkeley Objects cho ảnh/metadata household (CC BY 4.0 theo trang nguồn) và DummyJSON cho placeholder products; giá VND, tồn kho và ưu đãi chỉ dùng để thử giao diện.
 - src/api/: client chat hỗ trợ, không có client quản trị.
 - /admin trên Store trả trang không tìm thấy; dùng Store-Admin để quản trị.
 
@@ -28,4 +29,4 @@ Giỏ hàng, tài khoản, đơn demo, hạng thành viên và voucher chỉ lư
 Xem DEPLOYMENT.md. Đã chuẩn bị fallback SPA trong public/_redirects. Chưa deploy, mở tunnel, thay đổi firewall hay public backend. Giữ API cùng origin qua reverse proxy là phương án mặc định; không điền localhost làm URL backend cho khách trên Internet.
 
 ## Git
-Giữ nguyên repo/nhánh hiện tại, không tự commit hoặc push. Git sẽ báo deleted cho các file chuyển sang Store-Admin. Store-Admin chưa có remote: hãy kiểm tra và đưa dự án đó vào repo riêng trước khi chia sẻ cho team. File backend cũ, bao gồm phần chỉnh sửa chưa commit, được giữ tại Store-Admin/BACKEND.md và Store-Admin/server/scripts/create-admin.js.
+Store và Store-Admin là hai repository tách riêng; giữ `package-lock.json`, không commit `node_modules`, `dist`, `.env` hoặc model/dataset local. Catalog storefront được lưu trong `src/data/imported-products.json`; dữ liệu SQLite local của Admin được tái tạo từ `Store-Admin/server/data/catalog-products.json` khi backend khởi động.

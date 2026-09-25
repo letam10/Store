@@ -41,6 +41,7 @@ export default function App() {
   const [selectedVoucherCodes, setSelectedVoucherCodes] = useState([])
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light')
   const [offers, setOffers] = useState([])
+  const [appearance, setAppearance] = useState({})
   const [location, setLocation] = useState(currentLocation)
   const scrollPositions = useRef(new Map())
   const customerEpoch = useRef(0)
@@ -100,6 +101,15 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
+    fetch('/api/storefront/appearance', { signal: controller.signal, cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : null)
+      .then((payload) => { if (payload?.appearance) setAppearance(payload.appearance) })
+      .catch(() => {})
+    return () => controller.abort()
+  }, [])
+
+  useEffect(() => {
     window.addEventListener('focus', refreshCustomer)
     const timer = setInterval(refreshCustomer, 60000)
     return () => { window.removeEventListener('focus', refreshCustomer); clearInterval(timer) }
@@ -109,7 +119,7 @@ export default function App() {
     const controller = new AbortController()
     async function refreshCatalog() {
       try {
-        const response = await fetch('/api/storefront/catalog', { signal: controller.signal, cache: 'no-store' })
+        const response = await fetch('/api/storefront/catalog?details=1', { signal: controller.signal, cache: 'no-store' })
         if (response.ok) {
           const payload = await response.json()
           if (Array.isArray(payload.products)) setOffers(payload.products)
@@ -221,7 +231,7 @@ export default function App() {
   let page = <NotFound />
   if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
   else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} />
-  else if (route === 'home') page = <Home products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
+  else if (route === 'home') page = <Home appearance={appearance} products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'contact') page = <Contact />
@@ -233,9 +243,9 @@ export default function App() {
   else if (route === 'account') page = <Account account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 
   return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} onClick={handleLink} onSubmitCapture={handleSearch}>
-    {!isAuth && <Header cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
+    {!isAuth && <Header appearance={appearance} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
     <main id="main-content">{page}</main>
-    {!isAuth && <Footer />}
+    {!isAuth && <Footer appearance={appearance} />}
     {!isAuth && notice && <div className="cart-notice" role="status"><span>✓ {notice}</span><a href="/cart">Xem giỏ hàng →</a><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div>}
     {!isAuth && <CustomerSupport account={account} onRequireLogin={requireLogin} />}
   </div>

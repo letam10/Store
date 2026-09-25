@@ -7,8 +7,8 @@ export default function ProductCard({ product, onAddToCart, isFavorite = false, 
     {onToggleFavorite && <button className={'product-favorite' + (isFavorite ? ' is-active' : '')} type="button" aria-label={isFavorite ? 'Bỏ yêu thích ' + product.name : 'Yêu thích ' + product.name} aria-pressed={isFavorite} onClick={() => onToggleFavorite(product.id)}>{isFavorite ? '♥' : '♡'}</button>}
     <a className="product-art-link" href={href} aria-label={'Xem chi tiết ' + product.name}>
       <div className={`product-art product-art--${product.tone}`}>
-        <span className={'product-label' + (product.discountPercent > 0 ? ' product-label--sale' : '')}>{product.discountPercent > 0 ? '-' + product.discountPercent + '%' : product.label}</span>
-        {product.image || pictures[product.id] ? <img src={product.image || '/products/' + pictures[product.id] + '.svg'} alt={'Ảnh ' + product.name} width="440" height="380" loading="lazy" /> : <span className="product-symbol" aria-hidden="true">{product.symbol}</span>}
+        <span className={'product-label' + (product.discountPercent > 0 ? ' product-label--sale' : '')}>{product.discountPercent > 0 ? <><i aria-hidden="true">🔥</i> -{product.discountPercent}%</> : product.label}</span>
+        {product.image || pictures[product.id] ? <><img className="product-image" src={product.image || '/products/' + pictures[product.id] + '.svg'} alt={'Ảnh ' + product.name} width="440" height="380" loading="lazy" onError={(event) => { event.currentTarget.style.display = 'none'; const fallback = event.currentTarget.parentElement?.querySelector('.product-symbol-fallback'); if (fallback) fallback.hidden = false }} /><span className="product-symbol product-symbol-fallback" aria-hidden="true" hidden>{product.symbol}</span></> : <span className="product-symbol" aria-hidden="true">{product.symbol}</span>}
         <span className="product-view">Xem chi tiết ↗</span>
       </div>
     </a>

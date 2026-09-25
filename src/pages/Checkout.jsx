@@ -72,7 +72,7 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
           </>}
           <label className="field"><span>Phương thức</span><select><option>Thanh toán khi nhận hàng</option></select></label>
         </div>
-        <p className="checkout-disclaimer">TP. Hồ Chí Minh gồm Bình Dương và Bà Rịa - Vũng Tàu cũ: 30.000 ₫. Hà Nội: 30.000 ₫. Ngoại thành lân cận: 60.000 ₫. Tỉnh xa: thêm 1.000 ₫/km ngoài tỉnh. Hạng Vàng miễn phí trong thành phố Store, Kim Cương miễn phí toàn quốc.</p>
+        <p className="checkout-disclaimer">TP. Hồ Chí Minh gồm Bình Dương và Bà Rịa - Vũng Tàu cũ: 30.000 ₫. Hà Nội: 30.000 ₫. Ngoại thành lân cận: 60.000 ₫. Tỉnh xa: 60.000 ₫ + 1.000 ₫ cho mỗi km.</p>
         {quoteError && <p className="voucher-invalid" role="alert">{quoteError}</p>}
         <button className="button" type="submit" disabled={busy || !quote}>{busy ? 'Đang tạo đơn…' : 'Xác nhận đơn · ' + money.format(quote?.total ?? cartTotal(cart))}</button>
       </form>

@@ -32,7 +32,8 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
 
   async function spin() {
     if (!account) { onRequireLogin?.(); return }
-    if (spinning || credits < 1) return
+    if (spinning) return
+    if (credits < 1) { setError('Bạn không có lượt để quay.'); return }
     setSpinning(true)
     setResult(null)
     setError('')
@@ -66,7 +67,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
             <circle cx="180" cy="180" r="32" fill="#254535" stroke="#fffdf7" strokeWidth="5" />
           </svg><span className="lucky-wheel__hub" aria-hidden="true">store.</span>
         </div>
-        <button className="button lucky-spin" type="button" onClick={spin} disabled={spinning || (account && credits < 1)}>{spinning ? 'Đang quay…' : account ? 'Quay may mắn' : 'Đăng nhập để quay'}</button>
+        <button className="button lucky-spin" type="button" onClick={spin} disabled={spinning}>{spinning ? 'Đang quay…' : account ? 'Quay may mắn' : 'Đăng nhập để quay'}</button>
         <p className="lucky-wheel__hint" role="status">{account ? `Còn ${credits} lượt quay${credits < 1 ? ' · Thanh toán đủ 100.000 ₫ để nhận lượt mới.' : ''}` : 'Đăng nhập để dùng lượt quay đã tích từ đơn hàng.'}</p>
         {error && <p role="alert">{error}</p>}
       </section>

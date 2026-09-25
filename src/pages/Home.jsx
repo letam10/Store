@@ -8,15 +8,18 @@ const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND
 const rows = [
   { category: 'Trang sức', subtitle: 'Điểm nhấn nhỏ, cá tính riêng' },
   { category: 'Trang phục', subtitle: 'Sẵn sàng cho mỗi ngày' },
+  { category: 'Laptop', subtitle: 'Làm việc và học tập' },
   { category: 'Điện tử', subtitle: 'Công nghệ gần gũi' },
   { category: 'Linh kiện', subtitle: 'Chi tiết làm nên khác biệt' },
+  { category: 'Đồ gia dụng', subtitle: 'Nhà cửa gọn gàng hơn' },
+  { category: 'Thực phẩm', subtitle: 'Lựa chọn cho mỗi ngày' },
 ]
 
 function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onToggleFavorite, link, sale = false }) {
   const [offset, setOffset] = useState(0)
   useEffect(() => {
     if (products.length <= 6) return undefined
-    const timer = setInterval(() => setOffset((current) => (current + 2) % products.length), 5500)
+    const timer = setInterval(() => setOffset((current) => (current + 1) % products.length), 4500)
     return () => clearInterval(timer)
   }, [products.length])
   const visible = products.length <= 6 ? products : Array.from({ length: 6 }, (_, index) => products[(offset + index) % products.length])
@@ -26,7 +29,7 @@ function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onTog
   </section>
 }
 
-export default function Home({ products, onAddToCart, favoriteIds = [], onToggleFavorite }) {
+export default function Home({ appearance = {}, products, onAddToCart, favoriteIds = [], onToggleFavorite }) {
   const [slide, setSlide] = useState(0)
   const featured = mostViewed(products, 20)
   const heroProduct = featured[slide % featured.length]
@@ -40,16 +43,16 @@ export default function Home({ products, onAddToCart, favoriteIds = [], onToggle
   return <>
     <section className="shop-hero container">
       <div className="shop-hero-copy">
-        <p className="eyebrow">STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY</p>
-        <h1>Chọn món bạn yêu.<br /><em>Sống theo cách riêng.</em></h1>
-        <p>Khám phá sản phẩm nổi bật, ưu đãi và các nhóm hàng dễ tìm. Sản phẩm được xem nhiều nhất sẽ tự xuất hiện ở đây.</p>
-        <a className="button" href="/products">Khám phá cửa hàng <span aria-hidden="true">↗</span></a>
+        <p className="eyebrow">{appearance.bannerLabel || 'STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY'}</p>
+        <h1>{appearance.heroTitle || 'Chọn món bạn yêu. Sống theo cách riêng.'}</h1>
+        <p>{appearance.heroDescription || 'Khám phá sản phẩm nổi bật, ưu đãi và các nhóm hàng dễ tìm. Sản phẩm được xem nhiều nhất sẽ tự xuất hiện ở đây.'}</p>
+        <a className="button" href="/products">{appearance.heroButton || 'Khám phá cửa hàng'} <span aria-hidden="true">↗</span></a>
         <div className="hero-footnote"><span>{String(slide % featured.length + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span><span>Thay đổi sau mỗi 5 giây</span></div>
         <div className="hero-dots" aria-label="Chọn sản phẩm nổi bật">{featured.map((product, index) => <button key={product.id} type="button" className={slide % featured.length === index ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={'Xem ' + product.name} aria-pressed={slide % featured.length === index} />)}</div>
       </div>
       {heroProduct && <a className="shop-hero-art" href={'/products/' + heroProduct.id} aria-label={'Xem chi tiết ' + heroProduct.name}>
         <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">ĐƯỢC XEM NHIỀU</span>
-        <img key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" />
+        <img className="hero-art-image" key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" />
         <div className="hero-product-tag"><div><small>{heroProduct.viewCount} LƯỢT XEM CHI TIẾT</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)} · Giá dữ liệu mẫu</span></div><b aria-hidden="true">↗</b></div>
       </a>}
     </section>
