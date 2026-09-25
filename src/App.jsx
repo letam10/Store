@@ -242,7 +242,8 @@ export default function App() {
   else if (route === 'favorites') page = <Favorites products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
   else if (route === 'account') page = <Account account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 
-  return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} onClick={handleLink} onSubmitCapture={handleSearch}>
+  const accentColor = /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : undefined
+  return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={accentColor ? { '--accent': accentColor } : undefined} onClick={handleLink} onSubmitCapture={handleSearch}>
     {!isAuth && <Header appearance={appearance} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
     <main id="main-content">{page}</main>
     {!isAuth && <Footer appearance={appearance} />}
