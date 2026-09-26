@@ -32,7 +32,7 @@ function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onTog
 export default function Home({ appearance = {}, products, onAddToCart, favoriteIds = [], onToggleFavorite }) {
   const [slide, setSlide] = useState(0)
   const featured = mostViewed(products, 20)
-  const heroProduct = featured[slide % featured.length]
+  const heroProduct = featured.length ? featured[slide % featured.length] : null
   useEffect(() => {
     if (featured.length < 2) return undefined
     const timer = setInterval(() => setSlide((current) => current + 1), 5000)
@@ -47,7 +47,7 @@ export default function Home({ appearance = {}, products, onAddToCart, favoriteI
         <h1>{appearance.heroTitle || 'Chọn món bạn yêu. Sống theo cách riêng.'}</h1>
         <p>{appearance.heroDescription || 'Khám phá sản phẩm nổi bật, ưu đãi và các nhóm hàng dễ tìm. Sản phẩm được xem nhiều nhất sẽ tự xuất hiện ở đây.'}</p>
         <a className="button" href="/products">{appearance.heroButton || 'Khám phá cửa hàng'} <span aria-hidden="true">↗</span></a>
-        <div className="hero-footnote"><span>{String(slide % featured.length + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span><span>Thay đổi sau mỗi 5 giây</span></div>
+        <div className="hero-footnote"><span>{featured.length ? String(slide % featured.length + 1).padStart(2, '0') + ' / ' + String(featured.length).padStart(2, '0') : '00 / 00'}</span><span>{featured.length ? 'Thay đổi sau mỗi 5 giây' : 'Danh mục đang được cập nhật'}</span></div>
         <div className="hero-dots" aria-label="Chọn sản phẩm nổi bật">{featured.map((product, index) => <button key={product.id} type="button" className={slide % featured.length === index ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={'Xem ' + product.name} aria-pressed={slide % featured.length === index} />)}</div>
       </div>
       {heroProduct && <a className="shop-hero-art" href={'/products/' + heroProduct.id} aria-label={'Xem chi tiết ' + heroProduct.name}>

@@ -22,6 +22,7 @@ import './storefront/design.css'
 import './storefront/updates.css'
 import './storefront/phase2.css'
 import './storefront/commerce.css'
+import './storefront/polish.css'
 
 const CART_KEY = 'storeCartV1'
 const THEME_KEY = 'storeThemeV1'

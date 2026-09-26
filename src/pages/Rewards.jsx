@@ -45,8 +45,12 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
       setDuration(milliseconds)
       setRotation((current) => landingRotation(current, sector.id, sectors.length))
       timer.current = setTimeout(finish, milliseconds === 0 ? 0 : milliseconds + 100)
-      onReward?.()
     } catch (failure) { setError(failure.message); setSpinning(false) }
+  }
+
+  function closeResult() {
+    setResult(null)
+    onReward?.()
   }
 
   return <div className="container page-shell">
@@ -73,7 +77,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
       </section>
       <section className="surface rewards-info">
         <span className="membership-badge">{plan.badge}</span><h2>{account ? 'Voucher mới nhận của ' + account.username : 'Voucher mới nhận'}</h2>
-        {wallet.length ? <div className="reward-wallet-list">{wallet.slice(0, 10).map((voucher) => <article key={voucher.code}>
+        {wallet.length ? <div className="reward-wallet-list">{wallet.map((voucher) => <article key={voucher.code}>
           <div><strong>{voucher.label}</strong><code>{voucher.code}</code></div>
           <small>Hạn dùng: {date.format(new Date(voucher.expiresAt))}</small>
           <button type="button" onClick={() => onToggleVoucher?.(voucher.code)}>{selectedVoucherCodes.includes(voucher.code) ? 'Bỏ chọn' : 'Chọn cho thanh toán'}</button>
@@ -84,9 +88,8 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
     {result && <div className="reward-modal-backdrop"><div className="reward-modal surface" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title" data-sector={result.sectorId}>
       <span className="reward-modal__icon" aria-hidden="true">{result.kind === 'voucher' ? '✦' : '☆'}</span>
       <h2 id="reward-modal-title">{result.title}</h2>
-      {result.kind === 'voucher' ? <><code>{result.voucher.code}</code><small>Hạn dùng: {date.format(new Date(result.voucher.expiresAt))}</small>
-        <div className="reward-result__actions"><button className="button" type="button" onClick={() => onToggleVoucher?.(result.voucher.code)}>{selectedVoucherCodes.includes(result.voucher.code) ? 'Bỏ chọn' : 'Chọn cho thanh toán'}</button><a className="button button--soft" href="/cart">Đi tới giỏ hàng</a></div></> : <p>{result.message}</p>}
-      <button ref={closeRef} className="reward-modal__close" type="button" onClick={() => setResult(null)}>Đóng</button>
+      {result.kind === 'voucher' ? <><code>{result.voucher.code}</code><small>Hạn dùng: {date.format(new Date(result.voucher.expiresAt))}</small></> : <p>{result.message}</p>}
+      <button ref={closeRef} className="reward-modal__close" type="button" onClick={closeResult}>Đóng</button>
     </div></div>}
   </div>
 }
