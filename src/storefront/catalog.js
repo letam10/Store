@@ -32,7 +32,10 @@ export function enrichProducts(offers = []) {
       originalPrice,
       discountPercent,
       price: Math.round(originalPrice * (100 - discountPercent) / 1000) * 10,
-      stockCount: offer?.stockCount ?? null,
+      // The API normally supplies the managed stock value. Keep the same
+      // default for the local demo fallback so guests cannot add unlimited
+      // quantities when the backend is temporarily unavailable.
+      stockCount: offer?.stockCount ?? 20,
       viewCount: offer?.viewCount ?? 0,
     }
   })
