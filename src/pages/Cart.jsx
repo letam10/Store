@@ -14,7 +14,7 @@ function SimilarProducts({ products, item }) {
   const canNavigate = items.length > 1
   const shift = (amount) => setStart((current) => items.length ? (current + amount + items.length) % items.length : 0)
 
-  if (!items.length) return <section className="cart-similar"><div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" disabled>Sản phẩm tương tự</button></div><div className="cart-similar__grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div></section>
+  if (!items.length) return <section className="cart-similar"><div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" disabled>Sản phẩm tương tự</button></div><div className="cart-similar__grid cart-similar__legacy-grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div></section>
   return <section className="cart-similar">
     <div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" aria-expanded={open} onClick={() => setOpen((current) => !current)}>{open ? 'Ẩn sản phẩm tương tự' : 'Sản phẩm tương tự'}</button></div>
     <div className="cart-similar__grid cart-similar__legacy-grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div>

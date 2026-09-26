@@ -192,7 +192,7 @@
 .header-inner .header-nav{gap:clamp(7px,1vw,14px)!important}
 .header-inner .header-nav a{font-size:11px!important}
 .header-inner .header-inline-search{flex-basis:clamp(140px,14vw,190px)!important;width:clamp(140px,14vw,190px)!important}
-.product-card--sale,.home-section--sale .product-card{padding:0!important;margin:0!important;min-height:100%!important;border-width:1px!important;border-style:solid!important}
+.product-card--sale,.home-section--sale .product-card{padding:0!important;margin:0!important;min-height:100%!important;border:0!important;border-color:transparent!important}
 .product-card--sale .product-art,.home-section--sale .product-card .product-art{height:190px!important}
 .product-card--sale .product-info,.home-section--sale .product-card .product-info{padding:15px!important}
 .product-card--sale .product-bottom,.home-section--sale .product-card .product-bottom{min-height:38px!important}
@@ -202,7 +202,7 @@
 .lucky-wheel{width:min(100%,460px)!important;margin:8px auto 4px!important}
 .lucky-spin{min-width:164px!important;min-height:40px!important;padding:9px 16px!important;font-size:13px!important}
 .rewards-wheel-card,.rewards-info{min-height:760px!important}
-.rewards-info .reward-wallet-list,.rewards-info .reward-wallet-empty{height:560px!important;min-height:560px!important;max-height:560px!important}
+.rewards-info .reward-wallet-list,.rewards-info .reward-wallet-empty{height:560px!important;min-height:560px!important;max-height:560px!important}.rewards-info .reward-wallet-list article{padding:10px!important;gap:5px!important}
 @media(max-width:820px){.lucky-wheel{width:min(100%,430px)!important}.rewards-wheel-card,.rewards-info{min-height:700px!important}.rewards-info .reward-wallet-list,.rewards-info .reward-wallet-empty{height:500px!important;min-height:500px!important;max-height:500px!important}}
 @media(max-width:560px){.lucky-wheel{width:min(100%,360px)!important}.rewards-wheel-card,.rewards-info{min-height:660px!important}.rewards-info .reward-wallet-list,.rewards-info .reward-wallet-empty{height:440px!important;min-height:440px!important;max-height:440px!important}}
 
