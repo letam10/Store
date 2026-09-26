@@ -67,6 +67,7 @@
 /* Store storefront refresh: keep the desktop header on one compact row and make
    the search overlay the same interaction at every viewport size. */
 .site-header{position:sticky!important;top:0!important;z-index:35;background:color-mix(in srgb,var(--paper) 94%,transparent)!important;backdrop-filter:blur(18px)!important}
+.header-language select{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);padding:5px 6px;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
 .site-header .header-inner{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;width:min(1500px,calc(100% - 40px))!important;min-height:72px!important;padding:8px 0!important;gap:clamp(10px,1.6vw,24px)!important}
 .header-inner .brand{display:inline-flex!important;align-items:center!important;flex:0 0 auto!important;gap:9px!important;font-size:0!important;line-height:1!important;letter-spacing:0!important}
 .brand__mark{position:relative;display:grid!important;place-items:center!important;width:42px!important;height:42px!important;border:1px solid #78aa86!important;border-radius:13px!important;background:linear-gradient(145deg,#e4f5e3 0%,#8ac496 48%,#3e805a 100%)!important;color:#16422d!important;font-size:0!important;box-shadow:0 7px 16px #2f6d4930!important;overflow:hidden}

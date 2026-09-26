@@ -41,6 +41,7 @@ export default function App() {
   const [favoriteIds, setFavoriteIds] = useState([])
   const [selectedVoucherCodes, setSelectedVoucherCodes] = useState([])
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light')
+  const [language, setLanguage] = useState(() => localStorage.getItem('storeLanguageV1') === 'en' ? 'en' : 'vi')
   const [offers, setOffers] = useState([])
   const [appearance, setAppearance] = useState({})
   const [location, setLocation] = useState(currentLocation)
@@ -61,6 +62,7 @@ export default function App() {
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 3500); return () => clearTimeout(timer) }, [notice])
   useEffect(() => { localStorage.setItem(CART_KEY, JSON.stringify(cart)) }, [cart])
   useEffect(() => { localStorage.setItem(THEME_KEY, theme); document.documentElement.dataset.theme = theme }, [theme])
+  useEffect(() => { localStorage.setItem('storeLanguageV1', language); document.documentElement.lang = language }, [language])
 
   const refreshCustomer = useCallback(async () => {
     const epoch = customerEpoch.current
@@ -231,7 +233,7 @@ export default function App() {
 
   let page = <NotFound />
   if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
-  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} />
+  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
   else if (route === 'home') page = <Home appearance={appearance} products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
@@ -245,7 +247,7 @@ export default function App() {
 
   const accentColor = /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : undefined
   return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={accentColor ? { '--accent': accentColor } : undefined} onClick={handleLink} onSubmitCapture={handleSearch}>
-    {!isAuth && <Header appearance={appearance} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
+    {!isAuth && <Header appearance={appearance} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
     <main id="main-content">{page}</main>
     {!isAuth && <Footer appearance={appearance} />}
     {!isAuth && notice && <div className="cart-notice" role="status"><span>✓ {notice}</span><a href="/cart">Xem giỏ hàng →</a><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div>}
