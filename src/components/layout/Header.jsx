@@ -33,7 +33,7 @@ export default function Header({ appearance = {}, cartCount, account, membership
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <div className="container header-inner">
         <a className="brand" href="/" aria-label="Store - trang chủ"><span className="brand__mark" aria-hidden="true">✦</span><span className="brand__word">{brandName}<span>.</span></span><small>{appearance.brandTagline || 'EVERYDAY'}</small></a>
-        <form className="site-search header-inline-search" action="/products" method="get" role="search">
+        <form className="site-search header-inline-search" action="/products" method="get" role="search" onFocus={() => setSearchOpen(true)}>
           <label className="sr-only" htmlFor="header-inline-search-input">Tìm sản phẩm</label>
           <input id="header-inline-search-input" name="q" type="search" list="site-search-suggestions-inline" placeholder={searchPlaceholder} defaultValue={currentQuery} />
           <datalist id="site-search-suggestions-inline">{products.slice(0, 80).map((product) => <option key={product.id} value={product.name} />)}</datalist>

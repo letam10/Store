@@ -13,7 +13,7 @@ export default function ProductCard({ product, onAddToCart, isFavorite = false, 
       </div>
     </a>
     <div className="product-info"><p className="product-category">{product.category}</p><h3><a href={href}>{product.name}</a></h3>
-      <div className="product-bottom"><div className="product-prices"><strong>{currency.format(product.price)}</strong>{product.discountPercent > 0 && <del>{currency.format(product.originalPrice)}</del>}</div><button type="button" disabled={product.stockCount === 0} onClick={() => onAddToCart(product)} aria-label={`Thêm ${product.name} vào giỏ`}>{product.stockCount === 0 ? 'Hết hàng' : '+ Thêm'}</button></div>
+      <div className="product-bottom"><div className="product-prices"><strong>{currency.format(product.price)}</strong>{product.discountPercent > 0 && <del>{currency.format(product.originalPrice)}</del>}</div><button type="button" disabled={product.stockCount === 0} onClick={() => onAddToCart(product)} aria-label={`Thêm ${product.name} vào giỏ`}>{product.stockCount === 0 ? 'Hết hàng' : 'Thêm'}</button></div>
     </div>
   </article>
 }
