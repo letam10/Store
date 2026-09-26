@@ -11,9 +11,7 @@ function SimilarProducts({ products, item }) {
   const [start, setStart] = useState(0)
   const [dragStart, setDragStart] = useState(null)
   const items = similarProducts(products, item, 40)
-  const count = Math.min(10, items.length)
-  const canNavigate = items.length > count
-  const shown = Array.from({ length: count }, (_, index) => items[(start + index) % items.length])
+  const canNavigate = items.length > 1
   const shift = (amount) => setStart((current) => items.length ? (current + amount + items.length) % items.length : 0)
 
   if (!items.length) return <section className="cart-similar"><div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" disabled>Sản phẩm tương tự</button></div><div className="cart-similar__grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div></section>
@@ -21,9 +19,12 @@ function SimilarProducts({ products, item }) {
     <div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" aria-expanded={open} onClick={() => setOpen((current) => !current)}>{open ? 'Ẩn sản phẩm tương tự' : 'Sản phẩm tương tự'}</button></div>
     <div className="cart-similar__grid cart-similar__legacy-grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div>
     {open && <div className="cart-similar__body">
-      <div className="cart-similar__toolbar"><button type="button" className="cart-similar__arrow" aria-label="Xem 8 sản phẩm tương tự trước" onClick={() => shift(-8)} disabled={!canNavigate}>‹</button><span>{Math.min(start + 1, items.length)}–{Math.min(start + count, items.length)} / {items.length}</span><button type="button" className="cart-similar__arrow" aria-label="Xem 8 sản phẩm tương tự tiếp theo" onClick={() => shift(8)} disabled={!canNavigate}>›</button></div>
-      <div className="cart-similar__viewport" onPointerDown={(event) => { setDragStart(event.clientX); event.currentTarget.setPointerCapture?.(event.pointerId) }} onPointerUp={(event) => { if (dragStart !== null && Math.abs(event.clientX - dragStart) > 32) shift(event.clientX < dragStart ? 8 : -8); setDragStart(null) }} onPointerCancel={() => setDragStart(null)}>
-        {shown.map((product) => <a className="cart-similar__thumb" key={product.id} href={'/products/' + product.id} aria-label={'Xem chi tiết ' + product.name}><span className="cart-similar__image-wrap">{product.discountPercent > 0 && <span className="cart-similar__sale" aria-label={'Giảm ' + product.discountPercent + '%'}>🔥</span>}<img src={product.image || '/products/' + (pictures[product.id] || 'headphones') + '.svg'} alt="" loading="lazy" /></span></a>)}
+      <div className="cart-similar__toolbar"><button type="button" className="cart-similar__arrow" aria-label="Previous similar product" onClick={() => shift(-1)} disabled={!canNavigate}>&#8249;</button><span>{start + 1} / {items.length}</span><button type="button" className="cart-similar__arrow" aria-label="Next similar product" onClick={() => shift(1)} disabled={!canNavigate}>&#8250;</button></div>
+      <input className="cart-similar__range" type="range" min="0" max={Math.max(items.length - 1, 0)} step="1" value={start} onChange={(event) => setStart(Number(event.target.value))} aria-label="Choose similar product" />
+      <div className="cart-similar__viewport" onPointerDown={(event) => { setDragStart(event.clientX); event.currentTarget.setPointerCapture?.(event.pointerId) }} onPointerUp={(event) => { if (dragStart !== null && Math.abs(event.clientX - dragStart) > 32) shift(event.clientX < dragStart ? 1 : -1); setDragStart(null) }} onPointerCancel={() => setDragStart(null)}>
+        <div className="cart-similar__track" style={{ transform: `translateX(-${start * 100}%)` }}>
+          {items.map((product) => <a className="cart-similar__thumb" key={product.id} href={'/products/' + product.id} aria-label={'View ' + product.name}><span className="cart-similar__image-wrap">{product.discountPercent > 0 && <span className="cart-similar__sale" aria-label={'Sale ' + product.discountPercent + '%'}>{String.fromCodePoint(0x1f525)}</span>}<img src={product.image || '/products/' + (pictures[product.id] || 'headphones') + '.svg'} alt="" loading="lazy" /></span></a>)}
+        </div>
       </div>
     </div>}
   </section>
