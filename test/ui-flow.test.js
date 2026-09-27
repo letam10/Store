@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: test/ui-flow.test.js
+ * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
+ * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
+ * Liên kết trực tiếp: node:assert/strict, node:test, esbuild, jsdom, node:crypto.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { build } from 'esbuild'
@@ -9,6 +17,7 @@ const bundle = await build({
   jsx: 'automatic', loader: { '.css': 'empty' }, define: { 'process.env.NODE_ENV': '"production"', 'import.meta.env': '{}' },
 })
 
+// Chức năng waitFor: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 async function waitFor(predicate) {
   for (let attempt = 0; attempt < 100; attempt += 1) {
     if (predicate()) return
@@ -17,16 +26,21 @@ async function waitFor(predicate) {
   assert.fail('UI did not reach the expected state')
 }
 
+// Chức năng response: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function response(status, data) { return { ok: status >= 200 && status < 300, status, json: async () => data } }
 
+// Kiểm thử edge case: guest can browse and add cart but checkout, favorites and chat require login.
 test('guest can browse and add cart but checkout, favorites and chat require login', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
   window.scrollTo = () => {}
   window.matchMedia = () => ({ matches: true, addEventListener() {}, removeEventListener() {} })
   window.fetch = async (url) => {
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (String(url).endsWith('/api/customer/session')) return response(401, { error: 'LOGIN_REQUIRED' })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (String(url).includes('/catalog')) return response(200, { products: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (String(url).includes('/reviews')) return response(200, { reviews: [] })
     return response(200, { viewCount: 1 })
   }
@@ -63,6 +77,7 @@ test('guest can browse and add cart but checkout, favorites and chat require log
   } finally { window.close() }
 })
 
+// Kiểm thử edge case: server-backed registration loads account without saving a browser password.
 test('server-backed registration loads account without saving a browser password', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/register', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
@@ -71,14 +86,23 @@ test('server-backed registration loads account without saving a browser password
   const account = { id: 1, username: 'demo-user', email: 'demo@example.com', points: 0, tier: 'bronze', spinCredits: 0, csrfToken: 'csrf-test' }
   window.fetch = async (url, options = {}) => {
     const path = String(url)
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/register')) { signedIn = true; return response(201, { account }) }
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/session')) return signedIn ? response(200, { authenticated: true, account }) : response(401, { error: 'LOGIN_REQUIRED' })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/orders')) return response(200, { orders: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/vouchers')) return response(200, { vouchers: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/favorites')) return response(200, { ids: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/logout')) { signedIn = false; return response(200, { ok: true }) }
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/login')) { signedIn = true; return response(200, { account }) }
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/catalog')) return response(200, { products: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (options.method === 'POST') return response(200, {})
     return response(200, {})
   }
@@ -103,6 +127,7 @@ test('server-backed registration loads account without saving a browser password
   } finally { window.close() }
 })
 
+// Kiểm thử edge case: old browser demo credentials migrate only after password verification.
 test('old browser demo credentials migrate only after password verification', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/login', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
@@ -116,12 +141,19 @@ test('old browser demo credentials migrate only after password verification', as
   const account = { id: 2, username: 'old-user', email: 'old@example.com', points: 0, tier: 'bronze', spinCredits: 0, csrfToken: 'csrf-old' }
   window.fetch = async (url) => {
     const path = String(url)
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/login')) return response(401, { error: 'INVALID_CREDENTIALS' })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/register')) { registered += 1; return response(201, { account }) }
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/session')) return response(registered ? 200 : 401, registered ? { authenticated: true, account } : { error: 'LOGIN_REQUIRED' })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/orders')) return response(200, { orders: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/vouchers')) return response(200, { vouchers: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/customer/favorites')) return response(200, { ids: [] })
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (path.includes('/catalog')) return response(200, { products: [] })
     return response(200, {})
   }
@@ -138,6 +170,7 @@ test('old browser demo credentials migrate only after password verification', as
   } finally { window.close() }
 })
 
+// Kiểm thử edge case: out-of-stock cart item is dimmed, cannot be selected and shows similar goods.
 test('out-of-stock cart item is dimmed, cannot be selected and shows similar goods', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/cart', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom

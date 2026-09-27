@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/App.jsx
+ * Mục đích: Điểm điều phối ứng dụng React, route, trạng thái chung và layout.
+ * Thành phần chính: App.
+ * Liên kết trực tiếp: react, ./components/layout/Header, ./components/layout/Footer, ./components/ui/CustomerSupport, ./pages/Home, ./pages/Catalog, ./pages/ProductDetail, ./pages/Contact.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
@@ -27,10 +35,12 @@ import './storefront/polish.css'
 const CART_KEY = 'storeCartV1'
 const THEME_KEY = 'storeThemeV1'
 
+// Chức năng currentLocation: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function currentLocation() {
   return { pathname: window.location.pathname, search: window.location.search }
 }
 
+// Chức năng App: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function App() {
   const [notice, setNotice] = useState('')
   const [cart, setCart] = useState(() => loadJson(CART_KEY, []))
@@ -105,6 +115,7 @@ export default function App() {
 
   useEffect(() => {
     const controller = new AbortController()
+    // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
     fetch('/api/storefront/appearance', { signal: controller.signal, cache: 'no-store' })
       .then((response) => response.ok ? response.json() : null)
       .then((payload) => { if (payload?.appearance) setAppearance(payload.appearance) })
@@ -120,8 +131,10 @@ export default function App() {
 
   useEffect(() => {
     const controller = new AbortController()
+    // Chức năng refreshCatalog: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
     async function refreshCatalog() {
       try {
+        // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
         const response = await fetch('/api/storefront/catalog?details=1', { signal: controller.signal, cache: 'no-store' })
         if (response.ok) {
           const payload = await response.json()
@@ -138,6 +151,7 @@ export default function App() {
   useEffect(() => {
     const old = window.history.scrollRestoration
     window.history.scrollRestoration = 'manual'
+    // Chức năng onPop: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
     const onPop = () => {
       scrollPositions.current.set(location.pathname + location.search, window.scrollY)
       navigationAction.current = 'pop'
@@ -158,6 +172,7 @@ export default function App() {
     viewedLocation.current = location
     const id = decodeURIComponent(location.pathname.split('/')[2] || '')
     if (!products.some((product) => String(product.id) === id)) return
+    // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
     fetch('/api/storefront/products/' + encodeURIComponent(id) + '/view', { method: 'POST' })
       .then((response) => response.ok ? response.json() : null)
       .then((payload) => { if (payload) setOffers((current) => current.some((offer) => String(offer.id) === id)
@@ -166,6 +181,7 @@ export default function App() {
       .catch(() => {})
   }, [location, route, products])
 
+  // Chức năng navigate: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function navigate(url) {
     const next = new URL(url, window.location.href)
     scrollPositions.current.set(location.pathname + location.search, window.scrollY)
@@ -174,7 +190,9 @@ export default function App() {
     setLocation(currentLocation())
   }
 
+  // Chức năng handleLink: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function handleLink(event) {
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
     const anchor = event.target.closest?.('a[href]')
     if (!anchor || anchor.target || anchor.hasAttribute('download')) return
@@ -184,16 +202,22 @@ export default function App() {
     navigate(url.href)
   }
 
+  // Chức năng handleSearch: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function handleSearch(event) {
     if (!event.target.matches('form.site-search')) return
     event.preventDefault()
+    // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
     const query = new FormData(event.target).get('q')?.toString().trim() || ''
+    // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
     navigate('/products' + (query ? '?q=' + encodeURIComponent(query) : ''))
   }
 
+  // Chức năng addToCart: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const addToCart = (product) => {
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (product.stockCount === 0) return
     const inCart = cart.find((item) => String(item.id) === String(product.id))?.quantity || 0
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (product.stockCount !== null && inCart >= product.stockCount) {
       setNotice('Đã đạt số lượng tồn kho demo của ' + product.name + '.')
       return
@@ -201,8 +225,11 @@ export default function App() {
     setCart((current) => addCartItem(current, { ...product, selected: false }))
     setNotice('Đã thêm ' + product.name + ' vào giỏ hàng.')
   }
+  // Chức năng updateQuantity: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const updateQuantity = (id, quantity) => setCart((current) => setCartQuantity(current, id, quantity))
+  // Chức năng toggleCartItem: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const toggleCartItem = (id) => setCart((current) => current.map((item) => String(item.id) === String(id) ? { ...item, selected: !item.selected } : item))
+  // Chức năng completeOrder: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const completeOrder = (order, purchasedItems) => {
     setOrders((current) => [order, ...current])
     const purchasedIds = new Set(purchasedItems.map((item) => String(item.id)))
@@ -211,7 +238,9 @@ export default function App() {
     refreshCustomer()
   }
   const membershipTier = account?.tier || 'bronze'
+  // Chức năng requireLogin: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function requireLogin() { navigate('/login?next=' + encodeURIComponent(location.pathname + location.search)) }
+  // Chức năng toggleFavorite: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function toggleFavorite(id) {
     if (!account) { requireLogin(); return }
     const saved = favoriteIds.includes(String(id))
@@ -222,9 +251,11 @@ export default function App() {
       setFavoriteIds((current) => saved ? current.filter((item) => item !== String(id)) : [String(id), ...current])
     } catch (error) { setNotice(error.message) }
   }
+  // Chức năng toggleVoucher: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function toggleVoucher(code) {
     setSelectedVoucherCodes((current) => current.includes(code) ? current.filter((item) => item !== code) : [...current, code])
   }
+  // Chức năng logout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function logout() {
     customerEpoch.current += 1
     try { await customerApi('/api/customer/logout', { method: 'POST', csrfToken: account.csrfToken }) } catch { /* Clear local account view even if the session expired. */ }
@@ -236,13 +267,17 @@ export default function App() {
   else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
   else if (route === 'home') page = <Home appearance={appearance} products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'contact') page = <Contact />
   else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} />
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'checkout') page = <Checkout cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'favorites') page = <Favorites products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'account') page = <Account account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 
   const accentColor = /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : undefined

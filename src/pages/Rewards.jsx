@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Rewards.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Rewards.
+ * Liên kết trực tiếp: react, ../api/customer, ../storefront/promotions, ../storefront/rewardWheel.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useEffect, useRef, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { getMembershipPlan } from '../storefront/promotions'
@@ -7,6 +15,7 @@ import './Rewards.css'
 
 const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short' })
 
+// Chức năng Rewards: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Rewards({ account, tier = 'bronze', wallet = [], onReward, onRequireLogin, selectedVoucherCodes = [], onToggleVoucher }) {
   const [rotation, setRotation] = useState(0)
   const [result, setResult] = useState(null)
@@ -22,6 +31,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
   useEffect(() => () => clearTimeout(timer.current), [])
   useEffect(() => { if (result) closeRef.current?.focus() }, [result])
 
+  // Chức năng finish: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function finish() {
     if (!pending.current) return
     clearTimeout(timer.current)
@@ -30,9 +40,11 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
     setSpinning(false)
   }
 
+  // Chức năng spin: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function spin() {
     if (!account) { onRequireLogin?.(); return }
     if (spinning) return
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (credits < 1) { setError('Bạn không có lượt để quay.'); return }
     setSpinning(true)
     setResult(null)
@@ -48,6 +60,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
     } catch (failure) { setError(failure.message); setSpinning(false) }
   }
 
+  // Chức năng closeResult: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function closeResult() {
     setResult(null)
     onReward?.()

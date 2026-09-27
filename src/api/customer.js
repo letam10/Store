@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/api/customer.js
+ * Mục đích: Client gọi API tài khoản, voucher, yêu thích, đánh giá và đơn hàng; giữ cookie/CSRF theo phiên.
+ * Thành phần chính: customerApi.
+ * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 const messages = {
   LOGIN_REQUIRED: 'Vui long dang nhap de tiep tuc.',
   INVALID_CREDENTIALS: 'Ten dang nhap hoac mat khau khong dung.',
@@ -10,7 +18,9 @@ const messages = {
   CSRF_INVALID: 'Phien dang nhap da het han. Vui long tai lai trang.',
 }
 
+// Chức năng customerApi: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export async function customerApi(path, { csrfToken, ...options } = {}) {
+  // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
   const response = await fetch(path, {
     credentials: 'same-origin', cache: 'no-store', ...options,
     headers: {

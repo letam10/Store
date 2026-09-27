@@ -1,21 +1,34 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Auth.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Auth.
+ * Liên kết trực tiếp: react, ../api/customer.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useState } from 'react'
 import { customerApi } from '../api/customer'
 import './Auth.css'
 
+// Chức năng migrateOldBrowserAccount: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 async function migrateOldBrowserAccount(username, password) {
   let users
   try { users = JSON.parse(localStorage.getItem('storeDemoUsersV1') || '[]') } catch { return null }
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!Array.isArray(users)) return null
   const user = users.find((item) => item.username?.toLowerCase() === username.toLowerCase() || item.email === username.toLowerCase())
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!user || typeof user.salt !== 'string' || typeof user.hash !== 'string' || !/^(?:[a-f0-9]{2})+$/i.test(user.salt)) return null
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits'])
   const salt = Uint8Array.from(user.salt.match(/../g), (byte) => Number.parseInt(byte, 16))
   const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' }, key, 256)
   const hash = Array.from(new Uint8Array(bits), (byte) => byte.toString(16).padStart(2, '0')).join('')
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (hash !== user.hash) return null
   return customerApi('/api/customer/register', { method: 'POST', body: JSON.stringify({ username: user.username, email: user.email, password }) })
 }
 
+// Chức năng Auth: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Auth({ mode, next = '/account', onLogin, onNavigate, language = 'vi', onLanguageChange }) {
   const english = language === 'en'
   const view = mode === '/register' ? 'register' : mode === '/forgot-password' ? 'forgot' : 'login'
@@ -23,6 +36,7 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
 
+  // Chức năng submit: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function submit(event) {
     event.preventDefault()
     setError('')

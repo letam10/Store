@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Home.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Home.
+ * Liên kết trực tiếp: react, ../components/ui/ProductCard, ../components/ui/LeadCapture, ../storefront/catalog.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useEffect, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import LeadCapture from '../components/ui/LeadCapture'
@@ -15,9 +23,11 @@ const rows = [
   { category: 'Thực phẩm', subtitle: 'Lựa chọn cho mỗi ngày' },
 ]
 
+// Chức năng ProductRow: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onToggleFavorite, link, sale = false }) {
   const [offset, setOffset] = useState(0)
   useEffect(() => {
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (products.length <= 6) return undefined
     const timer = setInterval(() => setOffset((current) => (current + 1) % products.length), 4500)
     return () => clearInterval(timer)
@@ -29,11 +39,13 @@ function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onTog
   </section>
 }
 
+// Chức năng Home: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Home({ appearance = {}, products, onAddToCart, favoriteIds = [], onToggleFavorite }) {
   const [slide, setSlide] = useState(0)
   const featured = mostViewed(products, 20)
   const heroProduct = featured.length ? featured[slide % featured.length] : null
   useEffect(() => {
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (featured.length < 2) return undefined
     const timer = setInterval(() => setSlide((current) => current + 1), 5000)
     return () => clearInterval(timer)

@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/data/shipping.js
+ * Mục đích: Quy tắc tính phí giao hàng, khu vực và giới hạn khoảng cách.
+ * Thành phần chính: SHIPPING_DESTINATIONS, DOMESTIC_REGIONS.
+ * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 export const SHIPPING_DESTINATIONS = Object.freeze([
   ['hanoi', 'Hà Nội'], ['haiphong', 'Hải Phòng'], ['quang-ninh', 'Quảng Ninh'], ['bac-giang', 'Bắc Giang'],
   ['phu-tho', 'Phú Thọ'], ['vinh-phuc', 'Vĩnh Phúc'], ['bac-ninh', 'Bắc Ninh'], ['hai-duong', 'Hải Dương'],

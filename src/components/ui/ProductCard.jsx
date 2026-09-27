@@ -1,6 +1,15 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/components/ui/ProductCard.jsx
+ * Mục đích: Thẻ sản phẩm dùng chung, hiển thị giá, giảm giá, tồn kho, yêu thích và thêm giỏ.
+ * Thành phần chính: ProductCard.
+ * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import './ProductCard.css'
 const currency = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const pictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
+// Chức năng ProductCard: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function ProductCard({ product, onAddToCart, isFavorite = false, onToggleFavorite }) {
   const href = '/products/' + product.id
   return <article className={'product-card' + (product.stockCount === 0 ? ' product-card--out' : '') + (product.discountPercent > 0 ? ' product-card--sale' : '')}>

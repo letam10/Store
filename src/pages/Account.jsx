@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Account.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Account.
+ * Liên kết trực tiếp: react, ../storefront/promotions, ../storefront/state.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useMemo, useState } from 'react'
 import { getMembershipPlan } from '../storefront/promotions'
 import { orderMatches } from '../storefront/state'
@@ -6,6 +14,7 @@ import './Storefront.css'
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
 
+// Chức năng Account: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Account({ account, orders = [], membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [], onToggleVoucher, onLogout }) {
   const [orderQuery, setOrderQuery] = useState('')
   const visibleOrders = useMemo(() => orders.filter((order) => orderMatches(order, orderQuery)), [orders, orderQuery])

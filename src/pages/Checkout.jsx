@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Checkout.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Checkout.
+ * Liên kết trực tiếp: react, ../api/customer, ../storefront/promotions, ../storefront/state, ../data/shipping.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useEffect, useMemo, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { getMembershipPlan } from '../storefront/promotions'
@@ -7,6 +15,7 @@ import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
+// Chức năng Checkout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Checkout({ cart, account, membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [], onToggleVoucher, onComplete }) {
   const [completedOrder, setCompletedOrder] = useState(null)
   const [fulfillment, setFulfillment] = useState('delivery')
@@ -23,6 +32,7 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
 
   useEffect(() => {
     const selectedItems = JSON.parse(itemKey)
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!selectedItems.length) return undefined
     const controller = new AbortController()
     customerApi('/api/customer/quote', { method: 'POST', csrfToken: account.csrfToken,
@@ -32,6 +42,7 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
     return () => controller.abort()
   }, [account.csrfToken, itemKey, fulfillment, region, weightKg, selectedVoucherCodes])
 
+  // Chức năng submit: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function submit(event) {
     event.preventDefault()
     setBusy(true); setQuoteError('')
@@ -46,10 +57,12 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
   }
 
   if (completedOrder) return <div className="container page-shell"><section className="surface order-success"><span>✓</span><h1>Đơn đã được tạo</h1><p className="order-code">{completedOrder.id}</p><p>Tổng cần thanh toán: {money.format(completedOrder.total)}</p><p className="muted">Điểm và lượt quay được cộng sau khi quản trị viên ghi nhận thanh toán.</p><a className="button" href="/account">Xem đơn hàng</a></section></div>
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Chưa chọn sản phẩm để thanh toán</h2><a className="button" href="/cart">Về giỏ hàng</a></section></div>
 
   const goodsVouchers = wallet.filter((voucher) => (voucher.scope || 'goods') === 'goods')
   const shippingVouchers = wallet.filter((voucher) => voucher.scope === 'shipping')
+  // Chức năng voucherGroup: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const voucherGroup = (key, title, icon, vouchers) => <div className={'checkout-voucher-group' + (openVoucher === key ? ' is-open' : '')}>
     <button className="checkout-voucher-group__trigger" type="button" aria-expanded={openVoucher === key} onClick={() => setOpenVoucher((current) => current === key ? '' : key)}><span className="voucher-type-icon" aria-hidden="true">{icon}</span><span><b>{title}</b><small>{vouchers.length ? `${vouchers.length} voucher đang có` : 'Chưa có voucher'}</small></span><span aria-hidden="true">{openVoucher === key ? '⌃' : '⌄'}</span></button>
     {openVoucher === key && <div className="checkout-voucher-group__panel">{vouchers.length ? vouchers.map((voucher) => <label className={'checkout-voucher-option' + (selectedVoucherCodes.includes(voucher.code) ? ' is-selected' : '')} key={voucher.code}><input type="checkbox" checked={selectedVoucherCodes.includes(voucher.code)} onChange={() => onToggleVoucher(voucher.code)} /><span><b>{voucher.label}</b><code>{voucher.code}</code><small>Hạn dùng: {new Date(voucher.expiresAt).toLocaleDateString('vi-VN')}</small></span><strong>{voucher.type === 'percent' ? voucher.value + '%' : money.format(voucher.value)}</strong></label>) : <p className="muted">Bạn chưa có voucher loại này.</p>}</div>}

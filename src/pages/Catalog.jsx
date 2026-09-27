@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Catalog.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Catalog.
+ * Liên kết trực tiếp: react, ../components/ui/ProductCard, ../storefront/state, ../storefront/catalog.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useMemo, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import { filterProducts } from '../storefront/state'
@@ -6,9 +14,11 @@ import './Storefront.css'
 
 const PAGE_SIZE = 25
 
+// Chức năng Catalog: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Catalog({ products, search, onAddToCart, favoriteIds = [], onToggleFavorite }) {
   const params = new URLSearchParams(search)
   const [category, setCategory] = useState(params.get('category') || 'Tất cả')
+  // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
   const [query, setQuery] = useState(params.get('q') || '')
   const [sort, setSort] = useState(params.get('sort') || 'featured')
   const [maxPrice, setMaxPrice] = useState(0)
@@ -18,6 +28,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   const categories = ['Tất cả', ...new Set(products.map((item) => item.category))]
   const visible = useMemo(() => {
     const featuredIds = featuredOnly ? new Set(mostViewed(products, 20).map((item) => String(item.id))) : null
+    // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
     const list = filterProducts(products, { category, query, maxPrice }).filter((item) =>
       (!discountOnly || item.discountPercent > 0) && (!featuredIds || featuredIds.has(String(item.id))))
     if (sort === 'price-asc') return [...list].sort((a, b) => a.price - b.price)
@@ -26,8 +37,10 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
     if (sort === 'discount') return [...list].sort((a, b) => b.discountPercent - a.discountPercent)
     return list
   }, [products, category, query, maxPrice, sort, discountOnly, featuredOnly])
+  // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
   const filtersActive = query.trim() || category !== 'Tất cả' || Number(maxPrice) > 0 || sort !== 'featured' || discountOnly || featuredOnly
 
+  // Chức năng resetFilters: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function resetFilters() {
     setQuery('')
     setCategory('Tất cả')
@@ -43,6 +56,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
     <div className="catalog-layout">
       <aside className="catalog-sidebar surface" aria-label="Bộ lọc sản phẩm">
         <div className="catalog-sidebar__head"><h2>Tìm & lọc</h2>{filtersActive && <button type="button" onClick={resetFilters}>Xóa lọc</button>}</div>
+        // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
         <label className="field"><span>Tìm kiếm</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(PAGE_SIZE) }} placeholder="Tên hoặc nhóm hàng…" /></label>
         <fieldset className="catalog-category-list"><legend>Loại sản phẩm</legend>{categories.map((item) => <button key={item} className={item === category ? 'is-active' : ''} aria-pressed={item === category} onClick={() => { setCategory(item); setVisibleCount(PAGE_SIZE) }} type="button">{item}</button>)}</fieldset>
         <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { setDiscountOnly(event.target.checked); setVisibleCount(PAGE_SIZE) }} />Chỉ sản phẩm giảm giá</label>

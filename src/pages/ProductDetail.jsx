@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/ProductDetail.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: ProductDetail.
+ * Liên kết trực tiếp: react, ../api/customer, ../storefront/promotions, ../storefront/state, ../storefront/catalog, ../components/ui/ProductCard.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useEffect, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { getMembershipPlan } from '../storefront/promotions'
@@ -9,6 +17,7 @@ import './Storefront.css'
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' })
 
+// Chức năng ProductDetail: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function ProductDetail({ products, pathname, onAddToCart, account, membershipTier = 'bronze', wallet = [], favoriteIds = [], onToggleFavorite, onRequireLogin, onToggleVoucher, selectedVoucherCodes = [] }) {
   const productId = productIdFromPath(pathname)
   const product = products.find((item) => String(item.id) === String(productId))
@@ -20,6 +29,7 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
   const [activeImage, setActiveImage] = useState(0)
   const plan = getMembershipPlan(membershipTier)
 
+  // Chức năng refreshReviews: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function refreshReviews() {
     try {
       const payload = await customerApi('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews')
@@ -34,6 +44,7 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
     return () => controller.abort()
   }, [productId])
 
+  // Chức năng submitReview: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function submitReview(event) {
     event.preventDefault()
     if (!account) { onRequireLogin?.(); return }

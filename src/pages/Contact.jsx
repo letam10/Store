@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Contact.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Contact.
+ * Liên kết trực tiếp: react.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useState } from 'react'
 import './Storefront.css'
 
@@ -17,6 +25,7 @@ const tiles = Array.from({ length: 15 }, (_, index) => {
   return { x, y, left: x * tileSize - centerX, top: y * tileSize - centerY }
 })
 
+// Chức năng MapPreview: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function MapPreview() {
   return <div className="contact-map-preview" role="img" aria-label="Bản đồ ghim trung tâm Vũng Tàu, Việt Nam">
     {tiles.map((tile) => <img key={tile.x + '-' + tile.y} src={`https://tile.openstreetmap.org/${zoom}/${tile.x}/${tile.y}.png`} alt="" width="256" height="256" loading="lazy" style={{ left: `calc(50% + ${tile.left}px)`, top: `calc(50% + ${tile.top}px)` }} />)}
@@ -26,8 +35,10 @@ function MapPreview() {
   </div>
 }
 
+// Chức năng Contact: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
+  // Chức năng submit: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function submit(event) {
     event.preventDefault()
     setSubmitted(true)

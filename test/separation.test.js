@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: test/separation.test.js
+ * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
+ * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
+ * Liên kết trực tiếp: node:test, node:assert/strict, node:fs, node:path, ../src/storefront/state.js, ../src/api/endpoint.js.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
@@ -5,10 +13,12 @@ import { resolve, join } from 'node:path'
 import { routeName } from '../src/storefront/state.js'
 import { apiEndpoint } from '../src/api/endpoint.js'
 
+// Kiểm thử edge case: customer project has no admin/backend source or imports.
 test('customer project has no admin/backend source or imports', () => {
   for (const path of ['server', 'ai', 'src/pages/Admin.jsx', 'src/pages/AdminModules.jsx', 'src/pages/adminState.js']) {
     assert.equal(existsSync(resolve(path)), false, path)
   }
+  // Chức năng walk: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const walk = (folder) => readdirSync(folder, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory() ? walk(join(folder, entry.name)) : [join(folder, entry.name)])
   for (const path of walk('src').filter((path) => /\.(js|jsx)$/.test(path))) {
@@ -18,6 +28,7 @@ test('customer project has no admin/backend source or imports', () => {
   assert.equal(routeName('/admin/settings'), 'not-found')
 })
 
+// Kiểm thử edge case: same-origin support endpoint is default and local artwork ships with customer app.
 test('same-origin support endpoint is default and local artwork ships with customer app', () => {
   assert.equal(apiEndpoint('/api/support/chat'), '/api/support/chat')
   for (const name of ['headphones', 'bag', 'watch', 'cup']) {

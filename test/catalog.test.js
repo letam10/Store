@@ -1,7 +1,16 @@
+/**
+ * @codex-vn-doc
+ * Tệp: test/catalog.test.js
+ * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
+ * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
+ * Liên kết trực tiếp: node:assert/strict, node:test, ../src/storefront/catalog.js.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { displayCategory, enrichProducts, mostViewed, similarProducts } from '../src/storefront/catalog.js'
 
+// Kiểm thử edge case: demo catalog groups jewelry, apparel, laptops, electronics and components.
 test('demo catalog groups jewelry, apparel, laptops, electronics and components', () => {
   assert.equal(displayCategory({ name: 'Gold Pendant Necklace', category: 'Đời sống' }), 'Trang sức')
   assert.equal(displayCategory({ name: 'Dress Pump', category: 'Đời sống' }), 'Trang phục')
@@ -9,6 +18,7 @@ test('demo catalog groups jewelry, apparel, laptops, electronics and components'
   assert.equal(displayCategory({ name: 'Phone Charger Cable', category: 'Công nghệ' }), 'Linh kiện')
 })
 
+// Kiểm thử edge case: admin offer overrides demo discount and view ranking excludes out of stock.
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
   assert.equal(imported.length, 1000)

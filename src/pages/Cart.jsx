@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Cart.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Cart.
+ * Liên kết trực tiếp: react, ../storefront/catalog, ../storefront/state.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useState } from 'react'
 import { similarProducts } from '../storefront/catalog'
 import { canPurchase, cartTotal } from '../storefront/state'
@@ -6,14 +14,17 @@ import './Storefront.css'
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const pictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
 
+// Chức năng SimilarProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function SimilarProducts({ products, item }) {
   const [open, setOpen] = useState(false)
   const [start, setStart] = useState(0)
   const [dragStart, setDragStart] = useState(null)
   const items = similarProducts(products, item, 40)
   const canNavigate = items.length > 1
+  // Chức năng shift: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const shift = (amount) => setStart((current) => items.length ? (current + amount + items.length) % items.length : 0)
 
+  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!items.length) return <section className="cart-similar"><div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" disabled>Sản phẩm tương tự</button></div><div className="cart-similar__grid cart-similar__legacy-grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div></section>
   return <section className="cart-similar">
     <div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" aria-expanded={open} onClick={() => setOpen((current) => !current)}>{open ? 'Ẩn sản phẩm tương tự' : 'Sản phẩm tương tự'}</button></div>
@@ -30,6 +41,7 @@ function SimilarProducts({ products, item }) {
   </section>
 }
 
+// Chức năng Cart: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Cart({ cart, products, onQuantity, onToggle }) {
   const selected = cart.filter((item) => item.selected && canPurchase(item))
   const total = cartTotal(selected)

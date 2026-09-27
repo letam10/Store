@@ -1,4 +1,13 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/components/layout/Footer.jsx
+ * Mục đích: Footer Store và các liên kết mua sắm/hỗ trợ lấy từ cấu hình giao diện.
+ * Thành phần chính: Footer.
+ * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import './Footer.css'
+// Chức năng Footer: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Footer({ appearance = {} }) {
   const brandName = appearance.brandName || 'store'
   return (

@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/storefront/catalog.js
+ * Mục đích: Chuẩn hóa catalog, nhóm danh mục, xếp hạng xem nhiều và sản phẩm tương tự.
+ * Thành phần chính: displayCategory, enrichProducts, mostViewed, similarProducts.
+ * Liên kết trực tiếp: ../data/products.js.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { products as sourceProducts } from '../data/products.js'
 
 const jewelry = /\b(necklace|earrings?|bracelet|pendant|jewelry|gemstone|sapphire|aquamarine)\b/i
@@ -7,6 +15,7 @@ const laptop = /\b(laptop|notebook|chromebook|macbook|ultrabook|netbook)\b/i
 const food = /\b(coffee|tea|cocoa|chocolate|candy|cookie|biscuit|snack|cereal|food|grocery|groceries|honey|jam|sauce|spice|rice|pasta|water|juice|drink|beverage)\b/i
 const household = /\b(lamp|light|table|chair|shelf|cabinet|sofa|blanket|pillow|mirror|curtain|rug|storage|organizer|clock|bed|mattress|bath|towel|vacuum|fan|air purifier|humidifier|iron|kettle|coffee maker|blender|toaster|cookware|dish|mug|bottle|cleaner|basket|furniture|home decor|kitchen)\b/i
 
+// Chức năng displayCategory: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function displayCategory(product) {
   if (laptop.test(product.name)) return 'Laptop'
   if (jewelry.test(product.name)) return 'Trang sức'
@@ -18,6 +27,7 @@ export function displayCategory(product) {
   return product.category
 }
 
+// Chức năng enrichProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function enrichProducts(offers = []) {
   const byId = new Map(offers.map((offer) => [String(offer.id), offer]))
   const sourceIds = new Set(sourceProducts.map((product) => String(product.id)))
@@ -41,6 +51,7 @@ export function enrichProducts(offers = []) {
   })
 }
 
+// Chức năng mostViewed: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function mostViewed(products, count = 4) {
   return products.filter((product) => product.stockCount !== 0)
     .map((product, index) => ({ product, index }))
@@ -48,6 +59,7 @@ export function mostViewed(products, count = 4) {
     .slice(0, count).map(({ product }) => product)
 }
 
+// Chức năng similarProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function similarProducts(products, product, count = 4) {
   return products.filter((item) => String(item.id) !== String(product.id) && item.category === product.category && item.stockCount !== 0).slice(0, count)
 }

@@ -1,6 +1,15 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/pages/Membership.jsx
+ * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
+ * Thành phần chính: Membership.
+ * Liên kết trực tiếp: ../storefront/promotions.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { getMembershipPlan, membershipPlans } from '../storefront/promotions'
 import './Storefront.css'
 
+// Chức năng Membership: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Membership({ account, tier = 'bronze' }) {
   const current = getMembershipPlan(tier)
   return <div className="container page-shell">

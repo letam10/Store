@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/storefront/promotions.js
+ * Mục đích: Hạng thành viên, điểm, giảm giá, voucher và quy tắc giao hàng storefront.
+ * Thành phần chính: membershipPlans, getMembershipPlan, tierForPoints.
+ * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 export const membershipPlans = Object.freeze([
   { id: 'bronze', title: 'Bronze', name: 'Đồng', badge: 'ĐỒNG', points: 0, discount: 0, multiplier: 1,
     description: 'Hạng mặc định, miễn phí.', benefits: ['Tích 1 điểm cho mỗi 1.000 ₫ hàng hóa đã thanh toán', 'Mỗi 100.000 ₫ đã thanh toán nhận 1 lượt quay'] },
@@ -9,10 +17,12 @@ export const membershipPlans = Object.freeze([
     description: 'Mở khóa khi tích đủ 10.000 điểm.', benefits: ['Giữ nguyên lợi ích hạng Vàng, Bạc và hạng Đồng', 'Tự động giảm thêm 5% khi thanh toán', 'Tích điểm x1,5', 'Phí giao hàng theo khu vực áp dụng chung'] },
 ])
 
+// Chức năng getMembershipPlan: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function getMembershipPlan(id = 'bronze') {
   return membershipPlans.find((plan) => plan.id === id) || membershipPlans[0]
 }
 
+// Chức năng tierForPoints: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function tierForPoints(points) {
   return [...membershipPlans].reverse().find((plan) => points >= plan.points)?.id || 'bronze'
 }

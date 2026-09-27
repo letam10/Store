@@ -1,8 +1,18 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/components/ui/LeadCapture.jsx
+ * Mục đích: Biểu mẫu thu thập thông tin liên hệ/hỗ trợ của khách hàng.
+ * Thành phần chính: LeadCapture.
+ * Liên kết trực tiếp: react.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useState } from 'react'
 import './LeadCapture.css'
 
+// Chức năng LeadCapture: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function LeadCapture(){
   const [submitted,setSubmitted]=useState(false)
+  // Chức năng submit: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function submit(event){
     event.preventDefault()
     setSubmitted(true)

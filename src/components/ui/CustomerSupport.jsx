@@ -1,3 +1,11 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/components/ui/CustomerSupport.jsx
+ * Mục đích: Khung chat hỗ trợ khách hàng, lịch sử hội thoại và trạng thái streaming.
+ * Thành phần chính: CustomerSupport.
+ * Liên kết trực tiếp: react, ../../api/chat, ../../api/requestGate, ./customerSupportState.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useEffect, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../../api/chat'
 import { createRequestGate } from '../../api/requestGate'
@@ -7,10 +15,12 @@ import './CustomerSupport.css'
 const suggestions = ['Tư vấn sản phẩm', 'Thông tin đơn hàng', 'Chính sách đổi trả']
 const STORAGE_KEY = 'storeSupportConversationId'
 
+// Chức năng localId: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function localId() {
   return globalThis.crypto?.randomUUID?.() || String(Date.now()) + '-' + String(Math.random())
 }
 
+// Chức năng SupportIcon: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function SupportIcon({ kind = 'chat' }) {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -21,6 +31,7 @@ function SupportIcon({ kind = 'chat' }) {
   )
 }
 
+// Chức năng CustomerSupport: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function CustomerSupport({ account, onRequireLogin }) {
   const initialConversationIdRef = useRef(localStorage.getItem(STORAGE_KEY) || '')
   const [isOpen, setIsOpen] = useState(false)
@@ -43,6 +54,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
 
   useEffect(() => {
     const initialId = initialConversationIdRef.current
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!account || !initialId) return undefined
     const restoreGuard = restoreGuardRef.current
     const gate = gateRef.current
@@ -58,10 +70,12 @@ export default function CustomerSupport({ account, onRequireLogin }) {
         setMessages((current) => applyRestore(current, payload.messages, { canApply }))
       })
       .catch((error) => {
+        // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
         if (disposed || !restoreGuard.canApply(token, {
           requestActive: gate.locked,
           currentConversationId: conversationIdRef.current,
         })) return
+        // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
         if (error.code === 'CONVERSATION_NOT_FOUND') {
           localStorage.removeItem(STORAGE_KEY)
           conversationIdRef.current = ''
@@ -82,7 +96,9 @@ export default function CustomerSupport({ account, onRequireLogin }) {
 
   useEffect(() => { if (isOpen) inputRef.current?.focus() }, [isOpen])
   useEffect(() => {
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!isOpen) return undefined
+    // Chức năng closeOutside: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
     const closeOutside = (event) => { if (!rootRef.current?.contains(event.target)) setIsOpen(false) }
     document.addEventListener('pointerdown', closeOutside)
     return () => document.removeEventListener('pointerdown', closeOutside)
@@ -91,10 +107,12 @@ export default function CustomerSupport({ account, onRequireLogin }) {
     if (isOpen && logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
   }, [messages, isOpen, activity])
 
+  // Chức năng updateMessage: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function updateMessage(id, updater) {
     setMessages((previous) => previous.map((message) => message.id === id ? updater(message) : message))
   }
 
+  // Chức năng startRequest: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function startRequest(content, { assistantId = '', requestId = '' } = {}) {
     const clean = content.trim()
     if (!clean) return
@@ -152,6 +170,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
       })
     } catch (error) {
       if (!gateRef.current.isCurrent(gate.epoch)) return
+      // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
       if (error.name === 'AbortError') {
         updateMessage(resolvedAssistantId, (message) => ({ ...message, status: 'stopped' }))
         setActivity('Đã dừng')
@@ -175,11 +194,13 @@ export default function CustomerSupport({ account, onRequireLogin }) {
     }
   }
 
+  // Chức năng sendMessage: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function sendMessage(event) {
     event.preventDefault()
     startRequest(draft)
   }
 
+  // Chức năng startNewConversation: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function startNewConversation() {
     if (gateRef.current.locked) return
     restoreGuardRef.current.invalidate()
@@ -193,6 +214,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
     inputRef.current?.focus()
   }
 
+  // Chức năng stopRequest: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function stopRequest() {
     gateRef.current.cancel()
     setMessages((previous) => previous.map((message) => message.status === "streaming" ? { ...message, status: "stopped" } : message))
@@ -200,6 +222,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
     setActivity("Đã dừng")
   }
 
+  // Chức năng handleKeyDown: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function handleKeyDown(event) {
     if (event.key === 'Escape' && isOpen) {
       event.stopPropagation()

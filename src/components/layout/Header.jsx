@@ -1,8 +1,17 @@
+/**
+ * @codex-vn-doc
+ * Tệp: src/components/layout/Header.jsx
+ * Mục đích: Header Store, tìm kiếm, điều hướng, theme, ngôn ngữ và trạng thái tài khoản/giỏ hàng.
+ * Thành phần chính: Header.
+ * Liên kết trực tiếp: react, ../../data/products, ../../storefront/promotions.
+ * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
+ */
 import { useEffect, useRef, useState } from 'react'
 import { products } from '../../data/products'
 import { getMembershipPlan } from '../../storefront/promotions'
 import './Header.css'
 
+// Chức năng Header: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Header({ appearance = {}, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, language = 'vi', onLanguageChange }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -22,8 +31,10 @@ export default function Header({ appearance = {}, cartCount, account, membership
   const searchPlaceholder = appearance.headerSearchPlaceholder || (english ? 'Search products or categories…' : 'Tìm sản phẩm, danh mục…')
 
   useEffect(() => {
+    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!searchOpen) return undefined
     searchRef.current?.focus()
+    // Chức năng closeOnEscape: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
     const closeOnEscape = (event) => { if (event.key === 'Escape') setSearchOpen(false) }
     document.addEventListener('keydown', closeOnEscape)
     return () => document.removeEventListener('keydown', closeOnEscape)
