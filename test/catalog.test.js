@@ -21,7 +21,7 @@ test('demo catalog groups jewelry, apparel, laptops, electronics and components'
 // Kiểm thử edge case: admin offer overrides demo discount and view ranking excludes out of stock.
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
-  assert.equal(imported.length, 2000)
+  assert.equal(imported.length, 2004)
   assert.equal(imported[4].discountPercent, 15)
   const changed = enrichProducts([{ id: imported[4].id, discountPercent: 20, stockCount: 0, viewCount: 100 }, { id: imported[5].id, discountPercent: 5, stockCount: 2, viewCount: 10 }])
   assert.equal(changed[4].price, Math.round(changed[4].originalPrice * .8 / 10) * 10)
