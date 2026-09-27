@@ -15,12 +15,12 @@ export const products = Object.freeze([
     features: ['Thiết kế gọn nhẹ', 'Điều khiển trực quan', 'Phù hợp sử dụng hằng ngày'],
   },
   {
-    id: 2, name: 'Túi Everyday Tote', category: 'Phụ kiện', price: 249000, symbol: '👜', tone: 'sand', label: 'Mới',
+    id: 2, name: 'Túi Everyday Tote', category: 'Trang sức', price: 249000, symbol: '👜', tone: 'sand', label: 'Mới',
     description: 'Túi tote tối giản cho đồ dùng cá nhân, phù hợp đi học, đi làm hoặc mua sắm ngắn ngày.',
     features: ['Khoang chính rộng', 'Phong cách trung tính', 'Dễ phối đồ'],
   },
   {
-    id: 3, name: 'Đồng hồ Minimal', category: 'Phụ kiện', price: 1290000, symbol: '⌚', tone: 'blue', label: 'Tối giản',
+    id: 3, name: 'Đồng hồ Minimal', category: 'Trang sức', price: 1290000, symbol: '⌚', tone: 'blue', label: 'Tối giản',
     description: 'Đồng hồ phong cách tối giản với mặt hiển thị rõ ràng, phù hợp nhiều hoàn cảnh sử dụng.',
     features: ['Mặt số dễ đọc', 'Thiết kế tối giản', 'Phong cách linh hoạt'],
   },
