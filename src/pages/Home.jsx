@@ -20,7 +20,7 @@ const rows = [
   { category: 'Điện tử', subtitle: 'Công nghệ gần gũi' },
   { category: 'Linh kiện', subtitle: 'Chi tiết làm nên khác biệt' },
   { category: 'Đồ gia dụng', subtitle: 'Nhà cửa gọn gàng hơn' },
-  { category: 'Thực phẩm', subtitle: 'Lựa chọn cho mỗi ngày' },
+  { category: 'Tự Thiết Kế', subtitle: 'Ý tưởng riêng cho mỗi ngày' },
 ]
 
 // Chức năng ProductRow: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.

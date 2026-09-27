@@ -12,18 +12,26 @@ const jewelry = /\b(necklace|earrings?|bracelet|pendant|jewelry|gemstone|sapphir
 const clothing = /\b(dress pump|kitten heel|shoes?|sneakers?|tote|handbag|apparel|jacket)\b/i
 const components = /\b(cable|charger|adapter|phone case|mobile cover|connector|battery)\b/i
 const laptop = /\b(laptop|notebook|chromebook|macbook|ultrabook|netbook)\b/i
-const food = /\b(coffee|tea|cocoa|chocolate|candy|cookie|biscuit|snack|cereal|food|grocery|groceries|honey|jam|sauce|spice|rice|pasta|water|juice|drink|beverage)\b/i
 const household = /\b(lamp|light|table|chair|shelf|cabinet|sofa|blanket|pillow|mirror|curtain|rug|storage|organizer|clock|bed|mattress|bath|towel|vacuum|fan|air purifier|humidifier|iron|kettle|coffee maker|blender|toaster|cookware|dish|mug|bottle|cleaner|basket|furniture|home decor|kitchen)\b/i
+const legacyCategoryMap = Object.freeze({
+  'Công nghệ': 'Điện tử',
+  'Nhà cửa': 'Đồ gia dụng',
+  'Nhà bếp': 'Đồ gia dụng',
+  'Đời sống': 'Đồ gia dụng',
+  'Ngoài trời': 'Đồ gia dụng',
+  'Đồ gia dụng': 'Đồ gia dụng',
+})
 
 // Chức năng displayCategory: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function displayCategory(product) {
+  // Danh mục đã lưu là nguồn chính; giữ sản phẩm Tự Thiết Kế không bị từ khóa tên ghi đè.
+  if (product.category === 'Tự Thiết Kế' || product.category === 'Thực phẩm') return 'Tự Thiết Kế'
   if (laptop.test(product.name)) return 'Laptop'
   if (jewelry.test(product.name)) return 'Trang sức'
-  if (food.test(product.name)) return 'Thực phẩm'
   if (clothing.test(product.name) || String(product.id) === '2') return 'Trang phục'
   if (components.test(product.name)) return 'Linh kiện'
-  if (product.category === 'Công nghệ') return 'Điện tử'
-  if (household.test(product.name) || ['Nhà cửa', 'Nhà bếp', 'Đời sống', 'Ngoài trời', 'Đồ gia dụng'].includes(product.category)) return 'Đồ gia dụng'
+  if (legacyCategoryMap[product.category]) return legacyCategoryMap[product.category]
+  if (household.test(product.name)) return 'Đồ gia dụng'
   return product.category
 }
 

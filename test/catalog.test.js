@@ -12,16 +12,21 @@ import { displayCategory, enrichProducts, mostViewed, similarProducts } from '..
 
 // Kiểm thử edge case: demo catalog groups jewelry, apparel, laptops, electronics and components.
 test('demo catalog groups jewelry, apparel, laptops, electronics and components', () => {
-  assert.equal(displayCategory({ name: 'Gold Pendant Necklace', category: 'Đời sống' }), 'Trang sức')
-  assert.equal(displayCategory({ name: 'Dress Pump', category: 'Đời sống' }), 'Trang phục')
+  assert.equal(displayCategory({ name: 'Gold Pendant Necklace', category: 'Chưa phân loại' }), 'Trang sức')
+  assert.equal(displayCategory({ name: 'Dress Pump', category: 'Chưa phân loại' }), 'Trang phục')
   assert.equal(displayCategory({ name: 'Laptop', category: 'Công nghệ' }), 'Laptop')
   assert.equal(displayCategory({ name: 'Phone Charger Cable', category: 'Công nghệ' }), 'Linh kiện')
+  assert.equal(displayCategory({ name: 'Coffee Table', category: 'Đời sống' }), 'Đồ gia dụng')
+  assert.equal(displayCategory({ name: 'Custom artwork', category: 'Tự Thiết Kế' }), 'Tự Thiết Kế')
 })
 
 // Kiểm thử edge case: admin offer overrides demo discount and view ranking excludes out of stock.
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
-  assert.equal(imported.length, 2004)
+  assert.equal(imported.length, 2000)
+  assert.equal(imported.filter((product) => product.category === 'Tự Thiết Kế').length, 39)
+  assert.equal(imported.filter((product) => product.category === 'Thực phẩm').length, 0)
+  assert.equal(imported.filter((product) => String(product.id).startsWith('custom-design-')).length, 0)
   assert.equal(imported[4].discountPercent, 15)
   const changed = enrichProducts([{ id: imported[4].id, discountPercent: 20, stockCount: 0, viewCount: 100 }, { id: imported[5].id, discountPercent: 5, stockCount: 2, viewCount: 10 }])
   assert.equal(changed[4].price, Math.round(changed[4].originalPrice * .8 / 10) * 10)
