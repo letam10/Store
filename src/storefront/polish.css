@@ -456,6 +456,7 @@
 /* Ảnh trong giỏ luôn bị khóa trong khung vuông, kể cả nguồn ảnh dọc rất dài. */
 .cart-item__art{width:82px!important;height:82px!important;min-width:0!important;overflow:hidden!important;display:grid!important;place-items:center!important}
 .cart-item__art-link{color:inherit!important;text-decoration:none!important;cursor:pointer}
+.cart-item__detail-link{display:inline-flex!important;width:max-content!important;margin:0 0 5px!important;color:var(--accent,#2f7b50)!important;font-size:11px!important;font-weight:700!important;text-decoration:underline!important;text-underline-offset:2px!important}
 .cart-item__art img{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;padding:4px!important}
 
 /* Ảnh ở danh sách phải lấp đầy cùng một khung để ảnh có nhiều khoảng trắng
