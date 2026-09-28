@@ -15,24 +15,36 @@ const laptop = /\b(laptop|notebook|chromebook|macbook|ultrabook|netbook)\b/i
 const household = /\b(lamp|light|table|chair|shelf|cabinet|sofa|blanket|pillow|mirror|curtain|rug|storage|organizer|clock|bed|mattress|bath|towel|vacuum|fan|air purifier|humidifier|iron|kettle|coffee maker|blender|toaster|cookware|dish|mug|bottle|cleaner|basket|furniture|home decor|kitchen)\b/i
 const legacyCategoryMap = Object.freeze({
   'Công nghệ': 'Điện tử',
+  'Điện tử': 'Điện tử',
+  Laptop: 'Laptop',
+  'Linh kiện': 'Linh kiện',
+  'Làm đẹp': 'Làm đẹp',
+  'Trang phục': 'Trang phục',
+  'Trang sức': 'Trang sức',
   'Nhà cửa': 'Đồ gia dụng',
   'Nhà bếp': 'Đồ gia dụng',
   'Đời sống': 'Đồ gia dụng',
   'Ngoài trời': 'Đồ gia dụng',
   'Đồ gia dụng': 'Đồ gia dụng',
 })
+// Các nhãn này là danh mục chuẩn đã được quản trị lưu trong dữ liệu.
+// Giữ nguyên nhãn chuẩn; chỉ dùng từ khóa tên cho dữ liệu cũ/chưa phân loại.
+const canonicalCategories = new Set(['Điện tử', 'Trang phục', 'Trang sức', 'Laptop', 'Linh kiện', 'Làm đẹp', 'Đồ gia dụng', 'Tự Thiết Kế'])
 
 // Chức năng displayCategory: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function displayCategory(product) {
-  // Danh mục đã lưu là nguồn chính; giữ sản phẩm Tự Thiết Kế không bị từ khóa tên ghi đè.
-  if (product.category === 'Tự Thiết Kế' || product.category === 'Thực phẩm') return 'Tự Thiết Kế'
+  const category = String(product?.category || '')
+  // Danh mục cũ cần chuẩn hóa trước khi kiểm tra từ khóa trong tên sản phẩm.
+  if (category === 'Thực phẩm') return 'Tự Thiết Kế'
+  if (legacyCategoryMap[category]) return legacyCategoryMap[category]
+  // Danh mục chuẩn là nguồn chính; không để tên sản phẩm ghi đè phân loại đã lưu.
+  if (canonicalCategories.has(category)) return category
   if (laptop.test(product.name)) return 'Laptop'
   if (jewelry.test(product.name)) return 'Trang sức'
   if (clothing.test(product.name) || String(product.id) === '2') return 'Trang phục'
   if (components.test(product.name)) return 'Linh kiện'
-  if (legacyCategoryMap[product.category]) return legacyCategoryMap[product.category]
   if (household.test(product.name)) return 'Đồ gia dụng'
-  return product.category
+  return category
 }
 
 // Chức năng enrichProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.

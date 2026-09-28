@@ -14,10 +14,20 @@ import { displayCategory, enrichProducts, mostViewed, similarProducts } from '..
 test('demo catalog groups jewelry, apparel, laptops, electronics and components', () => {
   assert.equal(displayCategory({ name: 'Gold Pendant Necklace', category: 'Chưa phân loại' }), 'Trang sức')
   assert.equal(displayCategory({ name: 'Dress Pump', category: 'Chưa phân loại' }), 'Trang phục')
-  assert.equal(displayCategory({ name: 'Laptop', category: 'Công nghệ' }), 'Laptop')
-  assert.equal(displayCategory({ name: 'Phone Charger Cable', category: 'Công nghệ' }), 'Linh kiện')
+  assert.equal(displayCategory({ name: 'Laptop', category: 'Chưa phân loại' }), 'Laptop')
+  assert.equal(displayCategory({ name: 'Phone Charger Cable', category: 'Chưa phân loại' }), 'Linh kiện')
+  assert.equal(displayCategory({ name: 'Laptop', category: 'Công nghệ' }), 'Điện tử')
+  assert.equal(displayCategory({ name: 'Phone Charger Cable', category: 'Công nghệ' }), 'Điện tử')
   assert.equal(displayCategory({ name: 'Coffee Table', category: 'Đời sống' }), 'Đồ gia dụng')
   assert.equal(displayCategory({ name: 'Custom artwork', category: 'Tự Thiết Kế' }), 'Tự Thiết Kế')
+})
+
+// Kiểm thử edge case: danh mục chuẩn không bị tên sản phẩm ghi đè.
+test('canonical categories take precedence over name heuristics', () => {
+  assert.equal(displayCategory({ name: 'USB Charging Cable', category: 'Điện tử' }), 'Điện tử')
+  assert.equal(displayCategory({ name: 'Gold Pendant Necklace', category: 'Trang sức' }), 'Trang sức')
+  assert.equal(displayCategory({ name: 'Coffee Mug', category: 'Tự Thiết Kế' }), 'Tự Thiết Kế')
+  assert.equal(displayCategory({ name: 'Chocolate Gift Box', category: 'Thực phẩm' }), 'Tự Thiết Kế')
 })
 
 // Kiểm thử edge case: admin offer overrides demo discount and view ranking excludes out of stock.

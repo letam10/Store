@@ -18,7 +18,7 @@ npm test, npm run lint, npm run build. Thư mục dist là bản frontend để 
 - src/components/: layout và thành phần dùng chung.
 - src/storefront/design.css và updates.css: giao diện khách responsive, sáng/tối; đăng nhập có bảng màu riêng.
 - public/products/: hình minh họa SVG local; không phải ảnh sản phẩm thật.
-- shared/: bốn sản phẩm/chính sách demo có sẵn. Catalog hiện có 2.000 sản phẩm phía khách: 4 sản phẩm nền và 1.996 sản phẩm nhập; 35 mục dữ liệu cũ cùng 4 sản phẩm nền được phân vào `Tự Thiết Kế`. Dữ liệu mới được phân nhóm Điện tử, Trang phục, Trang sức (gộp phụ kiện), Laptop, Làm đẹp và Tự Thiết Kế cùng các nhóm dữ liệu cũ.
+- shared/: bốn sản phẩm/chính sách demo có sẵn. Catalog hiện có 2.000 sản phẩm phía khách: 4 sản phẩm nền và 1.996 sản phẩm nhập; 35 mục dữ liệu cũ cùng 4 sản phẩm nền được phân vào `Tự Thiết Kế`. Snapshot đã chuẩn hóa các nhãn cũ vào tám danh mục hiển thị để số liệu phía khách trùng với API.
 - Nguồn demo: Amazon Berkeley Objects cho ảnh/metadata household (CC BY 4.0 theo trang nguồn) và DummyJSON cho placeholder products; giá VND, tồn kho và ưu đãi chỉ dùng để thử giao diện.
 - src/api/: client chat hỗ trợ, không có client quản trị.
 - /admin trên Store trả trang không tìm thấy; dùng Store-Admin để quản trị.
