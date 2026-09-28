@@ -53,6 +53,7 @@ test('guest can browse and add cart but checkout, favorites and chat require log
     window.document.querySelector('.product-detail-actions button').click()
     window.document.querySelector('a[href="/cart"]').click()
     await waitFor(() => window.location.pathname === '/cart')
+    assert.equal(window.document.querySelector('.cart-item__art-link')?.getAttribute('href'), '/products/1')
     const checkbox = window.document.querySelector('.cart-select input')
     checkbox.click()
     await waitFor(() => Boolean(window.document.querySelector('a[href="/checkout"]')))
