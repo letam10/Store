@@ -9,7 +9,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import { filterProducts } from '../storefront/state'
-import { mostViewed } from '../storefront/catalog'
 import './Storefront.css'
 
 const PAGE_SIZE = 25
@@ -21,25 +20,27 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
   const [query, setQuery] = useState(params.get('q') || '')
   const [sort, setSort] = useState(params.get('sort') || 'featured')
+  const [popularityOnly, setPopularityOnly] = useState(params.get('sort') === 'popular')
+  const [favoriteSort, setFavoriteSort] = useState(params.get('sort') === 'favorite')
   const [maxPrice, setMaxPrice] = useState(0)
   const [discountOnly, setDiscountOnly] = useState(params.get('discount') === '1')
-  const [featuredOnly, setFeaturedOnly] = useState(params.get('featured') === '1')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const filtersMounted = useRef(false)
   const categories = ['Tất cả', ...new Set(products.map((item) => item.category))]
   const visible = useMemo(() => {
-    const featuredIds = featuredOnly ? new Set(mostViewed(products, 20).map((item) => String(item.id))) : null
     // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
     const list = filterProducts(products, { category, query, maxPrice }).filter((item) =>
-      (!discountOnly || item.discountPercent > 0) && (!featuredIds || featuredIds.has(String(item.id))))
+      !discountOnly || item.discountPercent > 0)
+    if (popularityOnly) return [...list].sort((a, b) => Number(b.viewCount || 0) - Number(a.viewCount || 0))
+    if (favoriteSort) return [...list].sort((a, b) => Number(b.favoriteCount || 0) - Number(a.favoriteCount || 0) || Number(b.viewCount || 0) - Number(a.viewCount || 0))
     if (sort === 'price-asc') return [...list].sort((a, b) => a.price - b.price)
     if (sort === 'price-desc') return [...list].sort((a, b) => b.price - a.price)
     if (sort === 'popular') return [...list].sort((a, b) => b.viewCount - a.viewCount)
     if (sort === 'discount') return [...list].sort((a, b) => b.discountPercent - a.discountPercent)
     return list
-  }, [products, category, query, maxPrice, sort, discountOnly, featuredOnly])
+  }, [products, category, query, maxPrice, sort, popularityOnly, favoriteSort, discountOnly])
   // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-  const filtersActive = query.trim() || category !== 'Tất cả' || Number(maxPrice) > 0 || sort !== 'featured' || discountOnly || featuredOnly
+  const filtersActive = query.trim() || category !== 'Tất cả' || Number(maxPrice) > 0 || sort !== 'featured' || popularityOnly || favoriteSort || discountOnly
 
   useEffect(() => {
     // Mỗi lần đổi bộ lọc/danh mục, đưa người dùng về đầu danh sách để không bị kẹt ở vị trí cuộn cũ.
@@ -48,7 +49,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
       return
     }
     window.scrollTo?.(0, 0)
-  }, [category, query, maxPrice, sort, discountOnly, featuredOnly])
+  }, [category, query, maxPrice, sort, popularityOnly, favoriteSort, discountOnly])
 
   // Chức năng resetFilters: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function resetFilters() {
@@ -56,8 +57,9 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
     setCategory('Tất cả')
     setMaxPrice(0)
     setSort('featured')
+    setPopularityOnly(false)
+    setFavoriteSort(false)
     setDiscountOnly(false)
-    setFeaturedOnly(false)
     setVisibleCount(PAGE_SIZE)
   }
 
@@ -66,13 +68,13 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
     <div className="catalog-layout">
       <aside className="catalog-sidebar surface" aria-label="Bộ lọc sản phẩm">
         <div className="catalog-sidebar__head"><h2>Tìm & lọc</h2>{filtersActive && <button type="button" onClick={resetFilters}>Xóa lọc</button>}</div>
-        // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
         <label className="field"><span>Tìm kiếm</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(PAGE_SIZE) }} placeholder="Tên hoặc nhóm hàng…" /></label>
         <fieldset className="catalog-category-list"><legend>Loại sản phẩm</legend>{categories.map((item) => <button key={item} className={item === category ? 'is-active' : ''} aria-pressed={item === category} onClick={() => { setCategory(item); setVisibleCount(PAGE_SIZE) }} type="button">{item}</button>)}</fieldset>
         <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { setDiscountOnly(event.target.checked); setVisibleCount(PAGE_SIZE) }} />Chỉ sản phẩm giảm giá</label>
-        <label className="catalog-checkbox"><input type="checkbox" checked={featuredOnly} onChange={(event) => { setFeaturedOnly(event.target.checked); setVisibleCount(PAGE_SIZE) }} />Top 20 xem nhiều</label>
+        <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { const checked = event.target.checked; setPopularityOnly(checked); setFavoriteSort(false); setSort(checked ? 'popular' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Độ phổ biến</label>
+        <label className="catalog-checkbox"><input type="checkbox" checked={favoriteSort} onChange={(event) => { const checked = event.target.checked; setFavoriteSort(checked); setPopularityOnly(false); setSort(checked ? 'favorite' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Độ yêu thích</label>
         <label className="field"><span>Giá tối đa</span><select value={maxPrice} onChange={(event) => { setMaxPrice(Number(event.target.value)); setVisibleCount(PAGE_SIZE) }}><option value="0">Không giới hạn</option><option value="500000">500.000 ₫</option><option value="1000000">1.000.000 ₫</option><option value="5000000">5.000.000 ₫</option><option value="10000000">10.000.000 ₫</option><option value="25000000">25.000.000 ₫</option></select></label>
-        <label className="field"><span>Sắp xếp</span><select value={sort} onChange={(event) => { setSort(event.target.value); setVisibleCount(PAGE_SIZE) }}><option value="featured">Mặc định</option><option value="popular">Xem nhiều nhất</option><option value="discount">Giảm giá cao nhất</option><option value="price-asc">Giá thấp → cao</option><option value="price-desc">Giá cao → thấp</option></select></label>
+        <label className="field"><span>Sắp xếp</span><select value={sort} onChange={(event) => { const nextSort = event.target.value; setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setVisibleCount(PAGE_SIZE) }}><option value="featured">Mặc định</option><option value="popular">Xem nhiều nhất</option><option value="favorite">Yêu thích nhiều nhất</option><option value="discount">Giảm giá cao nhất</option><option value="price-asc">Giá thấp → cao</option><option value="price-desc">Giá cao → thấp</option></select></label>
         <p className="catalog-sidebar__hint">Bộ lọc luôn ở bên cạnh khi bạn cuộn danh sách.</p>
       </aside>
       <div className="catalog-results">

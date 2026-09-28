@@ -67,6 +67,8 @@ export function enrichProducts(offers = []) {
       // quantities when the backend is temporarily unavailable.
       stockCount: offer?.stockCount ?? 20,
       viewCount: offer?.viewCount ?? 0,
+      // Giữ tổng lượt yêu thích từ API để bộ lọc Catalog xếp hạng đúng cả sản phẩm nền.
+      favoriteCount: offer?.favoriteCount ?? product.favoriteCount ?? 0,
     }
   })
 }

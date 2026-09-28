@@ -368,3 +368,87 @@
   .header-inner .header-language select{padding-inline:3px!important}
   .favorites-grid{grid-template-columns:1fr!important}
 }
+
+/* Catalog/header final alignment: headings stay above cards while scrolling,
+   and the compact header keeps readable navigation labels. */
+.header-inner .header-nav a{font-size:13px!important}
+.catalog-page-head{
+  position:sticky!important;
+  top:60px!important;
+  z-index:60!important;
+  isolation:isolate!important;
+  background:var(--paper)!important;
+  background-color:var(--paper)!important;
+  box-shadow:0 8px 16px color-mix(in srgb,var(--paper) 88%,transparent)!important;
+}
+.catalog-sidebar{
+  position:sticky!important;
+  top:148px!important;
+  z-index:45!important;
+  isolation:isolate!important;
+  background:var(--paper)!important;
+  background-color:var(--paper)!important;
+}
+.catalog-sidebar__head{
+  top:0!important;
+  z-index:3!important;
+  background:var(--paper)!important;
+  background-color:var(--paper)!important;
+}
+.catalog-results__head{
+  position:sticky!important;
+  top:148px!important;
+  z-index:55!important;
+  isolation:isolate!important;
+  background:var(--paper)!important;
+  background-color:var(--paper)!important;
+  box-shadow:0 8px 16px color-mix(in srgb,var(--paper) 88%,transparent)!important;
+}
+@media(max-width:1200px){
+  .header-inner .header-nav a{font-size:12px!important}
+}
+@media(max-width:980px){
+  .catalog-page-head{top:58px!important}
+  .catalog-sidebar{position:static!important;top:auto!important;max-height:none!important;overflow:visible!important}
+  .catalog-results__head{top:136px!important}
+  .header-inner .header-nav a{font-size:13px!important}
+}
+@media(max-width:620px){
+  .catalog-page-head{top:58px!important}
+  .catalog-sidebar,.catalog-results__head{top:128px!important}
+}
+
+/* Quy chuẩn cuối cho thẻ sản phẩm: ảnh có cùng khung, nội dung dài không
+   đẩy nút ra ngoài và thẻ giảm giá không tạo khoảng đệm thừa. */
+.product-card{width:100%!important;min-width:0!important;overflow:hidden!important;border-radius:14px!important}
+.product-art{width:100%!important;height:200px!important;aspect-ratio:1/1!important;overflow:hidden!important}
+.product-art .product-image{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;padding:14px!important}
+.product-info{min-width:0!important;padding:14px!important}
+.product-category{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.product-info h3{min-width:0!important;min-height:2.55em!important;margin:7px 0 12px!important;overflow:hidden!important;overflow-wrap:anywhere!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important}
+.product-bottom{min-width:0!important;align-items:center!important;gap:7px!important}
+.product-prices{min-width:0!important;max-width:calc(100% - 64px)!important;overflow:hidden!important}
+.product-prices strong,.product-prices del{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.product-bottom button{width:auto!important;min-width:56px!important;height:34px!important;min-height:34px!important;padding:6px 9px!important;flex:0 0 auto!important;border-radius:8px!important;font-size:12px!important;line-height:1.2!important;white-space:nowrap!important}
+.product-view{z-index:2!important;display:inline-block!important;right:12px!important;bottom:10px!important;width:max-content!important;max-width:calc(100% - 24px)!important;padding:2px 6px!important;border-radius:6px!important;background:#ffffffd9!important;color:#142017!important;font-weight:700!important;text-shadow:none!important}
+:root[data-theme='dark'] .product-view{background:#ffffffeb!important;color:#101810!important}
+
+/* Thẻ giảm giá dùng cùng khung ảnh nhưng gọn phần thông tin để vừa hàng. */
+.product-card--sale .product-art,.home-section--sale .product-card .product-art{height:184px!important}
+.product-card--sale .product-info,.home-section--sale .product-card .product-info{padding:12px!important}
+.product-card--sale .product-info h3,.home-section--sale .product-card .product-info h3{font-size:15px!important;min-height:2.45em!important;margin:6px 0 10px!important}
+.product-card--sale .product-label--sale,.home-section--sale .product-label--sale{width:58px!important;height:58px!important}
+.product-card--sale .product-bottom button,.home-section--sale .product-bottom button{min-width:52px!important;height:32px!important;min-height:32px!important;padding-inline:8px!important}
+
+/* Favorites giữ năm cột trên màn hình lớn và khóa ảnh/card cùng chiều cao để
+   card cuối hàng không bị lệch hoặc tràn sang cột bên cạnh. */
+.favorites-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;gap:22px 16px!important}
+.favorites-grid .product-card{display:flex!important;flex-direction:column!important;height:100%!important;overflow:hidden!important}
+.favorites-grid .product-art{flex:0 0 200px!important;height:200px!important;min-height:200px!important}
+.favorites-grid .product-info{display:flex!important;flex:1 1 auto!important;flex-direction:column!important;min-width:0!important}
+.favorites-grid .product-info h3{min-height:2.55em!important}
+.favorites-grid .product-bottom{margin-top:auto!important}
+@media(max-width:1200px){.favorites-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:980px){.favorites-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:620px){.favorites-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px 12px!important}.favorites-grid .product-art{flex-basis:170px!important;height:170px!important;min-height:170px!important}.favorites-grid .product-info h3{min-height:0!important}}
+@media(max-width:400px){.favorites-grid{grid-template-columns:1fr!important}.favorites-grid .product-art{flex-basis:200px!important;height:200px!important;min-height:200px!important}}
