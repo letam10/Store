@@ -16,6 +16,7 @@ export default function Header({ appearance = {}, cartCount, account, membership
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const searchRef = useRef(null)
+  const headerRef = useRef(null)
   const pathname = window.location.pathname
   const currentQuery = new URLSearchParams(window.location.search).get('q') || ''
   const english = language === 'en'
@@ -40,8 +41,22 @@ export default function Header({ appearance = {}, cartCount, account, membership
     return () => document.removeEventListener('keydown', closeOnEscape)
   }, [searchOpen])
 
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    // Menu mobile đóng khi bấm ra ngoài hoặc nhấn Escape để không che nội dung.
+    const closeMenu = (event) => {
+      if (event.key === 'Escape' || (event.type === 'pointerdown' && !headerRef.current?.contains(event.target))) setMenuOpen(false)
+    }
+    document.addEventListener('keydown', closeMenu)
+    document.addEventListener('pointerdown', closeMenu)
+    return () => {
+      document.removeEventListener('keydown', closeMenu)
+      document.removeEventListener('pointerdown', closeMenu)
+    }
+  }, [menuOpen])
+
   return <>
-    <header className="site-header">
+    <header ref={headerRef} className="site-header">
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <div className="container header-inner">
         <a className="brand" href="/" aria-label="Store - trang chủ"><span className="brand__mark" aria-hidden="true">✦</span><span className="brand__word">{brandName}<span>.</span></span><small>{appearance.brandTagline || 'EVERYDAY'}</small></a>
@@ -51,17 +66,17 @@ export default function Header({ appearance = {}, cartCount, account, membership
           <datalist id="site-search-suggestions-inline">{products.slice(0, 80).map((product) => <option key={product.id} value={product.name} />)}</datalist>
           <button type="submit" aria-label="Tìm kiếm">⌕</button>
         </form>
-        <nav className={'header-nav' + (menuOpen ? ' is-open' : '')} aria-label="Điều hướng chính">
+        <nav id="header-navigation" className={'header-nav' + (menuOpen ? ' is-open' : '')} aria-label="Điều hướng chính">
           {links.map(([href, label]) => <a key={href} href={href} aria-current={pathname === href ? 'page' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
           <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? (english ? 'Your account' : 'Tài khoản của bạn') : (english ? 'Sign in / Register' : 'Đăng nhập / Đăng ký')}</a>
         </nav>
         <div className="header-actions">
-          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => setSearchOpen(true)}>⌕</button>
+          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true) }}>⌕</button>
           <label className="header-language"><span className="sr-only">{english ? 'Language' : 'Ngôn ngữ'}</span><select aria-label={english ? 'Language' : 'Ngôn ngữ'} value={language} onChange={(event) => onLanguageChange?.(event.target.value)}><option value="vi">VI</option><option value="en">EN</option></select></label>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           <a className="account-link" href="/account"><span className="account-link__avatar" aria-hidden="true">{account?.username ? account.username.slice(0, 1).toUpperCase() : '♙'}</span><span className="account-link__name">{account?.username ? getMembershipPlan(membershipTier).badge + ' · ' + account.username : (english ? 'Sign in' : 'Đăng nhập')}</span></a>
           <a className="cart-count" href="/cart" aria-label={(english ? 'Cart with ' : 'Giỏ hàng có ') + cartCount + (english ? ' products' : ' sản phẩm')}><span aria-hidden="true">🛒</span><span className="cart-count__text">{english ? 'Cart' : 'Giỏ hàng'}</span><b>{cartCount}</b></a>
-          <button className="header-menu-trigger" type="button" aria-label="Mở menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((current) => !current)}>☰</button>
+          <button className="header-menu-trigger" type="button" aria-controls="header-navigation" aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} onClick={() => { setSearchOpen(false); setMenuOpen((current) => !current) }}>☰</button>
         </div>
       </div>
     </header>

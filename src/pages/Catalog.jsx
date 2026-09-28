@@ -6,7 +6,7 @@
  * Liên kết trực tiếp: react, ../components/ui/ProductCard, ../storefront/state, ../storefront/catalog.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import { filterProducts } from '../storefront/state'
 import { mostViewed } from '../storefront/catalog'
@@ -25,6 +25,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   const [discountOnly, setDiscountOnly] = useState(params.get('discount') === '1')
   const [featuredOnly, setFeaturedOnly] = useState(params.get('featured') === '1')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const filtersMounted = useRef(false)
   const categories = ['Tất cả', ...new Set(products.map((item) => item.category))]
   const visible = useMemo(() => {
     const featuredIds = featuredOnly ? new Set(mostViewed(products, 20).map((item) => String(item.id))) : null
@@ -39,6 +40,15 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   }, [products, category, query, maxPrice, sort, discountOnly, featuredOnly])
   // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
   const filtersActive = query.trim() || category !== 'Tất cả' || Number(maxPrice) > 0 || sort !== 'featured' || discountOnly || featuredOnly
+
+  useEffect(() => {
+    // Mỗi lần đổi bộ lọc/danh mục, đưa người dùng về đầu danh sách để không bị kẹt ở vị trí cuộn cũ.
+    if (!filtersMounted.current) {
+      filtersMounted.current = true
+      return
+    }
+    window.scrollTo?.(0, 0)
+  }, [category, query, maxPrice, sort, discountOnly, featuredOnly])
 
   // Chức năng resetFilters: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function resetFilters() {
