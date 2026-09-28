@@ -226,12 +226,23 @@
   .site-header .header-inner{width:calc(100% - 20px)!important;gap:8px!important}
   .header-inner .header-actions{gap:4px!important}
   .header-inner .header-nav{max-height:calc(100dvh - 78px)!important}
+  .shop-hero-copy{min-width:0!important}
   .shop-hero-copy h1{font-size:clamp(34px,10vw,46px)!important;line-height:1.06!important}
   .shop-hero-art{min-height:315px!important;padding:12px 14px 78px!important}
   .hero-art-image{height:245px!important}
   .hero-product-tag{left:12px!important;right:12px!important;min-width:0!important;padding:11px 13px!important}
   .hero-product-tag strong{max-width:100%!important}
   .product-bottom{flex-wrap:wrap!important}
+}
+@media(max-width:420px){
+  .site-header .header-inner{gap:5px!important}
+  .header-inner .brand{gap:5px!important}
+  .brand__mark{width:34px!important;height:34px!important}
+  .header-inner .brand__word{font-size:25px!important}
+  .header-inner .header-actions{gap:3px!important}
+  .header-language select{min-width:0!important;padding-inline:3px!important}
+  .header-inner .cart-count{padding-inline:5px!important}
+  .header-inner .cart-count b{min-width:18px!important;height:18px!important;padding-inline:3px!important;font-size:10px!important}
 }
 .cart-similar__viewport{display:block!important;overflow:hidden!important;width:100%!important;touch-action:pan-y!important;user-select:none!important;cursor:grab!important}
 .cart-similar__viewport:active{cursor:grabbing!important}
