@@ -79,7 +79,18 @@ export function mostViewed(products, count = 4) {
     .slice(0, count).map(({ product }) => product)
 }
 
-// Chức năng similarProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export function similarProducts(products, product, count = 4) {
-  return products.filter((item) => String(item.id) !== String(product.id) && item.category === product.category && item.stockCount !== 0).slice(0, count)
+// Chức năng similarProducts: lấy ngẫu nhiên sản phẩm còn hàng cùng danh mục,
+// giúp thanh gợi ý không lặp mãi một thứ tự cố định.
+export function similarProducts(products, product, count = 20) {
+  if (!Array.isArray(products) || !product || count <= 0) return []
+  const category = displayCategory(product)
+  const candidates = products.filter((item) => (
+    item && String(item.id) !== String(product.id) && displayCategory(item) === category && item.stockCount !== 0
+  ))
+  // Fisher–Yates tạo thứ tự ngẫu nhiên với mọi số lượng đầu vào, không làm thay đổi mảng gốc.
+  for (let index = candidates.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[candidates[index], candidates[randomIndex]] = [candidates[randomIndex], candidates[index]]
+  }
+  return candidates.slice(0, count)
 }

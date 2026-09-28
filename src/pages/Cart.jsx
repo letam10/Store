@@ -6,7 +6,7 @@
  * Liên kết trực tiếp: react, ../storefront/catalog, ../storefront/state.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { similarProducts } from '../storefront/catalog'
 import { canPurchase, cartTotal } from '../storefront/state'
 import './Storefront.css'
@@ -19,10 +19,13 @@ function SimilarProducts({ products, item }) {
   const [open, setOpen] = useState(false)
   const [start, setStart] = useState(0)
   const [dragStart, setDragStart] = useState(null)
-  const items = similarProducts(products, item, 40)
-  const canNavigate = items.length > 1
+  const items = useMemo(() => similarProducts(products, item, 20), [products, item])
+  // Tối đa 10 ảnh một lượt; nếu danh mục ít hơn thì ảnh tự chia đều khung.
+  const visibleCount = Math.min(10, Math.max(items.length, 1))
+  const maxStart = Math.max(0, items.length - visibleCount)
+  const canNavigate = items.length > visibleCount
   // Chức năng shift: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-  const shift = (amount) => setStart((current) => items.length ? (current + amount + items.length) % items.length : 0)
+  const shift = (amount) => setStart((current) => Math.max(0, Math.min(maxStart, current + amount)))
 
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!items.length) return <section className="cart-similar"><div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" disabled>Sản phẩm tương tự</button></div><div className="cart-similar__grid cart-similar__legacy-grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div></section>
@@ -30,11 +33,11 @@ function SimilarProducts({ products, item }) {
     <div className="cart-similar__head"><h4>{item.stockCount === 0 ? 'Món thay thế bạn có thể thích' : 'Gợi ý theo sản phẩm này'}</h4><button className="cart-similar__toggle" type="button" aria-expanded={open} onClick={() => setOpen((current) => !current)}>{open ? 'Ẩn sản phẩm tương tự' : 'Sản phẩm tương tự'}</button></div>
     <div className="cart-similar__grid cart-similar__legacy-grid"><span className="product-card cart-similar__empty-card" aria-hidden="true" /></div>
     {open && <div className="cart-similar__body">
-      <div className="cart-similar__toolbar"><button type="button" className="cart-similar__arrow" aria-label="Previous similar product" onClick={() => shift(-1)} disabled={!canNavigate}>&#8249;</button><span>{start + 1} / {items.length}</span><button type="button" className="cart-similar__arrow" aria-label="Next similar product" onClick={() => shift(1)} disabled={!canNavigate}>&#8250;</button></div>
-      <input className="cart-similar__range" type="range" min="0" max={Math.max(items.length - 1, 0)} step="1" value={start} onChange={(event) => setStart(Number(event.target.value))} aria-label="Choose similar product" />
-      <div className="cart-similar__viewport" onPointerDown={(event) => { setDragStart(event.clientX); event.currentTarget.setPointerCapture?.(event.pointerId) }} onPointerUp={(event) => { if (dragStart !== null && Math.abs(event.clientX - dragStart) > 32) shift(event.clientX < dragStart ? 1 : -1); setDragStart(null) }} onPointerCancel={() => setDragStart(null)}>
-        <div className="cart-similar__track" style={{ transform: `translateX(-${start * 100}%)` }}>
-          {items.map((product) => <a className="cart-similar__thumb" key={product.id} href={'/products/' + product.id} aria-label={'View ' + product.name}><span className="cart-similar__image-wrap">{product.discountPercent > 0 && <span className="cart-similar__sale" aria-label={'Sale ' + product.discountPercent + '%'}>{String.fromCodePoint(0x1f525)}</span>}<img src={product.image || '/products/' + (pictures[product.id] || 'headphones') + '.svg'} alt="" loading="lazy" /></span></a>)}
+      <div className="cart-similar__toolbar"><button type="button" className="cart-similar__arrow" aria-label="Previous similar product" onClick={() => shift(-1)} disabled={!canNavigate || start === 0}>&#8249;</button><span>{items.length ? `${start + 1}–${Math.min(start + visibleCount, items.length)} / ${items.length}` : '0 / 0'}</span><button type="button" className="cart-similar__arrow" aria-label="Next similar product" onClick={() => shift(1)} disabled={!canNavigate || start === maxStart}>&#8250;</button></div>
+      <input className="cart-similar__range" type="range" min="0" max={maxStart} step="1" value={Math.min(start, maxStart)} onChange={(event) => setStart(Number(event.target.value))} aria-label="Choose similar product" />
+      <div className="cart-similar__viewport" onPointerDown={(event) => { setDragStart(event.clientX); event.currentTarget.setPointerCapture?.(event.pointerId) }} onPointerUp={(event) => { if (dragStart !== null) { const distance = event.clientX - dragStart; if (Math.abs(distance) > 24) { const itemWidth = event.currentTarget.clientWidth / visibleCount; const steps = Math.max(1, Math.round(Math.abs(distance) / Math.max(itemWidth, 1))); shift(distance < 0 ? steps : -steps) } } setDragStart(null) }} onPointerCancel={() => setDragStart(null)}>
+        <div className="cart-similar__track" style={{ '--similar-track-width': `${items.length ? items.length * 100 / visibleCount : 100}%`, transform: `translate3d(-${items.length ? start * 100 / items.length : 0}%, 0, 0)` }}>
+          {items.map((product) => <a className="cart-similar__thumb" key={product.id} href={'/products/' + product.id} aria-label={'View ' + product.name} style={{ '--similar-item-width': `${items.length ? 100 / items.length : 100}%` }}><span className="cart-similar__image-wrap">{product.discountPercent > 0 && <span className="cart-similar__sale" aria-label={'Sale ' + product.discountPercent + '%'}>{String.fromCodePoint(0x1f525)}</span>}<img src={product.image || '/products/' + (pictures[product.id] || 'headphones') + '.svg'} alt="" loading="lazy" /></span></a>)}
         </div>
       </div>
     </div>}

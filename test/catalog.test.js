@@ -30,6 +30,18 @@ test('canonical categories take precedence over name heuristics', () => {
   assert.equal(displayCategory({ name: 'Chocolate Gift Box', category: 'Thực phẩm' }), 'Tự Thiết Kế')
 })
 
+// Kiểm thử edge case: gợi ý cùng danh mục giới hạn 20 món, không lặp món hiện tại hoặc hết hàng.
+test('similar products cap results and keep the current category', () => {
+  const current = { id: 'current', name: 'Current', category: 'Điện tử', stockCount: 1 }
+  const sameCategory = Array.from({ length: 25 }, (_, index) => ({ id: `same-${index}`, name: `Same ${index}`, category: 'Điện tử', stockCount: 1 }))
+  const otherCategory = { id: 'other', name: 'Other', category: 'Trang phục', stockCount: 1 }
+  const soldOut = { id: 'sold-out', name: 'Sold out', category: 'Điện tử', stockCount: 0 }
+  const result = similarProducts([current, ...sameCategory, otherCategory, soldOut], current, 20)
+  assert.equal(result.length, 20)
+  assert.equal(new Set(result.map((product) => product.id)).size, 20)
+  assert.ok(result.every((product) => product.category === current.category && product.stockCount !== 0 && product.id !== current.id))
+})
+
 // Kiểm thử edge case: admin offer overrides demo discount and view ranking excludes out of stock.
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
