@@ -466,3 +466,11 @@
 .catalog-grid .product-image,.favorites-grid .product-image,.home-row-grid .product-image{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;padding:0!important;object-fit:cover!important;object-position:center!important}
 @media(max-width:820px){.cart-item__art{width:64px!important;height:64px!important}.catalog-grid .product-art,.favorites-grid .product-art,.home-row-grid .product-art{height:170px!important}}
 @media(max-width:560px){.catalog-grid .product-art,.favorites-grid .product-art,.home-row-grid .product-art{height:150px!important}}
+
+/* Ảnh gợi ý lớn hơn nhẹ; ảnh trong giỏ lớn hơn nhưng vẫn giữ riêng cột checkbox, ảnh và nội dung. */
+.cart-item--selectable{grid-template-columns:40px 90px minmax(0,1fr) auto!important}
+.cart-item__art{width:90px!important;height:90px!important}
+.cart-similar__thumb img{padding:0!important;transform:scale(1.1);transform-origin:center!important}
+@media(max-width:1050px){.cart-item--selectable{grid-template-columns:36px 78px minmax(0,1fr)!important}.cart-item--selectable .qty-control{grid-column:2/-1!important;justify-content:flex-start!important}.cart-item__art{width:78px!important;height:78px!important}}
+@media(max-width:760px){.cart-item--selectable{grid-template-columns:36px 76px minmax(0,1fr)!important}.cart-item--selectable .qty-control{grid-column:2/-1!important}.cart-item__art{width:76px!important;height:76px!important}}
+@media(max-width:560px){.cart-item--selectable{grid-template-columns:32px 72px minmax(0,1fr)!important}.cart-item__art{width:72px!important;height:72px!important}}

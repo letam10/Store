@@ -270,7 +270,7 @@ export default function App() {
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'contact') page = <Contact />
-  else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} />
+  else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onNavigate={navigate} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'checkout') page = <Checkout cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
