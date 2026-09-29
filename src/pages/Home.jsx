@@ -63,9 +63,9 @@ export default function Home({ appearance = {}, products, onAddToCart, favoriteI
         <div className="hero-dots" aria-label="Chọn sản phẩm nổi bật">{featured.map((product, index) => <button key={product.id} type="button" className={slide % featured.length === index ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={'Xem ' + product.name} aria-pressed={slide % featured.length === index} />)}</div>
       </div>
       {heroProduct && <a className="shop-hero-art" href={'/products/' + heroProduct.id} aria-label={'Xem chi tiết ' + heroProduct.name}>
-        <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">ĐƯỢC XEM NHIỀU</span>
-        <img className="hero-art-image" key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" />
-        <div className="hero-product-tag"><div><small>{heroProduct.viewCount} LƯỢT XEM CHI TIẾT</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)} · Giá dữ liệu mẫu</span></div><b aria-hidden="true">↗</b></div>
+        <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">NỔI BẬT · TOP 20</span>
+        <span className="hero-product-frame"><img className="hero-art-image" key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" /></span>
+        <div className="hero-product-tag"><div><small>{heroProduct.category || 'Sản phẩm nổi bật'} · {heroProduct.viewCount} LƯỢT XEM</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)} · Giá dữ liệu mẫu</span></div><b aria-hidden="true">↗</b></div>
       </a>}
     </section>
     <div className="container">

@@ -47,6 +47,8 @@ test('guest can browse and add cart but checkout, favorites and chat require log
   window.eval(bundle.outputFiles[0].text)
   try {
     await waitFor(() => Boolean(window.document.querySelector('.shop-hero-art')))
+    assert.ok(window.document.querySelector('.hero-product-frame'))
+    assert.match(window.document.querySelector('.hero-art-caption')?.textContent || '', /TOP 20/)
     window.document.querySelector('.shop-hero-art').click()
     await waitFor(() => window.location.pathname === '/products/1')
     assert.match(window.document.querySelector('h1').textContent, /Tai nghe Everyday/)
