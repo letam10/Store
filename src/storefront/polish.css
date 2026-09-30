@@ -467,6 +467,16 @@
 @media(max-width:820px){.cart-item__art{width:64px!important;height:64px!important}.catalog-grid .product-art,.favorites-grid .product-art,.home-row-grid .product-art{height:170px!important}}
 @media(max-width:560px){.catalog-grid .product-art,.favorites-grid .product-art,.home-row-grid .product-art{height:150px!important}}
 
+/* Banner chừa vùng an toàn cho nút hỗ trợ cố định, tránh che tên và giá sản phẩm. */
+.shop-hero-art .hero-product-tag{bottom:136px!important}
+@media(max-width:820px){.shop-hero-art .hero-product-tag{bottom:100px!important}}
+@media(max-width:560px){
+  .shop-hero-art{min-height:390px!important;padding-bottom:96px!important}
+  .shop-hero-art .hero-product-frame{width:min(84%,300px)!important}
+  .shop-hero-art .hero-product-tag{bottom:14px!important}
+}
+@media(max-width:380px){.shop-hero-art{min-height:370px!important}.shop-hero-art .hero-product-frame{width:88%!important}}
+
 /* Ảnh gợi ý lớn hơn nhẹ; ảnh trong giỏ lớn hơn nhưng vẫn giữ riêng cột checkbox, ảnh và nội dung. */
 .cart-item--selectable{grid-template-columns:40px 90px minmax(0,1fr) auto!important}
 .cart-item__art{width:90px!important;height:90px!important}
