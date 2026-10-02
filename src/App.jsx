@@ -23,6 +23,7 @@ import Membership from './pages/Membership'
 import Rewards from './pages/Rewards'
 import NotFound from './pages/NotFound'
 import { enrichProducts } from './storefront/catalog'
+import { apiEndpoint, apiCredentials } from './api/endpoint'
 import { customerApi } from './api/customer'
 import { addCartItem, canPurchase, cartCount, loadJson, routeName, setCartQuantity } from './storefront/state'
 import './App.css'
@@ -116,7 +117,7 @@ export default function App() {
   useEffect(() => {
     const controller = new AbortController()
     // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-    fetch('/api/storefront/appearance', { signal: controller.signal, cache: 'no-store' })
+    fetch(apiEndpoint('/api/storefront/appearance'), { signal: controller.signal, credentials: apiCredentials, cache: 'no-store' })
       .then((response) => response.ok ? response.json() : null)
       .then((payload) => { if (payload?.appearance) setAppearance(payload.appearance) })
       .catch(() => {})
@@ -135,7 +136,7 @@ export default function App() {
     async function refreshCatalog() {
       try {
         // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-        const response = await fetch('/api/storefront/catalog?details=1', { signal: controller.signal, cache: 'no-store' })
+        const response = await fetch(apiEndpoint('/api/storefront/catalog?details=1'), { signal: controller.signal, credentials: apiCredentials, cache: 'no-store' })
         if (response.ok) {
           const payload = await response.json()
           if (Array.isArray(payload.products)) setOffers(payload.products)
@@ -173,7 +174,7 @@ export default function App() {
     const id = decodeURIComponent(location.pathname.split('/')[2] || '')
     if (!products.some((product) => String(product.id) === id)) return
     // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-    fetch('/api/storefront/products/' + encodeURIComponent(id) + '/view', { method: 'POST' })
+    fetch(apiEndpoint('/api/storefront/products/' + encodeURIComponent(id) + '/view'), { method: 'POST', credentials: apiCredentials })
       .then((response) => response.ok ? response.json() : null)
       .then((payload) => { if (payload) setOffers((current) => current.some((offer) => String(offer.id) === id)
         ? current.map((offer) => String(offer.id) === id ? { ...offer, viewCount: payload.viewCount } : offer)
