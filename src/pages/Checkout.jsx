@@ -25,6 +25,8 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
   const [quote, setQuote] = useState(null)
   const [quoteError, setQuoteError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [paidSuccess, setPaidSuccess] = useState(false)
+  const [paying, setPaying] = useState(false)
   const items = useMemo(() => cart.map((item) => ({ id: item.id, quantity: item.quantity })), [cart])
   const itemKey = JSON.stringify(items)
   const plan = getMembershipPlan(membershipTier)
@@ -56,7 +58,63 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
     finally { setBusy(false) }
   }
 
-  if (completedOrder) return <div className="container page-shell"><section className="surface order-success"><span>✓</span><h1>Đơn đã được tạo</h1><p className="order-code">{completedOrder.id}</p><p>Tổng cần thanh toán: {money.format(completedOrder.total)}</p><p className="muted">Điểm và lượt quay được cộng sau khi quản trị viên ghi nhận thanh toán.</p><a className="button" href="/account">Xem đơn hàng</a></section></div>
+  // Chức năng simulatePay: mô phỏng thanh toán trực tuyến qua VietQR / Webhook
+  async function simulatePay() {
+    if (!completedOrder || paying) return
+    setPaying(true)
+    setQuoteError('')
+    try {
+      await customerApi('/api/customer/orders/' + encodeURIComponent(completedOrder.id) + '/simulate-pay', {
+        method: 'POST',
+        csrfToken: account.csrfToken,
+      })
+      setPaidSuccess(true)
+    } catch (error) {
+      setQuoteError(error.message)
+    } finally {
+      setPaying(false)
+    }
+  }
+
+  if (completedOrder) {
+    const qrUrl = `https://img.vietqr.io/image/MB-0388888999-compact2.png?amount=${completedOrder.total}&addInfo=ST%20${completedOrder.id}&accountName=STORE%20VIETNAM`
+    return <div className="container page-shell">
+      <section className="surface order-success">
+        <span>{paidSuccess ? '✓' : '💳'}</span>
+        <h1>{paidSuccess ? 'Thanh toán thành công!' : 'Đơn hàng đã được tạo'}</h1>
+        <p className="order-code">{completedOrder.id}</p>
+        <p>Tổng tiền: <strong>{money.format(completedOrder.total)}</strong></p>
+        
+        {paidSuccess ? (
+          <div className="payment-success-card" style={{ margin: '1rem 0', padding: '1rem', background: '#eef8ee', borderRadius: '8px', border: '1px solid #7cb382' }}>
+            <p style={{ color: '#254535', fontWeight: 'bold' }}>✓ Đã ghi nhận thanh toán tự động qua VietQR Webhook!</p>
+            <p className="muted" style={{ margin: '0.25rem 0' }}>Điểm tích lũy và lượt quay may mắn đã được cộng vào tài khoản của bạn.</p>
+          </div>
+        ) : (
+          <div className="payment-vietqr-box" style={{ margin: '1.25rem 0', padding: '1rem', background: '#fdfbf7', borderRadius: '8px', border: '1px solid #e0d8cc' }}>
+            <p style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Quét mã VietQR để thanh toán tự động:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <img src={qrUrl} alt="Mã QR thanh toán VietQR" style={{ maxWidth: '280px', width: '100%', borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
+              <div style={{ fontSize: '0.875rem', lineHeight: '1.4', textAlign: 'left', width: '100%', maxWidth: '300px' }}>
+                <p>🏦 <b>Ngân hàng:</b> MB Bank</p>
+                <p>🔢 <b>STK:</b> 0388888999</p>
+                <p>👤 <b>Tên:</b> STORE VIETNAM</p>
+                <p>📝 <b>Nội dung:</b> <code>ST {completedOrder.id}</code></p>
+              </div>
+              <button className="button" type="button" onClick={simulatePay} disabled={paying} style={{ marginTop: '0.5rem', width: '100%', maxWidth: '300px' }}>
+                {paying ? 'Đang xác nhận…' : '⚡ Thanh toán ngay (Mô phỏng VietQR)'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="page-actions" style={{ marginTop: '1rem' }}>
+          <a className="button" href="/account">Xem danh sách đơn hàng</a>
+          <a className="button button--soft" href="/rewards">Đến vòng quay may mắn</a>
+        </div>
+      </section>
+    </div>
+  }
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Chưa chọn sản phẩm để thanh toán</h2><a className="button" href="/cart">Về giỏ hàng</a></section></div>
 
