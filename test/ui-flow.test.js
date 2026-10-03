@@ -193,6 +193,62 @@ test('out-of-stock cart item is dimmed, cannot be selected and shows similar goo
     assert.match(window.document.querySelector('.cart-item--out').textContent, /Hết hàng/)
     assert.equal(window.document.querySelector('.cart-select input').disabled, true)
     assert.equal(window.document.querySelector('a[href="/checkout"]'), null)
-    assert.ok(window.document.querySelector('.cart-similar__grid .product-card'))
+    const similarToggle = window.document.querySelector('.cart-similar__toggle')
+    assert.ok(similarToggle)
+    if (similarToggle.disabled) {
+      assert.match(window.document.querySelector('.cart-similar').textContent, /Chưa có sản phẩm cùng danh mục/)
+    } else {
+      similarToggle.click()
+      await waitFor(() => Boolean(window.document.querySelector('.cart-similar__thumb')))
+      assert.ok(window.document.querySelector('.cart-similar__thumb').getAttribute('href').startsWith('/products/'))
+    }
+  } finally { window.close() }
+})
+
+// Dùng sản phẩm thử trong jsdom để không thay giỏ hàng hoặc dữ liệu của người dùng.
+test('cart shows eight suggestions, advances one and opens detail only after a click', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/cart', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  const items = Array.from({ length: 26 }, (_, index) => ({ id: String(index + 1), name: 'Sản phẩm thử ' + index, category: 'Nhóm thử', price: 100000, stockCount: 20, image: '/products/bag.svg' }))
+  window.localStorage.setItem('storeCartV1', JSON.stringify([{ ...items[0], quantity: 1, selected: false }]))
+  window.scrollTo = () => {}
+  window.fetch = async (url) => String(url).includes('/customer/session') ? response(401, {}) :
+    String(url).includes('/catalog') ? response(200, { products: items }) : response(200, { reviews: [] })
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => Boolean(window.document.querySelector('.cart-similar__toggle:not(:disabled)')))
+    window.document.querySelector('.cart-similar__toggle').click()
+    await waitFor(() => window.document.querySelectorAll('.cart-similar__thumb').length === 20)
+    assert.match(window.document.querySelector('.cart-similar__head').textContent, /1–8 \/ 20/)
+    window.document.querySelector('[aria-label="Sản phẩm gợi ý tiếp theo"]').click()
+    await waitFor(() => /2–9 \/ 20/.test(window.document.querySelector('.cart-similar__toolbar').textContent))
+    const viewport = window.document.querySelector('.cart-similar__viewport')
+    const thumb = window.document.querySelector('.cart-similar__thumb')
+    for (const [type, clientX] of [['pointerdown', 100], ['pointermove', 30], ['pointerup', 30]]) viewport.dispatchEvent(new window.MouseEvent(type, { bubbles: true, clientX, clientY: 20, button: 0 }))
+    thumb.click()
+    assert.equal(window.location.pathname, '/cart')
+    const href = thumb.getAttribute('href')
+    thumb.click()
+    await waitFor(() => window.location.pathname === href)
+    assert.ok(window.document.querySelector('.product-detail-page'))
+  } finally { window.close() }
+})
+
+test('catalog measures attached sticky elements and toggles the compact filter', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/products', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  const observed = []
+  window.ResizeObserver = class { observe(element) { assert.ok(element instanceof window.Element); observed.push(element) } disconnect() {} }
+  window.scrollTo = () => {}
+  window.fetch = async (url) => String(url).includes('/customer/session') ? response(401, {}) : response(200, { products: [] })
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => observed.some((element) => element.classList.contains('catalog-sidebar')))
+    const toggle = window.document.querySelector('.catalog-filter-toggle')
+    toggle.click()
+    await waitFor(() => toggle.getAttribute('aria-expanded') === 'true')
+    assert.ok(window.document.querySelector('.catalog-sidebar.is-open'))
+    toggle.click()
+    await waitFor(() => toggle.getAttribute('aria-expanded') === 'false')
   } finally { window.close() }
 })

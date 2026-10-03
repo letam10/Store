@@ -7,11 +7,13 @@
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 const labels = ['Lần sau', 'Lần sau', '100K', 'Lần sau', '20%', 'Lần sau', '100K', 'Lần sau', '100K', 'Lần sau']
+const shippingLabels = ['Lần sau', 'Lần sau', '50%', 'Lần sau', 'Miễn ship', 'Lần sau', '50%', 'Lần sau', '50%', 'Lần sau']
 
 // Chức năng rewardSectors: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export function rewardSectors() {
-  return labels.map((short, id) => ({ id, short, kind: short === '100K' ? 'amount' : short === '20%' ? 'percent' : 'none',
-    color: id % 2 ? '#f5e8cb' : '#dcebd7' }))
+export function rewardSectors(wheel = 'goods') {
+  return (wheel === 'shipping' ? shippingLabels : labels).map((short, id) => ({ id, short,
+    kind: short === 'Lần sau' ? 'none' : short === '100K' ? 'amount' : 'percent',
+    color: id % 2 ? '#f5e8cb' : wheel === 'shipping' ? '#d7e8f2' : '#dcebd7' }))
 }
 
 // Chức năng pickSector: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.

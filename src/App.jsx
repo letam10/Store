@@ -1,3 +1,4 @@
+import MarketBanner from './components/ui/MarketBanner'
 /**
  * @codex-vn-doc
  * Tệp: src/App.jsx
@@ -7,6 +8,8 @@
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { normalizeVoucherSelection } from './storefront/voucherSelection'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import CustomerSupport from './components/ui/CustomerSupport'
@@ -31,6 +34,7 @@ import './storefront/updates.css'
 import './storefront/phase2.css'
 import './storefront/commerce.css'
 import './storefront/polish.css'
+import './storefront/layout.css'
 
 const CART_KEY = 'storeCartV1'
 const THEME_KEY = 'storeThemeV1'
@@ -86,7 +90,7 @@ export default function App() {
       if (epoch !== customerEpoch.current) return
       setOrders(ordersResponse.orders || [])
       setWallet(vouchersResponse.vouchers || [])
-      setSelectedVoucherCodes((current) => current.filter((code) => (vouchersResponse.vouchers || []).some((voucher) => voucher.code === code)))
+      setSelectedVoucherCodes((current) => normalizeVoucherSelection(current, vouchersResponse.vouchers || []))
       setFavoriteIds(favoritesResponse.ids || [])
     } catch {
       if (epoch !== customerEpoch.current) return
@@ -106,7 +110,7 @@ export default function App() {
         if (epoch !== customerEpoch.current) return
         setOrders(ordersResponse.orders || [])
         setWallet(vouchersResponse.vouchers || [])
-        setSelectedVoucherCodes((current) => current.filter((code) => (vouchersResponse.vouchers || []).some((voucher) => voucher.code === code)))
+        setSelectedVoucherCodes((current) => normalizeVoucherSelection(current, vouchersResponse.vouchers || []))
         setFavoriteIds(favoritesResponse.ids || [])
       })
       .catch(() => { if (epoch === customerEpoch.current) { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) } })
@@ -197,7 +201,7 @@ export default function App() {
     const anchor = event.target.closest?.('a[href]')
     if (!anchor || anchor.target || anchor.hasAttribute('download')) return
     const url = new URL(anchor.href, window.location.href)
-    if (url.origin !== window.location.origin || (url.pathname === location.pathname && url.search === location.search && url.hash)) return
+    if (url.pathname.startsWith('/api/') || url.origin !== window.location.origin || (url.pathname === location.pathname && url.search === location.search && url.hash)) return
     event.preventDefault()
     navigate(url.href)
   }
@@ -219,7 +223,7 @@ export default function App() {
     const inCart = cart.find((item) => String(item.id) === String(product.id))?.quantity || 0
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (product.stockCount !== null && inCart >= product.stockCount) {
-      setNotice('Đã đạt số lượng tồn kho demo của ' + product.name + '.')
+      setNotice('Đã đạt số lượng tồn kho của ' + product.name + '.')
       return
     }
     setCart((current) => addCartItem(current, { ...product, selected: false }))
@@ -253,7 +257,7 @@ export default function App() {
   }
   // Chức năng toggleVoucher: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function toggleVoucher(code) {
-    setSelectedVoucherCodes((current) => current.includes(code) ? current.filter((item) => item !== code) : [...current, code])
+    setSelectedVoucherCodes((current) => current.includes(code) ? current.filter((item) => item !== code) : normalizeVoucherSelection([...current, code], wallet))
   }
   // Chức năng logout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function logout() {
@@ -272,20 +276,20 @@ export default function App() {
   else if (route === 'contact') page = <Contact appearance={appearance} products={products} />
   else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onNavigate={navigate} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'checkout') page = <Checkout cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
+  else if (route === 'checkout') page = <Checkout onRefresh={refreshCustomer} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
   else if (route === 'favorites') page = <Favorites products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'account') page = <Account account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
+  else if (route === 'account') page = <Account onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 
   const accentColor = /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : undefined
   return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={accentColor ? { '--accent': accentColor } : undefined} onClick={handleLink} onSubmitCapture={handleSearch}>
     {!isAuth && <Header appearance={appearance} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
-    <main id="main-content">{page}</main>
+    <main id="main-content">{!isAuth && ['products','rewards','membership','favorites'].includes(route) && <div className="container page-promo"><MarketBanner compact /></div>}{page}</main>
     {!isAuth && <Footer appearance={appearance} />}
-    {!isAuth && notice && <div className="cart-notice" role="status"><span>✓ {notice}</span><a href="/cart">Xem giỏ hàng →</a><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div>}
+    {!isAuth && notice && createPortal(<div className="cart-notice" role="status"><span>✓ {notice}</span><a href="/cart">Xem giỏ hàng →</a><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div>, document.body)}
     {!isAuth && <CustomerSupport account={account} onRequireLogin={requireLogin} />}
   </div>
 }
