@@ -505,3 +505,6 @@ html,body{overflow-x:hidden!important}
   .detail-reviews-panel .detail-rating-summary{grid-template-columns:96px minmax(0,1fr)}
   .detail-reviews-panel .detail-rating-summary>strong{font-size:36px;white-space:nowrap}
 }
+
+.site-footer p,.site-footer .footer-bottom{color:var(--muted)}:root[data-theme="dark"] .site-footer :is(p,small,.footer-bottom,.footer-bottom span){color:#bdcfc2!important;opacity:1!important}:root[data-theme="dark"] .site-footer a{color:#e2eee6}
+.skip-link{background:var(--paper)!important;color:var(--ink)!important}@media(max-width:600px){.site-footer .footer-bottom{display:grid!important;gap:12px;white-space:normal!important}.site-footer .footer-bottom span{min-width:0;white-space:normal!important;overflow-wrap:anywhere}}
