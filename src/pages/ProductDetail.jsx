@@ -33,6 +33,9 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
   const [reviewSuccess, setReviewSuccess] = useState('')
   const reviewGate = useRef(false)
   const [activeImage, setActiveImage] = useState(0)
+  const [ratingFilter, setRatingFilter] = useState(0)
+  const [reviewContent, setReviewContent] = useState('all')
+  const [reviewOrder, setReviewOrder] = useState('newest')
   const plan = getMembershipPlan(membershipTier)
 
   async function refreshReviews() {
@@ -107,6 +110,17 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
   }
   const descriptionParagraphs = (product.description || product.name + ' thuộc danh mục ' + product.category + '.').split(/\n+/).filter((paragraph) => paragraph.trim())
   const ratingCounts = [5, 4, 3, 2, 1].map((stars) => ({ stars, count: reviews.filter((review) => Number(review.rating) === stars).length }))
+  const score = Number(averageRating)
+  const classification = !reviews.length ? 'Chưa xếp loại' : score >= 4.5 ? 'Rất tốt' : score >= 4 ? 'Tốt' : score >= 3 ? 'Khá' : score >= 2 ? 'Cần cải thiện' : 'Chưa hài lòng'
+  // Bộ lọc chỉ đổi danh sách; thống kê tổng vẫn tính trên tất cả đánh giá.
+  const visibleReviews = reviews.filter((review) => (!ratingFilter || Number(review.rating) === ratingFilter) &&
+    (reviewContent !== 'commented' || review.comment?.trim()) && (reviewContent !== 'replied' || review.adminReply?.trim()))
+    .sort((a, b) => {
+      const newest = (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0)
+      if (reviewOrder === 'highest') return Number(b.rating) - Number(a.rating) || newest
+      if (reviewOrder === 'lowest') return Number(a.rating) - Number(b.rating) || newest
+      return reviewOrder === 'oldest' ? -newest : newest
+    })
   const similar = product.stockCount === 0 ? similarProducts(products, product).slice(0, 10) : []
 
   return <div className="container page-shell product-detail-page">
@@ -150,9 +164,18 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
     <section className="surface product-detail-full detail-reviews-panel" id="reviews" aria-label="Đánh giá và bình luận">
       <header className="product-detail-full__heading"><div><p className="eyebrow">Cộng đồng Store</p><h2>Đánh giá và bình luận</h2><p className="reviews-subtitle">Trải nghiệm thật giúp bạn chọn món phù hợp hơn.</p></div><span className="reviews-count">{reviews.length} đánh giá</span></header>
       <div className="detail-reviews-layout">
-        <aside className="detail-rating-summary" aria-label="Tổng hợp đánh giá"><strong>{averageRating || '—'}<small>/ 5</small></strong><p>{averageRating ? 'Điểm đánh giá trung bình' : 'Chưa có đánh giá'}</p>
+        <aside className="review-sidebar"><section className="detail-rating-summary" aria-label="Tổng hợp đánh giá"><strong>{averageRating || '—'}<small>/ 5</small></strong><p>{averageRating ? 'Điểm đánh giá trung bình' : 'Chưa có đánh giá'}</p>
           <div className="review-score-stars" aria-hidden="true">{'★'.repeat(Math.round(Number(averageRating || 0)))}{'☆'.repeat(5 - Math.round(Number(averageRating || 0)))}</div>
           <div className="detail-rating-bars">{ratingCounts.map(({ stars, count }) => <div key={stars}><span>{stars} <i aria-hidden="true">★</i></span><div className="review-rating-track" role="meter" aria-valuemin="0" aria-valuemax={Math.max(1, reviews.length)} aria-valuenow={count} aria-label={stars + ' sao: ' + count + ' đánh giá'}><span style={{ width: (reviews.length ? count / reviews.length * 100 : 0) + '%' }} /></div><b>{count}</b></div>)}</div>
+          <span className="review-score-classification" title="Rất tốt: từ 4,5; Tốt: từ 4; Khá: từ 3; Cần cải thiện: từ 2; Chưa hài lòng: dưới 2 sao">Xếp loại: {classification}</span>
+        </section>
+          <section className="review-filter-panel" aria-label="Bộ lọc đánh giá"><h3>Lọc đánh giá</h3>
+            <div className="review-rating-filter" role="group" aria-label="Lọc theo số sao">
+              <button type="button" aria-pressed={ratingFilter === 0} onClick={() => setRatingFilter(0)}>Tất cả <small>{reviews.length}</small></button>
+              {ratingCounts.map(({ stars, count }) => <button key={stars} type="button" aria-label={'Lọc ' + stars + ' sao'} aria-pressed={ratingFilter === stars} onClick={() => setRatingFilter(stars)}>{stars} ★ <small>{count}</small></button>)}
+            </div>
+            <label htmlFor="review-content-filter">Nội dung đánh giá</label><select id="review-content-filter" value={reviewContent} onChange={(event) => setReviewContent(event.target.value)}><option value="all">Tất cả nội dung</option><option value="commented">Có lời chia sẻ</option><option value="replied">Store đã trả lời</option></select>
+          </section>
         </aside>
         <div className="detail-review-content">
           {account ? <form className="detail-review-form" onSubmit={submitReview}>
@@ -161,10 +184,12 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
             <label className="detail-review-form__comment">Lời chia sẻ của bạn<textarea rows="4" maxLength="2000" value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Bạn thích điều gì? Sản phẩm có điểm nào cần cải thiện?" /><small>Tùy chọn · {comment.length}/2.000 ký tự</small></label>
             <div className="detail-review-form__footer"><div>{reviewError && <p role="alert" className="form-error">{reviewError}</p>}{reviewSuccess && <p role="status" className="form-success">{reviewSuccess}</p>}</div><button className="button" type="submit" disabled={reviewBusy}>{reviewBusy ? 'Đang gửi…' : 'Gửi đánh giá →'}</button></div>
           </form> : <div className="detail-review-empty"><h3>Bạn đã trải nghiệm sản phẩm?</h3><p>Đăng nhập để chia sẻ đánh giá với cộng đồng.</p><button className="button button--soft" type="button" onClick={onRequireLogin}>Đăng nhập để đánh giá</button></div>}
-          {reviews.length ? <div className="detail-review-list"><h3>Khách hàng chia sẻ</h3>{reviews.map((review) => <article key={review.id}>
+          <div className="detail-review-list"><div className="review-list-toolbar"><div><h3>Khách hàng chia sẻ</h3><span role="status">{visibleReviews.length} / {reviews.length} đánh giá</span></div><label className="review-sort">Sắp xếp<select value={reviewOrder} onChange={(event) => setReviewOrder(event.target.value)}><option value="newest">Mới nhất</option><option value="oldest">Cũ nhất</option><option value="highest">Điểm cao nhất</option><option value="lowest">Điểm thấp nhất</option></select></label></div>
+          {visibleReviews.length ? visibleReviews.map((review) => <article key={review.id}>
             <header className="detail-review-heading"><span className="detail-review-avatar" aria-hidden="true">{(review.username || 'K').slice(0, 1).toUpperCase()}</span><div><strong>{review.username || 'Khách hàng'}</strong><small>{safeDate(review.createdAt)}</small></div><span className="detail-review-stars" aria-label={review.rating + ' trên 5 sao'}>{'★'.repeat(Math.max(0, Math.min(5, Number(review.rating || 0))))}</span></header>
             <p>{review.comment || 'Khách hàng đã để lại điểm đánh giá.'}</p>{review.adminReply && <div className="detail-admin-reply"><b>Store trả lời</b><p>{review.adminReply}</p></div>}
-          </article>)}</div> : <div className="detail-review-empty review-first"><span aria-hidden="true">♡</span><div><h3>Mở đầu cuộc trò chuyện</h3><p>Chưa có bình luận. Chia sẻ của bạn sẽ giúp người mua tiếp theo.</p></div></div>}
+          </article>) : reviews.length ? <div className="detail-review-empty review-filter-empty"><h3>Chưa có đánh giá phù hợp</h3><p>Thử số sao hoặc nội dung khác để xem thêm chia sẻ.</p><button className="button button--soft" type="button" onClick={() => { setRatingFilter(0); setReviewContent('all') }}>Xóa bộ lọc</button></div> : <div className="detail-review-empty review-first"><span aria-hidden="true">♡</span><div><h3>Mở đầu cuộc trò chuyện</h3><p>Chưa có bình luận. Chia sẻ của bạn sẽ giúp người mua tiếp theo.</p></div></div>}
+          </div>
         </div>
       </div>
     </section>

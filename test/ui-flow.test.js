@@ -234,6 +234,55 @@ test('cart shows eight suggestions, advances one and opens detail only after a c
   } finally { window.close() }
 })
 
+test('lọc số sao, nội dung và sắp xếp đánh giá giữ nguyên thống kê tổng', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/products/1', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  const reviews = [
+    { id: 1, username: 'Bốn sao', rating: 4, comment: '', createdAt: '2026-10-01T10:00:00Z' },
+    { id: 2, username: 'Năm sao', rating: 5, comment: 'Rất tốt', createdAt: '2026-10-02T10:00:00Z' },
+    { id: 3, username: 'Một sao', rating: 1, comment: 'Cần cải thiện', adminReply: 'Store đã tiếp nhận', createdAt: '2026-10-03T10:00:00Z' },
+  ]
+  window.scrollTo = () => {}
+  window.fetch = async (url) => String(url).includes('/customer/session') ? response(401, {}) :
+    String(url).includes('/reviews') ? response(200, { reviews }) : response(200, { products: [] })
+  window.eval(bundle.outputFiles[0].text)
+  const names = () => [...window.document.querySelectorAll('.detail-review-heading strong')].map((node) => node.textContent)
+  const choose = (selector, value) => {
+    const input = window.document.querySelector(selector)
+    input.value = value
+    input.dispatchEvent(new window.Event('change', { bubbles: true }))
+  }
+  try {
+    await waitFor(() => names().length === 3)
+    assert.deepEqual(names(), ['Một sao', 'Năm sao', 'Bốn sao'])
+    assert.match(window.document.querySelector('.review-score-classification').textContent, /Khá/)
+    choose('.review-sort select', 'highest')
+    await waitFor(() => names()[0] === 'Năm sao')
+    assert.deepEqual(names(), ['Năm sao', 'Bốn sao', 'Một sao'])
+    choose('.review-sort select', 'lowest')
+    await waitFor(() => names()[1] === 'Bốn sao')
+    assert.deepEqual(names(), ['Một sao', 'Bốn sao', 'Năm sao'])
+    choose('.review-sort select', 'oldest')
+    await waitFor(() => names()[0] === 'Bốn sao')
+    window.document.querySelector('[aria-label="Lọc 4 sao"]').click()
+    await waitFor(() => names().length === 1)
+    assert.deepEqual(names(), ['Bốn sao'])
+    assert.match(window.document.querySelector('.detail-rating-summary > strong').textContent, /3.3/)
+    assert.equal(window.document.querySelector('[aria-label="4 sao: 1 đánh giá"]').getAttribute('aria-valuenow'), '1')
+    choose('#review-content-filter', 'replied')
+    await waitFor(() => Boolean(window.document.querySelector('.review-filter-empty')))
+    assert.equal(names().length, 0)
+    window.document.querySelector('.review-filter-empty button').click()
+    await waitFor(() => names().length === 3)
+    choose('#review-content-filter', 'commented')
+    await waitFor(() => names().length === 2)
+    assert.deepEqual(names(), ['Năm sao', 'Một sao'])
+    choose('#review-content-filter', 'replied')
+    await waitFor(() => names().length === 1)
+    assert.deepEqual(names(), ['Một sao'])
+  } finally { window.close() }
+})
+
 test('catalog measures attached sticky elements and toggles the compact filter', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/products', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
