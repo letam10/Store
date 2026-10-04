@@ -33,6 +33,8 @@ function SimilarProducts({ products, item, onNavigate }) {
   const position = Math.min(page, maxPage)
   const start = position * 3
   const visibleItems = items.slice(start, start + 3)
+  // Giữ các nhóm trong đường trượt; nhóm ngoài màn hình không nhận click hoặc focus.
+  const pages = Array.from({ length: Math.ceil(items.length / 3) }, (_, index) => items.slice(index * 3, index * 3 + 3))
   const shift = (amount) => setPage((current) => Math.max(0, Math.min(maxPage, current + amount)))
 
   return <section className="cart-similar">
@@ -72,12 +74,14 @@ function SimilarProducts({ products, item, onNavigate }) {
           if (drag.current?.moved) { event.preventDefault(); event.stopPropagation() }
           drag.current = null
         }}>
-        <div className="cart-similar__products">
-          {visibleItems.map((product) => <a className="cart-similar__product" key={product.id} draggable={false} href={'/products/' + encodeURIComponent(product.id)} onClick={(event) => openProduct(event, product.id, onNavigate)} aria-label={'Xem chi tiết ' + product.name}>
+        <div className="cart-similar__pages" style={{ transform: 'translateX(-' + position * 100 + '%)', '--similar-count': visibleItems.length }}>
+          {pages.map((pageItems, index) => <div className="cart-similar__products" key={index} aria-hidden={index !== position} inert={index !== position}>
+          {pageItems.map((product) => <a className="cart-similar__product" key={product.id} draggable={false} href={'/products/' + encodeURIComponent(product.id)} onClick={(event) => openProduct(event, product.id, onNavigate)} aria-label={'Xem chi tiết ' + product.name}>
             <span className="cart-similar__product-image">{product.discountPercent > 0 && <span className="cart-similar__product-sale" aria-label={'Giảm ' + product.discountPercent + '%'}>🔥</span>}<img draggable={false} src={product.image || '/products/' + (pictures[product.id] || 'headphones') + '.svg'} alt={'Ảnh ' + product.name} loading="lazy" /></span>
             <span className="cart-similar__product-name" title={product.name}>{product.name}</span>
             <span className="cart-similar__product-price"><small>Đơn giá</small><strong>{money.format(product.price)}</strong></span>
           </a>)}
+          </div>)}
         </div>
       </div>
     </div>}
