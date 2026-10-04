@@ -199,32 +199,55 @@ test('out-of-stock cart item is dimmed, cannot be selected and shows similar goo
       assert.match(window.document.querySelector('.cart-similar').textContent, /Chưa có sản phẩm cùng danh mục/)
     } else {
       similarToggle.click()
-      await waitFor(() => Boolean(window.document.querySelector('.cart-similar__thumb')))
-      assert.ok(window.document.querySelector('.cart-similar__thumb').getAttribute('href').startsWith('/products/'))
+      await waitFor(() => Boolean(window.document.querySelector('.cart-similar__product')))
+      assert.ok(window.document.querySelector('.cart-similar__product').getAttribute('href').startsWith('/products/'))
     }
   } finally { window.close() }
 })
 
 // Dùng sản phẩm thử trong jsdom để không thay giỏ hàng hoặc dữ liệu của người dùng.
-test('cart shows eight suggestions, advances one and opens detail only after a click', async () => {
+test('giỏ hàng hiển thị ba gợi ý có ảnh, tên, giá và chuyển theo từng nhóm', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/cart', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
-  const items = Array.from({ length: 26 }, (_, index) => ({ id: String(index + 1), name: 'Sản phẩm thử ' + index, category: 'Nhóm thử', price: 100000, stockCount: 20, image: '/products/bag.svg' }))
+  const items = Array.from({ length: 26 }, (_, index) => ({ id: 'qa-suggestion-' + (index + 1), name: 'Sản phẩm thử ' + index, category: 'Nhóm thử', price: 100000 + index * 1000, discountPercent: 0, stockCount: 20, image: '/products/bag.svg' }))
   window.localStorage.setItem('storeCartV1', JSON.stringify([{ ...items[0], quantity: 1, selected: false }]))
   window.scrollTo = () => {}
   window.fetch = async (url) => String(url).includes('/customer/session') ? response(401, {}) :
     String(url).includes('/catalog') ? response(200, { products: items }) : response(200, { reviews: [] })
   window.eval(bundle.outputFiles[0].text)
   try {
-    await waitFor(() => Boolean(window.document.querySelector('.cart-similar__toggle:not(:disabled)')))
+    await waitFor(() => window.document.querySelector('.cart-item__body h3')?.textContent === items[0].name && Boolean(window.document.querySelector('.cart-similar__toggle:not(:disabled)')))
     window.document.querySelector('.cart-similar__toggle').click()
-    await waitFor(() => window.document.querySelectorAll('.cart-similar__thumb').length === 20)
-    assert.match(window.document.querySelector('.cart-similar__head').textContent, /1–8 \/ 20/)
+    await waitFor(() => window.document.querySelectorAll('.cart-similar__product').length === 3)
+    assert.match(window.document.querySelector('.cart-similar__head').textContent, /1–3 \/ 20/)
+    const firstIds = [...window.document.querySelectorAll('.cart-similar__product')].map((link) => link.getAttribute('href'))
+    for (const link of window.document.querySelectorAll('.cart-similar__product')) {
+      const expected = items.find((item) => '/products/' + item.id === link.getAttribute('href'))
+      assert.equal(link.children.length, 3)
+      assert.ok(link.querySelector('img'))
+      assert.equal(link.querySelector('.cart-similar__product-name').textContent, expected.name)
+      assert.equal(link.querySelector('.cart-similar__product-price strong').textContent, new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(expected.price))
+    }
     window.document.querySelector('[aria-label="Sản phẩm gợi ý tiếp theo"]').click()
-    await waitFor(() => /2–9 \/ 20/.test(window.document.querySelector('.cart-similar__toolbar').textContent))
+    await waitFor(() => /4–6 \/ 20/.test(window.document.querySelector('.cart-similar__toolbar').textContent))
+    assert.ok([...window.document.querySelectorAll('.cart-similar__product')].every((link) => !firstIds.includes(link.getAttribute('href'))))
+    const range = window.document.querySelector('.cart-similar__range')
+    const setRange = (value) => {
+      Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(range, value)
+      range.dispatchEvent(new window.Event('input', { bubbles: true }))
+    }
+    setRange(range.max)
+    await waitFor(() => /19–20 \/ 20/.test(window.document.querySelector('.cart-similar__toolbar').textContent))
+    assert.equal(window.document.querySelectorAll('.cart-similar__product').length, 2)
+    assert.equal(window.document.querySelector('[aria-label="Sản phẩm gợi ý tiếp theo"]').disabled, true)
+    window.document.querySelector('[aria-label="Sản phẩm gợi ý trước"]').click()
+    await waitFor(() => /16–18 \/ 20/.test(window.document.querySelector('.cart-similar__toolbar').textContent))
+    setRange('0')
+    await waitFor(() => /1–3 \/ 20/.test(window.document.querySelector('.cart-similar__toolbar').textContent))
     const viewport = window.document.querySelector('.cart-similar__viewport')
-    const thumb = window.document.querySelector('.cart-similar__thumb')
     for (const [type, clientX] of [['pointerdown', 100], ['pointermove', 30], ['pointerup', 30]]) viewport.dispatchEvent(new window.MouseEvent(type, { bubbles: true, clientX, clientY: 20, button: 0 }))
+    await waitFor(() => /4–6 \/ 20/.test(window.document.querySelector('.cart-similar__toolbar').textContent))
+    const thumb = window.document.querySelector('.cart-similar__product')
     thumb.click()
     assert.equal(window.location.pathname, '/cart')
     const href = thumb.getAttribute('href')

@@ -6,10 +6,11 @@
  * Liên kết trực tiếp: react, ../storefront/catalog, ../storefront/state.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { similarProducts } from '../storefront/catalog'
 import { canPurchase, cartTotal } from '../storefront/state'
 import './Storefront.css'
+import './CartSuggestions.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const pictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
@@ -24,25 +25,15 @@ function openProduct(event, id, onNavigate) {
 // Chức năng SimilarProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function SimilarProducts({ products, item, onNavigate }) {
   const [open, setOpen] = useState(false)
-  const [start, setStart] = useState(0)
-  const [capacity, setCapacity] = useState(8)
-  const viewportRef = useRef(null)
+  const [page, setPage] = useState(0)
   const drag = useRef(null)
   const items = useMemo(() => similarProducts(products, item, 20), [products, item])
-  const visibleCount = Math.min(capacity, Math.max(items.length, 1))
-  const maxStart = Math.max(0, items.length - visibleCount)
-  const position = Math.min(start, maxStart)
-  const shift = (amount) => setStart(Math.max(0, Math.min(maxStart, position + amount)))
-
-  // Tối đa tám ảnh; thu bớt cột ở điện thoại để từng ảnh không nhỏ dưới 84px.
-  useEffect(() => {
-    if (!open || !viewportRef.current || typeof ResizeObserver === 'undefined') return undefined
-    const measure = () => setCapacity(Math.max(1, Math.min(8, Math.floor(viewportRef.current.clientWidth / 84))))
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(viewportRef.current)
-    return () => observer.disconnect()
-  }, [open])
+  // Chuyển trọn nhóm ba sản phẩm; nhóm cuối chỉ hiển thị số sản phẩm còn lại.
+  const maxPage = Math.max(0, Math.ceil(items.length / 3) - 1)
+  const position = Math.min(page, maxPage)
+  const start = position * 3
+  const visibleItems = items.slice(start, start + 3)
+  const shift = (amount) => setPage((current) => Math.max(0, Math.min(maxPage, current + amount)))
 
   return <section className="cart-similar">
     <div className="cart-similar__head">
@@ -50,16 +41,16 @@ function SimilarProducts({ products, item, onNavigate }) {
       <button className="cart-similar__toggle" type="button" disabled={!items.length} aria-expanded={open} aria-label={open ? 'Ẩn sản phẩm tương tự' : 'Sản phẩm tương tự'} onClick={() => setOpen((current) => !current)}>
         <span className="cart-similar__toggle-long">{open ? 'Ẩn sản phẩm tương tự' : 'Sản phẩm tương tự'}</span><span className="cart-similar__toggle-short" aria-hidden="true">{open ? 'Ẩn' : 'Xem'}</span>
       </button>
-      {open && <div className="cart-similar__toolbar">
-        <span aria-live="polite">{position + 1}–{Math.min(position + visibleCount, items.length)} / {items.length}</span>
+      {open && items.length > 0 && <div className="cart-similar__toolbar">
+        <span aria-live="polite">{start + 1}–{start + visibleItems.length} / {items.length}</span>
         <button type="button" className="cart-similar__arrow" aria-label="Sản phẩm gợi ý trước" onClick={() => shift(-1)} disabled={position === 0}>‹</button>
-        <button type="button" className="cart-similar__arrow" aria-label="Sản phẩm gợi ý tiếp theo" onClick={() => shift(1)} disabled={position === maxStart}>›</button>
+        <button type="button" className="cart-similar__arrow" aria-label="Sản phẩm gợi ý tiếp theo" onClick={() => shift(1)} disabled={position === maxPage}>›</button>
       </div>}
     </div>
     {!items.length && <p className="muted">Chưa có sản phẩm cùng danh mục để gợi ý.</p>}
-    {open && <div className="cart-similar__body">
-      <input className="cart-similar__range" type="range" min="0" max={maxStart} step="1" value={position} onChange={(event) => setStart(Number(event.target.value))} aria-label="Chọn vị trí sản phẩm gợi ý" />
-      <div ref={viewportRef} className="cart-similar__viewport"
+    {open && items.length > 0 && <div className="cart-similar__body">
+      <input className="cart-similar__range" type="range" min="0" max={maxPage} step="1" value={position} onChange={(event) => setPage(Number(event.target.value))} aria-label="Chọn vị trí sản phẩm gợi ý" />
+      <div className="cart-similar__viewport"
         onPointerDown={(event) => { if (event.button === 0) drag.current = { x: event.clientX, y: event.clientY, moved: false } }}
         onPointerMove={(event) => {
           if (!drag.current) return
@@ -72,8 +63,7 @@ function SimilarProducts({ products, item, onNavigate }) {
         onPointerUp={(event) => {
           if (!drag.current?.moved) { drag.current = null; return }
           const distance = event.clientX - drag.current.x
-          const steps = Math.max(1, Math.round(Math.abs(distance) / Math.max(event.currentTarget.clientWidth / visibleCount, 1)))
-          shift(distance < 0 ? steps : -steps)
+          shift(distance < 0 ? 1 : -1)
           if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
         }}
         onPointerCancel={() => { drag.current = null }}
@@ -82,8 +72,12 @@ function SimilarProducts({ products, item, onNavigate }) {
           if (drag.current?.moved) { event.preventDefault(); event.stopPropagation() }
           drag.current = null
         }}>
-        <div className="cart-similar__track" style={{ '--similar-track-width': (items.length * 100 / visibleCount) + '%', transform: 'translate3d(-' + (position * 100 / items.length) + '%,0,0)' }}>
-          {items.map((product) => <a className="cart-similar__thumb" key={product.id} draggable={false} href={'/products/' + encodeURIComponent(product.id)} onClick={(event) => openProduct(event, product.id, onNavigate)} aria-label={'Xem chi tiết ' + product.name} style={{ '--similar-item-width': (100 / items.length) + '%' }}><span className="cart-similar__image-wrap">{product.discountPercent > 0 && <span className="cart-similar__sale" aria-label={'Giảm ' + product.discountPercent + '%'}>🔥</span>}<img draggable={false} src={product.image || '/products/' + (pictures[product.id] || 'headphones') + '.svg'} alt={'Ảnh ' + product.name} loading="lazy" /></span></a>)}
+        <div className="cart-similar__products">
+          {visibleItems.map((product) => <a className="cart-similar__product" key={product.id} draggable={false} href={'/products/' + encodeURIComponent(product.id)} onClick={(event) => openProduct(event, product.id, onNavigate)} aria-label={'Xem chi tiết ' + product.name}>
+            <span className="cart-similar__product-image">{product.discountPercent > 0 && <span className="cart-similar__product-sale" aria-label={'Giảm ' + product.discountPercent + '%'}>🔥</span>}<img draggable={false} src={product.image || '/products/' + (pictures[product.id] || 'headphones') + '.svg'} alt={'Ảnh ' + product.name} loading="lazy" /></span>
+            <span className="cart-similar__product-name" title={product.name}>{product.name}</span>
+            <span className="cart-similar__product-price"><small>Đơn giá</small><strong>{money.format(product.price)}</strong></span>
+          </a>)}
         </div>
       </div>
     </div>}
