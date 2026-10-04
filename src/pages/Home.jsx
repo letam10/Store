@@ -41,7 +41,7 @@ function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onTog
 }
 
 // Chức năng Home: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Home({ appearance = {}, products, onAddToCart, favoriteIds = [], onToggleFavorite }) {
+export default function Home({ appearance = {}, products, onAddToCart, favoriteIds = [], onToggleFavorite, promotions }) {
   const [slide, setSlide] = useState(0)
   const featured = mostViewed(products, 20)
   const heroProduct = featured.length ? featured[slide % featured.length] : null
@@ -66,7 +66,7 @@ export default function Home({ appearance = {}, products, onAddToCart, favoriteI
       {heroProduct && <a className="shop-hero-art" href={'/products/' + encodeURIComponent(heroProduct.id)} aria-label={'Xem chi tiết ' + heroProduct.name}>
         <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">NỔI BẬT · TOP 20</span>
         <span className="hero-product-frame"><img className="hero-art-image" key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" /></span>
-        <div className="hero-product-tag"><div><small>{heroProduct.category || 'Sản phẩm nổi bật'} · {heroProduct.viewCount} LƯỢT XEM</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)} · Giá dữ liệu mẫu</span></div><b aria-hidden="true">↗</b></div>
+        <div className="hero-product-tag"><div><small>{heroProduct.category || 'Sản phẩm nổi bật'} · {heroProduct.viewCount} LƯỢT XEM</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)}</span></div><b aria-hidden="true">↗</b></div>
       </a>}
     </section>
     <div className="container">
@@ -75,6 +75,7 @@ export default function Home({ appearance = {}, products, onAddToCart, favoriteI
         <a href="/cart"><span aria-hidden="true">▣</span><div><b>Giỏ hàng của bạn</b><small>Tích chọn món muốn thanh toán</small></div></a>
         <a href="/contact"><span aria-hidden="true">☏</span><div><b>Địa chỉ & liên hệ</b><small>Xem bản đồ và kênh hỗ trợ</small></div></a>
       </section>
+      {promotions}
       <ProductRow title="Sản phẩm nổi bật" subtitle="TOP 20 ĐƯỢC XEM NHIỀU NHẤT" products={featured} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?featured=1&sort=popular" />
       <ProductRow title="Đang giảm giá" subtitle="ƯU ĐÃI TỪ QUẢN TRỊ" products={sale} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?discount=1&sort=discount" sale />
       {rows.map(({ category, subtitle }) => <ProductRow key={category} title={category} subtitle={subtitle} products={products.filter((product) => product.category === category && product.stockCount !== 0)} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link={'/products?category=' + encodeURIComponent(category)} />)}

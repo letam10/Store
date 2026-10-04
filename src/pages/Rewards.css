@@ -4,6 +4,7 @@
 .lucky-wheel__prize { font-family: 'Segoe UI', sans-serif; font-size: 18px; font-weight: 800; fill: #263d30; }
 .lucky-wheel__caption { font-family: 'Segoe UI', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 1px; fill: #40533e; }
 .lucky-wheel__hub { position: absolute; inset: 0; display: grid; place-items: center; color: white; font-weight: 800; font-size: 16px; pointer-events: none; }
+:root:not([data-theme='dark']) .rewards-voucher-table button { color: #fff; }
 .lucky-spin { min-width: 210px; }
 .lucky-spin:disabled { opacity: .7; cursor: wait; }
 .lucky-wheel__hint { font-size: 13px; color: #596b5e; text-align: center; }

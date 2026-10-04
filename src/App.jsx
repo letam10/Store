@@ -1,4 +1,4 @@
-import MarketBanner from './components/ui/MarketBanner'
+import StorePromotions, { PromotionBoard } from './components/ui/StorePromotions'
 /**
  * @codex-vn-doc
  * Tệp: src/App.jsx
@@ -10,6 +10,7 @@ import MarketBanner from './components/ui/MarketBanner'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { normalizeVoucherSelection } from './storefront/voucherSelection'
+import { storePromotionOverview } from './storefront/promotions'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import CustomerSupport from './components/ui/CustomerSupport'
@@ -64,6 +65,7 @@ export default function App() {
   const navigationAction = useRef('initial')
   const viewedLocation = useRef(null)
   const products = useMemo(() => enrichProducts(offers), [offers])
+  const promotionOverview = useMemo(() => storePromotionOverview(products, wallet, account, favoriteIds), [products, wallet, account, favoriteIds])
   const route = routeName(location.pathname)
   const protectedPage = ['account', 'checkout', 'membership', 'favorites'].includes(route)
   const isAuth = route === 'auth' || (protectedPage && !account)
@@ -269,7 +271,7 @@ export default function App() {
   let page = <NotFound />
   if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
   else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
-  else if (route === 'home') page = <Home appearance={appearance} products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
+  else if (route === 'home') page = <Home appearance={appearance} products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} promotions={<PromotionBoard overview={promotionOverview} account={account} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} />} />
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
@@ -287,7 +289,7 @@ export default function App() {
   const accentColor = /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : undefined
   return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={accentColor ? { '--accent': accentColor } : undefined} onClick={handleLink} onSubmitCapture={handleSearch}>
     {!isAuth && <Header appearance={appearance} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
-    <main id="main-content">{!isAuth && ['products','rewards','membership','favorites'].includes(route) && <div className="container page-promo"><MarketBanner compact /></div>}{page}</main>
+    <main id="main-content">{!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact', 'account'].includes(route) ? <StorePromotions route={route} overview={promotionOverview} account={account} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher}>{page}</StorePromotions> : page}</main>
     {!isAuth && <Footer appearance={appearance} />}
     {!isAuth && notice && createPortal(<div className="cart-notice" role="status"><span>✓ {notice}</span><a href="/cart">Xem giỏ hàng →</a><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div>, document.body)}
     {!isAuth && <CustomerSupport account={account} onRequireLogin={requireLogin} />}

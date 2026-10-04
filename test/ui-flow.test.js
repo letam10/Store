@@ -327,3 +327,58 @@ test('catalog measures attached sticky elements and toggles the compact filter',
     await waitFor(() => toggle.getAttribute('aria-expanded') === 'false')
   } finally { window.close() }
 })
+
+test('banner liên trang dùng dữ liệu ưu đãi thật và chọn đúng một mã cho từng loại', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  window.scrollTo = () => {}
+  const account = { id: 71, username: 'khach-uu-dai', email: 'qa@example.com', tier: 'gold', points: 1500, spinCredits: 4, csrfToken: 'qa-promotion' }
+  const wallet = [
+    { code: 'QUAHANG1', type: 'amount', value: 100000, scope: 'goods', expiresAt: '2999-01-01T00:00:00Z' },
+    { code: 'QUAHANG2', type: 'percent', value: 20, scope: 'goods', expiresAt: '2999-01-01T00:00:00Z' },
+    { code: 'QUASHIP', type: 'percent', value: 100, scope: 'shipping', expiresAt: '2999-01-01T00:00:00Z' },
+    { code: 'HETHAN', type: 'percent', value: 100, scope: 'shipping', expiresAt: '2000-01-01T00:00:00Z' },
+  ]
+  window.fetch = async url => {
+    const path = String(url)
+    if (path.includes('/customer/session')) return response(200, { account })
+    if (path.includes('/customer/vouchers')) return response(200, { vouchers: wallet })
+    if (path.includes('/customer/orders')) return response(200, { orders: [] })
+    if (path.includes('/customer/favorites')) return response(200, { ids: ['qa-promo-sale'] })
+    if (path.includes('/catalog')) return response(200, { products: [
+      { id: 'qa-promo-sale', name: 'Món yêu thích đang giảm', price: 200000, category: 'Đồ gia dụng', image: '/products/cup.svg', stockCount: 5, discountPercent: 30 },
+      { id: 'qa-promo-sold', name: 'Ưu đãi đã hết kho', price: 200000, category: 'Đồ gia dụng', stockCount: 0, discountPercent: 90 },
+    ] })
+    return response(200, {})
+  }
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => Boolean(window.document.querySelector('[aria-label="Chọn mã QUAHANG1"]')))
+    const board = () => window.document.querySelector('.store-promo-board')
+    const clickCode = code => window.document.querySelector('[aria-label="Chọn mã ' + code + '"]').click()
+    assert.equal(board().textContent.includes('HETHAN'), false)
+    assert.match(window.document.querySelector('.store-promo-notice').textContent, /30%/)
+    assert.match(board().querySelector('.store-member-offer').textContent, /Hạng Vàng.*2\s*%/s)
+    assert.match(board().querySelector('.store-member-offer__progress').textContent, /8.500/)
+    assert.equal(board().textContent.includes('Ưu đãi đã hết kho'), false)
+    clickCode('QUAHANG1')
+    await waitFor(() => board().querySelectorAll('.store-gift-ticket.is-selected').length === 1)
+    clickCode('QUASHIP')
+    await waitFor(() => board().querySelectorAll('.store-gift-ticket.is-selected').length === 2)
+    clickCode('QUAHANG2')
+    await waitFor(() => board().querySelector('[aria-label="Bỏ chọn mã QUAHANG2"]'))
+    assert.deepEqual([...board().querySelectorAll('.store-gift-ticket.is-selected code')].map(node => node.textContent), ['QUAHANG2', 'QUASHIP'])
+    for (const path of ['/products', '/favorites', '/rewards', '/membership', '/contact', '/account']) {
+      window.document.querySelector('.header-nav a[href="' + path + '"]')?.click()
+      if (path === '/account') window.document.querySelector('.header-inner a[href="/account"]').click()
+      await waitFor(() => window.location.pathname === path && Boolean(board()))
+      assert.equal(window.document.querySelectorAll('.store-promo-rail').length, 2)
+      assert.match(board().textContent, /QUAHANG1/)
+      if (path === '/favorites') assert.equal(board().querySelector('.store-promo-product strong').textContent, 'Món yêu thích đang giảm')
+    }
+    window.document.querySelector('.store-promo-product').click()
+    await waitFor(() => window.location.pathname === '/products/qa-promo-sale')
+    assert.match(window.document.querySelector('h1').textContent, /Món yêu thích đang giảm/)
+    assert.equal(window.document.querySelector('.store-promo-layout'), null)
+  } finally { window.close() }
+})
