@@ -26,3 +26,18 @@ export function getMembershipPlan(id = 'bronze') {
 export function tierForPoints(points) {
   return [...membershipPlans].reverse().find((plan) => points >= plan.points)?.id || 'bronze'
 }
+
+// Chỉ quảng bá ưu đãi còn dùng được; mức giảm và mã quà tặng lấy từ dữ liệu Store.
+export function storePromotionOverview(products = [], wallet = [], account = null, favoriteIds = [], now = Date.now()) {
+  const sales = products.filter(product => product.stockCount !== 0 && product.discountPercent > 0)
+    .sort((a, b) => b.discountPercent - a.discountPercent || a.price - b.price)
+  const favoriteSales = sales.filter(product => favoriteIds.includes(String(product.id)))
+  const vouchers = account ? wallet.filter(voucher => new Date(voucher.expiresAt).getTime() > now) : []
+  const plan = getMembershipPlan(account?.tier)
+  const nextPlan = membershipPlans[membershipPlans.indexOf(plan) + 1] || null
+  const points = Number(account?.points || 0)
+  return { sales, favoriteSales, vouchers, plan, nextPlan, points,
+    maxDiscount: sales[0]?.discountPercent || 0,
+    remainingPoints: nextPlan ? Math.max(0, nextPlan.points - points) : 0,
+  }
+}
