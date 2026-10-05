@@ -6,40 +6,45 @@
  * Liên kết trực tiếp: react, ../api/customer, ../storefront/promotions, ../storefront/state, ../data/shipping.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { getMembershipPlan } from '../storefront/promotions'
 import { cartTotal } from '../storefront/state'
 import { DOMESTIC_REGIONS } from '../data/shipping'
+import OrderCenter from '../components/commerce/OrderCenter'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
 // Chức năng Checkout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Checkout({ cart, account, membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [], onToggleVoucher, onComplete }) {
+export default function Checkout({ cart, account, membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [], onToggleVoucher, onComplete, onRefresh }) {
   const [completedOrder, setCompletedOrder] = useState(null)
+  const submitGate = useRef(false)
+  const [paymentChoice, setPaymentChoice] = useState('bank_transfer')
+  const [schedule, setSchedule] = useState(() => { const d = new Date(Date.now() + 86400000); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,16) })
   const [fulfillment, setFulfillment] = useState('delivery')
   const [region, setRegion] = useState('hcm')
   const [weightKg, setWeightKg] = useState(1)
   const [openVoucher, setOpenVoucher] = useState('goods')
-  const [quote, setQuote] = useState(null)
+  const [quoteResult, setQuote] = useState(null)
   const [quoteError, setQuoteError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [paidSuccess, setPaidSuccess] = useState(false)
-  const [paying, setPaying] = useState(false)
   const items = useMemo(() => cart.map((item) => ({ id: item.id, quantity: item.quantity })), [cart])
   const itemKey = JSON.stringify(items)
   const plan = getMembershipPlan(membershipTier)
   const request = { items, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes }
+  const quoteKey = JSON.stringify(request)
+  const quote = quoteResult?.quoteKey === quoteKey ? quoteResult : null
 
   useEffect(() => {
     const selectedItems = JSON.parse(itemKey)
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!selectedItems.length) return undefined
     const controller = new AbortController()
+    const requestKey = JSON.stringify({ items: selectedItems, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes })
     customerApi('/api/customer/quote', { method: 'POST', csrfToken: account.csrfToken,
       body: JSON.stringify({ items: selectedItems, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes }), signal: controller.signal })
-      .then((result) => { setQuote(result); setQuoteError('') })
+      .then((result) => { setQuote({ ...result, quoteKey: requestKey }); setQuoteError('') })
       .catch((error) => { if (!controller.signal.aborted) { setQuote(null); setQuoteError(error.message) } })
     return () => controller.abort()
   }, [account.csrfToken, itemKey, fulfillment, region, weightKg, selectedVoucherCodes])
@@ -47,74 +52,20 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
   // Chức năng submit: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function submit(event) {
     event.preventDefault()
-    setBusy(true); setQuoteError('')
+    if (submitGate.current || !quote) return
+    submitGate.current = true; setBusy(true); setQuoteError('')
     const fields = new FormData(event.currentTarget)
     try {
       const payload = await customerApi('/api/customer/orders', { method: 'POST', csrfToken: account.csrfToken,
-        body: JSON.stringify({ ...request, recipient: fields.get('recipient'), phone: fields.get('phone'), address: fields.get('address') || '' }) })
+        body: JSON.stringify({ ...request, expectedTotal: quote.total, paymentMethod: paymentChoice === 'bank_transfer' ? 'bank_transfer' : fulfillment === 'pickup' ? 'cash' : 'cod', scheduledAt: new Date(schedule).toISOString(), recipient: fields.get('recipient'), phone: fields.get('phone'), address: fields.get('address') || '' }) })
       setCompletedOrder(payload.order)
       onComplete(payload.order, cart)
     } catch (error) { setQuoteError(error.message) }
-    finally { setBusy(false) }
+    finally { submitGate.current = false; setBusy(false) }
   }
 
-  // Chức năng simulatePay: mô phỏng thanh toán trực tuyến qua VietQR / Webhook
-  async function simulatePay() {
-    if (!completedOrder || paying) return
-    setPaying(true)
-    setQuoteError('')
-    try {
-      await customerApi('/api/customer/orders/' + encodeURIComponent(completedOrder.id) + '/simulate-pay', {
-        method: 'POST',
-        csrfToken: account.csrfToken,
-      })
-      setPaidSuccess(true)
-    } catch (error) {
-      setQuoteError(error.message)
-    } finally {
-      setPaying(false)
-    }
-  }
-
-  if (completedOrder) {
-    const qrUrl = `https://img.vietqr.io/image/MB-0388888999-compact2.png?amount=${completedOrder.total}&addInfo=ST%20${completedOrder.id}&accountName=STORE%20VIETNAM`
-    return <div className="container page-shell">
-      <section className="surface order-success">
-        <span>{paidSuccess ? '✓' : '💳'}</span>
-        <h1>{paidSuccess ? 'Thanh toán thành công!' : 'Đơn hàng đã được tạo'}</h1>
-        <p className="order-code">{completedOrder.id}</p>
-        <p>Tổng tiền: <strong>{money.format(completedOrder.total)}</strong></p>
-        
-        {paidSuccess ? (
-          <div className="payment-success-card" style={{ margin: '1rem 0', padding: '1rem', background: '#eef8ee', borderRadius: '8px', border: '1px solid #7cb382' }}>
-            <p style={{ color: '#254535', fontWeight: 'bold' }}>✓ Đã ghi nhận thanh toán tự động qua VietQR Webhook!</p>
-            <p className="muted" style={{ margin: '0.25rem 0' }}>Điểm tích lũy và lượt quay may mắn đã được cộng vào tài khoản của bạn.</p>
-          </div>
-        ) : (
-          <div className="payment-vietqr-box" style={{ margin: '1.25rem 0', padding: '1rem', background: '#fdfbf7', borderRadius: '8px', border: '1px solid #e0d8cc' }}>
-            <p style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Quét mã VietQR để thanh toán tự động:</p>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-              <img src={qrUrl} alt="Mã QR thanh toán VietQR" style={{ maxWidth: '280px', width: '100%', borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
-              <div style={{ fontSize: '0.875rem', lineHeight: '1.4', textAlign: 'left', width: '100%', maxWidth: '300px' }}>
-                <p>🏦 <b>Ngân hàng:</b> MB Bank</p>
-                <p>🔢 <b>STK:</b> 0388888999</p>
-                <p>👤 <b>Tên:</b> STORE VIETNAM</p>
-                <p>📝 <b>Nội dung:</b> <code>ST {completedOrder.id}</code></p>
-              </div>
-              <button className="button" type="button" onClick={simulatePay} disabled={paying} style={{ marginTop: '0.5rem', width: '100%', maxWidth: '300px' }}>
-                {paying ? 'Đang xác nhận…' : '⚡ Thanh toán ngay (Mô phỏng VietQR)'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="page-actions" style={{ marginTop: '1rem' }}>
-          <a className="button" href="/account">Xem danh sách đơn hàng</a>
-          <a className="button button--soft" href="/rewards">Đến vòng quay may mắn</a>
-        </div>
-      </section>
-    </div>
-  }
+  // VietQR, xác nhận thanh toán và biên nhận dùng chung dữ liệu ngân hàng từ API.
+  if (completedOrder) return <div className="container page-shell"><section className="surface checkout-card"><h1>Đơn hàng đã được tạo</h1><OrderCenter orderId={completedOrder.id} account={account} onRefresh={onRefresh} /><div className="commerce-actions"><a className="button button--soft" href="/account">Tất cả đơn hàng</a><a className="button button--soft" href="/rewards">Đến vòng quay may mắn</a></div></section></div>
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Chưa chọn sản phẩm để thanh toán</h2><a className="button" href="/cart">Về giỏ hàng</a></section></div>
 
@@ -130,6 +81,8 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
     <header className="page-head"><div><p className="eyebrow">Mua hàng</p><h1>Thông tin giao nhận</h1></div><span className="membership-badge">{plan.badge}</span></header>
     <div className="checkout-layout">
       <form className="surface checkout-card" onSubmit={submit}>
+        <fieldset className="fulfillment-picker"><legend>Thanh toán</legend><label className={paymentChoice === "bank_transfer" ? "is-active" : ""}><input type="radio" name="payment-choice" checked={paymentChoice === "bank_transfer"} onChange={() => setPaymentChoice("bank_transfer")} /><span><b>Chuyển khoản / QR</b><small>Quét mã và nhận bill online.</small></span></label><label className={paymentChoice === "later" ? "is-active" : ""}><input type="radio" name="payment-choice" checked={paymentChoice === "later"} onChange={() => setPaymentChoice("later")} /><span><b>{fulfillment === "pickup" ? "Thanh toán trực tiếp tại quầy" : "Thanh toán khi nhận hàng"}</b><small>Nhân viên xác nhận tiền thực nhận.</small></span></label></fieldset>
+        <label className="field"><span>Lịch giao / nhận</span><input type="datetime-local" value={schedule} onChange={event => setSchedule(event.target.value)} required /></label>
         <fieldset className="fulfillment-picker"><legend>Cách nhận hàng</legend>
           <label className={fulfillment === 'delivery' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="delivery" checked={fulfillment === 'delivery'} onChange={() => setFulfillment('delivery')} /><span><b>Giao tận nơi</b><small>Phí giao theo khu vực.</small></span></label>
           <label className={fulfillment === 'pickup' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="pickup" checked={fulfillment === 'pickup'} onChange={() => setFulfillment('pickup')} /><span><b>Nhận tại cửa hàng</b><small>Không tính phí giao.</small></span></label>
@@ -139,13 +92,12 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
         </section>
         <div className="form-grid">
           <label className="field"><span>Tên người nhận</span><input name="recipient" required defaultValue={account.username} /></label>
-          <label className="field"><span>Số điện thoại</span><input name="phone" required inputMode="tel" autoComplete="tel" /></label>
+          <label className="field"><span>Số điện thoại</span><input name="phone" placeholder="Số điện thoại nhận hàng" required inputMode="tel" autoComplete="tel" /></label>
           {fulfillment === 'delivery' && <>
-            <label className="field field--wide"><span>Địa chỉ nhận hàng</span><input name="address" required autoComplete="street-address" /></label>
+            <label className="field field--wide"><span>Địa chỉ nhận hàng</span><input name="address" placeholder="Số nhà, đường, phường / xã" required autoComplete="street-address" /></label>
             <label className="field field--wide"><span>Tỉnh / thành nhận hàng</span><select value={region} onChange={(event) => setRegion(event.target.value)}><optgroup label="Nội thành Store"><option value="hcm">TP. Hồ Chí Minh · nội thành</option><option value="binh-duong">Bình Dương · nội thành</option><option value="ba-ria-vung-tau">Bà Rịa - Vũng Tàu · nội thành</option></optgroup><optgroup label="Các tỉnh, thành Việt Nam">{DOMESTIC_REGIONS.slice(3).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</optgroup><option value="international">Ship ngoại quốc · quốc tế</option></select></label>
             {region === 'international' && <label className="field"><span>Khối lượng hàng (kg)</span><input type="number" min="0.1" max="1000" step="0.1" value={weightKg} onChange={(event) => setWeightKg(event.target.value)} required /></label>}
           </>}
-          <label className="field"><span>Phương thức</span><select><option>Thanh toán khi nhận hàng</option></select></label>
         </div>
         <p className="checkout-disclaimer">Nội thành TP. Hồ Chí Minh, Bình Dương và Bà Rịa - Vũng Tàu: 30.000 ₫. Các tỉnh, thành khác: 60.000 ₫ cố định. Ship quốc tế: 200.000 ₫ cho tối đa 1 kg, từ 2–5 kg là 400.000 ₫.</p>
         {quoteError && <p className="voucher-invalid" role="alert">{quoteError}</p>}
@@ -154,11 +106,11 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
       <aside className="surface summary-card"><p className="eyebrow">Đơn của bạn</p>
         {cart.map((item) => <div className="summary-row" key={item.id}><span>{item.name} × {item.quantity}</span><b>{money.format(item.price * item.quantity)}</b></div>)}
         <div className="summary-row"><span>Tạm tính</span><span>{money.format(quote?.subtotal ?? cartTotal(cart))}</span></div>
-        <div className="summary-row"><span>Voucher + hạng {plan.name}</span><b>-{money.format(quote?.discount ?? 0)}</b></div>
-        <div className="summary-row"><span>Phí giao hàng</span><span>{money.format(quote?.shippingFee ?? 0)}</span></div>
+        <div className="summary-row"><span>Voucher + hạng {plan.name}</span><b>-{money.format(quote ? quote.subtotal - quote.goodsTotal : 0)}</b></div>
+        <div className="summary-row"><span>Phí giao hàng</span><span>{money.format(quote?.shippingFeeBeforeDiscount ?? quote?.shippingFee ?? 0)}</span></div>
         {quote?.shippingDiscount > 0 && <div className="summary-row"><span>Đã giảm phí ship</span><b>-{money.format(quote.shippingDiscount)}</b></div>}
         <div className="summary-row summary-row--total"><span>Tổng</span><span>{money.format(quote?.total ?? 0)}</span></div>
-        <p className="checkout-disclaimer">Giá và hàng hóa là dữ liệu mẫu; không có cổng thanh toán trực tuyến trong phiên bản này.</p>
+        <p className="checkout-disclaimer">Kiểm tra tổng tiền trước khi xác nhận. QR và hướng dẫn thanh toán được hiển thị sau khi tạo đơn.</p>
       </aside>
     </div>
   </div>

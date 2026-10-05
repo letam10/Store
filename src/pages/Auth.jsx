@@ -63,7 +63,7 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       }
       onLogin(payload.account)
       onNavigate(next.startsWith('/') && !next.startsWith('//') ? next : '/account')
-    } catch (failure) { setError(failure.message || (english ? 'Could not complete the demo action.' : 'Khong the hoan tat thao tac demo.')) }
+    } catch (failure) { setError(failure.message || (english ? 'Could not complete the action.' : 'Không thể hoàn tất thao tác.')) }
     finally { setBusy(false) }
   }
 
@@ -78,14 +78,14 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       <form onSubmit={submit}>
         {view === 'register' && <><label>{english ? 'Name / username' : 'Ho ten / ten tai khoan'}<input name="username" autoComplete="username" minLength="2" required placeholder={english ? 'Your preferred name' : 'Ten ban muon dung'} /></label><label>Email<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label></>}
         {view === 'login' && <label>{english ? 'Username or email' : 'Ten tai khoan hoac email'}<input name="username" autoComplete="username" required placeholder={english ? 'Enter username or email' : 'Nhap ten hoac email'} /></label>}
-        {view === 'forgot' && <label>{english ? 'Demo email' : 'Email demo'}<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
-        {view !== 'forgot' && <label>{english ? 'Demo password' : 'Mat khau demo'}<input name="password" type="password" autoComplete={view === 'register' ? 'new-password' : 'current-password'} minLength="8" required placeholder={english ? 'At least 8 characters' : 'It nhat 8 ky tu'} /></label>}
+        {view === 'forgot' && <label>{english ? 'Local account email' : 'Email tài khoản cục bộ'}<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
+        {view !== 'forgot' && <label>{english ? 'Password' : 'Mật khẩu'}<input name="password" type="password" autoComplete={view === 'register' ? 'new-password' : 'current-password'} minLength="8" required placeholder={english ? 'At least 8 characters' : 'It nhat 8 ky tu'} /></label>}
         {view === 'login' && <a className="auth-forgot" href="/forgot-password">{english ? 'Forgot password?' : 'Quen mat khau?'}</a>}
         <button type="submit" disabled={busy}>{busy ? (english ? 'Processing…' : 'Dang xu ly…') : view === 'register' ? (english ? 'Create account →' : 'Tao tai khoan →') : view === 'forgot' ? (english ? 'See recovery options →' : 'Xem cach khoi phuc →') : (english ? 'Sign in →' : 'Dang nhap →')}</button>
         {error && <p className="auth-error" role="alert">{error}</p>}
         {message && <p className="auth-message" role="status">{message}</p>}
       </form>
-      <p className="auth-disclaimer">{english ? 'This is a local demo account, not linked to real transactions. Do not reuse a password from another service.' : 'Chi la tai khoan demo cuc bo, khong lien ket may chu va khong dung cho giao dich that. Khong nhap mat khau ban dung o noi khac.'}</p>
+      <p className="auth-disclaimer">{english ? 'This is a local account, not linked to real transactions. Do not reuse a password from another service.' : 'Chi la tai khoan cuc bo, duoc quan ly boi he thong Store. Khong nhap mat khau ban dung o noi khac.'}</p>
     </div>
   </div>
 }

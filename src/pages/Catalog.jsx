@@ -26,6 +26,23 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   const [discountOnly, setDiscountOnly] = useState(params.get('discount') === '1')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const filtersMounted = useRef(false)
+  const pageRef = useRef(null)
+  const headingRef = useRef(null)
+  const sidebarRef = useRef(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  // Đo tiêu đề và bộ lọc để các lớp sticky không đè nhau khi đổi kích thước màn hình.
+  useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const measure = () => {
+      pageRef.current?.style.setProperty('--catalog-heading-height', `${headingRef.current?.getBoundingClientRect().height || 0}px`)
+      pageRef.current?.style.setProperty('--catalog-filter-height', `${sidebarRef.current?.getBoundingClientRect().height || 0}px`)
+    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(headingRef.current)
+    observer.observe(sidebarRef.current)
+    measure()
+    return () => observer.disconnect()
+  }, [])
   const categories = ['Tất cả', ...new Set(products.map((item) => item.category))]
   const visible = useMemo(() => {
     // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
@@ -63,11 +80,11 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
     setVisibleCount(PAGE_SIZE)
   }
 
-  return <div className="container page-shell">
-    <header className="page-head catalog-page-head"><div><p className="eyebrow">Danh sách hàng hóa</p><h1>Chọn món phù hợp với bạn.</h1></div><p className="muted">Hiển thị {Math.min(visibleCount, visible.length)}/{visible.length} sản phẩm</p></header>
+  return <div className="container page-shell catalog-page" ref={pageRef}>
+    <header ref={headingRef} className="page-head catalog-page-head"><div><p className="eyebrow">Danh sách hàng hóa</p><h1>Chọn món phù hợp với bạn.</h1></div><p className="muted">Hiển thị {Math.min(visibleCount, visible.length)}/{visible.length} sản phẩm</p></header>
     <div className="catalog-layout">
-      <aside className="catalog-sidebar surface" aria-label="Bộ lọc sản phẩm">
-        <div className="catalog-sidebar__head"><h2>Tìm & lọc</h2>{filtersActive && <button type="button" onClick={resetFilters}>Xóa lọc</button>}</div>
+      <aside ref={sidebarRef} className={'catalog-sidebar surface' + (filtersOpen ? ' is-open' : '')} aria-label="Bộ lọc sản phẩm">
+        <div className="catalog-sidebar__head"><h2>Tìm & lọc</h2>{filtersActive && <button type="button" onClick={resetFilters}>Xóa lọc</button>}<button className="catalog-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls="catalog-filters" onClick={() => setFiltersOpen((open) => !open)}>{filtersOpen ? "Thu gọn" : "Mở bộ lọc"}</button></div><div className="catalog-filters" id="catalog-filters">
         <label className="field"><span>Tìm kiếm</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(PAGE_SIZE) }} placeholder="Tên hoặc nhóm hàng…" /></label>
         <fieldset className="catalog-category-list"><legend>Loại sản phẩm</legend>{categories.map((item) => <button key={item} className={item === category ? 'is-active' : ''} aria-pressed={item === category} onClick={() => { setCategory(item); setVisibleCount(PAGE_SIZE) }} type="button">{item}</button>)}</fieldset>
         <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { setDiscountOnly(event.target.checked); setVisibleCount(PAGE_SIZE) }} />Chỉ sản phẩm giảm giá</label>
@@ -76,13 +93,13 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
         <label className="field"><span>Giá tối đa</span><select value={maxPrice} onChange={(event) => { setMaxPrice(Number(event.target.value)); setVisibleCount(PAGE_SIZE) }}><option value="0">Không giới hạn</option><option value="500000">500.000 ₫</option><option value="1000000">1.000.000 ₫</option><option value="5000000">5.000.000 ₫</option><option value="10000000">10.000.000 ₫</option><option value="25000000">25.000.000 ₫</option></select></label>
         <label className="field"><span>Sắp xếp</span><select value={sort} onChange={(event) => { const nextSort = event.target.value; setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setVisibleCount(PAGE_SIZE) }}><option value="featured">Mặc định</option><option value="popular">Xem nhiều nhất</option><option value="favorite">Yêu thích nhiều nhất</option><option value="discount">Giảm giá cao nhất</option><option value="price-asc">Giá thấp → cao</option><option value="price-desc">Giá cao → thấp</option></select></label>
         <p className="catalog-sidebar__hint">Bộ lọc luôn ở bên cạnh khi bạn cuộn danh sách.</p>
-      </aside>
+      </div></aside>
       <div className="catalog-results">
         <div className="catalog-results__head"><div><p className="eyebrow">DANH SÁCH HIỆN TẠI</p><h2>Các sản phẩm đang hiển thị</h2></div><span>{Math.min(visibleCount, visible.length)} / {visible.length}</span></div>
         <div className="product-grid catalog-grid">{visible.slice(0, visibleCount).map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} isFavorite={favoriteIds.includes(String(product.id))} onToggleFavorite={onToggleFavorite} />)}</div>
         {visibleCount < visible.length && <div className="catalog-load-more"><button className="button" type="button" onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}>Xem Thêm</button></div>}
         {visible.length === 0 && <div className="surface empty-panel"><h2>Không tìm thấy sản phẩm</h2><p className="muted">Thử từ khóa khác hoặc bỏ bộ lọc.</p><button className="button button--soft" type="button" onClick={resetFilters}>Xóa bộ lọc</button></div>}
-        <p className="muted catalog-attribution">{products.filter((product) => ['mock-store-api', 'dummyjson'].includes(product.source)).length} sản phẩm nhập từ nguồn dữ liệu mẫu. Giá VND chỉ minh họa; ảnh từ <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>) và <a href="https://dummyjson.com/docs/products" target="_blank" rel="noopener noreferrer">DummyJSON</a>.</p>
+        <p className="muted catalog-attribution">Ảnh và thông tin sản phẩm từ <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>) và <a href="https://dummyjson.com/docs/products" target="_blank" rel="noopener noreferrer">DummyJSON</a>. Giá và tồn kho được xác nhận khi đặt hàng.</p>
       </div>
     </div>
   </div>

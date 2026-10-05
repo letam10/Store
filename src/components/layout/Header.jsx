@@ -31,6 +31,16 @@ export default function Header({ appearance = {}, cartCount, account, membership
   const brandName = appearance.brandName || 'store'
   const searchPlaceholder = appearance.headerSearchPlaceholder || (english ? 'Search products or categories…' : 'Tìm sản phẩm, danh mục…')
 
+  // Truyền chiều cao thật cho các vùng sticky, kể cả khi menu/ngôn ngữ đổi kích thước.
+  useEffect(() => {
+    if (typeof ResizeObserver === 'undefined' || !headerRef.current) return undefined
+    const measure = () => document.documentElement.style.setProperty('--store-header-height', `${headerRef.current.getBoundingClientRect().height}px`)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(headerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   useEffect(() => {
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!searchOpen) return undefined

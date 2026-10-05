@@ -58,6 +58,7 @@ export function enrichProducts(offers = []) {
     const originalPrice = product.originalPrice ?? product.price
     return {
       ...product,
+      label: /\bdemo\b/i.test(product.label || '') ? (product.label || '').replace(/\bdemo\b/ig, '').trim() || 'Hàng mới' : product.label,
       category: displayCategory(product),
       originalPrice,
       discountPercent,
