@@ -64,7 +64,8 @@ export default function Checkout({ cart, account, membershipTier = 'bronze', wal
     finally { submitGate.current = false; setBusy(false) }
   }
 
-  if (completedOrder) return <div className="container page-shell"><section className="surface checkout-card"><OrderCenter orderId={completedOrder.id} account={account} onRefresh={onRefresh} /><a className="button button--soft" href="/account">Tất cả đơn hàng</a></section></div>
+  // VietQR, xác nhận thanh toán và biên nhận dùng chung dữ liệu ngân hàng từ API.
+  if (completedOrder) return <div className="container page-shell"><section className="surface checkout-card"><h1>Đơn hàng đã được tạo</h1><OrderCenter orderId={completedOrder.id} account={account} onRefresh={onRefresh} /><div className="commerce-actions"><a className="button button--soft" href="/account">Tất cả đơn hàng</a><a className="button button--soft" href="/rewards">Đến vòng quay may mắn</a></div></section></div>
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>Chưa chọn sản phẩm để thanh toán</h2><a className="button" href="/cart">Về giỏ hàng</a></section></div>
 

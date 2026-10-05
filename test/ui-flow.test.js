@@ -382,3 +382,46 @@ test('banner liên trang dùng dữ liệu ưu đãi thật và chọn đúng m�
     assert.equal(window.document.querySelector('.store-promo-layout'), null)
   } finally { window.close() }
 })
+
+test('checkout ghép VietQR của main với biên nhận và chỉ gửi mô phỏng một lần', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/checkout', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  window.scrollTo = () => {}
+  const account = { id: 82, username: 'qa-checkout', tier: 'bronze', points: 0, spinCredits: 0, csrfToken: 'qa-merge-checkout' }
+  const order = { id: 'ST-MERGE-TEST', total: 420000, extraPaid: 0, refundAmount: 0, recipient: 'Khách thử', phone: '0901234567', address: 'Địa chỉ thử', fulfillment: 'delivery', deliveryStatus: 'processing', paymentMethod: 'bank_transfer', paymentMode: 'demo', scheduledAt: '2999-01-01T00:00:00Z', status: 'pending' }
+  let payments = 0, submitted = null
+  window.localStorage.setItem('storeCartV1', JSON.stringify([{ id: 1, quantity: 1, selected: true }]))
+  window.fetch = async (url, options = {}) => {
+    const path = String(url)
+    if (path.endsWith('/customer/session')) return response(200, { account })
+    if (path.endsWith('/customer/orders') && options.method === 'POST') { submitted = JSON.parse(options.body); return response(201, { order }) }
+    if (path.endsWith('/customer/orders')) return response(200, { orders: [] })
+    if (path.endsWith('/customer/quote')) return response(200, { subtotal: 390000, goodsTotal: 390000, shippingFee: 30000, total: order.total })
+    if (path.endsWith('/customer/vouchers')) return response(200, { vouchers: [] })
+    if (path.endsWith('/customer/favorites')) return response(200, { ids: [] })
+    if (path.endsWith('/catalog')) return response(200, { products: [] })
+    if (path.endsWith('/receipt')) return response(200, { order, afterSales: [], events: [] })
+    if (path.endsWith('/payment-info')) return response(200, { order, payment: { mode: 'demo', amount: order.total, reference: order.id, bankName: 'Ngân hàng thử', accountNumber: '0000000000', accountName: 'STORE TEST', qrImage: '/products/cup.svg' } })
+    if (path.endsWith('/simulate-pay')) { payments++; await new Promise(resolve => setTimeout(resolve, 30)); order.status = 'paid'; return response(200, { success: true }) }
+    return response(200, {})
+  }
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => window.document.querySelector('.checkout-card button[type="submit"]')?.disabled === false)
+    const form = window.document.querySelector('form.checkout-card')
+    form.elements.phone.value = '0901234567'
+    form.elements.address.value = 'Địa chỉ thử'
+    form.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
+    await waitFor(() => Boolean(window.document.querySelector('.commerce-qr img')))
+    assert.equal(submitted.expectedTotal, 420000)
+    assert.equal(submitted.paymentMethod, 'bank_transfer')
+    assert.equal(window.document.querySelector('.commerce-qr img').getAttribute('src'), '/products/cup.svg')
+    assert.match(window.document.querySelector('.commerce-payment .commerce-facts').textContent, /Ngân hàng thử/)
+    const pay = [...window.document.querySelectorAll('button')].find(button => button.textContent === 'Mô phỏng chuyển khoản thành công')
+    pay.click(); pay.click()
+    await waitFor(() => window.document.querySelector('.commerce-head').textContent.includes('Đã thanh toán'))
+    assert.equal(payments, 1)
+    assert.equal(window.document.querySelector('.commerce-qr'), null)
+    assert.ok([...window.document.querySelectorAll('button')].some(button => button.textContent === 'In bill / Lưu PDF'))
+  } finally { window.close() }
+})

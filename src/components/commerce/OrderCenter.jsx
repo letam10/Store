@@ -23,15 +23,15 @@ function PaymentBox({ orderId, requestId, account, onDone }) {
   const path = requestId ? '/api/customer/after-sales/' + encodeURIComponent(requestId) : '/api/customer/orders/' + encodeURIComponent(orderId)
   useEffect(() => {
     const controller = new AbortController()
-    customerApi(path + '/payment', { signal: controller.signal }).then(setData).catch(failure => { if (!controller.signal.aborted) setError(failure.message) })
+    customerApi(path + (requestId ? '/payment' : '/payment-info'), { signal: controller.signal }).then(setData).catch(failure => { if (!controller.signal.aborted) setError(failure.message) })
     return () => controller.abort()
-  }, [path])
+  }, [path, requestId])
   async function pay() {
     if (gate.current || !data) return
     gate.current = true; setBusy(true); setError('')
     try {
       const simulation = data.payment.mode === 'demo'
-      const suffix = simulation ? '/demo-paid' : requestId ? '/action' : '/payment-report'
+      const suffix = simulation ? requestId ? '/demo-paid' : '/simulate-pay' : requestId ? '/action' : '/payment-report'
       await customerApi(path + suffix, { method: 'POST', csrfToken: account.csrfToken,
         body: JSON.stringify(simulation ? {} : requestId ? { action: 'payment_report', reference } : { reference }) })
       setReported(!simulation)
