@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import MarketBanner from '../components/ui/MarketBanner'
+import HomePromotionRegion from '../components/ui/HomePromotionRegion'
 import { mostViewed } from '../storefront/catalog'
 import './Home.css'
 
@@ -34,14 +35,24 @@ function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onTog
     return () => clearInterval(timer)
   }, [products.length, paused])
   const visible = products.length <= 6 ? products : Array.from({ length: 6 }, (_, index) => products[(offset + index) % products.length])
-  return <section className={'home-section home-product-row' + (sale ? ' home-section--sale' : '')} onPointerEnter={() => setPaused(true)} onPointerLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false) }}>
+  return <section
+    id={sale ? 'home-sale-products' : undefined}
+    className={'home-section home-product-row' + (sale ? ' home-section--sale' : '')}
+    onPointerEnter={() => setPaused(true)}
+    onPointerLeave={() => setPaused(false)}
+    onFocusCapture={() => setPaused(true)}
+    onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false) }}
+  >
     <div className="section-heading"><div><p className="eyebrow">{subtitle}</p><h2>{title}</h2></div><a href={link}>Xem thêm →</a></div>
     {visible.length ? <div className="product-grid home-row-grid" aria-live="off">{visible.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} isFavorite={favoriteIds.includes(String(product.id))} onToggleFavorite={onToggleFavorite} />)}</div> : <p className="surface home-empty-sale">Chưa có sản phẩm giảm giá. Quản trị viên có thể đặt mức giảm trong mục Hàng hóa.</p>}
   </section>
 }
 
 // Chức năng Home: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Home({ appearance = {}, products, onAddToCart, favoriteIds = [], onToggleFavorite, promotions }) {
+export default function Home({
+  appearance = {}, products, onAddToCart, favoriteIds = [], onToggleFavorite,
+  promotions, promotionOverview, account,
+}) {
   const [slide, setSlide] = useState(0)
   const featured = mostViewed(products, 20)
   const heroProduct = featured.length ? featured[slide % featured.length] : null
@@ -54,29 +65,33 @@ export default function Home({ appearance = {}, products, onAddToCart, favoriteI
   const sale = products.filter((product) => product.discountPercent > 0 && product.stockCount !== 0)
 
   return <>
-    <section className="shop-hero container">
-      <div className="shop-hero-copy">
-        <p className="eyebrow">{appearance.bannerLabel || 'STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY'}</p>
-        <h1>{appearance.heroTitle || 'Chọn món bạn yêu. Sống theo cách riêng.'}</h1>
-        <p>{appearance.heroDescription || 'Khám phá sản phẩm nổi bật, ưu đãi và các nhóm hàng dễ tìm. Sản phẩm được xem nhiều nhất sẽ tự xuất hiện ở đây.'}</p>
-        <a className="button" href="/products">{appearance.heroButton || 'Khám phá cửa hàng'} <span aria-hidden="true">↗</span></a>
-        <div className="hero-footnote"><span>{featured.length ? String(slide % featured.length + 1).padStart(2, '0') + ' / ' + String(featured.length).padStart(2, '0') : '00 / 00'}</span><span>{featured.length ? 'Thay đổi sau mỗi 5 giây' : 'Danh mục đang được cập nhật'}</span></div>
-        <div className="hero-dots" aria-label="Chọn sản phẩm nổi bật">{featured.map((product, index) => <button key={product.id} type="button" className={slide % featured.length === index ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={'Xem ' + product.name} aria-pressed={slide % featured.length === index} />)}</div>
-      </div>
-      {heroProduct && <a className="shop-hero-art" href={'/products/' + encodeURIComponent(heroProduct.id)} aria-label={'Xem chi tiết ' + heroProduct.name}>
-        <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">NỔI BẬT · TOP 20</span>
-        <span className="hero-product-frame"><img className="hero-art-image" key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" /></span>
-        <div className="hero-product-tag"><div><small>{heroProduct.category || 'Sản phẩm nổi bật'} · {heroProduct.viewCount} LƯỢT XEM</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)}</span></div><b aria-hidden="true">↗</b></div>
-      </a>}
-    </section>
-    <div className="container">
-      <section className="shopping-shortcuts" aria-label="Lối tắt mua sắm">
-        <a href="/products"><span aria-hidden="true">⌕</span><div><b>Tìm đúng món bạn cần</b><small>Lọc theo danh mục và mức giá</small></div></a>
-        <a href="/cart"><span aria-hidden="true">▣</span><div><b>Giỏ hàng của bạn</b><small>Tích chọn món muốn thanh toán</small></div></a>
-        <a href="/contact"><span aria-hidden="true">☏</span><div><b>Địa chỉ & liên hệ</b><small>Xem bản đồ và kênh hỗ trợ</small></div></a>
+    <HomePromotionRegion overview={promotionOverview} account={account}>
+      <section className="shop-hero container">
+        <div className="shop-hero-copy">
+          <p className="eyebrow">{appearance.bannerLabel || 'STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY'}</p>
+          <h1>{appearance.heroTitle || 'Chọn món bạn yêu. Sống theo cách riêng.'}</h1>
+          <p>{appearance.heroDescription || 'Khám phá sản phẩm nổi bật, ưu đãi và các nhóm hàng dễ tìm. Sản phẩm được xem nhiều nhất sẽ tự xuất hiện ở đây.'}</p>
+          <a className="button" href="/products">{appearance.heroButton || 'Khám phá cửa hàng'} <span aria-hidden="true">↗</span></a>
+          <div className="hero-footnote"><span>{featured.length ? String(slide % featured.length + 1).padStart(2, '0') + ' / ' + String(featured.length).padStart(2, '0') : '00 / 00'}</span><span>{featured.length ? 'Thay đổi sau mỗi 5 giây' : 'Danh mục đang được cập nhật'}</span></div>
+          <div className="hero-dots" aria-label="Chọn sản phẩm nổi bật">{featured.map((product, index) => <button key={product.id} type="button" className={slide % featured.length === index ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={'Xem ' + product.name} aria-pressed={slide % featured.length === index} />)}</div>
+        </div>
+        {heroProduct && <a className="shop-hero-art" href={'/products/' + encodeURIComponent(heroProduct.id)} aria-label={'Xem chi tiết ' + heroProduct.name}>
+          <span className="hero-orbit" aria-hidden="true" /><span className="hero-art-caption">NỔI BẬT · TOP 20</span>
+          <span className="hero-product-frame"><img className="hero-art-image" key={heroProduct.id} src={heroProduct.image || '/products/' + ({ 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }[heroProduct.id] || 'headphones') + '.svg'} alt={'Ảnh ' + heroProduct.name} width="440" height="380" /></span>
+          <div className="hero-product-tag"><div><small>{heroProduct.category || 'Sản phẩm nổi bật'} · {heroProduct.viewCount} LƯỢT XEM</small><strong>{heroProduct.name}</strong><span>{money.format(heroProduct.price)}</span></div><b aria-hidden="true">↗</b></div>
+        </a>}
       </section>
-      {promotions}
-      <ProductRow title="Sản phẩm nổi bật" subtitle="TOP 20 ĐƯỢC XEM NHIỀU NHẤT" products={featured} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?featured=1&sort=popular" />
+      <div className="container">
+        <section className="shopping-shortcuts" aria-label="Lối tắt mua sắm">
+          <a href="/products"><span aria-hidden="true">⌕</span><div><b>Tìm đúng món bạn cần</b><small>Lọc theo danh mục và mức giá</small></div></a>
+          <a href="/cart"><span aria-hidden="true">▣</span><div><b>Giỏ hàng của bạn</b><small>Tích chọn món muốn thanh toán</small></div></a>
+          <a href="/contact"><span aria-hidden="true">☏</span><div><b>Địa chỉ & liên hệ</b><small>Xem bản đồ và kênh hỗ trợ</small></div></a>
+        </section>
+        {promotions}
+        <ProductRow title="Sản phẩm nổi bật" subtitle="TOP 20 ĐƯỢC XEM NHIỀU NHẤT" products={featured} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?featured=1&sort=popular" />
+      </div>
+    </HomePromotionRegion>
+    <div className="container home-catalog">
       <ProductRow title="Đang giảm giá" subtitle="ƯU ĐÃI TỪ QUẢN TRỊ" products={sale} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?discount=1&sort=discount" sale />
       {rows.map(({ category, subtitle }) => <ProductRow key={category} title={category} subtitle={subtitle} products={products.filter((product) => product.category === category && product.stockCount !== 0)} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link={'/products?category=' + encodeURIComponent(category)} />)}
       <section className="member-links" aria-label="Khám phá thêm">

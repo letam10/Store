@@ -1,0 +1,174 @@
+.home-side-banner {
+  --banner-ink: #294331;
+  --banner-muted: #526247;
+  --banner-price: #934619;
+  padding: 21px 18px;
+  border: 1px solid #d7dabe;
+  border-radius: 24px;
+  background: linear-gradient(155deg, #f6efda, #e8edd7);
+  color: var(--banner-ink);
+  box-shadow: 0 12px 36px #233d2310;
+}
+
+.home-side-banner--member {
+  --banner-ink: #f3f7eb;
+  --banner-muted: #d2dfcc;
+  --banner-price: #f5d18a;
+  border-color: #365745;
+  background: linear-gradient(155deg, #244a37, #163329);
+}
+
+.home-side-banner__brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.home-side-banner__brand > span:last-child {
+  color: var(--banner-price);
+  font-size: 18px;
+}
+
+.home-side-banner__art {
+  display: block;
+  width: 146px;
+  max-width: 100%;
+  height: 104px;
+  margin: 12px auto 15px;
+}
+
+.home-side-banner__kicker {
+  margin-bottom: 10px;
+  color: var(--banner-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.home-side-banner h2 {
+  margin: 0;
+  color: var(--banner-ink);
+  font-size: clamp(20px, 1.25vw, 24px);
+  line-height: 1.2;
+  letter-spacing: -.65px;
+}
+
+.home-side-banner__offer {
+  margin: 20px 0;
+  padding-top: 17px;
+  border-top: 1px solid color-mix(in srgb, var(--banner-ink) 20%, transparent);
+}
+
+.home-side-banner__offer > span {
+  display: block;
+  color: var(--banner-muted);
+  font-size: 11px;
+}
+
+.home-side-banner__offer > strong {
+  display: block;
+  margin: 5px 0 8px;
+  color: var(--banner-price);
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -1.8px;
+}
+
+.home-side-banner__offer small {
+  margin-left: 2px;
+  font-size: 23px;
+}
+
+.home-side-banner__offer p {
+  color: var(--banner-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.home-side-banner__action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, var(--banner-ink) 28%, transparent);
+  border-radius: 11px;
+  color: var(--banner-ink);
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.home-side-banner__action:hover {
+  background: color-mix(in srgb, var(--banner-ink) 8%, transparent);
+}
+
+.home-side-banner__gift {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 17px;
+  padding-top: 17px;
+  border-top: 1px solid #c6dbc32c;
+  color: var(--banner-ink);
+  text-decoration: none;
+}
+
+.home-side-banner__gift > span:first-child {
+  color: var(--banner-price);
+  font-size: 24px;
+}
+
+.home-side-banner__gift > span:nth-child(2) {
+  min-width: 0;
+}
+
+.home-side-banner__gift > span:last-child {
+  margin-left: auto;
+}
+
+.home-side-banner__gift b {
+  display: block;
+  font-size: 10px;
+}
+
+.home-side-banner__gift small {
+  display: block;
+  margin-top: 3px;
+  color: var(--banner-muted);
+  font-size: 10px;
+}
+
+:root[data-theme='dark'] .home-side-banner--store {
+  --banner-ink: #f0f5e7;
+  --banner-muted: #c7d8b9;
+  --banner-price: #f3c981;
+  border-color: #445d3d;
+  background: linear-gradient(155deg, #344a30, #233b2d);
+}
+
+@media (max-height: 760px) {
+  .home-side-banner {
+    padding-block: 16px;
+  }
+
+  .home-side-banner__art {
+    height: 78px;
+    margin-block: 8px;
+  }
+
+  .home-side-banner__offer {
+    margin-block: 14px;
+    padding-top: 13px;
+  }
+
+  .home-side-banner__gift {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+}

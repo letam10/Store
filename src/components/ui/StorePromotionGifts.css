@@ -1,0 +1,123 @@
+.store-gift-offer,.store-member-offer {
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--promo-panel);
+  min-width: 0;
+}
+
+.store-gift-offer {
+  background: var(--promo-warm);
+}
+
+.store-gift-mark {
+  font-size: 40px;
+  color: var(--promo-gold);
+}
+
+.store-gift-list {
+  display: grid;
+  gap: 8px;
+}
+
+.store-gift-ticket {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.store-gift-ticket.is-selected {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 var(--accent);
+}
+
+.store-gift-ticket>div {
+  min-width: 0;
+}
+
+.store-gift-ticket strong {
+  font-size: 14px;
+}
+
+.store-gift-ticket p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 14px;
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--promo-muted);
+}
+
+.store-gift-ticket code {
+  font: inherit;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.store-gift-ticket button {
+  flex: none;
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--sage);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.store-gift-ticket button:hover {
+  border-color: var(--accent);
+}
+
+.store-gift-preview {
+  display: grid;
+  gap: 10px;
+}
+
+.store-gift-preview a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-decoration: none;
+}
+
+.store-gift-preview a>span:first-child {
+  font-size: 27px;
+  color: var(--promo-gold);
+}
+
+.store-gift-preview a>span:last-child {
+  margin-left: auto;
+  color: var(--promo-muted);
+}
+
+.store-gift-preview a>div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.store-gift-preview b {
+  font-size: 11px;
+  color: var(--promo-muted);
+}
+
+.store-gift-preview strong {
+  font-size: 16px;
+}
+
+.store-gift-preview small {
+  font-size: 11px;
+  color: var(--promo-muted);
+}

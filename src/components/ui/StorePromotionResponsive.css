@@ -1,0 +1,144 @@
+:root[data-theme=dark] .store-promo-layout {
+  --promo-muted: #bacdbc;
+  --promo-panel: #203b2b;
+  --promo-gold: #f4c76b;
+  --promo-warm: #3c3322;
+}
+
+@media (max-width:1000px) {
+  .store-promo-intro {
+    grid-template-columns: minmax(0,1.45fr) minmax(230px,1fr);
+  }
+  .store-promo-intro .market-banner svg {
+    width: 100px;
+  }
+  .store-promo-deals__grid {
+    gap: 10px;
+  }
+  .store-promo-product {
+    grid-template-columns: 72px minmax(0,1fr);
+    gap: 8px;
+    padding-right: 8px;
+  }
+  .store-promo-product__image {
+    padding: 8px;
+  }
+  .store-promo-product__price {
+    font-size: 12px;
+  }
+}
+
+@media (max-width:760px) {
+  .store-promo-notice {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    font-size: 10px;
+    padding: 12px 0;
+  }
+  .store-promo-notice>a:last-child {
+    grid-column: 1/-1;
+  }
+  .store-promo-intro {
+    grid-template-columns: 1fr;
+    padding-top: 16px;
+    gap: 10px;
+  }
+  .store-promo-intro .market-banner {
+    min-height: 0;
+    padding: 22px;
+  }
+  .store-promo-intro__tiles {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 10px;
+  }
+  .store-promo-intro__tiles>a {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 5px;
+    padding: 15px;
+  }
+  .store-promo-intro__tiles a>span {
+    display: none;
+  }
+  .store-promo-intro__tiles strong {
+    font-size: 16px;
+  }
+  .store-promo-intro__tiles small {
+    font-size: 10px;
+  }
+  .store-promo-board__head {
+    align-items: start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .store-promo-board__offers {
+    grid-template-columns: 1fr;
+  }
+  .store-gift-offer,.store-member-offer {
+    padding: 22px;
+  }
+  .store-promo-deals {
+    padding: 18px;
+  }
+  .store-promo-deals__grid {
+    grid-template-columns: 1fr;
+  }
+  .store-promo-product {
+    grid-template-columns: 104px minmax(0,1fr);
+    gap: 16px;
+    padding-right: 16px;
+  }
+  .store-promo-product__image {
+    min-height: 114px;
+  }
+  .store-promo-product__price {
+    font-size: 16px;
+  }
+  .store-promo-product__info>strong {
+    font-size: 13px;
+  }
+  .store-promo-section-head h3 {
+    font-size: 18px;
+  }
+  .store-promo-service {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+@media (max-width:380px) {
+  .store-promo-notice {
+    grid-template-columns: 1fr;
+  }
+  .store-promo-intro .market-banner svg {
+    display: none;
+  }
+  .store-gift-ticket {
+    align-items: start;
+    flex-direction: column;
+  }
+  .store-gift-offer,.store-member-offer {
+    padding: 18px;
+  }
+  .store-sale-stamp {
+    font-size: 12px;
+    padding: 7px 9px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .store-promo-product {
+    transition: none;
+  }
+}
+
+@media print {
+  .store-promo-notice,.store-promo-intro,.store-promo-board {
+    display: none;
+  }
+  .store-promo-layout {
+    display: block;
+  }
+}
