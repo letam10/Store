@@ -1,0 +1,103 @@
+.store-member-offer>.store-promo-kicker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.store-member-offer>.store-promo-kicker span {
+  font-size: 24px;
+  color: var(--promo-gold);
+}
+
+.store-member-offer h3 {
+  margin: 6px 0 10px;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.store-member-offer__number {
+  margin: 0;
+  color: var(--promo-gold);
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -3px;
+}
+
+.store-member-offer__number span {
+  font-size: 30px;
+  margin-left: 3px;
+}
+
+.store-member-offer>p:not(.store-member-offer__number) {
+  font-size: 13px;
+  color: var(--promo-muted);
+  margin: 9px 0 16px;
+}
+
+.store-member-offer__tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.store-member-offer__tiers>span {
+  font-size: 11px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+}
+
+.store-member-offer__tiers b {
+  color: var(--promo-gold);
+  margin-left: 4px;
+}
+
+.store-member-offer__progress {
+  margin: 14px 0 18px;
+}
+
+.store-member-offer__progress>div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.store-member-offer progress {
+  width: 100%;
+  height: 7px;
+  display: block;
+  appearance: none;
+  border: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--line);
+  accent-color: var(--accent);
+}
+
+.store-member-offer progress::-webkit-progress-bar {
+  background: var(--line);
+}
+
+.store-member-offer progress::-webkit-progress-value {
+  background: var(--accent);
+}
+
+.store-member-offer progress::-moz-progress-bar {
+  background: var(--accent);
+}
+
+.store-member-offer small {
+  display: block;
+  font-size: 11px;
+  color: var(--promo-muted);
+  margin-top: 7px;
+}
+
+.store-member-offer>.store-promo-link {
+  margin-top: 12px;
+}

@@ -372,7 +372,8 @@ test('banner liên trang dùng dữ liệu ưu đãi thật và chọn đúng m�
       window.document.querySelector('.header-nav a[href="' + path + '"]')?.click()
       if (path === '/account') window.document.querySelector('.header-inner a[href="/account"]').click()
       await waitFor(() => window.location.pathname === path && Boolean(board()))
-      assert.equal(window.document.querySelectorAll('.store-promo-rail').length, 2)
+      assert.equal(window.document.querySelectorAll('.home-promotion-rail').length, 0)
+      assert.equal(window.document.querySelector('.home-promotion-region'), null)
       assert.match(board().textContent, /QUAHANG1/)
       if (path === '/favorites') assert.equal(board().querySelector('.store-promo-product strong').textContent, 'Món yêu thích đang giảm')
     }

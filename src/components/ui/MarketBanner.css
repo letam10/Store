@@ -1,1 +1,191 @@
-.market-banner{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:clamp(26px,4vw,48px);border-radius:26px;background:linear-gradient(115deg,#dfebd7,#f3e8d2);color:#294b35;overflow:hidden;position:relative;margin:24px 0}.market-banner>div{min-width:0;max-width:650px;position:relative;z-index:1}.market-banner .market-banner-kicker{font-size:11px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;margin:0 0 18px;color:inherit}.market-banner h2{font-size:clamp(25px,3.2vw,42px);line-height:1.12;letter-spacing:-1.2px;margin:0 0 14px;color:inherit}.market-banner p{font-size:15px;line-height:1.7;max-width:580px;margin:0 0 22px}.market-banner a{font-size:14px;font-weight:800;text-decoration:none;display:inline-block;border-bottom:1px solid currentColor;padding-bottom:6px;color:inherit}.market-banner a:hover{border-bottom-width:2px}.market-banner svg{width:clamp(170px,25vw,330px);flex-shrink:0;max-width:42%}.market-banner--compact{padding:28px 34px}.market-banner--compact h2{font-size:30px}.market-banner--compact svg{width:190px}.market-banner--delivery{background:linear-gradient(115deg,#e0eee6,#d9ebec)}.market-banner--rewards{background:linear-gradient(115deg,#f3e6c7,#efdbba);color:#544326}:root[data-theme=dark] .market-banner{background:linear-gradient(110deg,#294a35,#3b4831);color:#edf6e9}:root[data-theme=dark] .market-banner--delivery{background:linear-gradient(115deg,#20473b,#294b50);color:#e5f5ee}:root[data-theme=dark] .market-banner--rewards{background:linear-gradient(115deg,#51442c,#493425);color:#fcf0d3}@media(max-width:760px){.market-banner{gap:12px;padding:24px}.market-banner h2{font-size:26px}.market-banner svg{width:130px;max-width:35%}.market-banner p{font-size:13px}.market-banner--compact svg{width:120px}}@media(max-width:440px){.market-banner{gap:8px;padding:22px 18px;border-radius:20px}.market-banner h2{font-size:23px;letter-spacing:-.6px}.market-banner .market-banner-kicker{font-size:9px;letter-spacing:1.2px;margin-bottom:12px}.market-banner svg{width:95px;max-width:30%}.market-banner p{line-height:1.6;margin-bottom:16px}.market-banner a{font-size:12px}}
+.market-banner {
+  --market-ink: #294632;
+  --market-muted: #4b6047;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
+  position: relative;
+  overflow: hidden;
+  margin: 24px 0;
+  padding: clamp(26px, 4vw, 44px);
+  border: 1px solid #d7e2cb;
+  border-radius: 26px;
+  background: linear-gradient(120deg, #edf3e3, #f5ead0);
+  color: var(--market-ink);
+}
+
+.market-banner::before {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -65px;
+  width: 320px;
+  aspect-ratio: 1;
+  border: 1px solid #829f762a;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.market-banner > div {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  max-width: 650px;
+}
+
+.market-banner .market-banner-kicker {
+  display: inline-block;
+  margin: 0 0 17px;
+  padding: 5px 9px;
+  border: 1px solid color-mix(in srgb, var(--market-ink) 20%, transparent);
+  border-radius: 7px;
+  color: var(--market-ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.market-banner h2 {
+  margin: 0 0 14px;
+  color: var(--market-ink);
+  font-size: clamp(25px, 3.2vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -1.1px;
+}
+
+.market-banner p {
+  max-width: 580px;
+  margin: 0 0 22px;
+  color: var(--market-muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.market-banner a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid color-mix(in srgb, var(--market-ink) 25%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--market-ink) 6%, transparent);
+  color: var(--market-ink);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.market-banner a:hover {
+  background: color-mix(in srgb, var(--market-ink) 12%, transparent);
+}
+
+.market-banner svg {
+  position: relative;
+  width: clamp(170px, 25vw, 310px);
+  max-width: 42%;
+  flex-shrink: 0;
+}
+
+.market-banner--compact {
+  padding: 28px 32px;
+}
+
+.market-banner--compact h2 {
+  font-size: 29px;
+}
+
+.market-banner--compact svg {
+  width: 185px;
+}
+
+.market-banner--delivery {
+  background: linear-gradient(120deg, #e6f1e8, #dcebef);
+}
+
+.market-banner--rewards {
+  --market-ink: #513d26;
+  --market-muted: #6d5337;
+  border-color: #e6d5b1;
+  background: linear-gradient(120deg, #faf0d5, #f0ddbf);
+}
+
+:root[data-theme='dark'] .market-banner {
+  --market-ink: #f0f5e8;
+  --market-muted: #d2dfc7;
+  border-color: #476445;
+  background: linear-gradient(120deg, #2d4933, #3f482d);
+}
+
+:root[data-theme='dark'] .market-banner--delivery {
+  --market-ink: #ebf8ef;
+  --market-muted: #c9e1d7;
+  border-color: #3d6759;
+  background: linear-gradient(120deg, #214639, #2a4a50);
+}
+
+:root[data-theme='dark'] .market-banner--rewards {
+  --market-ink: #fbefd5;
+  --market-muted: #ead9b6;
+  border-color: #76613c;
+  background: linear-gradient(120deg, #51442d, #483327);
+}
+
+@media (max-width: 760px) {
+  .market-banner {
+    gap: 12px;
+    padding: 24px;
+  }
+
+  .market-banner h2 {
+    font-size: 26px;
+  }
+
+  .market-banner svg {
+    width: 130px;
+    max-width: 35%;
+  }
+
+  .market-banner p {
+    font-size: 13px;
+  }
+
+  .market-banner--compact svg {
+    width: 120px;
+  }
+}
+
+@media (max-width: 440px) {
+  .market-banner {
+    gap: 8px;
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .market-banner h2 {
+    font-size: 23px;
+    letter-spacing: -.6px;
+  }
+
+  .market-banner .market-banner-kicker {
+    margin-bottom: 12px;
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .market-banner svg {
+    width: 95px;
+    max-width: 30%;
+  }
+
+  .market-banner p {
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .market-banner a {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+}

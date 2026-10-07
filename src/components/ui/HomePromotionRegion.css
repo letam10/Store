@@ -1,0 +1,54 @@
+.home-promotion-region__body {
+  min-width: 0;
+}
+
+.home-promotion-rail {
+  display: none;
+}
+
+#home-sale-products {
+  scroll-margin-top: calc(var(--store-header-height, 72px) + 24px);
+}
+
+@media (min-width: 1680px) {
+  /* Hai cột thuộc vùng đầu trang; sticky tự dừng trước phần giảm giá. */
+  .home-promotion-region {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) minmax(0, 1240px) minmax(160px, 220px);
+    gap: 24px;
+    justify-content: center;
+    width: min(1780px, calc(100% - 40px));
+    margin-inline: auto;
+    padding-bottom: 32px;
+    align-items: start;
+  }
+
+  .home-promotion-region__body .container {
+    width: 100%;
+  }
+
+  .home-promotion-rail {
+    display: block;
+    position: sticky;
+    top: calc(var(--store-header-height, 72px) + 20px);
+    align-self: start;
+    min-width: 0;
+    margin-top: 28px;
+  }
+
+  .home-promotion-region__body .home-product-row {
+    margin-bottom: 0;
+  }
+}
+
+@media print {
+  .home-promotion-region {
+    display: block;
+    width: 100%;
+    padding: 0;
+  }
+
+  .home-promotion-rail {
+    display: none;
+  }
+}

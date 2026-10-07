@@ -1,28 +1,98 @@
 import './MarketBanner.css'
 
-export default function MarketBanner({ compact = false, variant = 'grocery', title = 'Một giỏ nhỏ. Đủ cho cả ngày.', description = 'Đồ dùng thiết yếu, ưu đãi thành viên và lựa chọn giao hàng thuận tiện.', href = '/products', action = 'Dạo một vòng siêu thị ↗' }) {
-  return <section className={'market-banner market-banner--' + variant + (compact ? ' market-banner--compact' : '')}>
-    <div><p className="market-banner-kicker">{variant === 'delivery' ? 'Đặt online · Nhận theo lịch' : variant === 'rewards' ? 'Tích lượt · Thêm niềm vui' : 'Gần nhà · Gần bạn'}</p><h2>{title}</h2><p>{description}</p><a href={href}>{action}</a></div>
-    <svg viewBox="0 0 390 280" aria-hidden="true" focusable="false">
-      <path d="M52 191C7 140 48 42 116 30c59-11 97 28 158 24 92-7 103 91 66 154-39 66-233 47-288-17" fill={variant === 'rewards' ? '#dec792' : variant === 'delivery' ? '#abd1c2' : '#b8cfaa'} opacity=".48" />
-      <ellipse cx="205" cy="245" rx="130" ry="13" fill="#153b2b" opacity=".1" />
-      {variant === 'delivery' ? <g>
-        <path d="M63 115h172v111H63z" fill="#e5cc93" /><path d="M235 145h57l37 43v38h-94z" fill="#6b9e7c" /><path d="M248 156h40l26 30h-66z" fill="#f4f0dc" />
-        <circle cx="102" cy="227" r="23" fill="#284636" /><circle cx="102" cy="227" r="10" fill="#ece6cc" /><circle cx="281" cy="227" r="23" fill="#284636" /><circle cx="281" cy="227" r="10" fill="#ece6cc" />
-        <rect x="112" y="135" width="70" height="65" rx="5" fill="#f4dfb4" /><path d="M147 136v31m-35-12h70" stroke="#ba9362" strokeWidth="6" /><text x="146" y="188" textAnchor="middle" fill="#355941" fontSize="14" fontWeight="800">store.</text>
-        <circle cx="273" cy="81" r="42" fill="#fbefd6" stroke="#82b492" strokeWidth="6" /><path d="M273 55v27l17 11" fill="none" stroke="#355941" strokeWidth="6" strokeLinecap="round" /><path d="M24 150h30m-35 21h35m-26 21h26" stroke="#95bb99" strokeWidth="6" strokeLinecap="round" />
-      </g> : variant === 'rewards' ? <g>
-        <rect x="69" y="99" width="210" height="119" rx="18" fill="#f7eacb" transform="rotate(-12 69 99)" /><path d="M201 78v123" stroke="#bf9d61" strokeWidth="4" strokeDasharray="5 8" />
-        <text x="110" y="146" fill="#41664a" fontWeight="900" fontSize="24" transform="rotate(-12 110 146)">VOUCHER</text><text x="225" y="133" fill="#b18242" fontWeight="900" fontSize="18" transform="rotate(-12 225 133)">SHIP</text>
-        <rect x="106" y="155" width="197" height="76" rx="12" fill="#85b39b" /><path d="M260 156v74" stroke="#dcebdc" strokeWidth="3" strokeDasharray="5 6" /><text x="136" y="202" fill="#183c2b" fontSize="23" fontWeight="900">store.</text>
-        <path d="m315 104 6 15 16 1-12 10 4 16-14-9-14 9 4-16-12-10 16-1zM74 68l5 13 14 1-11 9 4 14-12-8-12 8 4-14-11-9 14-1z" fill="#dba34f" />
-      </g> : <g>
-        <path d="M143 89c-8-39-39-40-44-19-4 14 13 31 44 39M164 89c5-35 31-46 39-26 6 16-7 30-39 43" fill="#79a87a" /><path d="M149 117c-2-45-9-70-9-84" stroke="#325e3f" strokeWidth="5" fill="none" />
-        <path d="M122 107h140l-10 130H112z" fill="#eac487" /><path d="M112 122h62v115h-62z" fill="#f4dda9" /><path d="M178 106V85c0-34 46-34 46 0v21" stroke="#c09864" strokeWidth="8" fill="none" />
-        <path d="M233 92h44l13 26v88h-57z" fill="#ecf0d9" /><path d="M233 92h44v27h-44z" fill="#527c50" /><path d="m277 92 13 26h-13z" fill="#91b68b" /><rect x="247" y="142" width="25" height="42" rx="3" fill="#81a681" />
-        <path d="M72 162c-1-39 28-56 55-33 22-18 51-4 42 33-13 51-91 53-97 0" fill="#e8a176" /><path d="M127 130v-18" stroke="#527a47" strokeWidth="6" /><ellipse cx="142" cy="114" rx="14" ry="6" fill="#749f69" transform="rotate(-22 142 114)" />
-        <circle cx="286" cy="222" r="27" fill="#cba875" /><path d="m267 206 15 32m-4-40 15 35m-4-36 15 30" stroke="#f5dfb4" strokeWidth="4" strokeLinecap="round" /><text x="179" y="196" fontSize="22" fontWeight="900" fill="#31583c">store.</text>
-      </g>}
-    </svg>
-  </section>
+function GroceryArt() {
+  return (
+    <g>
+      <rect x="74" y="91" width="250" height="153" rx="12" fill="#f5e7c8" />
+      <rect x="87" y="136" width="92" height="98" rx="5" fill="#94af88" />
+      <path d="M98 153h70v65H98z" fill="#d9e6c8" />
+      <path d="M107 176h52m-26-23v65" stroke="#94af88" strokeWidth="5" />
+      <rect x="194" y="135" width="113" height="56" rx="5" fill="#d8e6c7" />
+      <path d="M206 181v-19m14 19v-24m14 24v-14m15 14v-23m15 23v-17m16 17v-26"
+        stroke="#648d62" strokeWidth="9" strokeLinecap="round" />
+      <path d="m70 82 18-32h221l19 32z" fill="#335d44" />
+      <path d="m103 50-10 32h30l6-32m28 0-2 32h30V50m27 0 3 32h31l-7-32m28 0 11 32h29l-17-32"
+        fill="#f0dba9" />
+      <path d="M70 82h258v24c-8 12-22 12-32 0-10 12-23 12-32 0-10 12-23 12-33 0-10 12-23 12-32 0-10 12-23 12-33 0-10 12-23 12-32 0-10 12-23 12-32 0-10 12-22 12-32 0z"
+        fill="#588666" />
+      <rect x="138" y="15" width="123" height="38" rx="9" fill="#264d38" />
+      <text x="199" y="42" textAnchor="middle" fill="#fff6df" fontSize="26" fontWeight="800">store.</text>
+      <path d="M194 201h113v31H194z" fill="#e2be80" />
+      <circle cx="212" cy="207" r="12" fill="#dd9158" />
+      <circle cx="236" cy="207" r="12" fill="#bd6748" />
+      <circle cx="260" cy="207" r="12" fill="#dd9158" />
+      <circle cx="284" cy="207" r="12" fill="#91a95b" />
+      <path d="M186 215h128v21H186z" fill="#b48a55" />
+      <path d="M42 227h30l-5 24H47z" fill="#b87b56" />
+      <path d="M56 229v-48m0 27c-26 0-30-25-13-24 13 0 13 24 13 24m0 8c25 0 31-30 13-28-13 1-13 28-13 28"
+        fill="#779a65" stroke="#527954" strokeWidth="3" />
+      <path d="M331 211h26l-4 39h-18z" fill="#e6ba70" />
+      <path d="M337 211v-27m11 27v-35" stroke="#86a466" strokeWidth="9" strokeLinecap="round" />
+    </g>
+  )
+}
+
+function DeliveryArt() {
+  return (
+    <g>
+      <rect x="58" y="113" width="178" height="109" rx="9" fill="#e7c88f" />
+      <path d="M236 142h55l40 44v36h-95z" fill="#6b9e7c" />
+      <path d="M249 154h37l26 30h-63z" fill="#eff3df" />
+      <circle cx="102" cy="225" r="23" fill="#284636" />
+      <circle cx="102" cy="225" r="10" fill="#ece6cc" />
+      <circle cx="284" cy="225" r="23" fill="#284636" />
+      <circle cx="284" cy="225" r="10" fill="#ece6cc" />
+      <rect x="110" y="133" width="72" height="67" rx="5" fill="#f6e3b9" />
+      <path d="M146 134v30m-35-10h70" stroke="#bd955d" strokeWidth="6" />
+      <text x="146" y="188" textAnchor="middle" fill="#355941" fontSize="15" fontWeight="800">store.</text>
+      <circle cx="269" cy="72" r="38" fill="#fbefd6" stroke="#82b492" strokeWidth="6" />
+      <path d="M269 49v25l17 10" fill="none" stroke="#355941" strokeWidth="6" strokeLinecap="round" />
+      <path d="M23 153h24m-31 23h31m-21 23h21" stroke="#95bb99" strokeWidth="6" strokeLinecap="round" />
+    </g>
+  )
+}
+
+function RewardsArt() {
+  return (
+    <g>
+      <rect x="69" y="70" width="238" height="147" rx="18" fill="#e8c487" transform="rotate(-9 188 143)" />
+      <rect x="84" y="94" width="238" height="147" rx="18" fill="#315e45" />
+      <path d="M103 170h200" stroke="#749b79" strokeWidth="1" />
+      <text x="107" y="132" fill="#f7edd5" fontWeight="800" fontSize="27">store.</text>
+      <text x="107" y="153" fill="#cfddc4" fontWeight="700" fontSize="10" letterSpacing="2">MEMBER CLUB</text>
+      <text x="107" y="215" fill="#f4dfb4" fontWeight="800" fontSize="15">EVERYDAY / TOGETHER</text>
+      <path d="m275 116 14 19-14 19-14-19z" fill="#e9c785" />
+      <path d="m328 60 5 13 14 1-11 9 4 14-12-8-12 8 4-14-11-9 14-1z" fill="#c49549" />
+      <path d="m51 113 4 10 11 1-9 7 3 11-9-6-9 6 3-11-9-7 11-1z" fill="#c49549" />
+    </g>
+  )
+}
+
+export default function MarketBanner({
+  compact = false,
+  variant = 'grocery',
+  title = 'Một giỏ nhỏ. Đủ cho cả ngày.',
+  description = 'Đồ dùng thiết yếu, ưu đãi thành viên và lựa chọn giao hàng thuận tiện.',
+  href = '/products',
+  action = 'Dạo một vòng siêu thị ↗',
+}) {
+  const kicker = variant === 'delivery'
+    ? 'Đặt online · Nhận theo lịch'
+    : variant === 'rewards' ? 'Store member club' : 'Siêu thị nhỏ · Tiện ích mỗi ngày'
+
+  return (
+    <section className={'market-banner market-banner--' + variant + (compact ? ' market-banner--compact' : '')}>
+      <div className="market-banner__copy">
+        <p className="market-banner-kicker">{kicker}</p>
+        <h2>{title}</h2>
+        <p>{description}</p>
+        <a href={href}>{action}</a>
+      </div>
+      <svg viewBox="0 0 390 280" aria-hidden="true" focusable="false">
+        <circle cx="210" cy="140" r="125" fill="#c9d8b5" opacity=".45" />
+        <ellipse cx="203" cy="252" rx="161" ry="12" fill="#153b2b" opacity=".12" />
+        {variant === 'delivery' ? <DeliveryArt /> : variant === 'rewards' ? <RewardsArt /> : <GroceryArt />}
+      </svg>
+    </section>
+  )
 }

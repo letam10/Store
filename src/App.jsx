@@ -160,6 +160,8 @@ export default function App() {
     window.history.scrollRestoration = 'manual'
     // Chức năng onPop: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
     const onPop = () => {
+      // Đổi neo trong cùng trang phải giữ cuộn tới mục đó, không khôi phục vị trí cũ.
+      if (window.location.pathname === location.pathname && window.location.search === location.search) return
       scrollPositions.current.set(location.pathname + location.search, window.scrollY)
       navigationAction.current = 'pop'
       setLocation(currentLocation())
@@ -272,7 +274,13 @@ export default function App() {
   let page = <NotFound />
   if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
   else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
-  else if (route === 'home') page = <Home appearance={appearance} products={products} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} promotions={<PromotionBoard overview={promotionOverview} account={account} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} />} />
+  else if (route === 'home') page = <Home
+    appearance={appearance} products={products} onAddToCart={addToCart}
+    favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite}
+    promotionOverview={promotionOverview} account={account}
+    promotions={<PromotionBoard overview={promotionOverview} account={account}
+      selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} />}
+  />
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
