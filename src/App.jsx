@@ -83,41 +83,55 @@ export default function App() {
 
   const refreshCustomer = useCallback(async () => {
     const epoch = customerEpoch.current
+    let session = null
     try {
-      const session = await customerApi('/api/customer/session')
+      session = await customerApi('/api/customer/session')
+    } catch {
       if (epoch !== customerEpoch.current) return
-      setAccount(session.account)
-      const [ordersResponse, vouchersResponse, favoritesResponse] = await Promise.all([
-        customerApi('/api/customer/orders'), customerApi('/api/customer/vouchers'), customerApi('/api/customer/favorites'),
-      ])
+      setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
+      if (epoch === customerEpoch.current) setAuthReady(true)
+      return
+    }
+    if (epoch !== customerEpoch.current) return
+    setAccount(session.account)
+    // Secondary data must never clear the session: missing endpoints (404) keep avatar.
+    try {
+      const ordersResponse = await customerApi('/api/customer/orders').catch(() => ({ orders: [] }))
+      const vouchersResponse = await customerApi('/api/customer/vouchers').catch(() => ({ vouchers: [] }))
+      const favoritesResponse = await customerApi('/api/customer/favorites').catch(() => ({ ids: [] }))
       if (epoch !== customerEpoch.current) return
       setOrders(ordersResponse.orders || [])
       setWallet(vouchersResponse.vouchers || [])
       setSelectedVoucherCodes((current) => normalizeVoucherSelection(current, vouchersResponse.vouchers || []))
-      setFavoriteIds(favoritesResponse.ids || [])
+      const ids = favoritesResponse.ids || favoritesResponse.favorites || []
+      setFavoriteIds(Array.isArray(ids) ? ids.map(String) : [])
     } catch {
       if (epoch !== customerEpoch.current) return
-      setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
+      setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
     } finally { if (epoch === customerEpoch.current) setAuthReady(true) }
   }, [])
 
   useEffect(() => {
     const epoch = customerEpoch.current
+    let cancelled = false
     customerApi('/api/customer/session')
       .then(async (session) => {
-        if (epoch !== customerEpoch.current) return
+        if (cancelled || epoch !== customerEpoch.current) return
         setAccount(session.account)
-        const [ordersResponse, vouchersResponse, favoritesResponse] = await Promise.all([
-          customerApi('/api/customer/orders'), customerApi('/api/customer/vouchers'), customerApi('/api/customer/favorites'),
-        ])
-        if (epoch !== customerEpoch.current) return
+        // Secondary data must never clear the session (backend dotnet thiếu /orders).
+        const ordersResponse = await customerApi('/api/customer/orders').catch(() => ({ orders: [] }))
+        const vouchersResponse = await customerApi('/api/customer/vouchers').catch(() => ({ vouchers: [] }))
+        const favoritesResponse = await customerApi('/api/customer/favorites').catch(() => ({ ids: [] }))
+        if (cancelled || epoch !== customerEpoch.current) return
         setOrders(ordersResponse.orders || [])
         setWallet(vouchersResponse.vouchers || [])
         setSelectedVoucherCodes((current) => normalizeVoucherSelection(current, vouchersResponse.vouchers || []))
-        setFavoriteIds(favoritesResponse.ids || [])
+        const ids = favoritesResponse.ids || favoritesResponse.favorites || []
+        setFavoriteIds(Array.isArray(ids) ? ids.map(String) : [])
       })
-      .catch(() => { if (epoch === customerEpoch.current) { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) } })
-      .finally(() => { if (epoch === customerEpoch.current) setAuthReady(true) })
+      .catch(() => { if (!cancelled && epoch === customerEpoch.current) { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) } })
+      .finally(() => { if (!cancelled && epoch === customerEpoch.current) setAuthReady(true) })
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
@@ -273,7 +287,7 @@ export default function App() {
 
   let page = <NotFound />
   if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
-  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
+  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
   else if (route === 'home') page = <Home
     appearance={appearance} products={products} onAddToCart={addToCart}
     favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite}
