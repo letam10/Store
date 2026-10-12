@@ -12,7 +12,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "test": "node --test test/*.test.js",
+    "test": "node --max-old-space-size=4096 --test test/*.test.js",
     "preview": "vite preview"
   },
   "dependencies": {
