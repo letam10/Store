@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
 import test from 'node:test'
 import { apiErrorMessage, userMessage } from '../src/api/userMessages.js'
 import { customerApi } from '../src/api/customer.js'
@@ -11,17 +10,24 @@ import { mapServerMessages } from '../src/components/ui/customerSupportState.js'
 
 const generic = 'Không thể hoàn tất thao tác.'
 const adminRoot = process.env.STORE_ADMIN_ROOT || join(homedir(), 'source', 'repos', 'Store-Admin')
-const serverFile = name => pathToFileURL(join(adminRoot, 'backend', 'server', 'src', name))
+const serverFiles = ['customer.js', 'orderWorkflow.js', 'app.js', 'queue.js', 'security.js']
+  .map((name) => join(adminRoot, 'backend', 'server', 'src', name))
+const frontendMessagesFile = new URL('../src/api/userMessages.js', import.meta.url)
 
 test('customer, payment, support, security and queue API codes all have Vietnamese messages', () => {
   const codes = new Set()
-  for (const file of ['customer.js', 'orderWorkflow.js', 'app.js', 'queue.js', 'security.js']) {
-    const source = readFileSync(serverFile(file), 'utf8')
-    const patterns = [
-      /(?:error:|code:)\s*'([A-Z_]+)'/g,
-      /(?:throw new Error|fail|queueError)\('([A-Z_]+)'/g,
-      /code === '([A-Z_]+)'/g,
-    ]
+  const backendAvailable = serverFiles.every((file) => existsSync(file))
+  const sources = backendAvailable
+    ? serverFiles.map((file) => readFileSync(file, 'utf8'))
+    : [readFileSync(frontendMessagesFile, 'utf8')]
+  const patterns = backendAvailable
+    ? [
+        /(?:error:|code:)\s*'([A-Z_]+)'/g,
+        /(?:throw new Error|fail|queueError)\('([A-Z_]+)'/g,
+        /code === '([A-Z_]+)'/g,
+      ]
+    : [/^\s*([A-Z][A-Z_]+):\s*'/gm]
+  for (const source of sources) {
     for (const pattern of patterns) {
       for (const match of source.matchAll(pattern)) codes.add(match[1])
     }
