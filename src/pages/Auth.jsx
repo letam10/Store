@@ -1,10 +1,9 @@
-/**
- * @codex-vn-doc
- * Tệp: src/pages/Auth.jsx
- * Mục đích: Trang React điều phối đăng ký, đăng nhập, Google, 2FA và khôi phục mật khẩu.
- * Thành phần chính: Auth.
- * Liên kết trực tiếp: react, ../api/customer, ../api/endpoint.
- */
+/*
+  FILE NOTE
+  - Mục đích: Trang xác thực tài khoản (đăng nhập, đăng ký, đăng nhập Google, xác thực 2 lớp 2FA và quên/đặt lại mật khẩu) với hiệu ứng chuyển đổi mượt mà.
+  - Liên kết trực tiếp: src/App.jsx, src/api/customer.js, src/api/endpoint.js, src/api/userMessages.js, src/pages/Auth.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ quy trình đăng nhập, đăng ký, khôi phục mật khẩu và luồng chuyển hướng tài khoản.
+*/
 import { useEffect, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { apiEndpoint } from '../api/endpoint'
@@ -117,6 +116,18 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
     window.location.href = apiEndpoint('/api/customer/google/start?next=' + encodeURIComponent(next))
   }
 
+  function switchAuthView(nextView) {
+    if (nextView === view) return
+    setError('')
+    setMessage('')
+    setNeedTwoFactor(false)
+    setChallengeId('')
+    setView(nextView)
+    const queryString = '?next=' + encodeURIComponent(next)
+    const path = nextView === 'register' ? '/register' : nextView === 'forgot' ? '/forgot-password' : nextView === 'reset' ? '/reset-password' : '/login'
+    window.history.replaceState({}, '', path + queryString)
+  }
+
   function showValidation(event) {
     const input = event.target
     if (input.validity.valueMissing) input.setCustomValidity('Vui lòng điền thông tin này.')
@@ -126,12 +137,27 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
 
   return <div className="auth-screen">
     <div className="auth-panel">
-      <div className="auth-topbar"><a className="auth-back" href="/">← {english ? 'Back to store' : 'Về cửa hàng'}</a><label className="auth-language"><span className="sr-only">{english ? 'Language' : 'Ngôn ngữ'}</span><select aria-label={english ? 'Language' : 'Ngôn ngữ'} value={language} onChange={(event) => onLanguageChange?.(event.target.value)}><option value="vi">VI</option><option value="en">EN</option></select></label></div>
+      <div className="auth-topbar">
+        <a className="auth-back" href="/">← {english ? 'Back to store' : 'Về cửa hàng'}</a>
+        <label className="auth-language">
+          <span className="sr-only">{english ? 'Language' : 'Ngôn ngữ'}</span>
+          <select aria-label={english ? 'Language' : 'Ngôn ngữ'} value={language} onChange={(event) => onLanguageChange?.(event.target.value)}>
+            <option value="vi">VI</option>
+            <option value="en">EN</option>
+          </select>
+        </label>
+      </div>
       <span className="auth-mark">store<span>.</span></span>
       <p className="auth-kicker">{english ? 'YOUR PRIVATE STORE SPACE' : 'MỘT GÓC RIÊNG CỦA BẠN'}</p>
-      <h1>{view === 'register' ? (english ? 'Create a new account.' : 'Tạo tài khoản mới.') : view === 'forgot' ? (english ? 'Forgot password?' : 'Quên mật khẩu?') : view === 'reset' ? (english ? 'Reset password' : 'Đặt lại mật khẩu') : (english ? 'Welcome back.' : 'Chào mừng trở lại.')}</h1>
-      <p className="auth-intro">{view === 'register' ? (english ? 'Create an account to save points, vouchers and orders.' : 'Tạo tài khoản để lưu điểm, voucher và đơn hàng.') : view === 'forgot' ? (english ? 'Enter email to receive reset link (30 minutes).' : 'Nhập email để nhận link đặt lại (30 phút).') : view === 'reset' ? (english ? 'Paste token and set new password.' : 'Dán token từ email và đặt mật khẩu mới.') : (english ? 'Sign in to view your orders and offers.' : 'Đăng nhập để xem đơn hàng và ưu đãi của bạn.')}</p>
-      <div className="auth-tabs"><a className={view === 'login' ? 'is-active' : ''} href={'/login?next=' + encodeURIComponent(next)}>{english ? 'Sign in' : 'Đăng nhập'}</a><a className={view === 'register' ? 'is-active' : ''} href={'/register?next=' + encodeURIComponent(next)}>{english ? 'Register' : 'Đăng ký'}</a></div>
+      <div className="auth-header-stage" key={'header-' + view}>
+        <h1>{view === 'register' ? (english ? 'Create a new account.' : 'Tạo tài khoản mới.') : view === 'forgot' ? (english ? 'Forgot password?' : 'Quên mật khẩu?') : view === 'reset' ? (english ? 'Reset password' : 'Đặt lại mật khẩu') : (english ? 'Welcome back.' : 'Chào mừng trở lại.')}</h1>
+        <p className="auth-intro">{view === 'register' ? (english ? 'Create an account to save points, vouchers and orders.' : 'Tạo tài khoản để lưu điểm, voucher và đơn hàng.') : view === 'forgot' ? (english ? 'Enter email to receive reset link (30 minutes).' : 'Nhập email để nhận link đặt lại (30 phút).') : view === 'reset' ? (english ? 'Paste token and set new password.' : 'Dán token từ email và đặt mật khẩu mới.') : (english ? 'Sign in to view your orders and offers.' : 'Đăng nhập để xem đơn hàng và ưu đãi của bạn.')}</p>
+      </div>
+      <div className="auth-tabs" role="tablist" aria-label={english ? 'Account access' : 'Truy cập tài khoản'}>
+        <button type="button" role="tab" aria-selected={view === 'login'} className={view === 'login' ? 'is-active' : ''} onClick={() => switchAuthView('login')}>{english ? 'Sign in' : 'Đăng nhập'}</button>
+        <button type="button" role="tab" aria-selected={view === 'register'} className={view === 'register' ? 'is-active' : ''} onClick={() => switchAuthView('register')}>{english ? 'Register' : 'Đăng ký'}</button>
+      </div>
+      <div className={'auth-form-stage auth-form-stage--' + view} key={view + (needTwoFactor ? '-2fa' : '')}>
       {needTwoFactor && view === 'login' ? <form onSubmit={verifyTwoFactor}>
         <label>Mã xác thực 2 lớp<input value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" required placeholder="123456" /></label>
         <button type="submit" disabled={busy || !challengeId}>{busy ? 'Đang xử lý…' : 'Xác nhận 2 lớp'}</button>
@@ -144,14 +170,18 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
         {view === 'forgot' && <label>{english ? 'Local account email' : 'Email tài khoản cục bộ'}<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
         {view === 'reset' && <><label>Token từ email<input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="token" /></label><label>Mật khẩu mới<input name="newPassword" type="password" autoComplete="new-password" minLength="8" required /></label></>}
         {view !== 'forgot' && view !== 'reset' && <label>{english ? 'Password' : 'Mật khẩu'}<input name="password" type="password" autoComplete={view === 'register' ? 'new-password' : 'current-password'} minLength="8" required placeholder={english ? 'At least 8 characters' : 'Ít nhất 8 ký tự'} /></label>}
-        {view === 'login' && <a className="auth-forgot" href="/forgot-password">{english ? 'Forgot password?' : 'Quên mật khẩu?'}</a>}
-        {view === 'forgot' && <a className="auth-forgot" href="/login">Về đăng nhập</a>}
-        {view === 'reset' && <a className="auth-forgot" href="/forgot-password">Gửi lại link</a>}
+        {view === 'login' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>{english ? 'Forgot password?' : 'Quên mật khẩu?'}</a>}
+        {view === 'forgot' && <a className="auth-forgot" href={'/login?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('login') }}>{english ? 'Back to sign in' : 'Về đăng nhập'}</a>}
+        {view === 'reset' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>{english ? 'Resend link' : 'Gửi lại link'}</a>}
         <button type="submit" disabled={busy}>{busy ? 'Đang xử lý…' : view === 'register' ? 'Tạo tài khoản' : view === 'forgot' ? 'Gửi link đặt lại' : view === 'reset' ? 'Đổi mật khẩu' : 'Đăng nhập'}</button>
         {error && <p className="auth-error" role="alert">{error}</p>}
         {message && <p className="auth-message" role="status">{message}</p>}
       </form>}
-      {view === 'login' && !needTwoFactor && <div className="auth-google"><button type="button" onClick={startGoogle} disabled={!googleReady} title={googleReady ? 'Đăng nhập bằng Google' : 'Chưa cấu hình GOOGLE_CLIENT_ID/SECRET'}>G&nbsp; Đăng nhập bằng Google{googleReady ? '' : ' (chưa cấu hình)'}</button></div>}
+      </div>
+      {view === 'login' && !needTwoFactor && <div className="auth-google auth-google-stage"><button type="button" onClick={startGoogle} disabled={!googleReady} title={googleReady ? 'Đăng nhập bằng Google' : 'Chưa cấu hình GOOGLE_CLIENT_ID/SECRET'}>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.13C3.25 21.31 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.26C.46 8.18 0 9.99 0 12s.46 3.82 1.26 5.42l4.02-3.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.69 1.26 6.58l4.02 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/></svg>
+        <span>Đăng nhập bằng Google{googleReady ? '' : ' (chưa cấu hình)'}</span>
+      </button></div>}
       <p className="auth-disclaimer">Tài khoản được quản lý bởi hệ thống Store. Không dùng lại mật khẩu của dịch vụ khác.</p>
     </div>
   </div>

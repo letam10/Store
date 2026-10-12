@@ -1,11 +1,9 @@
-/**
- * @codex-vn-doc
- * Tệp: test/ui-flow.test.js
- * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
- * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
- * Liên kết trực tiếp: node:assert/strict, node:test, esbuild, jsdom, node:crypto.
- * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
- */
+/*
+  FILE NOTE
+  - Mục đích: Bộ kiểm thử luồng giao diện người dùng chính: duyệt hàng, bắt buộc đăng nhập khi thêm giỏ hàng, xác thực khách hàng và luồng điều hướng.
+  - Liên kết trực tiếp: src/main.jsx, src/App.jsx, src/pages/Auth.jsx, src/pages/ProductDetail.jsx
+  - Vùng ảnh hưởng khi sửa: Toàn bộ kiểm thử tự động xác nhận tính toàn vẹn của luồng UI và quyền truy cập người dùng.
+*/
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { build } from 'esbuild'
@@ -29,8 +27,8 @@ async function waitFor(predicate) {
 // Chức năng response: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function response(status, data) { return { ok: status >= 200 && status < 300, status, json: async () => data } }
 
-// Kiểm thử edge case: guest can browse and add cart but checkout, favorites and chat require login.
-test('guest can browse and add cart but checkout, favorites and chat require login', async () => {
+// Kiểm thử edge case: khách có thể xem hàng nhưng thêm giỏ, thanh toán, yêu thích và chat đều yêu cầu đăng nhập.
+test('guest can browse but cart, checkout, favorites and chat require login', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
   window.scrollTo = () => {}
@@ -54,20 +52,8 @@ test('guest can browse and add cart but checkout, favorites and chat require log
     await waitFor(() => window.location.pathname === '/products/1')
     assert.match(window.document.querySelector('h1').textContent, /Tai nghe Everyday/)
     window.document.querySelector('.product-detail-actions button').click()
-    window.document.querySelector('a[href="/cart"]').click()
-    await waitFor(() => window.location.pathname === '/cart')
-    assert.equal(window.document.querySelector('.cart-item__art-link')?.getAttribute('href'), '/products/1')
-    assert.equal(window.document.querySelector('.cart-item__detail-link')?.getAttribute('href'), '/products/1')
-    window.document.querySelector('.cart-item__art-link').click()
-    await waitFor(() => window.location.pathname === '/products/1')
-    window.history.back()
-    await waitFor(() => window.location.pathname === '/cart')
-    const checkbox = window.document.querySelector('.cart-select input')
-    checkbox.click()
-    await waitFor(() => Boolean(window.document.querySelector('a[href="/checkout"]')))
-    window.document.querySelector('a[href="/checkout"]').click()
-    await waitFor(() => window.location.pathname === '/checkout' && Boolean(window.document.querySelector('.auth-panel')))
-    assert.equal(window.document.querySelector('.checkout-card'), null)
+    await waitFor(() => window.location.pathname === '/login' && Boolean(window.document.querySelector('.auth-panel')))
+    assert.match(window.location.search, /next=%2Fproducts%2F1/)
     window.document.querySelector('.auth-back').click()
     await waitFor(() => window.location.pathname === '/')
     window.document.querySelector('a[href="/rewards"]').click()
@@ -205,4 +191,50 @@ test('out-of-stock cart item is dimmed, cannot be selected and shows similar goo
   } finally { window.close() }
 })
 
-// Dùng sản phẩm thử trong jsdom để không thay giỏ hàng hoặc dữ liệu của người dùng.
+// Kiểm thử edge case: thanh tìm kiếm hiển thị sản phẩm mẫu có ảnh, giới hạn số lượng và Auth chuyển đổi tab mượt mà.
+test('header search suggestions show under search bar with images and more link, and auth tabs switch seamlessly', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  window.scrollTo = () => {}
+  window.fetch = async (url) => String(url).includes('/customer/session') ? response(401, {}) :
+    String(url).includes('/catalog') ? response(200, { products: [] }) : response(200, {})
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => Boolean(window.document.querySelector('.header-inline-search input')))
+    const searchInput = window.document.querySelector('.header-inline-search input')
+    searchInput.focus()
+    searchInput.dispatchEvent(new window.Event('focus', { bubbles: true }))
+    await waitFor(() => Boolean(window.document.querySelector('#header-inline-suggestions')))
+    const suggestions = window.document.querySelector('#header-inline-suggestions')
+    assert.ok(suggestions)
+    const items = suggestions.querySelectorAll('.search-suggestion')
+    assert.ok(items.length > 0 && items.length <= 5)
+    assert.ok(items[0].querySelector('img'))
+    assert.ok(items[0].querySelector('strong'))
+    assert.match(items[0].querySelector('small').textContent, /₫/)
+    const moreLink = suggestions.querySelector('.search-suggestions__more')
+    assert.ok(moreLink)
+    assert.match(moreLink.textContent, /còn/)
+
+    // Test chuyển tab Auth trên trang login
+    window.document.querySelector('.account-link').click()
+    await waitFor(() => Boolean(window.document.querySelector('.auth-panel')))
+    assert.ok(window.document.querySelector('.auth-tabs button.is-active'))
+    assert.match(window.document.querySelector('.auth-tabs button.is-active').textContent, /Đăng nhập/)
+
+    // Bấm chuyển sang tab Đăng ký
+    const tabs = window.document.querySelectorAll('.auth-tabs button')
+    tabs[1].click()
+    await waitFor(() => Boolean(window.document.querySelector('input[name="email"]')))
+    assert.match(window.document.querySelector('.auth-tabs button.is-active').textContent, /Đăng ký/)
+
+    // Bấm chuyển sang Quên mật khẩu
+    tabs[0].click()
+    await waitFor(() => Boolean(window.document.querySelector('.auth-forgot')))
+    const forgotLink = window.document.querySelector('.auth-forgot')
+    forgotLink.click()
+    await waitFor(() => Boolean(window.document.querySelector('button[type="submit"]')) && window.document.querySelector('button[type="submit"]').textContent.includes('Gửi link'))
+    assert.match(window.document.querySelector('h1').textContent, /Quên mật khẩu/)
+  } finally { window.close() }
+})
+

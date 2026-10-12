@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Bộ quy tắc CSS tinh chỉnh (polish) toàn diện cho storefront Store: phóng to thanh menu và header, căn chỉnh dropdown gợi ý tìm kiếm ngay dưới thanh tìm kiếm, khử viền hover/focus cho ô tìm kiếm trong bộ lọc, tạo giao diện nút check lọc tùy biến và đồng bộ phong cách thiết kế.
+  - Liên kết trực tiếp: src/App.jsx, src/components/layout/Header.jsx, src/pages/Catalog.jsx, src/pages/Home.jsx
+  - Vùng ảnh hưởng khi sửa: Giao diện header trên mọi trang, thanh tìm kiếm và gợi ý sản phẩm, thanh lọc danh mục sản phẩm, tính tương phản và thẩm mỹ tổng thể.
+*/
 :root{--store-ink:#193126;--store-paper:#f8faf7;--store-line:#d9e4da;--store-accent:#2b7650}
 .site-header{background:color-mix(in srgb,var(--paper) 92%,transparent);box-shadow:0 10px 30px #17382c0b}
 .site-header .header-inner{display:flex!important;grid-template-columns:none!important;grid-template-rows:none!important;width:min(1540px,calc(100% - 42px));min-height:78px;padding:9px 0;gap:clamp(12px,1.5vw,26px)}
@@ -523,3 +529,409 @@ html[data-theme=dark] :is(h1,h2,h3,h4,h5,h6){color:var(--ink,#eff8f1)}html[data-
 /* Thông báo nằm ngoài stacking context của bộ lọc; nhãn trên ảnh luôn có nền và chữ tương phản. */
 .cart-notice{position:fixed!important;z-index:1600!important;top:92px!important;bottom:auto!important;left:auto!important;right:24px!important;width:min(480px,calc(100vw - 48px))!important;box-sizing:border-box;background:#234b35!important;color:#f4faf5!important;border:1px solid #86ad91;box-shadow:0 14px 40px #08150e38}.cart-notice :is(span,a,button){color:#f4faf5!important}.product-art .product-label{background:#eef5e6!important;color:#2d5039!important;border:1px solid #c5d6ba}.site-footer p,.site-footer .footer-bottom{color:var(--muted)}:root[data-theme="dark"] .site-footer :is(p,small,.footer-bottom,.footer-bottom span){color:#bdcfc2!important;opacity:1!important}:root[data-theme="dark"] .site-footer a{color:#e2eee6}.detail-reviews-panel .detail-review-content .detail-review-form{grid-template-columns:1fr!important;gap:20px!important;padding:26px!important}@media(max-width:600px){.cart-notice{top:auto!important;bottom:112px!important;left:16px!important;right:16px!important;width:auto!important;padding:16px!important}.detail-reviews-panel .detail-review-content .detail-review-form{padding:18px!important}}
 .skip-link{background:var(--paper)!important;color:var(--ink)!important}@media(max-width:600px){.site-footer .footer-bottom{display:grid!important;gap:12px;white-space:normal!important}.site-footer .footer-bottom span{min-width:0;white-space:normal!important;overflow-wrap:anywhere}}
+/* Header & Menu redesign: bố cục chuẩn e-commerce rộng rãi, to rõ ràng, không bao giờ xô lệch */
+.site-header .header-inner{
+  display: grid !important;
+  grid-template-columns: auto minmax(280px, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  column-gap: clamp(16px, 2.5vw, 36px) !important;
+  row-gap: 8px !important;
+  padding: 14px 0 10px !important;
+  width: min(1540px, calc(100% - 40px)) !important;
+  min-height: 108px !important;
+}
+.header-inner .brand{
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 6px !important;
+  text-decoration: none !important;
+}
+.header-inner .brand__word{
+  font-size: clamp(32px, 2.6vw, 40px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -1.5px !important;
+}
+.header-inner .brand small{
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  margin-left: 6px !important;
+}
+
+/* Khung tìm kiếm ở Header: rộng rãi, căn giữa hàng 1 */
+.header-inner .header-search-shell{
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  position: relative !important;
+  z-index: 40 !important;
+  width: 100% !important;
+  max-width: 580px !important;
+  justify-self: center !important;
+}
+.header-inner .header-search-shell .header-inline-search{
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 48px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid var(--line, #dce4dd) !important;
+  background: var(--paper, #fff) !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  overflow: hidden !important;
+}
+.header-inline-search input{
+  padding: 12px 18px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+.header-inline-search button{
+  width: 52px !important;
+  font-size: 22px !important;
+}
+
+/* Nút chức năng bên phải hàng 1 */
+.header-inner .header-actions{
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  justify-self: end !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-left: 0 !important;
+}
+.header-inner .header-language select{
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+}
+.header-inner .account-link,
+.header-inner .cart-count{
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  min-height: 44px !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+}
+.header-inner .account-link__name{
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+.header-inner .account-link__avatar{
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 14px !important;
+}
+.header-inner .cart-count b{
+  min-width: 24px !important;
+  height: 24px !important;
+  font-size: 13px !important;
+}
+
+/* Hàng 2: Menu điều hướng chính cực kỳ rộng rãi, to rõ ràng, hover đẹp */
+.header-inner .header-nav{
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(8px, 1.8vw, 24px) !important;
+  padding: 6px 0 2px !important;
+  border-top: 1px solid color-mix(in srgb, var(--line, #dce4dd) 60%, transparent) !important;
+  width: 100% !important;
+  overflow: visible !important;
+}
+.header-inner .header-nav a{
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  white-space: nowrap !important;
+  transition: all .2s ease !important;
+  color: var(--ink, #203229) !important;
+}
+.header-inner .header-nav a:hover{
+  background: color-mix(in srgb, var(--sage, #eef5e6) 80%, transparent) !important;
+  color: #17382c !important;
+}
+.header-inner .header-nav a[aria-current='page']{
+  font-weight: 800 !important;
+  color: #17382c !important;
+  background: var(--sage, #eef5e6) !important;
+  box-shadow: 0 2px 6px #17382c12 !important;
+}
+
+/* Khung gợi ý sản phẩm ngay dưới thanh tìm kiếm */
+.search-suggestions{
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  display: grid !important;
+  gap: 5px !important;
+  max-height: min(480px, calc(100dvh - 160px)) !important;
+  overflow-y: auto !important;
+  padding: 12px !important;
+  border: 1px solid #b8cfbb !important;
+  border-radius: 16px !important;
+  background: var(--paper, #ffffff) !important;
+  box-shadow: 0 18px 42px #17382c26 !important;
+  color: var(--ink, #203229) !important;
+  z-index: 100 !important;
+}
+.search-suggestions__heading{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 4px 8px 8px !important;
+  border-bottom: 1px solid var(--line, #e3e8e2) !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+.search-suggestions__heading small{
+  color: var(--muted, #6d776f) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+.search-suggestion{
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 8px !important;
+  border-radius: 12px !important;
+  text-decoration: none !important;
+  transition: background-color .15s ease !important;
+}
+.search-suggestion:hover,
+.search-suggestion:focus-visible{
+  background: var(--sage, #eef5e6) !important;
+  outline: 0 !important;
+}
+.search-suggestion__image{
+  display: grid !important;
+  place-items: center !important;
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 10px !important;
+  background: #f4f8f1 !important;
+  overflow: hidden !important;
+}
+.search-suggestion__image img{
+  width: 100% !important;
+  height: 100% !important;
+  padding: 4px !important;
+  object-fit: contain !important;
+}
+.search-suggestion__copy{
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 2px !important;
+}
+.search-suggestion__copy strong{
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--ink, #203229) !important;
+}
+.search-suggestion__copy small{
+  color: var(--muted, #6d776f) !important;
+  font-size: 12px !important;
+}
+.search-suggestion__arrow{
+  color: var(--accent, #17382c) !important;
+  font-size: 18px !important;
+  margin-right: 4px !important;
+}
+.search-suggestions__empty{
+  margin: 8px !important;
+  line-height: 1.5 !important;
+  color: var(--muted, #6d776f) !important;
+  font-size: 13px !important;
+}
+.search-suggestions__more{
+  display: block !important;
+  margin-top: 2px !important;
+  padding: 9px 10px !important;
+  border-top: 1px solid var(--line, #e3e8e2) !important;
+  color: var(--accent, #17382c) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  line-height: 1.4 !important;
+}
+.search-suggestions__more:hover{
+  text-decoration: underline !important;
+}
+.header-search-shell--popover{
+  width: min(760px, 100%) !important;
+  max-width: 100% !important;
+}
+.header-search-shell--popover .search-suggestions{
+  width: 100% !important;
+  top: calc(100% + 10px) !important;
+}
+:root[data-theme='dark'] .search-suggestions{
+  border-color: #5e8765 !important;
+  background: #21382a !important;
+  box-shadow: 0 18px 42px #06150b80 !important;
+  color: #eaf3eb !important;
+}
+:root[data-theme='dark'] .search-suggestion__image{
+  background: #f5faf3 !important;
+}
+
+/* Thanh lọc: ô tìm kiếm và dropdown không hover/focus viền đậm */
+.catalog-sidebar .field input[type="search"],
+.catalog-sidebar .field select,
+.catalog-filters input[type="search"],
+.catalog-filters select{
+  border: 1px solid var(--line, #dce4dd) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+.catalog-sidebar .field input[type="search"]:hover,
+.catalog-sidebar .field input[type="search"]:focus,
+.catalog-sidebar .field input[type="search"]:focus-visible,
+.catalog-sidebar .field select:hover,
+.catalog-sidebar .field select:focus,
+.catalog-sidebar .field select:focus-visible,
+.catalog-filters input[type="search"]:hover,
+.catalog-filters input[type="search"]:focus,
+.catalog-filters input[type="search"]:focus-visible,
+.catalog-filters select:hover,
+.catalog-filters select:focus,
+.catalog-filters select:focus-visible{
+  border-color: var(--line, #dce4dd) !important;
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Checkbox tùy biến màu sắc, không dùng default của HĐH */
+.catalog-checkbox{
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--ink, #203229) !important;
+  cursor: pointer !important;
+  transition: background-color .15s ease !important;
+  user-select: none !important;
+}
+.catalog-checkbox:hover{
+  background-color: color-mix(in srgb, var(--sage, #eef5e6) 65%, transparent) !important;
+}
+.catalog-checkbox input[type="checkbox"]{
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 22px !important;
+  height: 22px !important;
+  margin: 0 !important;
+  border: 2px solid #2d6a4f !important;
+  border-radius: 6px !important;
+  background-color: var(--paper, #ffffff) !important;
+  display: inline-grid !important;
+  place-content: center !important;
+  cursor: pointer !important;
+  transition: all .2s cubic-bezier(.4, 0, .2, 1) !important;
+  outline: none !important;
+  flex-shrink: 0 !important;
+}
+.catalog-checkbox input[type="checkbox"]::before{
+  content: "" !important;
+  width: 10px !important;
+  height: 10px !important;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%) !important;
+  transform: scale(0) !important;
+  transform-origin: center !important;
+  transition: 150ms transform cubic-bezier(.4, 0, .2, 1) !important;
+  background-color: #ffffff !important;
+}
+.catalog-checkbox input[type="checkbox"]:checked{
+  background-color: #2d6a4f !important;
+  border-color: #2d6a4f !important;
+  box-shadow: 0 2px 8px #2d6a4f40 !important;
+}
+.catalog-checkbox input[type="checkbox"]:checked::before{
+  transform: scale(1.1) !important;
+}
+.catalog-checkbox input[type="checkbox"]:focus-visible{
+  outline: 2px solid #52b788 !important;
+  outline-offset: 2px !important;
+}
+
+:root[data-theme='dark'] .catalog-checkbox{color: #e4eee7 !important}
+:root[data-theme='dark'] .catalog-checkbox:hover{background-color: #25392d !important}
+:root[data-theme='dark'] .catalog-checkbox input[type="checkbox"]{border-color: #52b788 !important; background-color: #1a2c22 !important}
+:root[data-theme='dark'] .catalog-checkbox input[type="checkbox"]:checked{background-color: #52b788 !important; border-color: #52b788 !important; box-shadow: 0 2px 8px #52b78850 !important}
+:root[data-theme='dark'] .catalog-checkbox input[type="checkbox"]:checked::before{background-color: #0f1c14 !important}
+
+/* Responsive tinh chỉnh trên máy tính bảng và điện thoại */
+@media(max-width: 960px){
+  .site-header .header-inner{
+    grid-template-columns: auto auto !important;
+    grid-template-rows: auto !important;
+    min-height: 76px !important;
+    padding: 10px 0 !important;
+  }
+  .header-inner .header-search-shell:not(.header-search-shell--popover){
+    display: none !important;
+  }
+  .header-inner .header-actions{
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    gap: 8px !important;
+  }
+  .header-inner .header-search-trigger,
+  .header-inner .header-menu-trigger{
+    display: grid !important;
+  }
+  .header-inner .header-nav{
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    display: none !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
+    padding: 12px 16px !important;
+    border-top: 1px solid var(--line, #dce4dd) !important;
+    background: var(--paper, #fff) !important;
+    box-shadow: 0 18px 36px #09201426 !important;
+  }
+  .header-inner .header-nav.is-open{
+    display: flex !important;
+  }
+  .header-inner .header-nav a{
+    font-size: 15px !important;
+    min-height: 44px !important;
+    padding: 10px 14px !important;
+  }
+  .header-search-popover{min-height: 56px !important}
+}
+@media(max-width: 560px){
+  .site-header .header-inner{min-height: 68px !important}
+  .header-inner .brand__word{font-size: 28px !important}
+  .header-inner .header-actions{gap: 4px !important}
+  .header-inner .header-nav a{font-size: 14px !important}
+  .header-search-popover input{font-size: 15px !important}
+  .search-suggestion__copy strong{font-size: 13px !important}
+}
