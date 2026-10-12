@@ -124,7 +124,8 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
     setChallengeId('')
     setView(nextView)
     const queryString = '?next=' + encodeURIComponent(next)
-    window.history.replaceState({}, '', (nextView === 'register' ? '/register' : '/login') + queryString)
+    const path = nextView === 'register' ? '/register' : nextView === 'forgot' ? '/forgot-password' : nextView === 'reset' ? '/reset-password' : '/login'
+    window.history.replaceState({}, '', path + queryString)
   }
 
   function showValidation(event) {
@@ -169,9 +170,9 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
         {view === 'forgot' && <label>{english ? 'Local account email' : 'Email tài khoản cục bộ'}<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
         {view === 'reset' && <><label>Token từ email<input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="token" /></label><label>Mật khẩu mới<input name="newPassword" type="password" autoComplete="new-password" minLength="8" required /></label></>}
         {view !== 'forgot' && view !== 'reset' && <label>{english ? 'Password' : 'Mật khẩu'}<input name="password" type="password" autoComplete={view === 'register' ? 'new-password' : 'current-password'} minLength="8" required placeholder={english ? 'At least 8 characters' : 'Ít nhất 8 ký tự'} /></label>}
-        {view === 'login' && <a className="auth-forgot" href="/forgot-password">{english ? 'Forgot password?' : 'Quên mật khẩu?'}</a>}
-        {view === 'forgot' && <a className="auth-forgot" href="/login">Về đăng nhập</a>}
-        {view === 'reset' && <a className="auth-forgot" href="/forgot-password">Gửi lại link</a>}
+        {view === 'login' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>{english ? 'Forgot password?' : 'Quên mật khẩu?'}</a>}
+        {view === 'forgot' && <a className="auth-forgot" href={'/login?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('login') }}>{english ? 'Back to sign in' : 'Về đăng nhập'}</a>}
+        {view === 'reset' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>{english ? 'Resend link' : 'Gửi lại link'}</a>}
         <button type="submit" disabled={busy}>{busy ? 'Đang xử lý…' : view === 'register' ? 'Tạo tài khoản' : view === 'forgot' ? 'Gửi link đặt lại' : view === 'reset' ? 'Đổi mật khẩu' : 'Đăng nhập'}</button>
         {error && <p className="auth-error" role="alert">{error}</p>}
         {message && <p className="auth-message" role="status">{message}</p>}

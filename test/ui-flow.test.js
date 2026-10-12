@@ -211,6 +211,7 @@ test('header search suggestions show under search bar with images and more link,
     assert.ok(items.length > 0 && items.length <= 5)
     assert.ok(items[0].querySelector('img'))
     assert.ok(items[0].querySelector('strong'))
+    assert.match(items[0].querySelector('small').textContent, /₫/)
     const moreLink = suggestions.querySelector('.search-suggestions__more')
     assert.ok(moreLink)
     assert.match(moreLink.textContent, /còn/)
@@ -226,6 +227,14 @@ test('header search suggestions show under search bar with images and more link,
     tabs[1].click()
     await waitFor(() => Boolean(window.document.querySelector('input[name="email"]')))
     assert.match(window.document.querySelector('.auth-tabs button.is-active').textContent, /Đăng ký/)
+
+    // Bấm chuyển sang Quên mật khẩu
+    tabs[0].click()
+    await waitFor(() => Boolean(window.document.querySelector('.auth-forgot')))
+    const forgotLink = window.document.querySelector('.auth-forgot')
+    forgotLink.click()
+    await waitFor(() => Boolean(window.document.querySelector('button[type="submit"]')) && window.document.querySelector('button[type="submit"]').textContent.includes('Gửi link'))
+    assert.match(window.document.querySelector('h1').textContent, /Quên mật khẩu/)
   } finally { window.close() }
 })
 

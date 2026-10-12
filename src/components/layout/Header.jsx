@@ -10,6 +10,7 @@ import { getMembershipPlan } from '../../storefront/promotions'
 import './Header.css'
 
 const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
+const currencyFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
 function SearchSuggestions({ items, query, onSelect, id }) {
   const normalizedQuery = query.trim().toLowerCase()
@@ -31,11 +32,11 @@ function SearchSuggestions({ items, query, onSelect, id }) {
       const image = product.image || fallbackPictures[product.id]
       return <a key={product.id} className="search-suggestion" href={'/products/' + encodeURIComponent(product.id)} role="option" onClick={onSelect}>
         <span className="search-suggestion__image">{image ? <img src={image.startsWith('/') || image.startsWith('http') ? image : '/products/' + image + '.svg'} alt="" loading="lazy" /> : <span aria-hidden="true">{product.symbol || '✦'}</span>}</span>
-        <span className="search-suggestion__copy"><strong>{product.name}</strong><small>{product.category || 'Sản phẩm Store'}</small></span>
+        <span className="search-suggestion__copy"><strong>{product.name}</strong><small>{product.category || 'Sản phẩm Store'}{product.price ? ` · ${currencyFormat.format(product.price)}` : ''}</small></span>
         <span className="search-suggestion__arrow" aria-hidden="true">↗</span>
       </a>
     }) : <p className="search-suggestions__empty">Chưa có sản phẩm phù hợp. Thử từ khóa khác.</p>}
-    {remainingCount > 0 && <a href={'/products?q=' + encodeURIComponent(query.trim())} className="search-suggestions__more" onClick={onSelect}>
+    {remainingCount > 0 && <a href={query.trim() ? '/products?q=' + encodeURIComponent(query.trim()) : '/products'} className="search-suggestions__more" onClick={onSelect}>
       ... còn {remainingCount} sản phẩm nữa. Nhấn Enter để xem toàn bộ kết quả →
     </a>}
   </div>
@@ -117,15 +118,17 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
     if (!suggestionsOpen) return undefined
     const closeSuggestions = (event) => {
       if (event.key === 'Escape') setSuggestionsOpen(false)
-      if (event.type === 'pointerdown' && !searchShellRef.current?.contains(event.target)) {
+      if ((event.type === 'pointerdown' || event.type === 'focusin') && !searchShellRef.current?.contains(event.target)) {
         setSuggestionsOpen(false)
       }
     }
     document.addEventListener('keydown', closeSuggestions)
     document.addEventListener('pointerdown', closeSuggestions)
+    document.addEventListener('focusin', closeSuggestions)
     return () => {
       document.removeEventListener('keydown', closeSuggestions)
       document.removeEventListener('pointerdown', closeSuggestions)
+      document.removeEventListener('focusin', closeSuggestions)
     }
   }, [suggestionsOpen])
 
