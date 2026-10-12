@@ -1,0 +1,32 @@
+.checkout-order-return {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px;
+  border-radius: 20px;
+}
+
+.checkout-order-return h2 {
+  overflow-wrap: anywhere;
+}
+
+.checkout-order-return__notice {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--sage);
+  line-height: 1.6;
+}
+
+.checkout-order-return__items {
+  margin: 20px 0;
+}
+
+@media (max-width: 680px) {
+  .checkout-order-return {
+    padding: 18px;
+  }
+
+  .checkout-order-return .commerce-facts {
+    grid-template-columns: 1fr;
+  }
+}

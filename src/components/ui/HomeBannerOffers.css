@@ -1,0 +1,148 @@
+.home-banner-offer {
+  --banner-ink: #25466a;
+  --banner-muted: #496780;
+  --banner-price: #285c91;
+  border-color: #d0deeb;
+  background: linear-gradient(145deg, #eef6fc, #dce8f5);
+}
+
+.home-banner-offer--home {
+  --banner-ink: #64452f;
+  --banner-muted: #795d43;
+  --banner-price: #936137;
+  border-color: #e5d6bb;
+  background: linear-gradient(145deg, #fcf4e7, #efdfc6);
+}
+
+.home-banner-offer--wheel {
+  --banner-ink: #63461d;
+  --banner-muted: #785c32;
+  --banner-price: #8b5a1b;
+  border-color: #e6cc93;
+  background: linear-gradient(145deg, #fff3d0, #f4dfaa);
+}
+
+.home-banner-offer--shipping {
+  --banner-ink: #33523a;
+  --banner-muted: #536b4f;
+  --banner-price: #345e41;
+  border-color: #cedcc0;
+  background: linear-gradient(145deg, #f1f5e9, #dce6d0);
+}
+
+.home-banner-offer__visual {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.home-banner-offer__label {
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--banner-muted);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: .8px;
+}
+
+.home-banner-offer__visual .home-side-banner__art {
+  flex: 1 1 auto;
+  min-height: 150px;
+  max-height: 340px;
+}
+
+.home-banner-offer h3 {
+  margin: 0;
+  color: var(--banner-ink);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.7px;
+  text-wrap: balance;
+}
+
+.home-banner-offer__note {
+  margin: 0;
+  color: var(--banner-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.home-banner-offer__action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 8px;
+  min-height: 44px;
+  padding: 11px 12px;
+  border: 1px solid color-mix(in srgb, var(--banner-ink) 25%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--banner-ink) 5%, transparent);
+  color: var(--banner-ink);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.home-banner-offer:hover .home-banner-offer__action {
+  background: color-mix(in srgb, var(--banner-ink) 12%, transparent);
+}
+
+:root[data-theme='dark'] .home-banner-offer--tech {
+  --banner-ink: #e1eefb;
+  --banner-muted: #b7d0e8;
+  --banner-price: #a6d0fc;
+  border-color: #395d7d;
+  background: linear-gradient(145deg, #274966, #1c364e);
+}
+
+:root[data-theme='dark'] .home-banner-offer--home {
+  --banner-ink: #f4e6d4;
+  --banner-muted: #dac4a6;
+  --banner-price: #e5b974;
+  border-color: #73583d;
+  background: linear-gradient(145deg, #584630, #403426);
+}
+
+:root[data-theme='dark'] .home-banner-offer--wheel {
+  --banner-ink: #fff0cb;
+  --banner-muted: #e6d09e;
+  --banner-price: #f3cb75;
+  border-color: #786334;
+  background: linear-gradient(145deg, #5c4a23, #40351f);
+}
+
+:root[data-theme='dark'] .home-banner-offer--shipping {
+  --banner-ink: #e2efda;
+  --banner-muted: #bdd1b4;
+  --banner-price: #c1dca9;
+  border-color: #496347;
+  background: linear-gradient(145deg, #3b5236, #293e2b);
+}
+
+@container home-banners (max-width: 230px) {
+  .home-banner-offer__visual {
+    gap: 11px;
+  }
+
+  .home-banner-offer__label {
+    font-size: 9px;
+  }
+
+  .home-banner-offer h3 {
+    font-size: 25px;
+  }
+
+  .home-banner-offer__note {
+    font-size: 12px;
+  }
+
+  .home-banner-offer__action {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,6 @@
+.lucky-wheel__disc .lucky-wheel__labels .lucky-wheel__prize,
+.lucky-wheel__disc .lucky-wheel__labels .lucky-wheel__caption {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+}

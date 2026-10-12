@@ -2,7 +2,8 @@
 
 ## Hai ứng dụng độc lập
 Store: npm run build -> dist, frontend khách trên static host.
-Store-Admin: npm run dev (5174); npm run dev:api (3001, loopback). Không upload dự án admin, database, server, ai hoặc .env lên static host.
+Store Admin mới: frontend chạy npm run dev (5174); backend chạy F5 từ solution Visual Studio (3010, loopback).
+Không upload dự án admin, database, server, ai hoặc .env lên static host.
 
 ## Kết nối production đề xuất
 Trình duyệt khách -> https://shop.example/api/support/... -> reverse proxy cùng origin trên cloud -> tunnel HTTPS có xác thực -> backend local.

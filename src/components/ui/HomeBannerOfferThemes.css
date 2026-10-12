@@ -1,0 +1,99 @@
+.home-banner-offer:is(
+  .home-banner-offer--electronics,
+  .home-banner-offer--components,
+  .home-banner-offer--orders,
+  .home-banner-offer--contact
+) {
+  --banner-ink: #304f69;
+  --banner-muted: #4e687d;
+  --banner-price: #355f86;
+  border-color: #c6d7e4;
+  background: linear-gradient(145deg, #edf4f9, #d8e7ee);
+}
+
+.home-banner-offer:is(
+  .home-banner-offer--fashion,
+  .home-banner-offer--beauty,
+  .home-banner-offer--favorites
+) {
+  --banner-ink: #724357;
+  --banner-muted: #805b6a;
+  --banner-price: #91536b;
+  border-color: #e3cbd3;
+  background: linear-gradient(145deg, #fbf0f0, #f0dce1);
+}
+
+.home-banner-offer:is(
+  .home-banner-offer--jewelry,
+  .home-banner-offer--popular,
+  .home-banner-offer--points,
+  .home-banner-offer--sale
+) {
+  --banner-ink: #6c4c29;
+  --banner-muted: #7f6545;
+  --banner-price: #8b612d;
+  border-color: #e1cead;
+  background: linear-gradient(145deg, #fbf3e1, #eddfc1);
+}
+
+.home-banner-offer:is(
+  .home-banner-offer--design,
+  .home-banner-offer--wallet,
+  .home-banner-offer--cart
+) {
+  --banner-ink: #3e5c42;
+  --banner-muted: #597153;
+  --banner-price: #446943;
+  border-color: #cbdac1;
+  background: linear-gradient(145deg, #f0f5e9, #dde9d2);
+}
+
+:root[data-theme='dark'] .home-banner-offer:is(
+  .home-banner-offer--electronics,
+  .home-banner-offer--components,
+  .home-banner-offer--orders,
+  .home-banner-offer--contact
+) {
+  --banner-ink: #e0edf6;
+  --banner-muted: #b7cddd;
+  --banner-price: #a8cee9;
+  border-color: #416076;
+  background: linear-gradient(145deg, #304d61, #243c4c);
+}
+
+:root[data-theme='dark'] .home-banner-offer:is(
+  .home-banner-offer--fashion,
+  .home-banner-offer--beauty,
+  .home-banner-offer--favorites
+) {
+  --banner-ink: #f7e4e9;
+  --banner-muted: #dec0ca;
+  --banner-price: #ecc0d0;
+  border-color: #7b5466;
+  background: linear-gradient(145deg, #624252, #49323e);
+}
+
+:root[data-theme='dark'] .home-banner-offer:is(
+  .home-banner-offer--jewelry,
+  .home-banner-offer--popular,
+  .home-banner-offer--points,
+  .home-banner-offer--sale
+) {
+  --banner-ink: #f9ecd1;
+  --banner-muted: #dfcba5;
+  --banner-price: #edcc88;
+  border-color: #796343;
+  background: linear-gradient(145deg, #5c4c32, #423724);
+}
+
+:root[data-theme='dark'] .home-banner-offer:is(
+  .home-banner-offer--design,
+  .home-banner-offer--wallet,
+  .home-banner-offer--cart
+) {
+  --banner-ink: #e4efdd;
+  --banner-muted: #c0d1b8;
+  --banner-price: #c7dfb7;
+  border-color: #516b49;
+  background: linear-gradient(145deg, #40583b, #2d412c);
+}

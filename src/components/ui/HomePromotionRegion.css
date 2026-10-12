@@ -10,40 +10,80 @@
   scroll-margin-top: calc(var(--store-header-height, 72px) + 24px);
 }
 
-@media (min-width: 1680px) {
-  /* Hai cột thuộc vùng đầu trang; sticky tự dừng trước phần giảm giá. */
+@media (min-width: 1360px) and (min-height: 720px) {
+  .site-frame:has(.home-promotion-region) {
+    --home-banner-width: clamp(190px, calc((100vw - 1240px) / 2 - 36px), 300px);
+    --home-banner-gap: 20px;
+    --home-banner-edge: 16px;
+    --home-content-width: min(
+      1240px,
+      calc(100% - 2 * (var(--home-banner-width) + var(--home-banner-gap) + var(--home-banner-edge)))
+    );
+  }
+
   .home-promotion-region {
-    display: grid;
-    grid-template-columns: minmax(160px, 220px) minmax(0, 1240px) minmax(160px, 220px);
-    gap: 24px;
-    justify-content: center;
-    width: min(1780px, calc(100% - 40px));
+    position: relative;
+    width: var(--home-content-width);
     margin-inline: auto;
     padding-bottom: 32px;
-    align-items: start;
   }
 
   .home-promotion-region__body .container {
     width: 100%;
   }
 
-  .home-promotion-rail {
-    display: block;
-    position: sticky;
-    top: calc(var(--store-header-height, 72px) + 20px);
-    align-self: start;
-    min-width: 0;
-    margin-top: 28px;
+  .home-promotion-region__body {
+    container: home-ad-content / inline-size;
   }
 
-  .home-promotion-region__body .home-product-row {
+  .site-frame:has(.home-promotion-region) .store-promo-notice {
+    width: var(--home-content-width);
+  }
+
+  /* Hai vùng quảng cáo riêng: phần đầu và khu danh mục, cuộn cùng nội dung. */
+  .home-promotion-rail {
+    --home-rail-height: 100%;
+    display: block;
+    position: absolute;
+    z-index: 15;
+    top: 0;
+    bottom: 32px;
+    width: var(--home-banner-width);
+    min-width: 0;
+  }
+
+  .home-promotion-rail--left {
+    left: calc(-1 * (var(--home-banner-width) + var(--home-banner-gap)));
+  }
+
+  .home-promotion-rail--right {
+    right: calc(-1 * (var(--home-banner-width) + var(--home-banner-gap)));
+  }
+
+  .home-promotion-region--intro .home-product-row,
+  .home-promotion-region--catalog .home-product-row:last-child {
     margin-bottom: 0;
+  }
+
+  .home-promotion-region--catalog .home-section--sale {
+    margin-inline: 0 !important;
+    padding: 28px 18px 34px !important;
+    border-radius: 18px !important;
+  }
+
+  @container home-ad-content (max-width: 1050px) {
+    .home-promotion-region .home-row-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+
+    .home-promotion-region .home-row-grid > .product-card:nth-child(n+5) {
+      display: none;
+    }
   }
 }
 
 @media print {
   .home-promotion-region {
-    display: block;
     width: 100%;
     padding: 0;
   }

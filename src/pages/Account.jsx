@@ -1,4 +1,5 @@
 import { CustomerOrders } from '../components/commerce/OrderCenter'
+import PaymentNotifications from '../components/commerce/PaymentNotifications.jsx'
 /**
  * @codex-vn-doc
  * Tệp: src/pages/Account.jsx
@@ -19,7 +20,8 @@ function safeDate(value) {
   return Number.isNaN(parsed.getTime()) ? 'Chưa xác định ngày' : date.format(parsed)
 }
 
-export default function Account({ account, orders = [], membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [], onToggleVoucher, onLogout, onRefresh }) {
+export default function Account({ account, orders = [], membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [],
+  onToggleVoucher, onLogout, onRefresh, onPaymentComplete, onNavigate }) {
   const [orderQuery, setOrderQuery] = useState('')
   const [security, setSecurity] = useState(null)
   const [qr, setQr] = useState(null)
@@ -91,6 +93,7 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
 
     <div className="account-shortcuts account-shortcuts--redesign"><a href="/favorites"><span aria-hidden="true">♥</span><b>Yêu thích</b><small>Sản phẩm đã lưu <i aria-hidden="true">→</i></small></a><a href="/membership"><span aria-hidden="true">✦</span><b>Thành viên</b><small>Hạng {plan.name} <i aria-hidden="true">→</i></small></a><a href="/rewards"><span aria-hidden="true">◌</span><b>Vòng quay</b><small>{spinCredits} lượt còn lại <i aria-hidden="true">→</i></small></a></div>
 
+    <PaymentNotifications orders={orders} />
     <main className="account-content-grid">
       <section className="surface account-wallet account-wallet--redesign"><div className="account-orders__head"><div><p className="eyebrow">Dành cho bạn</p><h2>Kho voucher</h2></div><a href="/rewards">Nhận thêm từ vòng quay →</a></div>
         {wallet.length ? <div className="account-voucher-grid">{wallet.map((voucher) => <article key={voucher.code} className={selectedVoucherCodes.includes(voucher.code) ? 'is-selected' : ''}>
@@ -103,7 +106,7 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
 
     <section className="surface account-orders account-orders--redesign"><div className="account-orders__head"><div><p className="eyebrow">Lịch sử đơn hàng</p><h2>Đơn hàng của bạn</h2></div><span>{orders.length} đơn</span></div>
       {orders.length > 0 && <div className="account-order-toolbar"><label className="field"><span>Tìm đơn</span><input type="search" value={orderQuery} onChange={(event) => setOrderQuery(event.target.value)} placeholder="Mã đơn, trạng thái…" /></label><span>{visibleOrders.length}/{orders.length} kết quả</span></div>}
-      {orders.length === 0 ? <div className="account-empty-state"><span aria-hidden="true">▱</span><div><strong>Chưa có đơn hàng</strong><p className="muted">Đơn hàng sau khi đặt sẽ được lưu tại đây.</p></div><a href="/products">Khám phá sản phẩm →</a></div> : visibleOrders.length === 0 ? <p className="account-empty-state__message">Không tìm thấy đơn phù hợp.</p> : <CustomerOrders key={account.id} orders={visibleOrders} account={account} onRefresh={onRefresh} />}
+      {orders.length === 0 ? <div className="account-empty-state"><span aria-hidden="true">▱</span><div><strong>Chưa có đơn hàng</strong><p className="muted">Đơn hàng sau khi đặt sẽ được lưu tại đây.</p></div><a href="/products">Khám phá sản phẩm →</a></div> : visibleOrders.length === 0 ? <p className="account-empty-state__message">Không tìm thấy đơn phù hợp.</p> : <CustomerOrders key={account.id} orders={visibleOrders} account={account} onRefresh={onRefresh} onPaymentComplete={onPaymentComplete} onNavigate={onNavigate} />}
     </section>
 
     <section className="surface account-orders account-orders--redesign"><div className="account-orders__head"><div><p className="eyebrow">Bao mat</p><h2>Google va xac thuc 2 lop</h2></div><span>{security?.twoFactorEnabled ? '2FA: Bat' : '2FA: Tat'} · Google: {security?.googleLinked ? 'Da lien ket' : 'Chua'} · Backup: {security?.backupCodesLeft ?? 0}</span></div>

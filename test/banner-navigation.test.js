@@ -43,7 +43,7 @@ test('neo banner tới khu giảm giá không bị khôi phục vị trí cuộn
   try {
     await waitFor(() => window.document.querySelector('.home-side-banner__action'))
     window.scrollY = 320
-    window.document.querySelector('.home-side-banner--store .home-side-banner__action').click()
+    window.document.querySelector('.home-side-banner--store h2').click()
     await waitFor(() => window.location.hash === '#home-sale-products')
     // Chờ popstate và hai animation frame mà cơ chế khôi phục cuộn cũ từng sử dụng.
     await new Promise(resolve => setTimeout(resolve, 80))

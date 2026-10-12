@@ -8,6 +8,8 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { customerApi } from '../api/customer'
+import { userMessage } from '../api/userMessages'
+import RewardWheelLabels from '../components/ui/RewardWheelLabels'
 import { getMembershipPlan } from '../storefront/promotions'
 import { landingRotation, rewardSectors, sectorPath, sectorResult } from '../storefront/rewardWheel'
 import './Storefront.css'
@@ -76,7 +78,11 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
       setDuration(milliseconds)
       setRotation((current) => ({ ...current, [wheel]: landingRotation(current[wheel], sector.id, sectors.length) }))
       timer.current = setTimeout(finish, milliseconds === 0 ? 0 : milliseconds + 100)
-    } catch (failure) { setError(failure.message); setSpinning(null); spinGate.current = false }
+    } catch (failure) {
+      setError(userMessage(failure, 'Chưa quay được vòng quay. Vui lòng thử lại.'))
+      setSpinning(null)
+      spinGate.current = false
+    }
   }
 
   // Chức năng closeResult: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
@@ -99,10 +105,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
             onTransitionEnd={(event) => { if (event.target === event.currentTarget && event.propertyName === 'transform') finish() }}>
             {sectors.map((sector, index) => <g key={sector.id}>
               <path d={sectorPath(index, sectors.length)} fill={sector.color} stroke="#fffdf7" strokeWidth="2" />
-              <g transform={'rotate(' + (index + .5) * 360 / sectors.length + ' 180 180)'}>
-                <text x="180" y="59" textAnchor="middle" className="lucky-wheel__prize">{sector.short}</text>
-                <text x="180" y="73" textAnchor="middle" className="lucky-wheel__caption">{sector.kind === 'none' ? 'MAY MẮN' : 'VOUCHER'}</text>
-              </g>
+              <RewardWheelLabels sector={sector} index={index} count={sectors.length} />
             </g>)}
             <circle cx="180" cy="180" r="32" fill="#254535" stroke="#fffdf7" strokeWidth="5" />
           </svg><span className="lucky-wheel__hub" aria-hidden="true">store.</span>
