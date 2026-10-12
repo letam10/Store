@@ -208,7 +208,7 @@ test('header search suggestions show under search bar with images and more link,
     const suggestions = window.document.querySelector('#header-inline-suggestions')
     assert.ok(suggestions)
     const items = suggestions.querySelectorAll('.search-suggestion')
-    assert.ok(items.length > 0 && items.length <= 5)
+    assert.ok(items.length > 0 && items.length <= 10)
     assert.ok(items[0].querySelector('img'))
     assert.ok(items[0].querySelector('strong'))
     assert.match(items[0].querySelector('small').textContent, /₫/)

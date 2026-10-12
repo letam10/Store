@@ -19,7 +19,7 @@ function SearchSuggestions({ items, query, onSelect, id }) {
     if (!normalizedQuery) return true
     return `${product.name} ${product.category || ''}`.toLowerCase().includes(normalizedQuery)
   })
-  const limit = 5
+  const limit = 10
   const matches = allMatches.slice(0, limit)
   const remainingCount = allMatches.length - matches.length
 

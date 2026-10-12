@@ -1,5 +1,10 @@
-/* Customer-only design system. All routes share these readable sizes and surfaces. */
-:root { --ink: #253a31; --paper: #faf9f6; --sage: #e5ebdf; --line: #dedfd6; --accent: #234737; color: var(--ink); background: var(--paper); }
+/*
+  FILE NOTE
+  - Mục đích: Hệ thống thiết kế cơ bản cho khách hàng: kích thước, khoảng cách, biến giao diện màu sắc tươi mới.
+  - Liên kết trực tiếp: src/App.jsx, src/storefront/updates.css, src/storefront/polish.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ layout, màu nền, nút bấm, font chữ và thẻ sản phẩm trên storefront.
+*/
+:root { --ink: #0f172a; --paper: #f8fafc; --sage: #f1f5f9; --line: #cbd5e1; --accent: #4f46e5; color: var(--ink); background: var(--paper); }
 body { background: var(--paper); }
 .container { width: min(1240px, calc(100% - 64px)); }
 button, input, select, textarea { font-size: 15px; }
