@@ -7,9 +7,10 @@
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import { apiEndpoint, apiCredentials } from './endpoint.js'
+import { apiErrorMessage, userMessage } from './userMessages.js'
 export class ApiStreamError extends Error {
   constructor(message, code = 'API_ERROR', extra = {}) {
-    super(message)
+    super(userMessage({ code, message }))
     this.name = 'ApiStreamError'
     this.code = code
     Object.assign(this, extra)
@@ -20,16 +21,27 @@ export class ApiStreamError extends Error {
 async function readError(response) {
   try {
     const body = await response.json()
-    return new ApiStreamError(body.message || 'Yêu cầu API thất bại.', body.error || 'API_ERROR')
-  } catch {
-    return new ApiStreamError('Yêu cầu API thất bại với HTTP ' + response.status, 'HTTP_' + response.status)
+    return new ApiStreamError(apiErrorMessage(body, response.status), body?.error || 'API_ERROR')
+  } catch (error) {
+    if (error.name === 'AbortError') throw error
+    if (error.name === 'TimeoutError') return new ApiStreamError(userMessage(error), 'TIMEOUT')
+    return new ApiStreamError(apiErrorMessage({}, response.status), 'HTTP_' + response.status)
+  }
+}
+
+async function fetchLocalized(url, options) {
+  try {
+    return await fetch(url, options)
+  } catch (error) {
+    if (error.name === 'AbortError') throw error
+    throw new ApiStreamError(userMessage(error), error.code)
   }
 }
 
 // Chức năng apiJson: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export async function apiJson(url, options = {}) {
   // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-  const response = await fetch(apiEndpoint(url), {
+  const response = await fetchLocalized(apiEndpoint(url), {
     credentials: apiCredentials,
     ...options,
     headers: {
@@ -39,7 +51,12 @@ export async function apiJson(url, options = {}) {
   })
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   if (!response.ok) throw await readError(response)
-  return response.json()
+  try {
+    return await response.json()
+  } catch (error) {
+    if (error.name === 'AbortError') throw error
+    throw new ApiStreamError(userMessage(error), error.code)
+  }
 }
 
 // Chức năng validateEvent: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
@@ -71,7 +88,7 @@ export async function streamChat({
   onEvent,
 }) {
   // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-  const response = await fetch(apiEndpoint(endpoint), {
+  const response = await fetchLocalized(apiEndpoint(endpoint), {
     method: 'POST',
     credentials: apiCredentials,
     signal,
@@ -111,11 +128,12 @@ export async function streamChat({
     }
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (terminalReceived) throw new ApiStreamError('Backend gửi event sau done.', 'BAD_STREAM')
+    if (event.type === 'error') event.message = apiErrorMessage(event)
     onEvent?.(event)
     if (event.type === 'done') terminalReceived = true
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (event.type === 'error') {
-      throw new ApiStreamError(event.message || 'AI local không thể trả lời.', event.code, {
+      throw new ApiStreamError(event.message, event.code, {
         incomplete: Boolean(event.incomplete || event.partial),
       })
     }
@@ -139,6 +157,9 @@ export async function streamChat({
     if (!terminalReceived) {
       throw new ApiStreamError('Kết nối kết thúc trước event done.', 'INCOMPLETE_STREAM', { incomplete: true })
     }
+  } catch (error) {
+    if (error.name === 'AbortError' || error instanceof ApiStreamError) throw error
+    throw new ApiStreamError(userMessage(error), error.code, { incomplete: true })
   } finally {
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!cleanEof || !terminalReceived || signal?.aborted) {

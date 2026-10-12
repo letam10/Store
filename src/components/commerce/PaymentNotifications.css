@@ -1,0 +1,67 @@
+.account-payment-notifications {
+  margin-top: 20px;
+  padding: 26px;
+  border-radius: 20px;
+}
+
+.account-payment-notifications header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.account-payment-notifications h2 {
+  margin: 4px 0;
+}
+
+.account-payment-notifications header > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.account-payment-notifications ul {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 20px 0 0;
+  list-style: none;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.account-payment-notifications li {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--sage);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+.account-payment-notifications__icon {
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  height: 28px;
+  background: var(--surface);
+  border-radius: 50%;
+}
+
+.account-payment-notifications p {
+  margin: 6px 0;
+  line-height: 1.55;
+}
+
+.account-payment-notifications small {
+  color: var(--muted);
+}
+
+@media (max-width: 680px) {
+  .account-payment-notifications {
+    padding: 18px;
+  }
+}

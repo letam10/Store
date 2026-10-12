@@ -65,7 +65,7 @@ export default function Home({
   const sale = products.filter((product) => product.discountPercent > 0 && product.stockCount !== 0)
 
   return <>
-    <HomePromotionRegion overview={promotionOverview} account={account}>
+    <HomePromotionRegion overview={promotionOverview} account={account} products={products}>
       <section className="shop-hero container">
         <div className="shop-hero-copy">
           <p className="eyebrow">{appearance.bannerLabel || 'STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY'}</p>
@@ -91,9 +91,31 @@ export default function Home({
         <ProductRow title="Sản phẩm nổi bật" subtitle="TOP 20 ĐƯỢC XEM NHIỀU NHẤT" products={featured} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?featured=1&sort=popular" />
       </div>
     </HomePromotionRegion>
+    <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="catalog">
+      <div className="container home-catalog">
+        <ProductRow
+          title="Đang giảm giá"
+          subtitle="ƯU ĐÃI TỪ QUẢN TRỊ"
+          products={sale}
+          onAddToCart={onAddToCart}
+          favoriteIds={favoriteIds}
+          onToggleFavorite={onToggleFavorite}
+          link="/products?discount=1&sort=discount"
+          sale
+        />
+        {rows.map(({ category, subtitle }) => <ProductRow
+          key={category}
+          title={category}
+          subtitle={subtitle}
+          products={products.filter(product => product.category === category && product.stockCount !== 0)}
+          onAddToCart={onAddToCart}
+          favoriteIds={favoriteIds}
+          onToggleFavorite={onToggleFavorite}
+          link={'/products?category=' + encodeURIComponent(category)}
+        />)}
+      </div>
+    </HomePromotionRegion>
     <div className="container home-catalog">
-      <ProductRow title="Đang giảm giá" subtitle="ƯU ĐÃI TỪ QUẢN TRỊ" products={sale} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?discount=1&sort=discount" sale />
-      {rows.map(({ category, subtitle }) => <ProductRow key={category} title={category} subtitle={subtitle} products={products.filter((product) => product.category === category && product.stockCount !== 0)} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link={'/products?category=' + encodeURIComponent(category)} />)}
       <section className="member-links" aria-label="Khám phá thêm">
         <a href="/membership"><span>01 — THÀNH VIÊN STORE</span><h2>Thêm quyền lợi.<br />Thêm niềm vui.</h2><p>Khám phá bốn hạng thành viên tích điểm.</p><b>Xem thành viên ↗</b></a>
         <a href="/rewards"><span>02 — STORE LUCKY</span><h2>Một vòng quay,<br />một bất ngờ nhỏ.</h2><p>Dùng lượt quay đã tích để nhận voucher.</p><b>Đến vòng quay ↗</b></a>

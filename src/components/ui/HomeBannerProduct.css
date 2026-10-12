@@ -1,0 +1,63 @@
+.home-banner-offer__product-art {
+  display: grid;
+  flex: 1 1 auto;
+  place-items: center;
+  min-height: 150px;
+  max-height: 360px;
+  padding: 12px;
+  border: 1px solid #ffffff40;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.home-banner-offer__product-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+
+.home-banner-offer__product-caption {
+  display: grid;
+  flex-shrink: 0;
+  gap: 5px;
+}
+
+.home-banner-offer__product-caption span {
+  color: var(--banner-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .7px;
+}
+
+.home-banner-offer__product-caption strong {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--banner-ink);
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.home-banner-offer__product-caption b {
+  color: var(--banner-price);
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+@container home-banners (max-width: 230px) {
+  .home-banner-offer__product-art {
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .home-banner-offer__product-caption strong {
+    font-size: 11px;
+  }
+
+  .home-banner-offer__product-caption b {
+    font-size: 16px;
+  }
+}

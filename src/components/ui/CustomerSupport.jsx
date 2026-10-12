@@ -8,6 +8,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../../api/chat'
+import { userMessage } from '../../api/userMessages'
 import { createRequestGate } from '../../api/requestGate'
 import { applyRestore, createRestoreGuard } from './customerSupportState'
 import './CustomerSupport.css'
@@ -156,7 +157,8 @@ export default function CustomerSupport({ account, onRequireLogin }) {
             setConversationId(event.conversationId)
             localStorage.setItem(STORAGE_KEY, event.conversationId)
           } else if (event.type === 'status') {
-            setActivity(event.label || '')
+            const activities = { queued: 'Đang xếp hàng', waiting: 'Đang chờ AI', generating: 'Đang trả lời' }
+            setActivity(activities[event.status] || 'Đang xử lý')
           } else if (event.type === 'delta') {
             updateMessage(resolvedAssistantId, (message) => ({ ...message, content: message.content + event.content }))
           } else if (event.type === 'verified') {
@@ -178,7 +180,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
         updateMessage(resolvedAssistantId, (message) => ({
           ...message,
           status: error.incomplete ? 'incomplete' : 'error',
-          error: error.message || 'Không thể nhận câu trả lời.',
+          error: userMessage(error, 'Không thể nhận câu trả lời.'),
           retryContent: clean,
           requestId: resolvedRequestId,
         }))
@@ -236,7 +238,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
       <button className="customer-support__to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} title="Lên đầu trang" aria-label="Lên đầu trang ngay">↑</button>
       <button ref={toggleRef} className="customer-support__toggle" type="button" aria-label={isOpen ? 'Thu gọn hỗ trợ khách hàng' : 'Mở hỗ trợ khách hàng'} aria-expanded={isOpen} aria-controls="store-support-panel" onClick={() => { if (!account) onRequireLogin?.(); else setIsOpen((previous) => !previous) }}>
         <span className="customer-support__icon"><SupportIcon /></span>
-        <span className="customer-support__heading"><strong>Hỗ trợ khách hàng</strong><span>AI local của Store</span></span>
+        <span className="customer-support__heading"><strong>Hỗ trợ khách hàng</strong><span>Trợ lý AI của Store</span></span>
         <span className="customer-support__chevron"><SupportIcon kind="chevron" /></span>
       </button>
 
@@ -244,7 +246,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
         <section id="store-support-panel" className="customer-support__panel" aria-label="Trò chuyện với Store">
           <div className="customer-support__intro">
             <span>CHĂM SÓC KHÁCH HÀNG</span>
-            <span className="customer-support__badge">Thinking: Tắt</span>
+            <span className="customer-support__badge">Suy luận: Tắt</span>
           </div>
           <div className="customer-support__toolbar"><button type="button" disabled={busy} onClick={startNewConversation}>Cuộc trò chuyện mới</button></div>
 
@@ -260,7 +262,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
               <div className="customer-support__incoming" key={message.id}>
                 <span className="customer-support__avatar" aria-hidden="true">s.</span>
                 <div className="customer-support__incoming-body">
-                  <span className="customer-support__sender">Store · AI local</span>
+                  <span className="customer-support__sender">Store · Trợ lý AI</span>
                   <p className="customer-support__bubble">{message.content || (message.status === 'streaming' ? '…' : message.error || 'Không có nội dung.')}</p>
                   {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>Dữ liệu Store đã xác minh</strong><p>{message.verified.text}</p></div>}
                   {message.sources?.length > 0 && <div className="customer-support__sources">{message.sources.map((source) => <span key={source.id}>{source.label}</span>)}</div>}
@@ -283,7 +285,9 @@ export default function CustomerSupport({ account, onRequireLogin }) {
               <input ref={inputRef} id="store-support-message" autoComplete="off" maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Nhập lời nhắn cho Store…" disabled={busy} />
               {busy ? <button type="button" onClick={stopRequest} aria-label="Dừng trả lời"><span aria-hidden="true">■</span></button> : <button type="submit" disabled={!draft.trim()} aria-label="Gửi tin nhắn"><SupportIcon kind="send" /></button>}
             </div>
-            <p className={'customer-support__disclaimer' + (busy ? ' customer-support__disclaimer--active' : '')}>{busy ? activity : 'AI local có thể sai. Dữ liệu quan trọng được backend xác minh riêng.'}</p>
+            <p className={'customer-support__disclaimer' + (busy ? ' customer-support__disclaimer--active' : '')}>
+              {busy ? activity : 'AI có thể trả lời sai. Thông tin quan trọng được hệ thống xác minh riêng.'}
+            </p>
           </form>
         </section>
       )}

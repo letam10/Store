@@ -60,6 +60,7 @@ export function PromotionBoard({ route = 'home', overview, account, selectedVouc
 }
 
 export default function StorePromotions({ route, overview, account, selectedVoucherCodes, onToggleVoucher, children }) {
+  if (['favorites', 'rewards', 'membership', 'contact'].includes(route)) return children
   const { sales, maxDiscount, vouchers } = overview
   const message = pageMessages[route]
   return <div className="store-promo-layout">

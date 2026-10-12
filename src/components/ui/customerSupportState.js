@@ -6,6 +6,8 @@
  * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
+import { userMessage } from '../../api/userMessages.js'
+
 // Chức năng mapServerMessages: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function mapServerMessages(messages) {
   return messages.map((message) => ({
@@ -18,7 +20,7 @@ export function mapServerMessages(messages) {
     status: message.status || 'complete',
     requestId: message.requestId,
     retryContent: message.retryContent,
-    error: message.error || '',
+    error: message.error ? userMessage(message.error, 'Lượt trước chưa hoàn tất. Bạn có thể thử lại.') : '',
   }))
 }
 

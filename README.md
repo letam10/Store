@@ -1,6 +1,6 @@
 # Store — giao diện khách hàng
 
-React + Vite, chỉ chứa frontend dành cho khách. Admin, backend và AI local đã chuyển sang dự án ngang cấp Store-Admin.
+React + Vite dành cho khách. Admin và backend nằm tại C:\Users\TAM\source\repos\Store-Admin.
 
 ## Chạy
 Node 24.19.0 và npm 11.17.0 (giữ nguyên runtime đã thống nhất).
@@ -8,7 +8,9 @@ Node 24.19.0 và npm 11.17.0 (giữ nguyên runtime đã thống nhất).
 npm ci
 npm run dev
 ```
-Vite chạy cổng 5173 và proxy /api tới 127.0.0.1:3001. Backend được khởi chạy từ Store-Admin bằng npm run dev:api; admin chạy riêng tại cổng 5174.
+Vite chạy cổng 5173 và proxy /api tới ASP.NET Core ở 127.0.0.1:3010.
+Mở solution Store-Admin.slnx tại đường dẫn mới, chọn profile Store Admin và bấm F5.
+Host quản lý Node nội bộ và kiểm tra/khởi động Ollama. React Admin mới nằm trong frontend, cổng 5174.
 
 ## Kiểm tra
 npm test, npm run lint, npm run build. Thư mục dist là bản frontend để deploy; không chứa code admin, backend, database hoặc model.
@@ -23,10 +25,15 @@ npm test, npm run lint, npm run build. Thư mục dist là bản frontend để 
 - src/api/: client chat hỗ trợ, không có client quản trị.
 - /admin trên Store trả trang không tìm thấy; dùng Store-Admin để quản trị.
 
-Giỏ hàng, tài khoản, đơn demo, hạng thành viên và voucher chỉ lưu ở trình duyệt. Chỉ sản phẩm được tích chọn mới đi vào checkout; món chưa chọn vẫn ở giỏ. Checkout không thu tiền, không gửi đơn thật. Không dùng tài khoản demo làm cơ chế xác thực production. Admin có API demo cho giảm giá, tồn kho và lượt xem; đây không phải hệ thống bán hàng production.
+Giỏ hàng giữ ở trình duyệt; tài khoản, voucher và đơn đã xác nhận thanh toán được lưu qua backend mới.
+Chỉ sản phẩm được tích chọn mới đi vào checkout; món chưa chọn vẫn ở giỏ.
+Phiên QR xem trước chưa lưu đơn, hết 2 phút hoặc thoát sẽ trở về form checkout đang có.
+Chế độ demo mô phỏng thanh toán; chuyển khoản thực cần đối soát theo cấu hình admin.
 
 ## Deploy
 Xem DEPLOYMENT.md. Đã chuẩn bị fallback SPA trong public/_redirects. Chưa deploy, mở tunnel, thay đổi firewall hay public backend. Giữ API cùng origin qua reverse proxy là phương án mặc định; không điền localhost làm URL backend cho khách trên Internet.
 
 ## Git
-Store và Store-Admin là hai repository tách riêng; giữ `package-lock.json`, không commit `node_modules`, `dist`, `.env` hoặc model/dataset local. Catalog storefront được lưu trong `src/data/imported-products.json`; dữ liệu SQLite local của Admin được tái tạo từ `Store-Admin/server/data/catalog-products.json` khi backend khởi động.
+Giữ `package-lock.json`; không commit `node_modules`, `dist`, `.env`, database hoặc model/dataset local.
+Catalog dự phòng nằm trong `src/data/imported-products.json`; API dùng PGlite ở backend/server/data/pgdata
+thuộc solution mới. STORE_ADMIN_ROOT có thể đổi đường dẫn nguồn backend khi chạy test trên máy khác.

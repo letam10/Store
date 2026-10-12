@@ -80,11 +80,13 @@ async function openStore({ customer = null, offers = [saleProduct], vouchers = [
 
 function assertHomeRegion(window) {
   const { document, Node } = window
-  const region = document.querySelector('.home-promotion-region')
+  const region = document.querySelector('.home-promotion-region--intro')
+  const catalog = document.querySelector('.home-promotion-region--catalog')
   const sale = document.querySelector('#home-sale-products')
   assert.ok(region, 'Trang chủ cần vùng giới hạn banner')
+  assert.ok(catalog, 'Banner còn lại cần được đưa xuống vùng danh mục')
   assert.ok(sale, 'Mục giảm giá cần đích điều hướng cố định')
-  assert.equal(document.querySelectorAll('.home-promotion-rail').length, 2)
+  assert.equal(document.querySelectorAll('.home-promotion-rail').length, 4)
   assert.equal(region.querySelectorAll('aside.home-promotion-rail').length, 2)
   for (const side of ['left', 'right']) {
     assert.ok(region.querySelector('.home-promotion-rail--' + side + ' .home-side-banner'))
@@ -92,6 +94,24 @@ function assertHomeRegion(window) {
   assert.ok(region.querySelector('.home-promotion-region__body .shop-hero'))
   assert.ok(region.querySelector('.home-promotion-region__body .store-promo-board'))
   assert.equal(region.contains(sale), false)
+  assert.equal(catalog.contains(sale), true)
+  for (const side of ['left', 'right']) {
+    const top = region.querySelector('.home-promotion-rail--' + side)
+    const lower = catalog.querySelector('.home-promotion-rail--' + side)
+    assert.equal(top.querySelectorAll('.home-side-banner').length, 3)
+    assert.equal(lower.querySelectorAll('.home-side-banner').length, 5)
+    const cards = [
+      ...top.querySelectorAll('.home-side-banner'),
+      ...lower.querySelectorAll('.home-side-banner'),
+    ]
+    assert.equal(new Set(cards.map(card => card.dataset.bannerId)).size, cards.length)
+    for (const card of cards) {
+      assert.equal(card.tagName, 'A', 'Cả banner cần là một liên kết')
+      assert.ok(card.getAttribute('href'))
+      assert.equal(card.querySelector('a, button'), null, 'Banner không được chứa liên kết hoặc nút lồng nhau')
+      assert.ok(card.querySelector('.home-side-banner__details'))
+    }
+  }
   assert.ok(region.compareDocumentPosition(sale) & Node.DOCUMENT_POSITION_FOLLOWING)
   assert.equal(document.querySelectorAll('.store-promo-rail').length, 0)
 }
@@ -149,15 +169,33 @@ test('banner lấy mức giảm lớn nhất còn hàng và giữ liên kết c�
     assert.match(right().textContent, /2\s*%/)
     assert.ok(right().querySelector('a[href="/membership"]'))
     assert.ok(right().querySelector('a[href="/rewards"]'))
-    const links = [...window.document.querySelectorAll('.home-side-banner a')]
-    assert.ok(links.length >= 3)
+    const links = [...window.document.querySelectorAll('a.home-side-banner')]
+    assert.equal(links.length, 16)
     for (const link of links) {
       const href = link.getAttribute('href')
-      assert.ok(href === '#home-sale-products' || /^\/(products|membership|rewards)(\?|$)/.test(href))
+      const routes = /^(products|membership|rewards|favorites|cart|contact|account)$/
+      const path = new URL(href, window.location.origin).pathname.slice(1)
+      assert.ok(href === '#home-sale-products' || routes.test(path))
       if (href.startsWith('#')) assert.ok(window.document.querySelector(href))
     }
     right().querySelector('a[href="/rewards"]').click()
     await waitFor(() => window.location.pathname === '/rewards' && window.document.querySelector('.lucky-wheel'))
+    assert.equal(window.document.querySelector('.home-promotion-rail'), null)
+  } finally {
+    window.close()
+  }
+})
+
+test('bấm tiêu đề quảng cáo dưới khu giảm giá mở đúng danh mục', async () => {
+  const dom = await openStore()
+  const { window } = dom
+  try {
+    const selector = '.home-promotion-region--catalog .home-banner-offer--electronics h3'
+    await waitFor(() => window.document.querySelector(selector))
+    window.document.querySelector(selector).click()
+    await waitFor(() => window.location.pathname === '/products')
+    assert.equal(new URLSearchParams(window.location.search).get('category'), 'Điện tử')
+    await waitFor(() => window.document.querySelector('.catalog-results'))
     assert.equal(window.document.querySelector('.home-promotion-rail'), null)
   } finally {
     window.close()

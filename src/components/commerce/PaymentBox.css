@@ -1,0 +1,272 @@
+.bank-payment-card.surface {
+  width: min(480px, 100%);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--paper, #faf9f6);
+  color: var(--ink);
+  box-shadow: 0 24px 80px #102b2429;
+}
+
+.bank-payment-card__head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+
+.bank-payment-card__title {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 40px;
+}
+
+.bank-payment-card__head h1 {
+  margin: 3px 0 5px;
+  font-size: clamp(21px, 3vw, 24px);
+  line-height: 1.1;
+  letter-spacing: -0.7px;
+}
+
+.bank-payment-card__head p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.bank-payment-card__head .eyebrow {
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 1.4px;
+}
+
+.bank-payment-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bank-payment-close:hover {
+  background: var(--sage);
+}
+
+.bank-payment-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.bank-payment-timer {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 16px;
+  padding: 4px 12px;
+  text-align: center;
+  background: var(--sage);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.bank-payment-timer span {
+  font-size: 10px;
+  color: var(--muted, #64746a);
+}
+
+.bank-payment-timer strong {
+  font-size: 22px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.bank-payment-timer.is-ending {
+  border-color: #c36a42;
+  background: #fff1e7;
+  color: #93451f;
+}
+
+.bank-payment-card.surface .bank-payment-timer.is-ending span {
+  color: #93451f;
+}
+
+.bank-payment-card.surface .bank-payment-timer.is-ending strong {
+  color: #93451f;
+}
+
+.bank-payment-card__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.bank-payment-qr {
+  width: min(180px, 100%);
+  margin: auto;
+}
+
+.bank-payment-total {
+  text-align: center;
+}
+
+.bank-payment-qr__frame {
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #dfe6de;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px #17382c08;
+}
+
+.bank-payment-qr img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+}
+
+.bank-payment-qr p {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--muted, #64746a);
+}
+
+.bank-payment-total > span {
+  font-size: 12px;
+  color: var(--muted, #64746a);
+}
+
+.bank-payment-amount {
+  display: block;
+  margin: 4px 0 8px;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
+}
+
+.bank-payment-details .commerce-facts {
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 0 0 8px;
+}
+
+.bank-payment-details .commerce-facts > div {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.bank-payment-details .commerce-facts dt {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.bank-payment-details .commerce-facts dd {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.bank-payment-details .commerce-facts .bank-payment-reference {
+  display: block;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: var(--sage);
+}
+
+.bank-payment-reference dd {
+  padding-top: 3px;
+}
+
+.bank-payment-reference code {
+  display: block;
+  text-align: left;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+}
+
+.bank-payment-details .button {
+  width: 100%;
+  min-height: 40px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  white-space: normal;
+}
+
+.bank-payment-details .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.bank-payment-note {
+  margin: 6px 0 0;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--muted, #64746a);
+}
+
+.bank-payment-card__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.bank-payment-card__footer p {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--muted, #64746a);
+  text-align: center;
+}
+
+.bank-payment-card__footer .button {
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+@media (max-width: 620px) {
+  .bank-payment-card.surface {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .bank-payment-timer {
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
