@@ -15,6 +15,8 @@ import './Header.css'
 export default function Header({ appearance = {}, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, language = 'vi', onLanguageChange }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const accountRef = useRef(null)
   const searchRef = useRef(null)
   const headerRef = useRef(null)
   const pathname = window.location.pathname
@@ -52,6 +54,20 @@ export default function Header({ appearance = {}, cartCount, account, membership
   }, [searchOpen])
 
   useEffect(() => {
+    if (!accountOpen) return undefined
+    // Dropdown avatar đóng khi bấm ra ngoài hoặc nhấn Escape.
+    const closeAccount = (event) => {
+      if (event.key === 'Escape' || (event.type === 'pointerdown' && !accountRef.current?.contains(event.target))) setAccountOpen(false)
+    }
+    document.addEventListener('keydown', closeAccount)
+    document.addEventListener('pointerdown', closeAccount)
+    return () => {
+      document.removeEventListener('keydown', closeAccount)
+      document.removeEventListener('pointerdown', closeAccount)
+    }
+  }, [accountOpen])
+
+  useEffect(() => {
     if (!menuOpen) return undefined
     // Menu mobile đóng khi bấm ra ngoài hoặc nhấn Escape để không che nội dung.
     const closeMenu = (event) => {
@@ -81,10 +97,22 @@ export default function Header({ appearance = {}, cartCount, account, membership
           <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? (english ? 'Your account' : 'Tài khoản của bạn') : (english ? 'Sign in / Register' : 'Đăng nhập / Đăng ký')}</a>
         </nav>
         <div className="header-actions">
-          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true) }}>⌕</button>
+          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setAccountOpen(false) }}>⌕</button>
           <label className="header-language"><span className="sr-only">{english ? 'Language' : 'Ngôn ngữ'}</span><select aria-label={english ? 'Language' : 'Ngôn ngữ'} value={language} onChange={(event) => onLanguageChange?.(event.target.value)}><option value="vi">VI</option><option value="en">EN</option></select></label>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
-          <a className="account-link" href="/account"><span className="account-link__avatar" aria-hidden="true">{account?.username ? account.username.slice(0, 1).toUpperCase() : '♙'}</span><span className="account-link__name">{account?.username ? getMembershipPlan(membershipTier).badge + ' · ' + account.username : (english ? 'Sign in' : 'Đăng nhập')}</span></a>
+          {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
+            <button type="button" className="account-link account-menu__trigger" aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title={english ? 'Open user dashboard' : 'Mở dashboard người dùng'}>
+              <span className="account-link__avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span><span className="account-link__name">{getMembershipPlan(membershipTier).badge + ' · ' + account.username}</span><span className="account-menu__caret" aria-hidden="true">▾</span>
+            </button>
+            {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label={english ? 'User dashboard' : 'Dashboard người dùng'}>
+              <p className="account-menu__hello">{english ? 'Hello,' : 'Xin chào,'} <b>{account.username}</b> · {getMembershipPlan(membershipTier).badge}</p>
+              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>🏠 {english ? 'Dashboard / My account' : 'Dashboard / Tài khoản của tôi'}</a>
+              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>📦 {english ? 'Orders & history' : 'Đơn hàng của bạn'}</a>
+              <a role="menuitem" href="/favorites" onClick={() => setAccountOpen(false)}>♥ {english ? 'Favorites' : 'Sản phẩm yêu thích'}</a>
+              <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}>🎁 {english ? 'Rewards & vouchers' : 'Ưu đãi & voucher'}</a>
+              <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}>★ {english ? 'Membership tier' : 'Hạng thành viên'}</a>
+            </div>}
+          </div> : <a className="account-link" href="/account"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">{english ? 'Sign in' : 'Đăng nhập'}</span></a>}
           <a className="cart-count" href="/cart" aria-label={(english ? 'Cart with ' : 'Giỏ hàng có ') + cartCount + (english ? ' products' : ' sản phẩm')}><span aria-hidden="true">🛒</span><span className="cart-count__text">{english ? 'Cart' : 'Giỏ hàng'}</span><b>{cartCount}</b></a>
           <button className="header-menu-trigger" type="button" aria-controls="header-navigation" aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} onClick={() => { setSearchOpen(false); setMenuOpen((current) => !current) }}>☰</button>
         </div>
