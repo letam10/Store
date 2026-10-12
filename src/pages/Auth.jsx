@@ -25,7 +25,7 @@ async function migrateOldBrowserAccount(username, password) {
   return customerApi('/api/customer/register', { method: 'POST', body: JSON.stringify({ username: user.username, email: user.email, password }) })
 }
 
-export default function Auth({ mode, next = '/', onLogin, onNavigate, language = 'vi', onLanguageChange }) {
+export default function Auth({ mode, next = '/account', onLogin, onNavigate, language = 'vi', onLanguageChange }) {
   const english = language === 'en'
   const query = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
   const initialView = mode === '/register' ? 'register' : mode === '/forgot-password' ? 'forgot' : mode === '/reset-password' ? 'reset' : 'login'
@@ -40,15 +40,8 @@ export default function Auth({ mode, next = '/', onLogin, onNavigate, language =
   const [resetToken, setResetToken] = useState(query.get('token') || '')
 
   useEffect(() => {
-    setView(initialView)
-    setResetToken(query.get('token') || '')
-    const cid = query.get('challengeId') || ''
-    if (cid) { setChallengeId(cid); setNeedTwoFactor(true) }
-    else if (query.get('twoFactor') === '1') setNeedTwoFactor(true)
-    if (query.get('googleError')) setError('Đăng nhập Google thất bại. Vui lòng thử lại.')
     customerApi('/api/customer/auth/status').then((status) => setGoogleReady(Boolean(status?.google?.configured))).catch(() => {})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode])
+  }, [])
 
   async function submit(event) {
     event.preventDefault()

@@ -85,7 +85,7 @@ export default function App() {
 
   const refreshCustomer = useCallback(async () => {
     const epoch = customerEpoch.current
-    let session = null
+    let session
     try {
       session = await customerApi('/api/customer/session')
     } catch {
@@ -297,7 +297,7 @@ export default function App() {
 
   let page = <NotFound />
   if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
-  else if (isAuth) page = <Auth key={location.pathname} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
+  else if (isAuth) page = <Auth key={location.pathname + location.search} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
   else if (route === 'home') page = <Home
     appearance={appearance} products={products} onAddToCart={addToCart}
     favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite}
