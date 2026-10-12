@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Bổ sung định kiểu giao diện storefront: thanh điều hướng, thẻ sản phẩm và bố cục catalog.
+  - Liên kết trực tiếp: src/App.jsx, src/storefront/design.css, src/storefront/polish.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ hiển thị thẻ sản phẩm, catalog grid và responsive header.
+*/
 /* Single-line navigation, denser catalog, and editorial home rows. */
 .site-header{position:sticky;top:0;z-index:35;background:var(--paper);border-bottom:1px solid var(--line)}
 .header-inner{width:min(1500px,calc(100% - 40px));min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:22px;padding:0}
@@ -86,7 +92,7 @@
   .header-inner .header-nav{gap:12px}
 }
 
-.product-art{overflow:hidden;background:#eef3ec}
+.product-art{overflow:hidden;background:#f8fafc}
 .product-image{display:block;width:calc(100% - 24px);height:calc(100% - 24px);object-fit:contain;mix-blend-mode:multiply;transition:transform .35s ease,opacity .2s ease}
 .product-card:hover .product-image{transform:scale(1.035)}
 .product-symbol-fallback[hidden]{display:none}
@@ -121,14 +127,14 @@
 @media(max-width:820px){.catalog-page-head{top:72px}.catalog-sidebar{top:0;max-height:none}.catalog-results__head{position:static}.catalog-results .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 :root:not([data-theme='dark']) .shop-hero-copy{color:#18362a}
 :root:not([data-theme='dark']) .shop-hero-copy h1{color:#18362a;text-shadow:none}
-:root:not([data-theme='dark']) .shop-hero-copy>p:not(.eyebrow){color:#52675b}
-:root:not([data-theme='dark']) .header-inner .header-nav a,:root:not([data-theme='dark']) .header-inner .account-link{color:#425b4b}
-:root:not([data-theme='dark']) .header-inner .header-nav a:hover,:root:not([data-theme='dark']) .header-inner .header-nav a[aria-current='page'],:root:not([data-theme='dark']) .header-inner .account-link:hover{color:#17382c}
-.shop-hero{background:#edeee6!important}
-.shop-hero-art{background:#d8e0ce!important}
-.shop-hero-copy h1{color:#18362a!important}
-.shop-hero-copy>p:not(.eyebrow){color:#52675b!important}
-:root[data-theme='dark'] .shop-hero{background:#233527!important}
-:root[data-theme='dark'] .shop-hero-art{background:#304b36!important}
-:root[data-theme='dark'] .shop-hero-copy h1{color:#f2f8f2!important}
-:root[data-theme='dark'] .shop-hero-copy>p:not(.eyebrow){color:#d2e2d1!important}
+:root:not([data-theme='dark']) .shop-hero-copy>p:not(.eyebrow){color:#475569}
+:root:not([data-theme='dark']) .header-inner .header-nav a,:root:not([data-theme='dark']) .header-inner .account-link{color:#0f172a}
+:root:not([data-theme='dark']) .header-inner .header-nav a:hover,:root:not([data-theme='dark']) .header-inner .header-nav a[aria-current='page'],:root:not([data-theme='dark']) .header-inner .account-link:hover{color:#4f46e5}
+.shop-hero{background:linear-gradient(135deg, #fdf4ff 0%, #f5f3ff 50%, #eff6ff 100%)!important;border:1px solid #e2e8f0!important}
+.shop-hero-art{background:radial-gradient(circle at 45% 35%, #fdf2f8 0%, #ede9fe 52%, #e0e7ff 100%)!important}
+.shop-hero-copy h1{color:#0f172a!important}
+.shop-hero-copy>p:not(.eyebrow){color:#475569!important}
+:root[data-theme='dark'] .shop-hero{background:linear-gradient(135deg, #1e1b4b 0%, #0f172a 50%, #172554 100%)!important;border:1px solid #334155!important}
+:root[data-theme='dark'] .shop-hero-art{background:radial-gradient(circle at 45% 35%, #312e81 0%, #1e1b4b 55%, #0f172a 100%)!important}
+:root[data-theme='dark'] .shop-hero-copy h1{color:#f8fafc!important}
+:root[data-theme='dark'] .shop-hero-copy>p:not(.eyebrow){color:#cbd5e1!important}
