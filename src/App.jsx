@@ -1,12 +1,10 @@
+/*
+  FILE NOTE
+  - Mục đích: Điều phối luồng ứng dụng Store React: quản lý router, giỏ hàng, phiên tài khoản, theme, danh mục và bắt buộc đăng nhập khi thêm giỏ hàng.
+  - Liên kết trực tiếp: src/components/layout/Header.jsx, src/components/layout/Footer.jsx, src/pages/Home.jsx, src/pages/Catalog.jsx, src/pages/ProductDetail.jsx, src/pages/Auth.jsx, src/pages/Cart.jsx
+  - Vùng ảnh hưởng khi sửa: Toàn bộ vòng đời ứng dụng, các route công khai và bảo vệ, luồng thêm sản phẩm vào giỏ hàng.
+*/
 import StorePromotions, { PromotionBoard } from './components/ui/StorePromotions'
-/**
- * @codex-vn-doc
- * Tệp: src/App.jsx
- * Mục đích: Điểm điều phối ứng dụng React, route, trạng thái chung và layout.
- * Thành phần chính: App.
- * Liên kết trực tiếp: react, ./components/layout/Header, ./components/layout/Footer, ./components/ui/CustomerSupport, ./pages/Home, ./pages/Catalog, ./pages/ProductDetail, ./pages/Contact.
- * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
- */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { normalizeVoucherSelection } from './storefront/voucherSelection'
@@ -240,6 +238,7 @@ export default function App() {
   // Chức năng addToCart: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const addToCart = (product) => {
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
+    if (!account) { requireLogin(); return }
     if (product.stockCount === 0) return
     const inCart = cart.find((item) => String(item.id) === String(product.id))?.quantity || 0
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
@@ -321,7 +320,7 @@ export default function App() {
 
   const accentColor = /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : undefined
   return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={accentColor ? { '--accent': accentColor } : undefined} onClick={handleLink} onSubmitCapture={handleSearch}>
-    {!isAuth && <Header appearance={appearance} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
+    {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
     <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
       onChangeCapture={clearValidation}>
       {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact', 'account'].includes(route)

@@ -1,26 +1,58 @@
-/**
- * @codex-vn-doc
- * Tệp: src/components/layout/Header.jsx
- * Mục đích: Header Store, tìm kiếm, điều hướng, theme, ngôn ngữ và trạng thái tài khoản/giỏ hàng.
- * Thành phần chính: Header.
- * Liên kết trực tiếp: react, ../../data/products, ../../storefront/promotions.
- * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
- */
+/*
+  FILE NOTE
+  - Mục đích: Header chính của Store, điều hướng menu, thanh tìm kiếm thông minh với gợi ý sản phẩm mẫu ngay dưới thanh tìm kiếm, bộ chọn giao diện/ngôn ngữ và trạng thái giỏ hàng/tài khoản.
+  - Liên kết trực tiếp: src/App.jsx, src/data/products.js, src/storefront/promotions.js, src/components/layout/Header.css, src/storefront/polish.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ header trang chủ và các trang storefront, trải nghiệm tìm kiếm gợi ý, điều hướng menu.
+*/
 import { useEffect, useRef, useState } from 'react'
-import { products } from '../../data/products'
+import { products as defaultProducts } from '../../data/products'
 import { getMembershipPlan } from '../../storefront/promotions'
 import './Header.css'
 
+const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
+
+function SearchSuggestions({ items, query, onSelect, id }) {
+  const normalizedQuery = query.trim().toLowerCase()
+  const allMatches = items.filter((product) => {
+    if (!product?.name) return false
+    if (!normalizedQuery) return true
+    return `${product.name} ${product.category || ''}`.toLowerCase().includes(normalizedQuery)
+  })
+  const limit = 5
+  const matches = allMatches.slice(0, limit)
+  const remainingCount = allMatches.length - matches.length
+
+  return <div id={id} className="search-suggestions" role="listbox" aria-label="Sản phẩm gợi ý">
+    <div className="search-suggestions__heading">
+      <span>{normalizedQuery ? 'Gợi ý sản phẩm tìm kiếm' : 'Sản phẩm mẫu nổi bật'}</span>
+      <small>{allMatches.length} sản phẩm</small>
+    </div>
+    {matches.length ? matches.map((product) => {
+      const image = product.image || fallbackPictures[product.id]
+      return <a key={product.id} className="search-suggestion" href={'/products/' + encodeURIComponent(product.id)} role="option" onClick={onSelect}>
+        <span className="search-suggestion__image">{image ? <img src={image.startsWith('/') || image.startsWith('http') ? image : '/products/' + image + '.svg'} alt="" loading="lazy" /> : <span aria-hidden="true">{product.symbol || '✦'}</span>}</span>
+        <span className="search-suggestion__copy"><strong>{product.name}</strong><small>{product.category || 'Sản phẩm Store'}</small></span>
+        <span className="search-suggestion__arrow" aria-hidden="true">↗</span>
+      </a>
+    }) : <p className="search-suggestions__empty">Chưa có sản phẩm phù hợp. Thử từ khóa khác.</p>}
+    {remainingCount > 0 && <a href={'/products?q=' + encodeURIComponent(query.trim())} className="search-suggestions__more" onClick={onSelect}>
+      ... còn {remainingCount} sản phẩm nữa. Nhấn Enter để xem toàn bộ kết quả →
+    </a>}
+  </div>
+}
+
 // Chức năng Header: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Header({ appearance = {}, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, language = 'vi', onLanguageChange }) {
+export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, language = 'vi', onLanguageChange }) {
   const [searchOpen, setSearchOpen] = useState(false)
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
   const [menuOpen, setMenuOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
   const accountRef = useRef(null)
   const searchRef = useRef(null)
+  const searchShellRef = useRef(null)
   const headerRef = useRef(null)
   const pathname = window.location.pathname
-  const currentQuery = new URLSearchParams(window.location.search).get('q') || ''
   const english = language === 'en'
   const links = [
     ['/', appearance.navHome || (english ? 'Home' : 'Trang chủ')],
@@ -81,23 +113,41 @@ export default function Header({ appearance = {}, cartCount, account, membership
     }
   }, [menuOpen])
 
+  useEffect(() => {
+    if (!suggestionsOpen) return undefined
+    const closeSuggestions = (event) => {
+      if (event.key === 'Escape') setSuggestionsOpen(false)
+      if (event.type === 'pointerdown' && !searchShellRef.current?.contains(event.target)) {
+        setSuggestionsOpen(false)
+      }
+    }
+    document.addEventListener('keydown', closeSuggestions)
+    document.addEventListener('pointerdown', closeSuggestions)
+    return () => {
+      document.removeEventListener('keydown', closeSuggestions)
+      document.removeEventListener('pointerdown', closeSuggestions)
+    }
+  }, [suggestionsOpen])
+
   return <>
     <header ref={headerRef} className="site-header">
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <div className="container header-inner">
         <a className="brand" href="/" aria-label="Store - trang chủ"><span className="brand__mark" aria-hidden="true">✦</span><span className="brand__word">{brandName}<span>.</span></span><small>{appearance.brandTagline || 'EVERYDAY'}</small></a>
-        <form className="site-search header-inline-search" action="/products" method="get" role="search" onFocus={() => setSearchOpen(true)}>
+        <div className="header-search-shell" ref={searchShellRef}>
+        <form className="site-search header-inline-search" action="/products" method="get" role="search" onFocus={() => setSuggestionsOpen(true)} onSubmit={() => setSuggestionsOpen(false)}>
           <label className="sr-only" htmlFor="header-inline-search-input">Tìm sản phẩm</label>
-          <input id="header-inline-search-input" name="q" type="search" list="site-search-suggestions-inline" placeholder={searchPlaceholder} defaultValue={currentQuery} />
-          <datalist id="site-search-suggestions-inline">{products.slice(0, 80).map((product) => <option key={product.id} value={product.name} />)}</datalist>
+          <input id="header-inline-search-input" name="q" type="search" autoComplete="off" value={searchTerm} onChange={(event) => { setSearchTerm(event.target.value); setSuggestionsOpen(true) }} aria-controls="header-inline-suggestions" aria-expanded={suggestionsOpen} placeholder={searchPlaceholder} />
           <button type="submit" aria-label="Tìm kiếm">⌕</button>
         </form>
+        {suggestionsOpen && <SearchSuggestions id="header-inline-suggestions" items={products} query={searchTerm} onSelect={() => setSuggestionsOpen(false)} />}
+        </div>
         <nav id="header-navigation" className={'header-nav' + (menuOpen ? ' is-open' : '')} aria-label="Điều hướng chính">
           {links.map(([href, label]) => <a key={href} href={href} aria-current={pathname === href ? 'page' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
           <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? (english ? 'Your account' : 'Tài khoản của bạn') : (english ? 'Sign in / Register' : 'Đăng nhập / Đăng ký')}</a>
         </nav>
         <div className="header-actions">
-          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setAccountOpen(false) }}>⌕</button>
+          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}>⌕</button>
           <label className="header-language"><span className="sr-only">{english ? 'Language' : 'Ngôn ngữ'}</span><select aria-label={english ? 'Language' : 'Ngôn ngữ'} value={language} onChange={(event) => onLanguageChange?.(event.target.value)}><option value="vi">VI</option><option value="en">EN</option></select></label>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
@@ -118,14 +168,16 @@ export default function Header({ appearance = {}, cartCount, account, membership
         </div>
       </div>
     </header>
-    {searchOpen && <div className="header-search-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSearchOpen(false) }}>
-      <form className="site-search header-search-popover" action="/products" method="get" role="search" onSubmit={() => setSearchOpen(false)}>
+    {searchOpen && <div className="header-search-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) { setSearchOpen(false); setSuggestionsOpen(false) } }}>
+      <div className="header-search-shell header-search-shell--popover">
+      <form className="site-search header-search-popover" action="/products" method="get" role="search" onSubmit={() => { setSearchOpen(false); setSuggestionsOpen(false) }}>
         <label className="sr-only" htmlFor="site-search-input">Tìm sản phẩm</label>
-        <input ref={searchRef} id="site-search-input" name="q" type="search" list="site-search-suggestions-popup" placeholder={searchPlaceholder} defaultValue={currentQuery} />
-        <datalist id="site-search-suggestions-popup">{products.slice(0, 80).map((product) => <option key={product.id} value={product.name} />)}</datalist>
+        <input ref={searchRef} id="site-search-input" name="q" type="search" autoComplete="off" value={searchTerm} onChange={(event) => { setSearchTerm(event.target.value); setSuggestionsOpen(true) }} aria-controls="header-popup-suggestions" aria-expanded={suggestionsOpen} placeholder={searchPlaceholder} />
         <button type="submit" aria-label="Tìm kiếm">⌕</button>
-        <button className="header-search-close" type="button" aria-label="Đóng tìm kiếm" onClick={() => setSearchOpen(false)}>×</button>
+        <button className="header-search-close" type="button" aria-label="Đóng tìm kiếm" onClick={() => { setSearchOpen(false); setSuggestionsOpen(false) }}>×</button>
       </form>
+      {suggestionsOpen && <SearchSuggestions id="header-popup-suggestions" items={products} query={searchTerm} onSelect={() => { setSearchOpen(false); setSuggestionsOpen(false) }} />}
+      </div>
     </div>}
   </>
 }
