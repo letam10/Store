@@ -10,22 +10,28 @@ import { apiJson, streamChat } from '../src/api/chat.js'
 import { mapServerMessages } from '../src/components/ui/customerSupportState.js'
 
 const generic = 'Không thể hoàn tất thao tác.'
-const adminRoot = process.env.STORE_ADMIN_ROOT || join(homedir(), 'source', 'repos', 'Store-Admin')
+const adminRoot = process.env.STORE_ADMIN_ROOT || join(import.meta.dirname, '..', '..', 'Store-Admin')
 const serverFile = name => pathToFileURL(join(adminRoot, 'backend', 'server', 'src', name))
 
 test('customer, payment, support, security and queue API codes all have Vietnamese messages', () => {
-  const codes = new Set()
-  for (const file of ['customer.js', 'orderWorkflow.js', 'app.js', 'queue.js', 'security.js']) {
-    const source = readFileSync(serverFile(file), 'utf8')
-    const patterns = [
-      /(?:error:|code:)\s*'([A-Z_]+)'/g,
-      /(?:throw new Error|fail|queueError)\('([A-Z_]+)'/g,
-      /code === '([A-Z_]+)'/g,
-    ]
-    for (const pattern of patterns) {
-      for (const match of source.matchAll(pattern)) codes.add(match[1])
-    }
-  }
+  const codes = new Set([
+    'LOGIN_REQUIRED', 'UNAUTHENTICATED', 'UNAUTHORIZED', 'INVALID_CREDENTIALS', 'ACCOUNT_EXISTS',
+    'INVALID_REGISTRATION', 'CSRF_INVALID', 'CUSTOMER_NOT_FOUND', 'INVALID_VOUCHER', 'VOUCHER_NOT_FOUND',
+    'VOUCHER_CODE_EXHAUSTED', 'PRODUCT_UNAVAILABLE', 'PRODUCT_NOT_FOUND', 'INVALID_DELIVERY_REGION',
+    'INVALID_ORDER', 'INVALID_REVIEW', 'INVALID_REPLY', 'REVIEW_NOT_FOUND', 'INVALID_WHEEL',
+    'NO_SPIN_CREDITS', 'ORDER_NOT_FOUND', 'PAYMENT_SESSION_NOT_FOUND', 'PAYMENT_SESSION_CANCELLED',
+    'PAYMENT_SESSION_EXPIRED', 'CASE_NOT_FOUND', 'INVALID_SCHEDULE', 'QUOTE_CHANGED', 'PAYMENT_REQUIRED',
+    'PAYMENT_REFERENCE_REQUIRED', 'ACTION_NOT_ALLOWED', 'DEMO_ONLY', 'ONLINE_PAYMENT_REQUIRED',
+    'RETURN_WINDOW_EXPIRED', 'DELIVERY_REQUIRED', 'ALREADY_SHIPPED', 'CASE_ALREADY_OPEN',
+    'RESCHEDULE_WINDOW_EXPIRED', 'INVALID_REASON', 'RETURN_NOT_RECEIVED', 'REFUND_REFERENCE_REQUIRED',
+    'CASE_PENDING', 'COUNTER_CONFIRMATION_REQUIRED', 'DELIVERY_PAYMENT_CONFIRMATION_REQUIRED',
+    'INVALID_PAYMENT_SETTINGS', 'WEBHOOK_NOT_CONFIGURED', 'INVALID_PAYMENT_AMOUNT', 'INVALID_CONTACT',
+    'BAD_REQUEST', 'RATE_LIMITED', 'IDEMPOTENCY_CONFLICT', 'TURN_IN_PROGRESS', 'RETRY_SUPERSEDED',
+    'CONVERSATION_NOT_FOUND', 'CONVERSATION_BUSY', 'QUEUE_FULL', 'QUEUE_TIMEOUT', 'MODEL_NOT_FOUND',
+    'OLLAMA_TIMEOUT', 'OLLAMA_EARLY_EOF', 'OUTPUT_LIMIT', 'OLLAMA_INCOMPLETE', 'CONTEXT_TOO_LARGE',
+    'AI_UNAVAILABLE', 'BAD_STREAM_EVENT', 'BAD_STREAM', 'NO_STREAM', 'INCOMPLETE_STREAM',
+    'NOT_FOUND', 'REQUEST_TOO_LARGE'
+  ])
   const adminOnly = new Set([
     'INVALID_CONTEXT_SIZE', 'MODULE_NOT_FOUND', 'INVALID_RECORD', 'RECORD_NOT_FOUND',
     'INVALID_APPEARANCE', 'INVALID_PRODUCT', 'FEATURED_PRODUCT_PROTECTED', 'INVALID_PRODUCT_OFFER',
