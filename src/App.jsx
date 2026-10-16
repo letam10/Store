@@ -290,7 +290,7 @@ export default function App() {
   // Chức năng logout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function logout() {
     customerEpoch.current += 1
-    try { await customerApi('/api/customer/logout', { method: 'POST', csrfToken: account.csrfToken }) } catch { /* Clear local account view even if the session expired. */ }
+    try { await customerApi('/api/customer/logout', { method: 'POST', csrfToken: account?.csrfToken }) } catch { /* Clear local account view even if the session expired. */ }
     setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
   }
 
