@@ -10,6 +10,7 @@ import { useMemo, useRef, useState } from 'react'
 import { similarProducts } from '../storefront/catalog'
 import { canPurchase, cartTotal } from '../storefront/state'
 import './Storefront.css'
+import './Cart.css'
 import './CartSuggestions.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -89,12 +90,13 @@ function SimilarProducts({ products, item, onNavigate }) {
 }
 
 // Chức năng Cart: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Cart({ cart, products, onQuantity, onToggle, onNavigate }) {
+export default function Cart({ cart, products, account, onQuantity, onToggle, onRequireLogin, onNavigate }) {
   const selected = cart.filter((item) => item.selected && canPurchase(item))
   const total = cartTotal(selected)
   return <div className="container page-shell">
     <header className="page-head"><div><p className="eyebrow">Giỏ hàng</p><h1>Chọn món muốn thanh toán.</h1></div><a href="/products">← Tiếp tục mua sắm</a></header>
-    {cart.length === 0 ? <section className="surface empty-panel"><h2>Giỏ hàng đang trống</h2><p className="muted">Thêm vài món bạn thích rồi quay lại đây.</p><div className="page-actions" style={{ justifyContent: 'center' }}><a className="button" href="/products">Xem hàng hóa</a></div></section> :
+    {!account && <section className="surface cart-guest-cta"><div><p className="eyebrow">Giỏ hàng khách</p><h2>Đăng nhập để mua sắm trọn vẹn.</h2><p className="muted">Bạn vẫn có thể xem và chỉnh giỏ hàng này. Đăng nhập để thêm món và thanh toán.</p></div><button className="button button--soft" type="button" onClick={() => onRequireLogin?.()}>Đăng nhập để mua hàng</button></section>}
+    {cart.length === 0 ? <section className="surface empty-panel"><h2>Giỏ hàng đang trống</h2><p className="muted">{account ? 'Thêm vài món bạn thích rồi quay lại đây.' : 'Đăng nhập để thêm sản phẩm vào giỏ hàng.'}</p><div className="page-actions" style={{ justifyContent: 'center' }}>{account ? <a className="button" href="/products">Xem hàng hóa</a> : <><a className="button" href="/login?next=%2Fcart">Đăng nhập</a><a className="button button--soft" href="/register?next=%2Fcart">Đăng ký</a></>}</div></section> :
       <div className="cart-layout"><div className="cart-list">{cart.map((item) => <div key={item.id}>
         <article className={'surface cart-item cart-item--selectable' + (item.stockCount === 0 ? ' cart-item--out' : '')}>
           <label className="cart-select"><input type="checkbox" checked={item.selected && canPurchase(item)} disabled={!canPurchase(item)} onChange={() => onToggle(item.id)} aria-label={'Chọn ' + item.name + ' để thanh toán'} /><span aria-hidden="true">✓</span></label>
@@ -104,7 +106,7 @@ export default function Cart({ cart, products, onQuantity, onToggle, onNavigate 
         </article>
         <SimilarProducts products={products} item={item} onNavigate={onNavigate} />
       </div>)}</div>
-        <aside className="surface summary-card"><p className="eyebrow">Tóm tắt thanh toán</p><p className="muted">Chỉ những món được tích chọn mới vào đơn.</p><div className="summary-row"><span>Đã chọn</span><b>{selected.length}/{cart.length} sản phẩm</b></div><div className="summary-row summary-row--total"><span>Tạm tính</span><span>{money.format(total)}</span></div>{selected.length > 0 ? <a className="button" href="/checkout">Thanh toán sản phẩm đã chọn</a> : <button className="button" type="button" disabled>Chọn ít nhất một sản phẩm</button>}<p className="checkout-disclaimer">Sản phẩm chưa chọn vẫn nằm trong giỏ. Sau khi tạo đơn, các món đã đặt được gỡ khỏi giỏ.</p></aside>
+        <aside className="surface summary-card"><p className="eyebrow">Tóm tắt thanh toán</p><p className="muted">Chỉ những món được tích chọn mới vào đơn.</p><div className="summary-row"><span>Đã chọn</span><b>{selected.length}/{cart.length} sản phẩm</b></div><div className="summary-row summary-row--total"><span>Tạm tính</span><span>{money.format(total)}</span></div>{selected.length > 0 && account ? <a className="button" href="/checkout">Thanh toán sản phẩm đã chọn</a> : selected.length > 0 ? <button className="button" type="button" onClick={() => onRequireLogin?.()}>Đăng nhập để thanh toán</button> : <button className="button" type="button" disabled>Chọn ít nhất một sản phẩm</button>}<p className="checkout-disclaimer">Sản phẩm chưa chọn vẫn nằm trong giỏ. Sau khi tạo đơn, các món đã đặt được gỡ khỏi giỏ.</p></aside>
       </div>}
   </div>
 }

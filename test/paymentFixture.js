@@ -83,7 +83,7 @@ export function mount(state, pathname = '/checkout') {
   window.fetch = state.fetch
   window.scrollTo = () => {}
   window.matchMedia = () => ({ matches: true, addEventListener() {}, removeEventListener() {} })
-  window.localStorage.setItem('storeCartV1', JSON.stringify(state.cartItems || (state.emptyCart
+  window.localStorage.setItem('storeCartAccountV2:qa', JSON.stringify(state.cartItems || (state.emptyCart
     ? [] : [{ ...product, quantity: 1, selected: true }])))
   window.eval(bundle.outputFiles[0].text)
   return dom

@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { products as defaultProducts } from '../../data/products'
 import { getMembershipPlan } from '../../storefront/promotions'
+import DropdownMenu from '../ui/DropdownMenu'
 import './Header.css'
 
 const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
@@ -151,7 +152,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
         </nav>
         <div className="header-actions">
           <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}>⌕</button>
-          <label className="header-language"><span className="sr-only">{english ? 'Language' : 'Ngôn ngữ'}</span><select aria-label={english ? 'Language' : 'Ngôn ngữ'} value={language} onChange={(event) => onLanguageChange?.(event.target.value)}><option value="vi">VI</option><option value="en">EN</option></select></label>
+          <DropdownMenu className="header-language" ariaLabel={english ? 'Language' : 'Ngôn ngữ'} value={language} options={[{ value: 'vi', label: 'VI' }, { value: 'en', label: 'EN' }]} onChange={(nextLanguage) => onLanguageChange?.(nextLanguage)} />
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
             <button type="button" className="account-link account-menu__trigger" aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title={english ? 'Open user dashboard' : 'Mở dashboard người dùng'}>

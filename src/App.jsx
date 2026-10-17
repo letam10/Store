@@ -29,7 +29,8 @@ import NotFound from './pages/NotFound'
 import { enrichProducts } from './storefront/catalog'
 import { apiEndpoint, apiCredentials } from './api/endpoint'
 import { customerApi } from './api/customer'
-import { addCartItem, canPurchase, cartCount, loadJson, routeName, setCartQuantity } from './storefront/state'
+import { normalizeTheme, themeVariables } from '../shared/theme.js'
+import { addCartItem, canPurchase, cartCount, loadCart, routeName, saveCart, setCartQuantity } from './storefront/state'
 import './App.css'
 import './storefront/design.css'
 import './storefront/updates.css'
@@ -37,8 +38,8 @@ import './storefront/phase2.css'
 import './storefront/commerce.css'
 import './storefront/polish.css'
 import './storefront/layout.css'
+import './storefront/theme.css'
 
-const CART_KEY = 'storeCartV1'
 const THEME_KEY = 'storeThemeV1'
 
 // Chức năng currentLocation: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
@@ -49,7 +50,7 @@ function currentLocation() {
 // Chức năng App: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function App() {
   const [notice, setNotice] = useState('')
-  const [cart, setCart] = useState(() => loadJson(CART_KEY, []))
+  const [cart, setCart] = useState(() => loadCart())
   const [account, setAccount] = useState(null)
   const [authReady, setAuthReady] = useState(false)
   const [orders, setOrders] = useState([])
@@ -63,11 +64,18 @@ export default function App() {
   const [location, setLocation] = useState(currentLocation)
   const scrollPositions = useRef(new Map())
   const customerEpoch = useRef(0)
+  const cartAccountId = useRef(null)
   const navigationAction = useRef('initial')
   const viewedLocation = useRef(null)
   const products = useMemo(() => enrichProducts(offers), [offers])
   const promotionOverview = useMemo(() => storePromotionOverview(products, wallet, account, favoriteIds), [products, wallet, account, favoriteIds])
   const route = routeName(location.pathname)
+  const accountId = account?.id == null ? null : String(account.id)
+  const themeDocument = useMemo(() => normalizeTheme(appearance.theme), [appearance.theme])
+  const themePreset = themeDocument.presetId
+  const themePalette = useMemo(() => themeVariables(themeDocument, theme), [themeDocument, theme])
+  const hasTheme = Boolean(appearance.theme && typeof appearance.theme === 'object')
+  const accentColor = hasTheme ? themePalette['--accent'] : /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : themePalette['--accent']
   const protectedPage = ['account', 'checkout', 'membership', 'favorites'].includes(route)
   const isAuth = route === 'auth' || (protectedPage && !account)
   const liveCart = useMemo(() => cart.map((item) => {
@@ -77,8 +85,21 @@ export default function App() {
   const selectedCart = liveCart.filter((item) => item.selected && canPurchase(item))
 
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 3500); return () => clearTimeout(timer) }, [notice])
-  useEffect(() => { localStorage.setItem(CART_KEY, JSON.stringify(cart)) }, [cart])
-  useEffect(() => { localStorage.setItem(THEME_KEY, theme); document.documentElement.dataset.theme = theme }, [theme])
+  useEffect(() => { saveCart(cartAccountId.current, cart) }, [cart])
+  useEffect(() => {
+    if (cartAccountId.current === accountId) return
+    saveCart(cartAccountId.current, cart)
+    cartAccountId.current = accountId
+    setCart(loadCart(accountId))
+  }, [accountId, cart])
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme)
+    const root = document.documentElement
+    root.dataset.theme = theme
+    root.dataset.themePreset = themePreset
+    Object.entries(themePalette).forEach(([name, value]) => root.style.setProperty(name, value))
+    root.style.setProperty('--accent', accentColor)
+  }, [accentColor, theme, themePalette, themePreset])
   useEffect(() => { localStorage.setItem('storeLanguageV1', language); document.documentElement.lang = language }, [language])
 
   const refreshCustomer = useCallback(async () => {
@@ -93,7 +114,7 @@ export default function App() {
       return
     }
     if (epoch !== customerEpoch.current) return
-    setAccount(session.account)
+    setAccount(session.account || null)
     // Secondary data must never clear the session: missing endpoints (404) keep avatar.
     try {
       const ordersResponse = await customerApi('/api/customer/orders').catch(() => ({ orders: [] }))
@@ -117,7 +138,7 @@ export default function App() {
     customerApi('/api/customer/session')
       .then(async (session) => {
         if (cancelled || epoch !== customerEpoch.current) return
-        setAccount(session.account)
+        setAccount(session.account || null)
         // Secondary data must never clear the session (backend dotnet thiếu /orders).
         const ordersResponse = await customerApi('/api/customer/orders').catch(() => ({ orders: [] }))
         const vouchersResponse = await customerApi('/api/customer/vouchers').catch(() => ({ vouchers: [] }))
@@ -139,7 +160,12 @@ export default function App() {
     // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
     fetch(apiEndpoint('/api/storefront/appearance'), { signal: controller.signal, credentials: apiCredentials, cache: 'no-store' })
       .then((response) => response.ok ? response.json() : null)
-      .then((payload) => { if (payload?.appearance) setAppearance(payload.appearance) })
+      .then((payload) => {
+        if (!payload?.appearance) return
+        setAppearance(payload.appearance)
+        const remoteTheme = normalizeTheme(payload.theme || payload.appearance.theme)
+        if (!localStorage.getItem(THEME_KEY)) setTheme(remoteTheme.defaultMode)
+      })
       .catch(() => {})
     return () => controller.abort()
   }, [])
@@ -271,7 +297,9 @@ export default function App() {
     navigate('/')
   }
   // Chức năng requireLogin: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-  function requireLogin() { navigate('/login?next=' + encodeURIComponent(location.pathname + location.search)) }
+  function requireLogin(next = location.pathname + location.search) {
+    navigate('/login?next=' + encodeURIComponent(next))
+  }
   // Chức năng toggleFavorite: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function toggleFavorite(id) {
     if (!account) { requireLogin(); return }
@@ -296,7 +324,7 @@ export default function App() {
 
   let page = <NotFound />
   if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
-  else if (isAuth) page = <Auth key={location.pathname + location.search} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
+  else if (isAuth) page = <Auth key={location.pathname + location.search} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value || null); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
   else if (route === 'home') page = <Home
     appearance={appearance} products={products} onAddToCart={addToCart}
     favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite}
@@ -307,8 +335,8 @@ export default function App() {
   else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
-  else if (route === 'contact') page = <Contact appearance={appearance} products={products} />
-  else if (route === 'cart') page = <Cart cart={liveCart} products={products} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onNavigate={navigate} />
+  else if (route === 'contact') page = <Contact appearance={appearance} products={products} account={account} onRequireLogin={() => requireLogin('/contact')} />
+  else if (route === 'cart') page = <Cart cart={liveCart} products={products} account={account} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onRequireLogin={() => requireLogin('/cart')} onNavigate={navigate} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'checkout') page = <Checkout search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
@@ -318,8 +346,7 @@ export default function App() {
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'account') page = <Account onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 
-  const accentColor = /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : undefined
-  return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={accentColor ? { '--accent': accentColor } : undefined} onClick={handleLink} onSubmitCapture={handleSearch}>
+  return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
     {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
     <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
       onChangeCapture={clearValidation}>

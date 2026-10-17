@@ -1,6 +1,6 @@
 const topics = ['Hỗ trợ mua hàng', 'Thanh toán & biên nhận', 'Lịch giao / nhận', 'Voucher & thành viên', 'Khác']
 
-export default function ContactForm({ form, onChange, onSubmit, busy, error, success }) {
+export default function ContactForm({ form, onChange, onSubmit, busy, error, success, submitLabel, helperText }) {
   return <section className="surface contact-form-card">
     <p className="eyebrow">Lời nhắn của bạn</p>
     <h2>Gửi yêu cầu hỗ trợ</h2>
@@ -29,8 +29,8 @@ export default function ContactForm({ form, onChange, onSubmit, busy, error, suc
         <small>{form.message.length}/2.000 ký tự</small>
       </label>
       <div className="contact-form-actions">
-        <p>Đã đặt hàng? <a href="/account">Mở đơn trong tài khoản</a> để xem phí và lịch hẹn.</p>
-        <button className="button" type="submit" disabled={busy}>{busy ? 'Đang gửi…' : 'Gửi lời nhắn ↗'}</button>
+        <p>{helperText || <>Đã đặt hàng? <a href="/account">Mở đơn trong tài khoản</a> để xem phí và lịch hẹn.</>}</p>
+        <button className="button" type="submit" disabled={busy}>{busy ? 'Đang gửi…' : (submitLabel || 'Gửi lời nhắn ↗')}</button>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       {success && <p className="contact-success" role="status">{success}</p>}

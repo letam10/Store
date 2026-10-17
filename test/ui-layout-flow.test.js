@@ -23,7 +23,7 @@ test('giỏ hàng hiển thị ba gợi ý có ảnh, tên, giá và chuyển th
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/cart', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
   const items = Array.from({ length: 26 }, (_, index) => ({ id: 'qa-suggestion-' + (index + 1), name: 'Sản phẩm thử ' + index, category: 'Nhóm thử', price: 100000 + index * 1000, discountPercent: 0, stockCount: 20, image: '/products/bag.svg' }))
-  window.localStorage.setItem('storeCartV1', JSON.stringify([{ ...items[0], quantity: 1, selected: false }]))
+  window.localStorage.setItem('storeCartGuestV2', JSON.stringify([{ ...items[0], quantity: 1, selected: false }]))
   window.scrollTo = () => {}
   window.fetch = async (url) => String(url).includes('/customer/session') ? response(401, {}) :
     String(url).includes('/catalog') ? response(200, { products: items }) : response(200, { reviews: [] })
@@ -205,7 +205,7 @@ test('checkout ghép VietQR của main với biên nhận và chỉ gửi mô ph
   const account = { id: 82, username: 'qa-checkout', tier: 'bronze', points: 0, spinCredits: 0, csrfToken: 'qa-merge-checkout' }
   const order = { id: 'ST-MERGE-TEST', total: 420000, extraPaid: 0, refundAmount: 0, recipient: 'Khách thử', phone: '0901234567', address: 'Địa chỉ thử', fulfillment: 'delivery', deliveryStatus: 'processing', paymentMethod: 'bank_transfer', paymentMode: 'demo', scheduledAt: '2999-01-01T00:00:00Z', status: 'pending' }
   let payments = 0, submitted = null
-  window.localStorage.setItem('storeCartV1', JSON.stringify([{ id: 1, quantity: 1, selected: true }]))
+  window.localStorage.setItem('storeCartAccountV2:82', JSON.stringify([{ id: 1, quantity: 1, selected: true }]))
   window.fetch = async (url, options = {}) => {
     const path = String(url)
     if (path.endsWith('/customer/session')) return response(200, { account })

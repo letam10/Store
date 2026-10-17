@@ -16,6 +16,66 @@ export function loadJson(key, fallback) {
   }
 }
 
+export const GUEST_CART_KEY = 'storeCartGuestV2'
+export const ACCOUNT_CART_KEY = 'storeCartAccountV2'
+export const LEGACY_CART_KEY = 'storeCartV1'
+export const CART_MIGRATION_KEY = 'storeCartV1Migrated'
+
+function getStorage(storage) {
+  if (storage) return storage
+  try { return globalThis.localStorage } catch { return null }
+}
+
+function readStoredCart(storage, key) {
+  try {
+    const parsed = JSON.parse(storage?.getItem(key) || '')
+    return Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+export function accountCartKey(accountId) {
+  const id = String(accountId ?? '').trim()
+  return id ? ACCOUNT_CART_KEY + ':' + id : GUEST_CART_KEY
+}
+
+export function cartStorageKey(accountId) {
+  return accountId == null ? GUEST_CART_KEY : accountCartKey(accountId)
+}
+
+// Chuyển giỏ hàng cũ sang guest đúng một lần, không trộn với giỏ tài khoản.
+export function migrateLegacyCart(storage = getStorage()) {
+  if (!storage || storage.getItem(CART_MIGRATION_KEY) === '1') return false
+  const legacy = readStoredCart(storage, LEGACY_CART_KEY)
+  if (legacy) {
+    const currentGuest = readStoredCart(storage, GUEST_CART_KEY)
+    if (!currentGuest) storage.setItem(GUEST_CART_KEY, JSON.stringify(legacy))
+    storage.removeItem(LEGACY_CART_KEY)
+  }
+  storage.setItem(CART_MIGRATION_KEY, '1')
+  return Boolean(legacy)
+}
+
+export function loadCart(accountId = null, storage = getStorage()) {
+  if (!storage) return []
+  migrateLegacyCart(storage)
+  return readStoredCart(storage, cartStorageKey(accountId)) || []
+}
+
+export function saveCart(accountId, cart, storage = getStorage()) {
+  if (!storage) return
+  storage.setItem(cartStorageKey(accountId), JSON.stringify(Array.isArray(cart) ? cart : []))
+}
+
+export function guestCart(storage = getStorage()) {
+  return loadCart(null, storage)
+}
+
+export function accountCart(accountId, storage = getStorage()) {
+  return loadCart(accountId, storage)
+}
+
 // Chức năng cartCount: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function cartCount(cart) {
   return cart.reduce((total, item) => total + Number(item.quantity || 0), 0)

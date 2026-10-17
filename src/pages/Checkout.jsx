@@ -12,12 +12,25 @@ import { userMessage } from '../api/userMessages'
 import { getMembershipPlan } from '../storefront/promotions'
 import { cartTotal } from '../storefront/state'
 import { DOMESTIC_REGIONS } from '../data/shipping'
+import DropdownMenu from '../components/ui/DropdownMenu'
 import OrderCenter from '../components/commerce/OrderCenter'
 import CheckoutOrder from '../components/commerce/CheckoutOrder'
 import PaymentBox from '../components/commerce/PaymentBox'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+const paymentOptions = [
+  { value: 'bank_transfer', label: 'Chuyển khoản / QR' },
+  { value: 'later', label: 'Thanh toán khi nhận hàng' },
+]
+const fulfillmentOptions = [
+  { value: 'delivery', label: 'Giao tận nơi' },
+  { value: 'pickup', label: 'Nhận tại cửa hàng' },
+]
+const regionOptions = [
+  ...DOMESTIC_REGIONS.map(([value, label]) => ({ value, label })),
+  { value: 'international', label: 'Ship ngoại quốc · quốc tế' },
+]
 
 // Chức năng Checkout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Checkout({ cart: currentCart, account, membershipTier = 'bronze', wallet = [],
@@ -157,12 +170,9 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
     {paymentNotice && <p className="checkout-payment-notice" role="status">{paymentNotice}</p>}
     <div className="checkout-layout">
       <form className="surface checkout-card" onSubmit={submit}>
-        <fieldset className="fulfillment-picker"><legend>Thanh toán</legend><label className={paymentChoice === "bank_transfer" ? "is-active" : ""}><input type="radio" name="payment-choice" checked={paymentChoice === "bank_transfer"} onChange={() => setPaymentChoice("bank_transfer")} /><span><b>Chuyển khoản / QR</b><small>Quét mã và nhận bill online.</small></span></label><label className={paymentChoice === "later" ? "is-active" : ""}><input type="radio" name="payment-choice" checked={paymentChoice === "later"} onChange={() => setPaymentChoice("later")} /><span><b>{fulfillment === "pickup" ? "Thanh toán trực tiếp tại quầy" : "Thanh toán khi nhận hàng"}</b><small>Nhân viên xác nhận tiền thực nhận.</small></span></label></fieldset>
+        <label className="field"><span>Thanh toán</span><DropdownMenu value={paymentChoice} options={paymentOptions.map((option) => ({ ...option, label: option.value === 'later' && fulfillment === 'pickup' ? 'Thanh toán trực tiếp tại quầy' : option.label }))} ariaLabel="Phương thức thanh toán" onChange={setPaymentChoice} /></label>
         <label className="field"><span>Lịch giao / nhận</span><input type="datetime-local" value={schedule} onChange={event => setSchedule(event.target.value)} required /></label>
-        <fieldset className="fulfillment-picker"><legend>Cách nhận hàng</legend>
-          <label className={fulfillment === 'delivery' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="delivery" checked={fulfillment === 'delivery'} onChange={() => setFulfillment('delivery')} /><span><b>Giao tận nơi</b><small>Phí giao theo khu vực.</small></span></label>
-          <label className={fulfillment === 'pickup' ? 'is-active' : ''}><input type="radio" name="fulfillment" value="pickup" checked={fulfillment === 'pickup'} onChange={() => setFulfillment('pickup')} /><span><b>Nhận tại cửa hàng</b><small>Không tính phí giao.</small></span></label>
-        </fieldset>
+        <label className="field"><span>Cách nhận hàng</span><DropdownMenu value={fulfillment} options={fulfillmentOptions} ariaLabel="Cách nhận hàng" onChange={setFulfillment} /></label>
         <section className="checkout-voucher"><div className="checkout-voucher__head"><div><span className="eyebrow">ƯU ĐÃI</span><b>Chọn voucher cho đơn hàng</b></div><a href="/rewards">Vòng quay →</a></div>
           <div className="checkout-voucher-groups">{voucherGroup('goods', 'Voucher hàng hóa', '⌂', goodsVouchers)}{voucherGroup('shipping', 'Voucher phí vận chuyển', '✈', shippingVouchers)}</div>
         </section>
@@ -182,7 +192,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
               <input name="address" placeholder="Số nhà, đường, phường / xã" required
                 autoComplete="street-address" value={address} onChange={event => setAddress(event.target.value)} />
             </label>
-            <label className="field field--wide"><span>Tỉnh / thành nhận hàng</span><select value={region} onChange={(event) => setRegion(event.target.value)}><optgroup label="Nội thành Store"><option value="hcm">TP. Hồ Chí Minh · nội thành</option><option value="binh-duong">Bình Dương · nội thành</option><option value="ba-ria-vung-tau">Bà Rịa - Vũng Tàu · nội thành</option></optgroup><optgroup label="Các tỉnh, thành Việt Nam">{DOMESTIC_REGIONS.slice(3).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</optgroup><option value="international">Ship ngoại quốc · quốc tế</option></select></label>
+            <label className="field field--wide"><span>Tỉnh / thành nhận hàng</span><DropdownMenu value={region} options={regionOptions} ariaLabel="Tỉnh hoặc thành phố nhận hàng" onChange={setRegion} /></label>
             {region === 'international' && <label className="field"><span>Khối lượng hàng (kg)</span><input type="number" min="0.1" max="1000" step="0.1" value={weightKg} onChange={(event) => setWeightKg(event.target.value)} required /></label>}
           </>}
         </div>

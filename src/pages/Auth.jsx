@@ -8,7 +8,9 @@ import { useEffect, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { apiEndpoint } from '../api/endpoint'
 import { userMessage } from '../api/userMessages'
+import DropdownMenu from '../components/ui/DropdownMenu'
 import './Auth.css'
+import './AuthTheme.css'
 
 async function migrateOldBrowserAccount(username, password) {
   let users
@@ -139,13 +141,7 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
     <div className="auth-panel">
       <div className="auth-topbar">
         <a className="auth-back" href="/">← {english ? 'Back to store' : 'Về cửa hàng'}</a>
-        <label className="auth-language">
-          <span className="sr-only">{english ? 'Language' : 'Ngôn ngữ'}</span>
-          <select aria-label={english ? 'Language' : 'Ngôn ngữ'} value={language} onChange={(event) => onLanguageChange?.(event.target.value)}>
-            <option value="vi">VI</option>
-            <option value="en">EN</option>
-          </select>
-        </label>
+        <DropdownMenu className="auth-language" ariaLabel={english ? 'Language' : 'Ngôn ngữ'} value={language} options={[{ value: 'vi', label: 'VI' }, { value: 'en', label: 'EN' }]} onChange={(nextLanguage) => onLanguageChange?.(nextLanguage)} />
       </div>
       <span className="auth-mark">store<span>.</span></span>
       <p className="auth-kicker">{english ? 'YOUR PRIVATE STORE SPACE' : 'MỘT GÓC RIÊNG CỦA BẠN'}</p>

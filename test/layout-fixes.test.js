@@ -192,7 +192,7 @@ test('form liên hệ gửi đúng chủ đề và hiển thị lỗi mạng, l�
   const { createRoot } = await import('react-dom/client')
   const root = createRoot(document.getElementById('root'))
   try {
-    await act(async () => root.render(React.createElement(Contact)))
+    await act(async () => root.render(React.createElement(Contact, { account: { id: 'contact-qa', csrfToken: 'contact-csrf' } })))
     const select = document.querySelector('.contact-form-card select')
     assert.equal(select.options.length, 5)
     await act(async () => {
@@ -211,6 +211,42 @@ test('form liên hệ gửi đúng chủ đề và hiển thị lỗi mạng, l�
       assert.match(error, /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i)
       assert.equal(document.querySelector('[type="submit"]').disabled, false)
     }
+  } finally {
+    await act(async () => root.unmount())
+    dom.window.close()
+    for (const [key, descriptor] of originals) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor)
+      else delete globalThis[key]
+    }
+  }
+})
+
+test('khách gửi contact không gọi API, lưu bản nháp và yêu cầu đăng nhập', async () => {
+  const dom = new JSDOM('<div id="root"></div>', { url: 'http://localhost/contact' })
+  let requests = 0
+  let redirect = ''
+  const replacements = {
+    window: dom.window,
+    document: dom.window.document,
+    navigator: dom.window.navigator,
+    HTMLElement: dom.window.HTMLElement,
+    sessionStorage: dom.window.sessionStorage,
+    IS_REACT_ACT_ENVIRONMENT: true,
+    fetch: async () => { requests += 1; return new Response('{}', { status: 200 }) },
+  }
+  const originals = new Map(Object.keys(replacements).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
+  for (const [key, value] of Object.entries(replacements)) Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
+  const { createRoot } = await import('react-dom/client')
+  const root = createRoot(document.getElementById('root'))
+  try {
+    window.sessionStorage.setItem('storeContactDraftV1', JSON.stringify({ name: 'Khách thử', email: 'qa@example.com', topic: 'Thanh toán & biên nhận', message: 'Cần hỗ trợ khi chưa đăng nhập' }))
+    await act(async () => root.render(React.createElement(Contact, { onRequireLogin: () => { redirect = '/contact' } })))
+    const message = document.querySelector('#contact-message')
+    assert.equal(message.value, 'Cần hỗ trợ khi chưa đăng nhập')
+    await act(async () => document.querySelector('.contact-form-card form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true })))
+    assert.equal(requests, 0)
+    assert.equal(redirect, '/contact')
+    assert.equal(JSON.parse(window.sessionStorage.getItem('storeContactDraftV1')).message, 'Cần hỗ trợ khi chưa đăng nhập')
   } finally {
     await act(async () => root.unmount())
     dom.window.close()

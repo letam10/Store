@@ -7,11 +7,28 @@
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
+import DropdownMenu from '../components/ui/DropdownMenu'
 import ProductCard from '../components/ui/ProductCard'
 import { filterProducts } from '../storefront/state'
 import './Storefront.css'
 
 const PAGE_SIZE = 25
+const maxPriceOptions = [
+  { value: 0, label: 'Không giới hạn' },
+  { value: 500000, label: '500.000 ₫' },
+  { value: 1000000, label: '1.000.000 ₫' },
+  { value: 5000000, label: '5.000.000 ₫' },
+  { value: 10000000, label: '10.000.000 ₫' },
+  { value: 25000000, label: '25.000.000 ₫' },
+]
+const sortOptions = [
+  { value: 'featured', label: 'Mặc định' },
+  { value: 'popular', label: 'Xem nhiều nhất' },
+  { value: 'favorite', label: 'Yêu thích nhiều nhất' },
+  { value: 'discount', label: 'Giảm giá cao nhất' },
+  { value: 'price-asc', label: 'Giá thấp → cao' },
+  { value: 'price-desc', label: 'Giá cao → thấp' },
+]
 
 // Chức năng Catalog: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Catalog({ products, search, onAddToCart, favoriteIds = [], onToggleFavorite }) {
@@ -86,12 +103,12 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
       <aside ref={sidebarRef} className={'catalog-sidebar surface' + (filtersOpen ? ' is-open' : '')} aria-label="Bộ lọc sản phẩm">
         <div className="catalog-sidebar__head"><h2>Tìm & lọc</h2>{filtersActive && <button type="button" onClick={resetFilters}>Xóa lọc</button>}<button className="catalog-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls="catalog-filters" onClick={() => setFiltersOpen((open) => !open)}>{filtersOpen ? "Thu gọn" : "Mở bộ lọc"}</button></div><div className="catalog-filters" id="catalog-filters">
         <label className="field"><span>Tìm kiếm</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(PAGE_SIZE) }} placeholder="Tên hoặc nhóm hàng…" /></label>
-        <fieldset className="catalog-category-list"><legend>Loại sản phẩm</legend>{categories.map((item) => <button key={item} className={item === category ? 'is-active' : ''} aria-pressed={item === category} onClick={() => { setCategory(item); setVisibleCount(PAGE_SIZE) }} type="button">{item}</button>)}</fieldset>
+        <label className="field"><span>Loại sản phẩm</span><DropdownMenu value={category} options={categories.map((item) => ({ value: item, label: item }))} ariaLabel="Loại sản phẩm" onChange={(nextCategory) => { setCategory(nextCategory); setVisibleCount(PAGE_SIZE) }} /></label>
         <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { setDiscountOnly(event.target.checked); setVisibleCount(PAGE_SIZE) }} />Chỉ sản phẩm giảm giá</label>
         <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { const checked = event.target.checked; setPopularityOnly(checked); setFavoriteSort(false); setSort(checked ? 'popular' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Độ phổ biến</label>
         <label className="catalog-checkbox"><input type="checkbox" checked={favoriteSort} onChange={(event) => { const checked = event.target.checked; setFavoriteSort(checked); setPopularityOnly(false); setSort(checked ? 'favorite' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Độ yêu thích</label>
-        <label className="field"><span>Giá tối đa</span><select value={maxPrice} onChange={(event) => { setMaxPrice(Number(event.target.value)); setVisibleCount(PAGE_SIZE) }}><option value="0">Không giới hạn</option><option value="500000">500.000 ₫</option><option value="1000000">1.000.000 ₫</option><option value="5000000">5.000.000 ₫</option><option value="10000000">10.000.000 ₫</option><option value="25000000">25.000.000 ₫</option></select></label>
-        <label className="field"><span>Sắp xếp</span><select value={sort} onChange={(event) => { const nextSort = event.target.value; setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setVisibleCount(PAGE_SIZE) }}><option value="featured">Mặc định</option><option value="popular">Xem nhiều nhất</option><option value="favorite">Yêu thích nhiều nhất</option><option value="discount">Giảm giá cao nhất</option><option value="price-asc">Giá thấp → cao</option><option value="price-desc">Giá cao → thấp</option></select></label>
+        <label className="field"><span>Giá tối đa</span><DropdownMenu value={maxPrice} options={maxPriceOptions} ariaLabel="Giá tối đa" onChange={(nextPrice) => { setMaxPrice(Number(nextPrice)); setVisibleCount(PAGE_SIZE) }} /></label>
+        <label className="field"><span>Sắp xếp</span><DropdownMenu value={sort} options={sortOptions} ariaLabel="Sắp xếp sản phẩm" onChange={(nextSort) => { setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setVisibleCount(PAGE_SIZE) }} /></label>
         <p className="catalog-sidebar__hint">Bộ lọc luôn ở bên cạnh khi bạn cuộn danh sách.</p>
       </div></aside>
       <div className="catalog-results">
