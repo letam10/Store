@@ -11,6 +11,15 @@ function sameValue(left, right) {
   return left === right || String(left) === String(right)
 }
 
+function dispatchDropdownEvent(name, detail) {
+  if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') return
+  const event = typeof window.CustomEvent === 'function'
+    ? new window.CustomEvent(name, { detail })
+    : new Event(name)
+  if (!('detail' in event)) event.detail = detail
+  window.dispatchEvent(event)
+}
+
 export default function DropdownMenu({ value, options = [], onChange, ariaLabel, disabled = false, className = '' }) {
   const rootRef = useRef(null)
   const triggerRef = useRef(null)
@@ -75,10 +84,7 @@ export default function DropdownMenu({ value, options = [], onChange, ariaLabel,
     setActiveIndex(selectedIndex >= 0 && !normalizedOptions[selectedIndex]?.disabled
       ? selectedIndex
       : firstEnabledIndex)
-    if (typeof window !== 'undefined') {
-      const CustomEventConstructor = window.CustomEvent || CustomEvent
-      window.dispatchEvent(new CustomEventConstructor('storefront:dropdown-open', { detail: rootRef.current }))
-    }
+    dispatchDropdownEvent('storefront:dropdown-open', rootRef.current)
     setOpen(true)
   }
 

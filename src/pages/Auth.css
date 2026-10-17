@@ -19,9 +19,9 @@
 }
 
 :root[data-theme='dark'] .auth-screen {
-  background: radial-gradient(circle at 14% 18%, #4338ca 0, transparent 35%),
-              radial-gradient(circle at 86% 82%, #6b21a8 0, transparent 38%),
-              linear-gradient(135deg, #090d16 0%, #0f172a 50%, #172554 100%) !important;
+  background: radial-gradient(circle at 12% 15%, #8e4e5f 0, transparent 32%),
+              radial-gradient(circle at 88% 82%, #5d4a91 0, transparent 38%),
+              linear-gradient(130deg, #251a35 0%, #342344 52%, #1c4c4a 100%) !important;
 }
 
 .auth-panel {
@@ -297,7 +297,7 @@
 .auth-panel form input:focus {
   background: #ffffff !important;
   border-color: #6366f1 !important;
-  outline: 3px solid rgba(99, 102, 241, 0.25) !important;
+  outline: 0 !important;
   box-shadow: 0 4px 16px rgba(99, 102, 241, 0.16) !important;
 }
 
@@ -321,7 +321,7 @@
 :root[data-theme='dark'] .auth-panel form input:focus {
   background: #0f172a !important;
   border-color: #818cf8 !important;
-  outline: 3px solid rgba(129, 140, 248, 0.35) !important;
+  outline: 0 !important;
   box-shadow: 0 4px 16px rgba(129, 140, 248, 0.22) !important;
 }
 

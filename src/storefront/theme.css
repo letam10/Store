@@ -34,3 +34,135 @@ html[data-theme='dark'] .summary-card .button, html[data-theme='dark'] .checkout
   border-color: var(--theme-accent, #4f8b67);
   color: var(--accent-contrast, #fff);
 }
+
+/* Final theme layer: legacy storefront selectors inherit the active contract. */
+:root {
+  --ink: var(--theme-text, #18362a);
+  --paper: var(--theme-page, #f7f3ea);
+  --sage: var(--theme-surface-alt, #eaf1e8);
+  --line: var(--theme-border, #d6dfd2);
+  --accent: var(--theme-accent, #4f8b67);
+  --accent-strong: var(--theme-accent-strong, #2f6847);
+  --muted: var(--theme-muted, #66766b);
+}
+
+body { background: var(--theme-page, #f7f3ea); color: var(--theme-text, #18362a); }
+.brand__mark,
+.header-inner .brand__mark {
+  border-color: var(--theme-accent, #4f8b67) !important;
+  background: var(--theme-accent, #4f8b67) !important;
+  box-shadow: 0 7px 18px color-mix(in srgb, var(--theme-accent, #4f8b67) 35%, transparent) !important;
+}
+.header-inner .brand__word > span { color: var(--theme-accent-strong, #2f6847) !important; }
+.account-link__avatar {
+  border-color: var(--theme-accent, #4f8b67) !important;
+  background: var(--theme-accent, #4f8b67) !important;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--theme-accent, #4f8b67) 35%, transparent) !important;
+}
+.shop-hero {
+  background: linear-gradient(135deg, var(--theme-surface-alt, #eaf1e8), var(--theme-surface, #fffdf7)) !important;
+  border-color: var(--theme-border, #d6dfd2) !important;
+}
+.shop-hero-art {
+  background: radial-gradient(circle at 45% 35%, var(--theme-control-active, #dcebdd), var(--theme-surface-alt, #eaf1e8) 52%, var(--theme-page, #f7f3ea)) !important;
+}
+.shop-hero h1 em,
+.hero-art-caption { color: var(--theme-accent-strong, #2f6847) !important; }
+.hero-product-tag {
+  background: color-mix(in srgb, var(--theme-surface, #fffdf7) 94%, transparent) !important;
+  border-color: var(--theme-border, #d6dfd2) !important;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--theme-accent, #4f8b67) 16%, transparent) !important;
+}
+.account-profile {
+  background: linear-gradient(115deg, var(--theme-accent-strong, #2f6847), var(--theme-accent, #4f8b67)) !important;
+}
+.header-inner .header-search-shell .header-inline-search button,
+.header-inner .header-inline-search button,
+.header-search-popover button[type='submit'] {
+  background: var(--theme-accent, #4f8b67) !important;
+  color: var(--accent-contrast, #fffaf5) !important;
+}
+.header-inner .header-search-shell .header-inline-search:focus-within,
+.header-search-popover:focus-within {
+  border-color: var(--theme-accent, #4f8b67) !important;
+  background: var(--theme-control, #fffdf7) !important;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--theme-accent, #4f8b67) 42%, transparent) !important;
+}
+.theme-switch[aria-checked='true'] .theme-switch__track { background: var(--theme-accent, #4f8b67) !important; }
+.theme-switch:focus-visible { outline: 0 !important; box-shadow: inset 0 0 0 2px var(--theme-accent, #4f8b67) !important; }
+.cart-select input:focus-visible + span { outline: 0; box-shadow: inset 0 0 0 2px var(--theme-accent, #4f8b67); }
+
+html[data-theme='dark'] {
+  --ink: var(--theme-text, #edf7ef);
+  --paper: var(--theme-page, #0e1c15);
+  --sage: var(--theme-surface-alt, #1d3528);
+  --line: var(--theme-border, #355943);
+  --accent: var(--theme-accent, #76b98a);
+  --accent-strong: var(--theme-accent-strong, #9bd3a8);
+  --muted: var(--theme-muted, #a8c4af);
+}
+html[data-theme='dark'] .button,
+html[data-theme='dark'] .product-bottom button,
+html[data-theme='dark'] .category-pills button { background: var(--theme-accent, #76b98a) !important; border-color: var(--theme-accent, #76b98a) !important; color: var(--accent-contrast, #0e1c15) !important; }
+html[data-theme='dark'] .shop-hero { background: linear-gradient(135deg, var(--theme-surface-alt, #1d3528), var(--theme-page, #0e1c15)) !important; }
+html[data-theme='dark'] .shop-hero-art { background: radial-gradient(circle at 45% 35%, var(--theme-control-active, #28543a), var(--theme-surface, #14281f) 55%, var(--theme-page, #0e1c15)) !important; }
+html[data-theme='dark'] .header-inner nav a:hover,
+html[data-theme='dark'] .header-inner nav a[aria-current='page'],
+html[data-theme='dark'] .account-link:hover { color: var(--theme-accent-strong, #9bd3a8) !important; }
+html[data-theme='dark'] .theme-switch__track { background: var(--theme-accent, #76b98a) !important; }
+html[data-theme='dark'] .contact-list a,
+html[data-theme='dark'] .contact-list span,
+html[data-theme='dark'] .contact-map-card__head a,
+html[data-theme='dark'] .product-back,
+html[data-theme='dark'] .section-heading > a,
+html[data-theme='dark'] .breadcrumbs a { color: var(--theme-accent-strong, #9bd3a8) !important; }
+.header-inner .account-link__avatar {
+  border-color: var(--theme-accent, #4f8b67) !important;
+  background: var(--theme-accent, #4f8b67) !important;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--theme-accent, #4f8b67) 35%, transparent) !important;
+}
+.header-inner .cart-count {
+  background: var(--theme-accent, #4f8b67) !important;
+  color: var(--accent-contrast, #fffaf5) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--theme-accent, #4f8b67) 30%, transparent) !important;
+}
+.header-inner .cart-count b {
+  background: var(--theme-control, #fffdf7) !important;
+  color: var(--theme-accent-strong, #2f6847) !important;
+}
+.header-inner .header-nav a:hover {
+  background: var(--theme-accent-soft, #e0eee2) !important;
+  color: var(--theme-accent-strong, #2f6847) !important;
+}
+.header-inner .header-nav a[aria-current='page'] {
+  background: var(--theme-accent, #4f8b67) !important;
+  color: var(--accent-contrast, #fffaf5) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--theme-accent, #4f8b67) 35%, transparent) !important;
+}
+html[data-theme='dark'] body .site-frame .header-inner .header-nav a:hover {
+  background: var(--theme-accent-soft, #254b31) !important;
+  color: var(--theme-accent-strong, #9bd3a8) !important;
+}
+html[data-theme='dark'] body .site-frame .header-inner .header-nav a[aria-current='page'] {
+  background: var(--theme-accent, #76b98a) !important;
+  color: var(--accent-contrast, #0e1c15) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--theme-accent, #76b98a) 35%, transparent) !important;
+}
+html[data-theme='dark'] body .site-frame .shop-hero {
+  background: linear-gradient(135deg, var(--theme-surface-alt, #1d3528), var(--theme-page, #0e1c15)) !important;
+  border-color: var(--theme-border, #355943) !important;
+}
+html[data-theme='dark'] body .site-frame .shop-hero-art {
+  background: radial-gradient(circle at 45% 35%, var(--theme-control-active, #28543a), var(--theme-surface, #14281f) 55%, var(--theme-page, #0e1c15)) !important;
+}
+html[data-theme='dark'] body .site-frame .hero-product-tag {
+  background: color-mix(in srgb, var(--theme-surface, #14281f) 94%, transparent) !important;
+  border-color: var(--theme-border, #355943) !important;
+  color: var(--theme-text, #edf7ef) !important;
+}
+html[data-theme='dark'] body .site-frame .header-inner .header-inline-search,
+html[data-theme='dark'] body .site-frame .header-inner .account-link {
+  background: var(--theme-control, #193127) !important;
+  border-color: var(--theme-border, #355943) !important;
+  color: var(--theme-text, #edf7ef) !important;
+}

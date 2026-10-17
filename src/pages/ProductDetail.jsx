@@ -11,6 +11,7 @@ import { getMembershipPlan } from '../storefront/promotions'
 import { productIdFromPath } from '../storefront/state'
 import { similarProducts } from '../storefront/catalog'
 import ProductCard from '../components/ui/ProductCard'
+import DropdownMenu from '../components/ui/DropdownMenu'
 import './Storefront.css'
 import './ProductReviews.css'
 
@@ -174,7 +175,7 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
               <button type="button" aria-pressed={ratingFilter === 0} onClick={() => setRatingFilter(0)}>Tất cả <small>{reviews.length}</small></button>
               {ratingCounts.map(({ stars, count }) => <button key={stars} type="button" aria-label={'Lọc ' + stars + ' sao'} aria-pressed={ratingFilter === stars} onClick={() => setRatingFilter(stars)}>{stars} ★ <small>{count}</small></button>)}
             </div>
-            <label htmlFor="review-content-filter">Nội dung đánh giá</label><select id="review-content-filter" value={reviewContent} onChange={(event) => setReviewContent(event.target.value)}><option value="all">Tất cả nội dung</option><option value="commented">Có lời chia sẻ</option><option value="replied">Store đã trả lời</option></select>
+            <label htmlFor="review-content-filter">Nội dung đánh giá</label><DropdownMenu value={reviewContent} options={[['all', 'Tất cả nội dung'], ['commented', 'Có lời chia sẻ'], ['replied', 'Store đã trả lời']]} onChange={setReviewContent} ariaLabel="Nội dung đánh giá" className="review-filter-dropdown" />
           </section>
         </aside>
         <div className="detail-review-content">
@@ -184,7 +185,7 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
             <label className="detail-review-form__comment">Lời chia sẻ của bạn<textarea rows="4" maxLength="2000" value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Bạn thích điều gì? Sản phẩm có điểm nào cần cải thiện?" /><small>Tùy chọn · {comment.length}/2.000 ký tự</small></label>
             <div className="detail-review-form__footer"><div>{reviewError && <p role="alert" className="form-error">{reviewError}</p>}{reviewSuccess && <p role="status" className="form-success">{reviewSuccess}</p>}</div><button className="button" type="submit" disabled={reviewBusy}>{reviewBusy ? 'Đang gửi…' : 'Gửi đánh giá →'}</button></div>
           </form> : <div className="detail-review-empty"><h3>Bạn đã trải nghiệm sản phẩm?</h3><p>Đăng nhập để chia sẻ đánh giá với cộng đồng.</p><button className="button button--soft" type="button" onClick={onRequireLogin}>Đăng nhập để đánh giá</button></div>}
-          <div className="detail-review-list"><div className="review-list-toolbar"><div><h3>Khách hàng chia sẻ</h3><span role="status">{visibleReviews.length} / {reviews.length} đánh giá</span></div><label className="review-sort">Sắp xếp<select value={reviewOrder} onChange={(event) => setReviewOrder(event.target.value)}><option value="newest">Mới nhất</option><option value="oldest">Cũ nhất</option><option value="highest">Điểm cao nhất</option><option value="lowest">Điểm thấp nhất</option></select></label></div>
+          <div className="detail-review-list"><div className="review-list-toolbar"><div><h3>Khách hàng chia sẻ</h3><span role="status">{visibleReviews.length} / {reviews.length} đánh giá</span></div><label className="review-sort">Sắp xếp<DropdownMenu value={reviewOrder} options={[['newest', 'Mới nhất'], ['oldest', 'Cũ nhất'], ['highest', 'Điểm cao nhất'], ['lowest', 'Điểm thấp nhất']]} onChange={setReviewOrder} ariaLabel="Sắp xếp đánh giá" /></label></div>
           {visibleReviews.length ? visibleReviews.map((review) => <article key={review.id}>
             <header className="detail-review-heading"><span className="detail-review-avatar" aria-hidden="true">{(review.username || 'K').slice(0, 1).toUpperCase()}</span><div><strong>{review.username || 'Khách hàng'}</strong><small>{safeDate(review.createdAt)}</small></div><span className="detail-review-stars" aria-label={review.rating + ' trên 5 sao'}>{'★'.repeat(Math.max(0, Math.min(5, Number(review.rating || 0))))}</span></header>
             <p>{review.comment || 'Khách hàng đã để lại điểm đánh giá.'}</p>{review.adminReply && <div className="detail-admin-reply"><b>Store trả lời</b><p>{review.adminReply}</p></div>}
