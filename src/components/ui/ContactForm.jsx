@@ -1,3 +1,5 @@
+import DropdownMenu from './DropdownMenu'
+
 const topics = ['Hỗ trợ mua hàng', 'Thanh toán & biên nhận', 'Lịch giao / nhận', 'Voucher & thành viên', 'Khác']
 
 export default function ContactForm({ form, onChange, onSubmit, busy, error, success, submitLabel, helperText }) {
@@ -17,10 +19,16 @@ export default function ContactForm({ form, onChange, onSubmit, busy, error, suc
             onChange={event => onChange('email', event.target.value)} autoComplete="email" placeholder="ban@email.com" />
         </label>
       </div>
-      <label htmlFor="contact-topic"><span>Bạn cần hỗ trợ về</span></label>
-      <select id="contact-topic" value={form.topic} onChange={event => onChange('topic', event.target.value)}>
-        {topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}
-      </select>
+      <div className="field contact-topic-field">
+        <span>Bạn cần hỗ trợ về</span>
+        <DropdownMenu
+          value={form.topic}
+          options={topics}
+          ariaLabel="Bạn cần hỗ trợ về"
+          className="contact-topic-dropdown"
+          onChange={topic => onChange('topic', topic)}
+        />
+      </div>
       <label htmlFor="contact-message">
         <span>Nội dung</span>
         <textarea id="contact-message" required minLength="10" maxLength="2000" rows="6" value={form.message}

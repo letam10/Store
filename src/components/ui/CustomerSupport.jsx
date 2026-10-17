@@ -41,6 +41,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
   const [conversationId, setConversationId] = useState(initialConversationIdRef.current)
   const [busy, setBusy] = useState(false)
   const [activity, setActivity] = useState('')
+  const [providerStatus, setProviderStatus] = useState(null)
   const inputRef = useRef(null)
   const toggleRef = useRef(null)
   const rootRef = useRef(null)
@@ -96,6 +97,14 @@ export default function CustomerSupport({ account, onRequireLogin }) {
   }, [])
 
   useEffect(() => { if (isOpen) inputRef.current?.focus() }, [isOpen])
+  useEffect(() => {
+    if (!isOpen || !account) return undefined
+    let disposed = false
+    apiJson('/api/support/status')
+      .then((status) => { if (!disposed) setProviderStatus(status) })
+      .catch(() => { if (!disposed) setProviderStatus({ reachable: false, modelAvailable: false }) })
+    return () => { disposed = true }
+  }, [isOpen, account])
   useEffect(() => {
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (!isOpen) return undefined
@@ -246,7 +255,7 @@ export default function CustomerSupport({ account, onRequireLogin }) {
         <section id="store-support-panel" className="customer-support__panel" aria-label="Trò chuyện với Store">
           <div className="customer-support__intro">
             <span>CHĂM SÓC KHÁCH HÀNG</span>
-            <span className="customer-support__badge">Suy luận: Tắt</span>
+            <span className="customer-support__badge">{providerStatus?.reachable && providerStatus?.modelAvailable ? `AI Local · ${providerStatus.model || 'qwen3.5:4b'}` : providerStatus ? 'AI fallback local' : 'Đang kiểm tra AI'}</span>
           </div>
           <div className="customer-support__toolbar"><button type="button" disabled={busy} onClick={startNewConversation}>Cuộc trò chuyện mới</button></div>
 

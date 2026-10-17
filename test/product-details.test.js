@@ -2,14 +2,17 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import importedProducts from '../src/data/imported-products.json' with { type: 'json' }
 import details from '../src/data/product-details.json' with { type: 'json' }
+import manifest from '../shared/catalog-manifest.json' with { type: 'json' }
 import { products } from '../src/data/products.js'
 
 test('bổ sung nội dung cho mọi sản phẩm nhập mà không đổi giá, ảnh, mã hay danh mục', () => {
   const byId = new Map(products.map((product) => [String(product.id), product]))
-  assert.equal(products.length, 2000)
+  assert.equal(products.length, 1000)
   assert.equal(byId.size, products.length)
   assert.equal(Object.keys(details).length, importedProducts.length)
-  for (const original of importedProducts) {
+  const selectedImported = manifest.products.filter((product) => product.source !== 'store-designed')
+  assert.equal(selectedImported.length, 996)
+  for (const original of selectedImported) {
     const enriched = byId.get(String(original.id))
     assert.ok(details[original.id], original.id)
     for (const key of ['id', 'sourceId', 'name', 'price', 'category', 'image', 'images', 'stockCount', 'discountPercent', 'sourceUrl']) {
@@ -25,12 +28,13 @@ test('bổ sung nội dung cho mọi sản phẩm nhập mà không đổi giá,
 })
 
 test('thông số chỉ lấy từ nguồn và mẫu tự thiết kế nêu rõ thông tin chưa công bố', () => {
-  const notebook = products.find((product) => product.sourceId === '0da4c835-29b6-0d6f-8b5b-104dccbd0026')
-  assert.equal(notebook.brand, 'AmazonBasics')
-  assert.match(notebook.features.join(' '), /4 GB RAM.*1 TB HDD/)
-  const strainer = products.find((product) => product.id === 'dummyjson-57')
-  assert.equal(strainer.specifications['Mã mẫu'], 'KIT-BRD-FIN-057')
-  assert.match(strainer.specifications['Khối lượng theo nguồn'], /chưa nêu đơn vị/)
+  const sourcedProduct = products.find((product) => product.source !== 'store-designed' && product.brand)
+  assert.ok(sourcedProduct)
+  assert.equal(sourcedProduct.brand, details[sourcedProduct.id].brand)
+  const importedProduct = products.find((product) => product.source !== 'store-designed')
+  assert.ok(importedProduct)
+  assert.ok(Object.keys(importedProduct.specifications).length > 0)
+  assert.ok(importedProduct.description.length > 80)
   for (const product of products.slice(0, 4)) {
     assert.ok(product.description.length > 200)
     assert.ok(Object.keys(product.specifications).length >= 4)

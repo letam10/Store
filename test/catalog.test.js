@@ -45,7 +45,7 @@ test('similar products cap results and keep the current category', () => {
 // Kiểm thử edge case: admin offer overrides demo discount and view ranking excludes out of stock.
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
-  assert.equal(imported.length, 2000)
+  assert.equal(imported.length, 1000)
   assert.equal(imported.filter((product) => product.category === 'Tự Thiết Kế').length, 39)
   assert.equal(imported.filter((product) => product.category === 'Thực phẩm').length, 0)
   assert.equal(imported.filter((product) => String(product.id).startsWith('custom-design-')).length, 0)

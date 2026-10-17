@@ -6,12 +6,14 @@
  * Liên kết trực tiếp: ./imported-products.json, ../../shared/products.js.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import importedProducts from './imported-products.json' with { type: 'json' }
 import productDetails from './product-details.json' with { type: 'json' }
-import { products as featuredProducts, productDataMeta } from '../../shared/products.js'
+import catalogManifest from '../../shared/catalog-manifest.json' with { type: 'json' }
+import { productDataMeta } from '../../shared/products.js'
 
 // Ghép thông tin nguồn theo ID; không thay thế giá, danh mục, ảnh hay dữ liệu kho.
-const detailedProducts = importedProducts.map((product) => {
+const manifestProducts = Array.isArray(catalogManifest.products) ? catalogManifest.products : []
+
+const detailedProducts = manifestProducts.map((product) => {
   const details = productDetails[product.id]
   if (!details) return product
   const facts = Object.entries(details.specifications || {})
@@ -23,5 +25,5 @@ const detailedProducts = importedProducts.map((product) => {
   ].filter(Boolean).join('\n\n')
   return { ...product, brand: details.brand, specifications: details.specifications, features: details.features?.length ? details.features : product.features, description }
 })
-export const products = [...featuredProducts, ...detailedProducts]
+export const products = detailedProducts
 export { productDataMeta }

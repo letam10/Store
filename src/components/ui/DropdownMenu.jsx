@@ -21,7 +21,34 @@ export default function DropdownMenu({ value, options = [], onChange, ariaLabel,
   const listId = useId()
 
   useEffect(() => {
+    const closeWhenAnotherOpens = (event) => {
+      if (event.detail !== rootRef.current) setOpen(false)
+    }
+    const closeFromParent = () => setOpen(false)
+    window.addEventListener('storefront:dropdown-open', closeWhenAnotherOpens)
+    window.addEventListener('storefront:dropdown-close', closeFromParent)
+    return () => {
+      window.removeEventListener('storefront:dropdown-open', closeWhenAnotherOpens)
+      window.removeEventListener('storefront:dropdown-close', closeFromParent)
+    }
+  }, [])
+
+  useEffect(() => {
     if (!open) return undefined
+    triggerRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+    const measureViewport = () => {
+      const trigger = triggerRef.current
+      const root = rootRef.current
+      if (!trigger || !root) return
+      let rect = trigger.getBoundingClientRect()
+      if (window.innerHeight - rect.bottom < 160) {
+        trigger.scrollIntoView?.({ block: 'center', inline: 'nearest' })
+        rect = trigger.getBoundingClientRect()
+      }
+      const available = Math.max(140, Math.min(360, window.innerHeight - rect.bottom - 12))
+      root.style.setProperty('--dropdown-max-height', `${available}px`)
+    }
+    measureViewport()
     const closeOnOutsideClick = (event) => {
       if (!rootRef.current?.contains(event.target)) {
         setOpen(false)
@@ -29,7 +56,13 @@ export default function DropdownMenu({ value, options = [], onChange, ariaLabel,
       }
     }
     document.addEventListener('pointerdown', closeOnOutsideClick)
-    return () => document.removeEventListener('pointerdown', closeOnOutsideClick)
+    window.addEventListener('resize', measureViewport)
+    window.addEventListener('scroll', measureViewport, true)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      window.removeEventListener('resize', measureViewport)
+      window.removeEventListener('scroll', measureViewport, true)
+    }
   }, [open])
 
   const firstEnabledIndex = normalizedOptions.findIndex((option) => !option.disabled)
@@ -42,6 +75,10 @@ export default function DropdownMenu({ value, options = [], onChange, ariaLabel,
     setActiveIndex(selectedIndex >= 0 && !normalizedOptions[selectedIndex]?.disabled
       ? selectedIndex
       : firstEnabledIndex)
+    if (typeof window !== 'undefined') {
+      const CustomEventConstructor = window.CustomEvent || CustomEvent
+      window.dispatchEvent(new CustomEventConstructor('storefront:dropdown-open', { detail: rootRef.current }))
+    }
     setOpen(true)
   }
 

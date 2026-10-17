@@ -8,6 +8,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import DropdownMenu from '../components/ui/DropdownMenu'
+import { closeDropdownMenus } from '../components/ui/dropdownEvents'
 import ProductCard from '../components/ui/ProductCard'
 import { filterProducts } from '../storefront/state'
 import './Storefront.css'
@@ -87,6 +88,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
 
   // Chức năng resetFilters: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function resetFilters() {
+    closeDropdownMenus()
     setQuery('')
     setCategory('Tất cả')
     setMaxPrice(0)
@@ -102,13 +104,18 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
     <div className="catalog-layout">
       <aside ref={sidebarRef} className={'catalog-sidebar surface' + (filtersOpen ? ' is-open' : '')} aria-label="Bộ lọc sản phẩm">
         <div className="catalog-sidebar__head"><h2>Tìm & lọc</h2>{filtersActive && <button type="button" onClick={resetFilters}>Xóa lọc</button>}<button className="catalog-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls="catalog-filters" onClick={() => setFiltersOpen((open) => !open)}>{filtersOpen ? "Thu gọn" : "Mở bộ lọc"}</button></div><div className="catalog-filters" id="catalog-filters">
-        <label className="field"><span>Tìm kiếm</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setVisibleCount(PAGE_SIZE) }} placeholder="Tên hoặc nhóm hàng…" /></label>
-        <label className="field"><span>Loại sản phẩm</span><DropdownMenu value={category} options={categories.map((item) => ({ value: item, label: item }))} ariaLabel="Loại sản phẩm" onChange={(nextCategory) => { setCategory(nextCategory); setVisibleCount(PAGE_SIZE) }} /></label>
-        <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { setDiscountOnly(event.target.checked); setVisibleCount(PAGE_SIZE) }} />Chỉ sản phẩm giảm giá</label>
-        <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { const checked = event.target.checked; setPopularityOnly(checked); setFavoriteSort(false); setSort(checked ? 'popular' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Độ phổ biến</label>
-        <label className="catalog-checkbox"><input type="checkbox" checked={favoriteSort} onChange={(event) => { const checked = event.target.checked; setFavoriteSort(checked); setPopularityOnly(false); setSort(checked ? 'favorite' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Độ yêu thích</label>
-        <label className="field"><span>Giá tối đa</span><DropdownMenu value={maxPrice} options={maxPriceOptions} ariaLabel="Giá tối đa" onChange={(nextPrice) => { setMaxPrice(Number(nextPrice)); setVisibleCount(PAGE_SIZE) }} /></label>
-        <label className="field"><span>Sắp xếp</span><DropdownMenu value={sort} options={sortOptions} ariaLabel="Sắp xếp sản phẩm" onChange={(nextSort) => { setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setVisibleCount(PAGE_SIZE) }} /></label>
+        <label className="field"><span>Tìm kiếm</span><input type="search" value={query} onChange={(event) => { closeDropdownMenus(); setQuery(event.target.value); setVisibleCount(PAGE_SIZE) }} placeholder="Tên hoặc nhóm hàng…" /></label>
+        <fieldset className="catalog-category-list">
+          <legend>Danh mục sản phẩm</legend>
+          <div className="catalog-category-list__scroll" role="listbox" aria-label="Danh mục sản phẩm">
+            {categories.map((item) => <button key={item} type="button" role="option" aria-selected={category === item} className={category === item ? 'is-active' : ''} onClick={() => { closeDropdownMenus(); setCategory(item); setVisibleCount(PAGE_SIZE) }}>{item}</button>)}
+          </div>
+        </fieldset>
+        <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { closeDropdownMenus(); setDiscountOnly(event.target.checked); setVisibleCount(PAGE_SIZE) }} />Lọc sản phẩm giảm giá</label>
+        <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setPopularityOnly(checked); setFavoriteSort(false); setSort(checked ? 'popular' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Chỉ lọc sản phẩm phổ biến</label>
+        <label className="catalog-checkbox"><input type="checkbox" checked={favoriteSort} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setFavoriteSort(checked); setPopularityOnly(false); setSort(checked ? 'favorite' : 'featured'); setVisibleCount(PAGE_SIZE) }} />Chỉ lọc sản phẩm yêu thích</label>
+        <label className="field"><span>Giá tối đa</span><DropdownMenu value={maxPrice} options={maxPriceOptions} ariaLabel="Giá tối đa" onChange={(nextPrice) => { closeDropdownMenus(); setMaxPrice(Number(nextPrice)); setVisibleCount(PAGE_SIZE) }} /></label>
+        <label className="field"><span>Sắp xếp</span><DropdownMenu value={sort} options={sortOptions} ariaLabel="Sắp xếp sản phẩm" onChange={(nextSort) => { closeDropdownMenus(); setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setVisibleCount(PAGE_SIZE) }} /></label>
         <p className="catalog-sidebar__hint">Bộ lọc luôn ở bên cạnh khi bạn cuộn danh sách.</p>
       </div></aside>
       <div className="catalog-results">

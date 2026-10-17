@@ -193,12 +193,12 @@ test('form liên hệ gửi đúng chủ đề và hiển thị lỗi mạng, l�
   const root = createRoot(document.getElementById('root'))
   try {
     await act(async () => root.render(React.createElement(Contact, { account: { id: 'contact-qa', csrfToken: 'contact-csrf' } })))
-    const select = document.querySelector('.contact-form-card select')
-    assert.equal(select.options.length, 5)
-    await act(async () => {
-      select.value = 'Thanh toán & biên nhận'
-      select.dispatchEvent(new window.Event('change', { bubbles: true }))
-    })
+    const trigger = document.querySelector('.contact-form-card .dropdown-menu__trigger')
+    assert.ok(trigger)
+    await act(async () => trigger.click())
+    const option = [...document.querySelectorAll('.dropdown-menu__option')].find((item) => item.textContent.includes('Thanh toán & biên nhận'))
+    assert.ok(option)
+    await act(async () => option.click())
     const form = document.querySelector('.contact-form-card form')
     for (failure of ['network', 'server']) {
       await act(async () => form.dispatchEvent(new window.Event('submit', {
