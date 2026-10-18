@@ -28,6 +28,22 @@
     padding-bottom: 32px;
   }
 
+  .home-promotion-region--page {
+    position: relative;
+    width: var(--home-content-width);
+    margin-inline: auto;
+    padding-bottom: 32px;
+  }
+
+  .home-promotion-region--page > .home-promotion-region__body {
+    width: 100%;
+  }
+
+  .home-promotion-region--page .home-promotion-region--intro {
+    width: 100%;
+    margin-inline: 0;
+  }
+
   .home-promotion-region--intro .home-promotion-region__body > .container {
     width: 100%;
   }
@@ -46,14 +62,14 @@
     width: var(--home-content-width);
   }
 
-  /* Hai vùng quảng cáo riêng: phần đầu và khu danh mục, cuộn cùng nội dung. */
+  /* Rail thuộc frame toàn trang, sale vẫn nằm trong body ở cột giữa. */
   .home-promotion-rail {
     --home-rail-height: 100%;
     display: block;
     position: absolute;
     z-index: 15;
     top: 0;
-    bottom: 32px;
+    bottom: 0;
     width: var(--home-banner-width);
     min-width: 0;
   }
@@ -64,6 +80,13 @@
 
   .home-promotion-rail--right {
     right: calc(-1 * (var(--home-banner-width) + var(--home-banner-gap)));
+  }
+
+  .home-promotion-region--page .home-section--sale {
+    width: 100%;
+    margin-inline: 0 !important;
+    margin-block: clamp(36px, 5vw, 76px) !important;
+    padding-inline: clamp(24px, 4vw, 64px) !important;
   }
 
   .home-promotion-region--intro .home-product-row {

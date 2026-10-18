@@ -4,8 +4,8 @@ import AccountTwoFactor from '../components/ui/AccountTwoFactor.jsx'
 /**
  * @codex-vn-doc
  * Tệp: src/pages/Account.jsx
- * Mục đích: Không gian cá nhân, voucher, hạng thành viên và lịch sử đơn hàng.
- * Liên kết: App.jsx cung cấp account/orders/wallet và callback chọn voucher, đăng xuất; promotions/state cung cấp nhãn hạng và lọc đơn.
+ * Mục đích: Không gian cá nhân, hạng thành viên và lịch sử đơn hàng.
+ * Liên kết: App.jsx cung cấp account/orders/wallet, đăng xuất; promotions/state cung cấp nhãn hạng và lọc đơn.
  * Cẩn trọng: dữ liệu tài khoản có thể thiếu tuỳ phiên; luôn dùng giá trị dự phòng và không hiển thị mã voucher đã hết hạn từ API.
  */
 import { useEffect, useMemo, useState } from 'react'
@@ -14,15 +14,8 @@ import { getMembershipPlan } from '../storefront/promotions'
 import { orderMatches } from '../storefront/state'
 import './Storefront.css'
 
-const date = new Intl.DateTimeFormat('vi-VN', { day: 'numeric', month: 'numeric', year: '2-digit' })
-
-function safeDate(value) {
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? 'Chưa xác định ngày' : date.format(parsed)
-}
-
-export default function Account({ account, orders = [], membershipTier = 'bronze', wallet = [], selectedVoucherCodes = [],
-  onToggleVoucher, onLogout, onRefresh, onPaymentComplete, onNavigate }) {
+export default function Account({ account, orders = [], membershipTier = 'bronze', wallet = [],
+  onLogout, onRefresh, onPaymentComplete, onNavigate }) {
   const [orderQuery, setOrderQuery] = useState('')
   const [security, setSecurity] = useState(null)
 
@@ -49,13 +42,7 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
     <div className="account-shortcuts account-shortcuts--redesign"><a href="/favorites"><span aria-hidden="true">♥</span><b>Yêu thích</b><small>Sản phẩm đã lưu <i aria-hidden="true">→</i></small></a><a href="/membership"><span aria-hidden="true">✦</span><b>Thành viên</b><small>Hạng {plan.name} <i aria-hidden="true">→</i></small></a><a href="/rewards"><span aria-hidden="true">◌</span><b>Vòng quay</b><small>{spinCredits} lượt còn lại <i aria-hidden="true">→</i></small></a></div>
 
     <PaymentNotifications orders={orders} />
-    <main className="account-content-grid">
-      <section className="surface account-wallet account-wallet--redesign"><div className="account-orders__head"><div><p className="eyebrow">Dành cho bạn</p><h2>Kho voucher</h2></div><a href="/rewards">Nhận thêm từ vòng quay →</a></div>
-        {wallet.length ? <div className="account-voucher-grid">{wallet.map((voucher) => <article key={voucher.code} className={selectedVoucherCodes.includes(voucher.code) ? 'is-selected' : ''}>
-          <strong>{voucher.label || 'Voucher Store'}</strong><p><code>{voucher.code}</code> · HSD {safeDate(voucher.expiresAt)}</p><button type="button" onClick={() => onToggleVoucher?.(voucher.code)}>{selectedVoucherCodes.includes(voucher.code) ? 'Bỏ chọn' : 'Sử dụng'}</button>
-        </article>)}</div> : <div className="account-empty-state"><span aria-hidden="true">◇</span><div><strong>Chưa có voucher</strong><p className="muted">Voucher mới nhận sẽ xuất hiện ở đây.</p></div><a href="/rewards">Mở vòng quay →</a></div>}
-      </section>
-
+    <main className="account-content-grid account-content-grid--single">
       <aside className="account-side-panel"><div className="account-side-panel__heading"><p className="eyebrow">Tóm tắt</p><h2>Quyền lợi hiện tại</h2></div><div className="account-benefit-list"><div><span>Hạng</span><strong>{plan.name}</strong></div><div><span>Điểm</span><strong>{points.toLocaleString('vi-VN')}</strong></div><div><span>Đơn hàng</span><strong>{orders.length}</strong></div></div><a className="button button--soft" href="/membership">Xem quyền lợi thành viên</a></aside>
     </main>
 

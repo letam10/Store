@@ -64,8 +64,8 @@ export default function Home({
   }, [featured.length])
   const sale = featuredSaleProducts(products, 10)
 
-  return <>
-    <HomePromotionRegion overview={promotionOverview} account={account} products={products}>
+  return <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="page">
+    <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="intro">
       <section className="shop-hero container">
         <div className="shop-hero-copy">
           <p className="eyebrow">{appearance.bannerLabel || 'STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY'}</p>
@@ -123,5 +123,5 @@ export default function Home({
       <MarketBanner />
       <section className="visit-strip"><div><p className="eyebrow">STORE, GẦN BẠN HƠN</p><h2>Muốn tìm đường hoặc liên hệ?</h2></div><a className="button button--soft" href="/contact">Xem địa chỉ & liên hệ ↗</a></section>
     </div>
-  </>
+  </HomePromotionRegion>
 }

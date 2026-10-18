@@ -80,20 +80,23 @@ async function openStore({ customer = null, offers = [saleProduct], vouchers = [
 
 function assertHomeRegion(window) {
   const { document, Node } = window
-  const region = document.querySelector('.home-promotion-region--intro')
+  const region = document.querySelector('.home-promotion-region--page')
+  const intro = document.querySelector('.home-promotion-region--intro')
   const catalog = document.querySelector('.home-promotion-region--catalog')
   const sale = document.querySelector('#home-sale-products')
-  assert.ok(region, 'Trang chủ cần vùng giới hạn banner')
+  assert.ok(region, 'Trang chủ cần frame banner toàn trang')
+  assert.ok(intro, 'Trang chủ cần vùng intro')
   assert.ok(catalog, 'Banner còn lại cần được đưa xuống vùng danh mục')
   assert.ok(sale, 'Mục giảm giá cần đích điều hướng cố định')
   assert.equal(document.querySelectorAll('.home-promotion-rail').length, 2)
   assert.equal(region.querySelectorAll('aside.home-promotion-rail').length, 2)
+  assert.equal(intro.querySelectorAll('aside.home-promotion-rail').length, 0)
   for (const side of ['left', 'right']) {
     assert.ok(region.querySelector('.home-promotion-rail--' + side + ' .home-side-banner'))
   }
   assert.ok(region.querySelector('.home-promotion-region__body .shop-hero'))
   assert.ok(region.querySelector('.home-promotion-region__body .store-promo-board'))
-  assert.equal(region.contains(sale), false)
+  assert.equal(intro.contains(sale), false)
   assert.equal(catalog.contains(sale), true)
   for (const side of ['left', 'right']) {
     const top = region.querySelector('.home-promotion-rail--' + side)
@@ -107,7 +110,7 @@ function assertHomeRegion(window) {
       assert.ok(card.querySelector('.home-side-banner__details'))
     }
   }
-  assert.ok(region.compareDocumentPosition(sale) & Node.DOCUMENT_POSITION_FOLLOWING)
+  assert.ok(region.contains(sale) || region.compareDocumentPosition(sale) & Node.DOCUMENT_POSITION_FOLLOWING)
   assert.equal(document.querySelectorAll('.store-promo-rail').length, 0)
 }
 
@@ -185,7 +188,7 @@ test('bấm banner chính đưa người dùng tới khu giảm giá riêng', as
   const dom = await openStore()
   const { window } = dom
   try {
-    const selector = '.home-promotion-region--intro .home-side-banner--store'
+    const selector = '.home-promotion-region--page .home-side-banner--store'
     await waitFor(() => window.document.querySelector(selector))
     window.document.querySelector(selector).click()
     await waitFor(() => window.location.hash === '#home-sale-products')

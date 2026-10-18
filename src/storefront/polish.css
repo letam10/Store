@@ -162,13 +162,12 @@
 :root[data-theme='dark'] .cart-similar__image-wrap{background:#fff;border-color:#5a805f}
 
 /* Checkout surfaces retain readable contrast after the theme switch. */
-.checkout-card,.summary-card{background:var(--paper)!important;color:var(--ink)!important;border-color:var(--line)!important}
-.checkout-voucher,.checkout-voucher-group,.checkout-voucher-option,.fulfillment-picker label{background:color-mix(in srgb,var(--paper) 92%,var(--sage))!important;color:var(--ink)!important;border-color:var(--line)!important}
-.checkout-voucher-option.is-selected,.fulfillment-picker label.is-active{background:#e8f4e9!important;border-color:#6fa47b!important}
-:root[data-theme='dark'] .checkout-voucher-option.is-selected,:root[data-theme='dark'] .fulfillment-picker label.is-active{background:#31583c!important;border-color:#82bd8e!important}
-:root[data-theme='dark'] .checkout-card,:root[data-theme='dark'] .summary-card,:root[data-theme='dark'] .checkout-voucher,:root[data-theme='dark'] .checkout-voucher-group,:root[data-theme='dark'] .checkout-voucher-option,:root[data-theme='dark'] .fulfillment-picker label{background:#1c2e23!important;color:#e7f2e8!important;border-color:#3f5e48!important}
-:root[data-theme='dark'] .checkout-voucher-group__trigger,:root[data-theme='dark'] .checkout-voucher-option b,:root[data-theme='dark'] .checkout-voucher-option code,:root[data-theme='dark'] .fulfillment-picker b{color:#edf8ee!important}
-:root[data-theme='dark'] .checkout-voucher-option small,:root[data-theme='dark'] .fulfillment-picker small,:root[data-theme='dark'] .checkout-disclaimer{color:#bad1be!important}
+.checkout-card,.summary-card{background:var(--theme-surface,var(--paper))!important;color:var(--theme-text,var(--ink))!important;border-color:var(--theme-border,var(--line))!important}
+.checkout-card .field input,.checkout-card .field textarea,.checkout-card .field select,.checkout-card .dropdown-menu__trigger,.checkout-voucher__input input{background:var(--theme-control,var(--paper))!important;color:var(--theme-text,var(--ink))!important;border-color:var(--theme-border,var(--line))!important}
+.checkout-voucher,.checkout-voucher-group,.checkout-voucher-option,.fulfillment-picker label{background:var(--theme-surface-alt,var(--sage))!important;color:var(--theme-text,var(--ink))!important;border-color:var(--theme-border,var(--line))!important}
+.checkout-voucher-option.is-selected,.fulfillment-picker label.is-active{background:var(--theme-control-active,var(--theme-accent-soft))!important;border-color:var(--theme-accent,var(--accent))!important;color:var(--theme-text,var(--ink))!important}
+.checkout-voucher-group__trigger,.checkout-voucher-option b,.checkout-voucher-option code,.fulfillment-picker b{color:var(--theme-text,var(--ink))!important}
+.checkout-voucher-option small,.fulfillment-picker small,.checkout-disclaimer{color:var(--theme-muted,var(--muted))!important}
 
 /* Home lower banners use the same surface tokens as the rest of the page. */
 .member-links>a,.lead-capture,.visit-strip{border-color:var(--line)!important}

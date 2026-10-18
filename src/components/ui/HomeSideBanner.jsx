@@ -9,7 +9,7 @@ export default function HomeSideBanner({ side, overview, account, products, area
   const bestPlan = membershipPlans.at(-1)
   const discount = account ? plan.discount : bestPlan.discount
   const hasSale = sales.length > 0
-  const isIntro = area === 'intro'
+  const isIntro = area === 'intro' || area === 'page'
   const title = isStore ? 'Món cần. Giá tốt.' : account ? 'Hạng ' + plan.name : 'Thêm nhiều quyền lợi.'
 
   return (
