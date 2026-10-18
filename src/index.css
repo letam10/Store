@@ -32,7 +32,7 @@ button, input, textarea, select {
   font: inherit;
 }
 :focus-visible {
-  outline: 3px solid #6366f1;
+  outline: 3px solid #4f8b67;
   outline-offset: 3px;
 }
 p {
@@ -45,8 +45,8 @@ h1, h2, h3 {
   min-height: 100vh;
 }
 ::selection {
-  background: #c7d2fe;
-  color: #1e1b4b;
+  background: #bbf7d0;
+  color: #14532d;
 }
 .sr-only {
   position: absolute !important;

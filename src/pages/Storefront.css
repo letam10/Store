@@ -124,11 +124,11 @@
 :root[data-theme='dark'] .detail-admin-reply { background:#294834; }
 :root[data-theme='dark'] .detail-gallery button { background:#f7faf6; }
 :root[data-theme='dark'] .account-profile--redesign { background:linear-gradient(125deg,#142a21,#254737 62%,#315b45); }
-:root[data-theme='dark'] .account-side-panel { background:#1e293b; border-color:#334155; color:#f0f8f1; }
-:root[data-theme='dark'] .account-benefit-list { border-color:#334155; }
-:root[data-theme='dark'] .account-benefit-list div { border-color:#334155; }
-:root[data-theme='dark'] .account-benefit-list span { color:#a7bed0; }
-:root[data-theme='dark'] .account-benefit-list strong { color:#f0f8f1; }
+:root[data-theme='dark'] .account-side-panel { background:#14281f; border-color:#355943; color:#edf7ef; }
+:root[data-theme='dark'] .account-benefit-list { border-color:#355943; }
+:root[data-theme='dark'] .account-benefit-list div { border-color:#355943; }
+:root[data-theme='dark'] .account-benefit-list span { color:#a3c4b1; }
+:root[data-theme='dark'] .account-benefit-list strong { color:#edf7ef; }
 :root[data-theme='dark'] .account-empty-state>span { background:#294834; }
 :root[data-theme='dark'] .account-empty-state a { color:#9cdda8; }
 @media(max-width:900px){

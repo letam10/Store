@@ -1,108 +1,108 @@
-/* Palette auth giữ ngôn ngữ hồng đào, tím và xanh ngọc của bản cũ. */
+/* Palette auth đồng bộ theo ngôn ngữ xanh ngọc, xanh rừng (forest/emerald) và xám mát của thương hiệu Store. */
 .auth-screen {
-  background: radial-gradient(circle at 12% 15%, #ffd6a5 0, transparent 32%),
-    radial-gradient(circle at 88% 82%, #c4b5fd 0, transparent 38%),
-    linear-gradient(130deg, #fbcfe8 0%, #e0e7ff 52%, #bae6fd 100%);
+  background: radial-gradient(circle at 12% 15%, #d1fae5 0, transparent 35%),
+    radial-gradient(circle at 88% 82%, #e0f2fe 0, transparent 40%),
+    linear-gradient(130deg, #ecfdf5 0%, #f0fdf4 52%, #e2e8f0 100%);
 }
 
 .auth-panel {
   border-color: rgb(255 255 255 / 85%);
   background: rgb(255 255 255 / 94%);
-  box-shadow: 0 24px 70px rgb(99 102 241 / 16%), 0 4px 16px rgb(0 0 0 / 4%);
+  box-shadow: 0 24px 70px rgba(47, 104, 71, 0.16), 0 4px 16px rgb(0 0 0 / 4%);
 }
 
-.auth-back { color: #4f46e5; }
-.auth-back:hover { color: #3730a3; }
+.auth-back { color: #2f6847; }
+.auth-back:hover { color: #1b4d36; }
 .auth-mark { color: #0f172a; }
-.auth-mark span { color: #f43f5e; }
-.auth-kicker { color: #ec4899; }
+.auth-mark span { color: #4f8b67; }
+.auth-kicker { color: #2f6847; }
 .auth-panel h1 { color: #0f172a !important; }
 .auth-intro { color: #64748b !important; }
 .auth-tabs { background: #f1f5f9; border-color: #e2e8f0; }
 .auth-tabs button { color: #64748b; }
 .auth-tabs button[aria-selected='true'],
-.auth-tabs button.is-active { color: #4f46e5; background: rgb(255 255 255 / 60%); }
+.auth-tabs button.is-active { color: #1b4d36; background: rgb(255 255 255 / 85%); }
 .auth-panel form input {
   border-color: #cbd5e1 !important;
   background: #f8fafc !important;
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
-  caret-color: #6366f1 !important;
+  caret-color: #2f6847 !important;
 }
 .auth-panel form input:focus {
   background: #fff !important;
-  border-color: #6366f1 !important;
+  border-color: #4f8b67 !important;
   outline: 0 !important;
-  box-shadow: 0 4px 16px rgb(99 102 241 / 16%) !important;
+  box-shadow: 0 4px 16px rgba(79, 139, 103, 0.2) !important;
 }
 .auth-panel form button[type='submit'] {
-  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%) !important;
+  background: linear-gradient(135deg, #1b4d36 0%, #2f6847 50%, #4f8b67 100%) !important;
 }
-.auth-help a, .auth-links a { color: #6366f1 !important; }
-.auth-help a:hover, .auth-links a:hover { color: #4338ca !important; }
+.auth-help a, .auth-links a { color: #2f6847 !important; }
+.auth-help a:hover, .auth-links a:hover { color: #1b4d36 !important; }
 
-/* Dark mode dùng bản tối của cùng palette, không chuyển sang gradient chàm. */
+/* Dark mode dùng bản tối của cùng palette xanh rừng và xám đen sang trọng. */
 :root[data-theme='dark'] .auth-screen {
-  background: radial-gradient(circle at 12% 15%, #8e4e5f 0, transparent 32%),
-    radial-gradient(circle at 88% 82%, #5d4a91 0, transparent 38%),
-    linear-gradient(130deg, #251a35 0%, #342344 52%, #1c4c4a 100%) !important;
+  background: radial-gradient(circle at 12% 15%, #143525 0, transparent 35%),
+    radial-gradient(circle at 88% 82%, #18432f 0, transparent 38%),
+    linear-gradient(130deg, #0a1711 0%, #102419 52%, #14281f 100%) !important;
 }
 :root[data-theme='dark'] .auth-panel {
-  background: rgb(39 29 52 / 96%) !important;
-  border-color: rgb(255 235 248 / 22%) !important;
-  box-shadow: 0 24px 70px rgb(20 10 35 / 65%), 0 4px 20px rgb(0 0 0 / 30%) !important;
+  background: rgb(20 40 31 / 96%) !important;
+  border-color: rgba(118, 215, 149, 0.22) !important;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 65%), 0 4px 20px rgb(0 0 0 / 30%) !important;
 }
-:root[data-theme='dark'] .auth-back { color: #e5b8ff !important; }
-:root[data-theme='dark'] .auth-back:hover { color: #ffd0dc !important; }
-:root[data-theme='dark'] .auth-mark { color: #fff1fb !important; }
-:root[data-theme='dark'] .auth-mark span { color: #ff9fb6 !important; }
-:root[data-theme='dark'] .auth-kicker { color: #ff9bc0 !important; }
-:root[data-theme='dark'] .auth-panel h1 { color: #fff1fb !important; }
-:root[data-theme='dark'] .auth-intro { color: #d8c9df !important; }
-:root[data-theme='dark'] .auth-panel form label { color: #f7eaf5 !important; }
-:root[data-theme='dark'] .auth-tabs { background: #342748 !important; border-color: #5a4772 !important; }
-:root[data-theme='dark'] .auth-tabs button { color: #d5c5df !important; }
-:root[data-theme='dark'] .auth-tabs button:hover { color: #fff1fb !important; background: rgb(255 255 255 / 10%) !important; }
+:root[data-theme='dark'] .auth-back { color: #76d795 !important; }
+:root[data-theme='dark'] .auth-back:hover { color: #a3f7be !important; }
+:root[data-theme='dark'] .auth-mark { color: #edf7ef !important; }
+:root[data-theme='dark'] .auth-mark span { color: #76d795 !important; }
+:root[data-theme='dark'] .auth-kicker { color: #76d795 !important; }
+:root[data-theme='dark'] .auth-panel h1 { color: #edf7ef !important; }
+:root[data-theme='dark'] .auth-intro { color: #a3c4b1 !important; }
+:root[data-theme='dark'] .auth-panel form label { color: #edf7ef !important; }
+:root[data-theme='dark'] .auth-tabs { background: #14281f !important; border-color: #355943 !important; }
+:root[data-theme='dark'] .auth-tabs button { color: #a3c4b1 !important; }
+:root[data-theme='dark'] .auth-tabs button:hover { color: #edf7ef !important; background: rgb(255 255 255 / 10%) !important; }
 :root[data-theme='dark'] .auth-tabs button[aria-selected='true'],
-:root[data-theme='dark'] .auth-tabs button.is-active { color: #fff1fb !important; background: #4b3764 !important; box-shadow: 0 4px 14px rgb(15 7 28 / 35%) !important; }
+:root[data-theme='dark'] .auth-tabs button.is-active { color: #edf7ef !important; background: #235c46 !important; box-shadow: 0 4px 14px rgb(0 0 0 / 35%) !important; }
 :root[data-theme='dark'] .auth-panel form input {
-  background: #2e2342 !important;
-  border-color: #6a5a82 !important;
-  color: #fff4fb !important;
-  -webkit-text-fill-color: #fff4fb !important;
-  caret-color: #ff9fb6 !important;
+  background: #14281f !important;
+  border-color: #355943 !important;
+  color: #edf7ef !important;
+  -webkit-text-fill-color: #edf7ef !important;
+  caret-color: #76d795 !important;
 }
 :root[data-theme='dark'] .auth-panel form input::placeholder {
-  color: #c7b8d0 !important;
-  -webkit-text-fill-color: #c7b8d0 !important;
+  color: #7a9c88 !important;
+  -webkit-text-fill-color: #7a9c88 !important;
 }
 :root[data-theme='dark'] .auth-panel form input:focus {
-  background: #382a4e !important;
-  border-color: #e5a4ff !important;
+  background: #1c382b !important;
+  border-color: #76d795 !important;
   outline: 0 !important;
-  box-shadow: 0 4px 16px rgb(229 164 255 / 22%) !important;
+  box-shadow: 0 4px 16px rgba(118, 215, 149, 0.25) !important;
 }
 :root[data-theme='dark'] .auth-panel form > button {
-  background: linear-gradient(110deg, #f05886, #8456d8) !important;
-  box-shadow: 0 10px 24px rgb(154 90 187 / 35%) !important;
+  background: linear-gradient(110deg, #1d4d35, #3f7c55) !important;
+  box-shadow: 0 10px 24px rgba(47, 104, 71, 0.35) !important;
 }
 :root[data-theme='dark'] .auth-panel form > button[type='button'] {
-  background: #342748 !important;
-  border-color: #6a5a82 !important;
-  color: #fff1fb !important;
+  background: #14281f !important;
+  border-color: #355943 !important;
+  color: #edf7ef !important;
 }
 :root[data-theme='dark'] .auth-google button {
-  background: #342748 !important;
-  border-color: #6a5a82 !important;
-  color: #fff1fb !important;
+  background: #14281f !important;
+  border-color: #355943 !important;
+  color: #edf7ef !important;
 }
-:root[data-theme='dark'] .auth-google button:hover:not(:disabled) { background: #403055 !important; border-color: #987bb0 !important; }
+:root[data-theme='dark'] .auth-google button:hover:not(:disabled) { background: #1c382b !important; border-color: #4f8b67 !important; }
 :root[data-theme='dark'] .auth-forgot,
 :root[data-theme='dark'] .auth-help a,
-:root[data-theme='dark'] .auth-links a { color: #e5b8ff !important; }
+:root[data-theme='dark'] .auth-links a { color: #76d795 !important; }
 :root[data-theme='dark'] .auth-forgot:hover,
 :root[data-theme='dark'] .auth-help a:hover,
-:root[data-theme='dark'] .auth-links a:hover { color: #ffd0dc !important; }
-:root[data-theme='dark'] .auth-disclaimer { color: #c7b8d0 !important; }
-:root[data-theme='dark'] .auth-error { background: #4b2638 !important; color: #ffc5d4 !important; border-color: #9f516d !important; }
-:root[data-theme='dark'] .auth-message { background: #24493f !important; color: #bce9d7 !important; border-color: #4e9b7e !important; }
+:root[data-theme='dark'] .auth-links a:hover { color: #a3f7be !important; }
+:root[data-theme='dark'] .auth-disclaimer { color: #a3c4b1 !important; }
+:root[data-theme='dark'] .auth-error { background: #4b262a !important; color: #ffc5cc !important; border-color: #9f5155 !important; }
+:root[data-theme='dark'] .auth-message { background: #1a4230 !important; color: #c4f0db !important; border-color: #388e63 !important; }

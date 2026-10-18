@@ -14,6 +14,6 @@
   .cart-similar__product-name{grid-column:2;grid-row:1;align-self:end;padding:0 10px;-webkit-line-clamp:2;font-size:12px}
   .cart-similar__product-price{grid-column:2;grid-row:2;justify-content:flex-start;align-items:flex-start;gap:8px;padding:8px 10px 12px;border:0;background:transparent}
   .cart-similar__product-price::before{content:"";display:block;width:28px;height:1px;flex-shrink:0;background:var(--line)}.cart-similar__product-price small{display:none}
-  .cart-similar .cart-similar__product-price strong{font-size:clamp(10px,1vw,13px);color:#914516}
-  html[data-theme=dark] .cart-similar .cart-similar__product-price strong{color:#f4c76b}
+  .cart-similar .cart-similar__product-price strong{font-size:clamp(10px,1vw,13px);color:var(--theme-accent-strong, #2f6847)}
+  html[data-theme=dark] .cart-similar .cart-similar__product-price strong{color:var(--theme-accent, #76d795)}
 }

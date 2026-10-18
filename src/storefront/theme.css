@@ -167,22 +167,42 @@ html[data-theme='dark'] body .site-frame .header-inner .account-link {
   color: var(--theme-text, #edf7ef) !important;
 }
 
-/* Brand and cart accents stay red/orange and never fall back to blue/green theme tokens. */
+/* Brand and cart accents follow the harmonious green theme tokens. */
 .brand__mark,
 .header-inner .brand__mark {
-  border-color: #b91c1c !important;
-  background: linear-gradient(135deg, #b91c1c 0%, #ef4444 58%, #f97316 100%) !important;
-  box-shadow: 0 7px 18px rgb(185 28 28 / 35%) !important;
+  border-color: #2f6847 !important;
+  background: linear-gradient(135deg, #183d2b 0%, #2f6847 52%, #4f8b67 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 7px 18px rgb(47 104 71 / 35%) !important;
 }
 
 .header-inner .cart-count {
-  background: linear-gradient(135deg, #991b1b 0%, #dc2626 58%, #f87171 100%) !important;
-  border-color: #b91c1c !important;
+  background: linear-gradient(135deg, #183d2b 0%, #2f6847 55%, #4f8b67 100%) !important;
+  border-color: #2f6847 !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgb(220 38 38 / 32%) !important;
+  box-shadow: 0 4px 14px rgb(47 104 71 / 30%) !important;
 }
 
 .header-inner .cart-count b {
   background: #ffffff !important;
-  color: #991b1b !important;
+  color: #183d2b !important;
 }
+
+html[data-theme='dark'] .brand__mark,
+html[data-theme='dark'] .header-inner .brand__mark {
+  border-color: #4f8b67 !important;
+  background: linear-gradient(135deg, #1d4330 0%, #3a7a53 52%, #5ea475 100%) !important;
+  box-shadow: 0 7px 18px rgb(0 0 0 / 45%) !important;
+}
+
+html[data-theme='dark'] .header-inner .cart-count {
+  background: linear-gradient(135deg, #1d4330 0%, #3a7a53 55%, #5ea475 100%) !important;
+  border-color: #4f8b67 !important;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 40%) !important;
+}
+
+html[data-theme='dark'] .header-inner .cart-count b {
+  background: #0e1c15 !important;
+  color: #9bd3a8 !important;
+}
+

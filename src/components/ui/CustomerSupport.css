@@ -52,3 +52,24 @@
 @media (max-width: 480px) { .customer-support { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); max-width: calc(100vw - 24px); } .customer-support--open { width: calc(100vw - 24px); } .customer-support__composer input { font-size: 16px; } }
 @media(max-width:480px){.customer-support__to-top{width:40px;height:40px}}
 @media (prefers-reduced-motion: reduce) { .customer-support__panel { animation: none; } .customer-support__chevron { transition: none; } }
+
+:root[data-theme='dark'] .customer-support__to-top { background: #14281f; border-color: #355943; color: #76d795; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+:root[data-theme='dark'] .customer-support__panel { background: #14281f; border-color: #355943; }
+:root[data-theme='dark'] .customer-support__intro { color: #a3c4b1; }
+:root[data-theme='dark'] .customer-support__badge { background: #1c382b; color: #edf7ef; }
+:root[data-theme='dark'] .customer-support__toolbar button { color: #76d795; }
+:root[data-theme='dark'] .customer-support__avatar { background: #1c382b; color: #76d795; }
+:root[data-theme='dark'] .customer-support__sender { color: #a3c4b1; }
+:root[data-theme='dark'] .customer-support__bubble { background: #1c382b; color: #edf7ef; }
+:root[data-theme='dark'] .customer-support__outgoing .customer-support__bubble { background: #235c46; color: #fff; }
+:root[data-theme='dark'] .customer-support__verified { background: #102419; border-color: #2b4b38; color: #edf7ef; }
+:root[data-theme='dark'] .customer-support__sources { color: #a3c4b1; }
+:root[data-theme='dark'] .customer-support__retry { background: #1c382b; border-color: #355943; color: #76d795; }
+:root[data-theme='dark'] .customer-support__suggestions button { background: #1c382b; border-color: #355943; color: #edf7ef; }
+:root[data-theme='dark'] .customer-support__suggestions button:hover { background: #235c46; border-color: #4f8b67; }
+:root[data-theme='dark'] .customer-support__form { border-top-color: #2b4b38; }
+:root[data-theme='dark'] .customer-support__composer { background: #0c1a14; border-color: #355943; }
+:root[data-theme='dark'] .customer-support__composer input { color: #edf7ef; }
+:root[data-theme='dark'] .customer-support__composer input::placeholder { color: #7a9c88; }
+:root[data-theme='dark'] .customer-support__disclaimer { color: #a3c4b1; }
+:root[data-theme='dark'] .customer-support__disclaimer--active { color: #76d795; }
