@@ -76,7 +76,7 @@
 .account-page-head { align-items:end; margin-bottom:26px; }
 .account-page-head__lead { margin:10px 0 0; color:var(--account-muted); font-size:14px; }
 .account-page-head__link { color:#39734e; font-size:13px; font-weight:700; }
-.account-profile--redesign { display:flex; justify-content:space-between; align-items:center; gap:28px; padding:clamp(22px,4vw,38px); border-radius:24px; background:linear-gradient(125deg,#17382a,#397253 62%,#72a877); color:#f4fbf5; overflow:hidden; }
+.account-profile--redesign { display:flex; justify-content:space-between; align-items:center; gap:28px; padding:clamp(22px,4vw,38px); border-radius:24px; background:linear-gradient(125deg,#183329,#2b5542 62%,#3f6b53); color:#f4fbf5; overflow:hidden; }
 .account-profile__top { display:flex; align-items:center; gap:18px; min-width:0; }
 .account-profile--redesign .account-avatar { width:86px; height:86px; border-radius:24px; background:#ffffff25; border:2px solid #d4edda; font-size:42px; }
 .account-profile--redesign .account-profile__identity { min-width:0; }
@@ -93,8 +93,10 @@
 .account-shortcuts--redesign a small { font-size:12px; }
 .account-shortcuts--redesign i { font-style:normal; margin-left:4px; }
 .account-content-grid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(240px,.7fr); gap:16px; align-items:stretch; }
+.account-content-grid--single { grid-template-columns:minmax(0,1fr); }
+.account-content-grid--single .account-side-panel { width:100%; }
 .account-wallet--redesign { margin:0!important; padding:clamp(20px,3vw,30px)!important; }
-.account-side-panel { display:grid; gap:16px; align-content:start; padding:24px; border:1px solid var(--account-line); border-radius:20px; background:linear-gradient(145deg,#eff6ee,#e0efe2); }
+.account-side-panel { display:grid; gap:16px; align-content:start; padding:24px; border:1px solid var(--theme-border,#d6dfd2); border-radius:20px; background:var(--theme-surface,#fffdf7); color:var(--theme-text,#18362a); }
 .account-side-panel h2 { margin:4px 0 0; font-size:21px; }
 .account-benefit-list { display:grid; gap:0; border-top:1px solid #c7dcc9; }
 .account-benefit-list div { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid #c7dcc9; font-size:13px; }
@@ -121,9 +123,12 @@
 :root[data-theme='dark'] .product-detail-highlights,:root[data-theme='dark'] .detail-review-form,:root[data-theme='dark'] .detail-review-list article,:root[data-theme='dark'] .detail-vouchers button { background:#1e3326; }
 :root[data-theme='dark'] .detail-admin-reply { background:#294834; }
 :root[data-theme='dark'] .detail-gallery button { background:#f7faf6; }
-:root[data-theme='dark'] .account-side-panel { background:linear-gradient(145deg,#203e2c,#1c3226); border-color:#385442; }
-:root[data-theme='dark'] .account-benefit-list { border-color:#385442; }
-:root[data-theme='dark'] .account-benefit-list div { border-color:#385442; }
+:root[data-theme='dark'] .account-profile--redesign { background:linear-gradient(125deg,#142a21,#254737 62%,#315b45); }
+:root[data-theme='dark'] .account-side-panel { background:#1e293b; border-color:#334155; color:#f0f8f1; }
+:root[data-theme='dark'] .account-benefit-list { border-color:#334155; }
+:root[data-theme='dark'] .account-benefit-list div { border-color:#334155; }
+:root[data-theme='dark'] .account-benefit-list span { color:#a7bed0; }
+:root[data-theme='dark'] .account-benefit-list strong { color:#f0f8f1; }
 :root[data-theme='dark'] .account-empty-state>span { background:#294834; }
 :root[data-theme='dark'] .account-empty-state a { color:#9cdda8; }
 @media(max-width:900px){
@@ -178,19 +183,28 @@
 .account-voucher-grid article p,
 .account-voucher-grid article code{overflow-wrap:anywhere;word-break:break-word}
 .membership-card.is-current{
-  border-color:var(--theme-accent-strong,#2f6847);
-  background:color-mix(in srgb,var(--theme-accent-soft,#e0eee2) 68%,var(--theme-surface,#fffdf7));
-  box-shadow:inset 0 0 0 2px var(--theme-accent-strong,#2f6847),0 12px 28px rgb(47 104 71 / 18%);
+  border-color:#79c99a;
+  background:linear-gradient(145deg,#356f4d,#244e39);
+  color:#f4fff6;
+  box-shadow:inset 0 0 0 2px #79c99a,0 12px 28px rgb(22 67 42 / 28%);
 }
+.membership-card.is-current>div:first-child>span,
+.membership-card.is-current h2,
 .membership-card.is-current .membership-price,
-.membership-card.is-current>strong{color:var(--theme-accent-strong,#2f6847)}
+.membership-card.is-current>strong{color:#f4fff6}
+.membership-card.is-current p,
+.membership-card.is-current li{color:#d9efde}
 :root[data-theme='dark'] .membership-card.is-current{
-  border-color:var(--theme-accent,#76b98a);
-  background:color-mix(in srgb,var(--theme-accent-strong,#2f6847) 30%,var(--theme-surface,#193127));
-  box-shadow:inset 0 0 0 2px var(--theme-accent,#76b98a),0 14px 30px rgb(0 0 0 / 24%);
+  border-color:#7ed39b;
+  background:linear-gradient(145deg,#2d6244,#193c2c);
+  box-shadow:inset 0 0 0 2px #7ed39b,0 14px 30px rgb(0 0 0 / 24%);
 }
+:root[data-theme='dark'] .membership-card.is-current>div:first-child>span,
+:root[data-theme='dark'] .membership-card.is-current h2,
 :root[data-theme='dark'] .membership-card.is-current .membership-price,
-:root[data-theme='dark'] .membership-card.is-current>strong{color:var(--theme-accent-soft,#e0eee2)}
+:root[data-theme='dark'] .membership-card.is-current>strong{color:#f4fff6}
+:root[data-theme='dark'] .membership-card.is-current p,
+:root[data-theme='dark'] .membership-card.is-current li{color:#d9efde}
 @media(max-width:820px){
   .account-profile--redesign{align-items:stretch}
   .account-profile__stats{grid-template-columns:repeat(3,minmax(0,1fr));width:100%}

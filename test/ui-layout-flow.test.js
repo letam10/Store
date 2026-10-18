@@ -226,13 +226,15 @@ test('banner liên trang dùng dữ liệu ưu đãi thật và chọn đúng m�
     for (const path of ['/products', '/favorites', '/rewards', '/membership', '/contact', '/account']) {
       window.document.querySelector('.header-nav a[href="' + path + '"]')?.click()
       if (path === '/account') window.document.querySelector('.header-inner a[href="/account"]').click()
-      const excluded = ['/favorites', '/rewards', '/membership', '/contact'].includes(path)
+      const excluded = ['/favorites', '/rewards', '/membership', '/contact', '/account'].includes(path)
       await waitFor(() => window.location.pathname === path && Boolean(board()) === !excluded)
       assert.equal(window.document.querySelectorAll('.home-promotion-rail').length, 0)
       assert.equal(window.document.querySelector('.home-promotion-region'), null)
       if (excluded) assert.equal(window.document.querySelector('.store-promo-notice'), null)
       else assert.match(board().textContent, /QUAHANG1/)
     }
+    window.document.querySelector('.header-nav a[href="/products"]').click()
+    await waitFor(() => window.location.pathname === '/products' && Boolean(board()))
     window.document.querySelector('.store-promo-product').click()
     await waitFor(() => window.location.pathname === '/products/qa-promo-sale')
     assert.match(window.document.querySelector('h1').textContent, /Món yêu thích đang giảm/)

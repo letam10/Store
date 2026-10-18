@@ -352,7 +352,7 @@ export default function App() {
     {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
     <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
       onChangeCapture={clearValidation}>
-      {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact', 'account'].includes(route)
+      {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
         ? <StorePromotions route={route} overview={promotionOverview} account={account}
           selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher}>{page}</StorePromotions> : page}
     </main>

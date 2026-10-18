@@ -100,7 +100,8 @@ function assertHomeRegion(window) {
   assert.equal(catalog.contains(sale), true)
   for (const side of ['left', 'right']) {
     const top = region.querySelector('.home-promotion-rail--' + side)
-    assert.equal(top.querySelectorAll('.home-side-banner').length, 3)
+    assert.equal(top.querySelectorAll('.home-side-banner').length, 10)
+    assert.equal(top.querySelectorAll('.home-promotion-rail__sale-gap').length, 1)
     const cards = [...top.querySelectorAll('.home-side-banner')]
     assert.equal(new Set(cards.map(card => card.dataset.bannerId)).size, cards.length)
     for (const card of cards) {
@@ -168,7 +169,7 @@ test('banner lấy mức giảm lớn nhất còn hàng và giữ liên kết c�
     assert.ok(right().querySelector('a[href="/membership"]'))
     assert.ok(right().querySelector('a[href="/rewards"]'))
     const links = [...window.document.querySelectorAll('a.home-side-banner')]
-    assert.equal(links.length, 6)
+    assert.equal(links.length, 20)
     for (const link of links) {
       const href = link.getAttribute('href')
       const routes = /^(products|membership|rewards|favorites|cart|contact|account)$/

@@ -1119,15 +1119,23 @@ select, select option {
   border-radius: 9px !important;
 }
 
-/* The sale row owns the full viewport band so side rails cannot cover its cards. */
+/* Sale là một dải toàn viewport; nền dải này che rail đúng trong khu sale. */
 .home-promotion-region--catalog .home-section--sale {
   position: relative !important;
   z-index: 30 !important;
-  margin-inline: calc(50% - 50vw) !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-block: clamp(36px, 5vw, 76px) !important;
   padding-inline: max(20px, calc((100vw - 1500px) / 2 + 20px)) !important;
   border-inline: 0 !important;
   border-radius: 0 !important;
 }
 .home-promotion-region--catalog .home-promotion-rail {
   z-index: 10 !important;
+}
+
+/* Giữ stacking riêng để nền sale phủ kín hai mép rail, card vẫn ở trên nền. */
+.home-promotion-region--page .home-promotion-region--catalog .home-section--sale {
+  isolation: isolate;
 }

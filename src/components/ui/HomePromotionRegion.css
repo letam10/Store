@@ -64,12 +64,12 @@
 
   /* Rail thuộc frame toàn trang, sale vẫn nằm trong body ở cột giữa. */
   .home-promotion-rail {
-    --home-rail-height: 100%;
     display: block;
     position: absolute;
     z-index: 15;
     top: 0;
-    bottom: 0;
+    bottom: auto;
+    height: max-content;
     width: var(--home-banner-width);
     min-width: 0;
   }
