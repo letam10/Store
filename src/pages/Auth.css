@@ -73,43 +73,6 @@
   color: #a3f7be !important;
 }
 
-.auth-language select {
-  border: 2px solid #cbd5e1 !important;
-  border-radius: 10px;
-  padding: 6px 14px;
-  background: #ffffff !important;
-  color: #0f172a !important;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.auth-language select:focus {
-  border-color: #4f8b67 !important;
-}
-
-:root[data-theme='dark'] .auth-language select {
-  background: #14281f !important;
-  color: #edf7ef !important;
-  border-color: #355943 !important;
-}
-
-:root[data-theme='dark'] .auth-language select:focus {
-  border-color: #76d795 !important;
-}
-
-.auth-language select option {
-  background: #ffffff;
-  color: #0f172a;
-}
-
-:root[data-theme='dark'] .auth-language select option {
-  background: #14281f;
-  color: #edf7ef;
-}
 
 .auth-mark {
   display: block;

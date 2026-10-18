@@ -7,7 +7,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { products as defaultProducts } from '../../data/products'
 import { getMembershipPlan } from '../../storefront/promotions'
-import DropdownMenu from '../ui/DropdownMenu'
 import './Header.css'
 
 const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
@@ -48,7 +47,7 @@ function SearchSuggestions({ items, query, onSelect, id }) {
 }
 
 // Chức năng Header: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, language = 'vi', onLanguageChange }) {
+export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, language = 'vi' }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
@@ -59,17 +58,16 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
   const searchShellRef = useRef(null)
   const headerRef = useRef(null)
   const pathname = window.location.pathname
-  const english = language === 'en'
   const links = [
-    ['/', appearance.navHome || (english ? 'Home' : 'Trang chủ')],
-    ['/products', appearance.navProducts || (english ? 'Products' : 'Hàng hóa')],
-    ['/favorites', appearance.navFavorites || (english ? 'Favorites' : 'Yêu thích')],
-    ['/rewards', appearance.navRewards || (english ? 'Rewards' : 'May mắn')],
-    ['/membership', appearance.navMembership || (english ? 'Membership' : 'Thành viên')],
-    ['/contact', appearance.navContact || (english ? 'Contact' : 'Địa chỉ & liên hệ')],
+    ['/', appearance.navHome || 'Trang chủ'],
+    ['/products', appearance.navProducts || 'Hàng hóa'],
+    ['/favorites', appearance.navFavorites || 'Yêu thích'],
+    ['/rewards', appearance.navRewards || 'May mắn'],
+    ['/membership', appearance.navMembership || 'Thành viên'],
+    ['/contact', appearance.navContact || 'Địa chỉ & liên hệ'],
   ]
   const brandName = appearance.brandName || 'store'
-  const searchPlaceholder = appearance.headerSearchPlaceholder || (english ? 'Search products or categories…' : 'Tìm sản phẩm, danh mục…')
+  const searchPlaceholder = appearance.headerSearchPlaceholder || 'Tìm sản phẩm, danh mục…'
 
   // Truyền chiều cao thật cho các vùng sticky, kể cả khi menu/ngôn ngữ đổi kích thước.
   useEffect(() => {
@@ -152,26 +150,25 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
         </div>
         <nav id="header-navigation" className={'header-nav' + (menuOpen ? ' is-open' : '')} aria-label="Điều hướng chính">
           {links.map(([href, label]) => <a key={href} href={href} aria-current={pathname === href ? 'page' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
-          <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? (english ? 'Your account' : 'Tài khoản của bạn') : (english ? 'Sign in / Register' : 'Đăng nhập / Đăng ký')}</a>
+          <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? 'Tài khoản của bạn' : 'Đăng nhập / Đăng ký'}</a>
         </nav>
         <div className="header-actions">
           <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}><SearchIcon /></button>
-          <DropdownMenu className="header-language" ariaLabel={english ? 'Language' : 'Ngôn ngữ'} value={language} options={[{ value: 'vi', label: 'VI' }, { value: 'en', label: 'EN' }]} onChange={(nextLanguage) => onLanguageChange?.(nextLanguage)} />
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
-            <button type="button" className="account-link account-menu__trigger" aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title={english ? 'Open user dashboard' : 'Mở dashboard người dùng'}>
+            <button type="button" className="account-link account-menu__trigger" aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title="Mở dashboard người dùng">
               <span className="account-link__avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span><span className="account-link__name">{getMembershipPlan(membershipTier).badge + ' · ' + account.username}</span><span className="account-menu__caret" aria-hidden="true">▾</span>
             </button>
-            {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label={english ? 'User dashboard' : 'Dashboard người dùng'}>
-              <p className="account-menu__hello">{english ? 'Hello,' : 'Xin chào,'} <b>{account.username}</b> · {getMembershipPlan(membershipTier).badge}</p>
-              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>🏠 {english ? 'Dashboard / My account' : 'Dashboard / Tài khoản của tôi'}</a>
-              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>📦 {english ? 'Orders & history' : 'Đơn hàng của bạn'}</a>
-              <a role="menuitem" href="/favorites" onClick={() => setAccountOpen(false)}>♥ {english ? 'Favorites' : 'Sản phẩm yêu thích'}</a>
-              <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}>🎁 {english ? 'Rewards & vouchers' : 'Ưu đãi & voucher'}</a>
-              <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}>★ {english ? 'Membership tier' : 'Hạng thành viên'}</a>
+            {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label="Dashboard người dùng">
+              <p className="account-menu__hello">Xin chào, <b>{account.username}</b> · {getMembershipPlan(membershipTier).badge}</p>
+              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>🏠 Dashboard / Tài khoản của tôi</a>
+              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>📦 Đơn hàng của bạn</a>
+              <a role="menuitem" href="/favorites" onClick={() => setAccountOpen(false)}>♥ Sản phẩm yêu thích</a>
+              <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}>🎁 Ưu đãi & voucher</a>
+              <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}>★ Hạng thành viên</a>
             </div>}
-          </div> : <a className="account-link" href="/account"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">{english ? 'Sign in' : 'Đăng nhập'}</span></a>}
-          <a className="cart-count" href="/cart" aria-label={(english ? 'Cart with ' : 'Giỏ hàng có ') + cartCount + (english ? ' products' : ' sản phẩm')}><span aria-hidden="true">🛒</span><span className="cart-count__text">{english ? 'Cart' : 'Giỏ hàng'}</span><b>{cartCount}</b></a>
+          </div> : <a className="account-link" href="/account"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">Đăng nhập</span></a>}
+          <a className="cart-count" href="/cart" aria-label={'Giỏ hàng có ' + cartCount + ' sản phẩm'}><span aria-hidden="true">🛒</span><span className="cart-count__text">Giỏ hàng</span><b>{cartCount}</b></a>
           <button className="header-menu-trigger" type="button" aria-controls="header-navigation" aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} onClick={() => { setSearchOpen(false); setMenuOpen((current) => !current) }}>☰</button>
         </div>
       </div>

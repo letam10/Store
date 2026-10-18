@@ -59,7 +59,7 @@ export default function App() {
   const [favoriteIds, setFavoriteIds] = useState([])
   const [selectedVoucherCodes, setSelectedVoucherCodes] = useState([])
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light')
-  const [language, setLanguage] = useState(() => localStorage.getItem('storeLanguageV1') === 'en' ? 'en' : 'vi')
+  const [language, setLanguage] = useState('vi')
   const [offers, setOffers] = useState([])
   const [appearance, setAppearance] = useState({})
   const [location, setLocation] = useState(currentLocation)
@@ -113,7 +113,7 @@ export default function App() {
     Object.entries(themePalette).forEach(([name, value]) => root.style.setProperty(name, value))
     root.style.setProperty('--accent', accentColor)
   }, [accentColor, theme, themePalette, themePreset])
-  useEffect(() => { localStorage.setItem('storeLanguageV1', language); document.documentElement.lang = language }, [language])
+  useEffect(() => { localStorage.removeItem('storeLanguageV1'); document.documentElement.lang = 'vi' }, [])
 
   const refreshCustomer = useCallback(async () => {
     const epoch = customerEpoch.current
@@ -334,8 +334,8 @@ export default function App() {
   }), [language])
 
   let page = <NotFound />
-  if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>{language === 'en' ? 'Checking login session…' : 'Đang kiểm tra phiên đăng nhập…'}</p></div>
-  else if (isAuth) page = <Auth key={location.pathname + location.search} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value || null); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
+  if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
+  else if (isAuth) page = <Auth key={location.pathname + location.search} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value || null); refreshCustomer() }} onNavigate={navigate} />
   else if (route === 'home') page = <Home
     language={language}
     appearance={appearance} products={products} onAddToCart={addToCart}
@@ -360,7 +360,7 @@ export default function App() {
 
   return <LanguageContext.Provider value={languageContextValue}>
     <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
-      {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
+      {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
       <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
         onChangeCapture={clearValidation}>
         {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
