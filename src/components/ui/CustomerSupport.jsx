@@ -11,9 +11,11 @@ import { apiJson, streamChat } from '../../api/chat'
 import { userMessage } from '../../api/userMessages'
 import { createRequestGate } from '../../api/requestGate'
 import { applyRestore, createRestoreGuard } from './customerSupportState'
+import { useLanguage } from '../../storefront/i18n'
 import './CustomerSupport.css'
 
-const suggestions = ['Tư vấn sản phẩm', 'Thông tin đơn hàng', 'Chính sách đổi trả']
+const suggestionsVi = ['Tư vấn sản phẩm', 'Thông tin đơn hàng', 'Chính sách đổi trả']
+const suggestionsEn = ['Product advice', 'Order information', 'Return policy']
 const STORAGE_KEY = 'storeSupportConversationId'
 
 // Chức năng localId: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
@@ -33,7 +35,11 @@ function SupportIcon({ kind = 'chat' }) {
 }
 
 // Chức năng CustomerSupport: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function CustomerSupport({ account, onRequireLogin }) {
+export default function CustomerSupport({ account, onRequireLogin, language: propLanguage }) {
+  const { language: contextLanguage, english: contextEnglish } = useLanguage()
+  const language = propLanguage || contextLanguage || 'vi'
+  const english = language === 'en' || contextEnglish
+  const suggestions = english ? suggestionsEn : suggestionsVi
   const initialConversationIdRef = useRef(localStorage.getItem(STORAGE_KEY) || '')
   const [isOpen, setIsOpen] = useState(false)
   const [draft, setDraft] = useState('')
@@ -243,44 +249,44 @@ export default function CustomerSupport({ account, onRequireLogin }) {
   }
 
   return (
-    <aside ref={rootRef} className={'customer-support' + (isOpen ? ' customer-support--open' : '')} aria-label="Hỗ trợ khách hàng" onKeyDown={handleKeyDown}>
-      <button className="customer-support__to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} title="Lên đầu trang" aria-label="Lên đầu trang ngay">↑</button>
-      <button ref={toggleRef} className="customer-support__toggle" type="button" aria-label={isOpen ? 'Thu gọn hỗ trợ khách hàng' : 'Mở hỗ trợ khách hàng'} aria-expanded={isOpen} aria-controls="store-support-panel" onClick={() => { if (!account) onRequireLogin?.(); else setIsOpen((previous) => !previous) }}>
+    <aside ref={rootRef} className={'customer-support' + (isOpen ? ' customer-support--open' : '')} aria-label={english ? 'Customer support' : 'Hỗ trợ khách hàng'} onKeyDown={handleKeyDown}>
+      <button className="customer-support__to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} title={english ? 'Back to top' : 'Lên đầu trang'} aria-label={english ? 'Scroll to top' : 'Lên đầu trang ngay'}>↑</button>
+      <button ref={toggleRef} className="customer-support__toggle" type="button" aria-label={isOpen ? (english ? 'Collapse customer support' : 'Thu gọn hỗ trợ khách hàng') : (english ? 'Open customer support' : 'Mở hỗ trợ khách hàng')} aria-expanded={isOpen} aria-controls="store-support-panel" onClick={() => { if (!account) onRequireLogin?.(); else setIsOpen((previous) => !previous) }}>
         <span className="customer-support__icon"><SupportIcon /></span>
-        <span className="customer-support__heading"><strong>Hỗ trợ khách hàng</strong><span>Trợ lý AI của Store</span></span>
+        <span className="customer-support__heading"><strong>{english ? 'Customer support' : 'Hỗ trợ khách hàng'}</strong><span>{english ? 'Store AI Assistant' : 'Trợ lý AI của Store'}</span></span>
         <span className="customer-support__chevron"><SupportIcon kind="chevron" /></span>
       </button>
 
       {isOpen && (
-        <section id="store-support-panel" className="customer-support__panel" aria-label="Trò chuyện với Store">
+        <section id="store-support-panel" className="customer-support__panel" aria-label={english ? 'Chat with Store' : 'Trò chuyện với Store'}>
           <div className="customer-support__intro">
-            <span>CHĂM SÓC KHÁCH HÀNG</span>
-            <span className="customer-support__badge">{providerStatus?.reachable && providerStatus?.modelAvailable ? `AI Local · ${providerStatus.model || 'qwen3.5:4b'}` : providerStatus ? 'AI fallback local' : 'Đang kiểm tra AI'}</span>
+            <span>{english ? 'CUSTOMER CARE' : 'CHĂM SÓC KHÁCH HÀNG'}</span>
+            <span className="customer-support__badge">{providerStatus?.reachable && providerStatus?.modelAvailable ? `AI Local · ${providerStatus.model || 'qwen3.5:4b'}` : providerStatus ? 'AI fallback local' : (english ? 'Checking AI' : 'Đang kiểm tra AI')}</span>
           </div>
-          <div className="customer-support__toolbar"><button type="button" disabled={busy} onClick={startNewConversation}>Cuộc trò chuyện mới</button></div>
+          <div className="customer-support__toolbar"><button type="button" disabled={busy} onClick={startNewConversation}>{english ? 'New conversation' : 'Cuộc trò chuyện mới'}</button></div>
 
-          <div ref={logRef} className="customer-support__messages" role="log" aria-label="Lịch sử trò chuyện" aria-live="polite" aria-relevant="additions">
+          <div ref={logRef} className="customer-support__messages" role="log" aria-label={english ? 'Chat history' : 'Lịch sử trò chuyện'} aria-live="polite" aria-relevant="additions">
             <div className="customer-support__welcome">
               <span className="customer-support__avatar" aria-hidden="true">s.</span>
-              <div><span className="customer-support__sender">Store · Hỗ trợ</span><div className="customer-support__bubble"><strong>Chào bạn, Store đây 👋</strong><p>AI chỉ dùng dữ liệu mà Store hiện cung cấp.</p></div></div>
+              <div><span className="customer-support__sender">{english ? 'Store · Support' : 'Store · Hỗ trợ'}</span><div className="customer-support__bubble"><strong>{english ? 'Hi there, Store here 👋' : 'Chào bạn, Store đây 👋'}</strong><p>{english ? 'AI assistant only uses current Store data.' : 'AI chỉ dùng dữ liệu mà Store hiện cung cấp.'}</p></div></div>
             </div>
 
             {messages.map((message) => message.role === 'user' ? (
-              <div className="customer-support__outgoing" key={message.id}><span className="customer-support__sender">Bạn</span><p className="customer-support__bubble">{message.content}</p></div>
+              <div className="customer-support__outgoing" key={message.id}><span className="customer-support__sender">{english ? 'You' : 'Bạn'}</span><p className="customer-support__bubble">{message.content}</p></div>
             ) : (
               <div className="customer-support__incoming" key={message.id}>
                 <span className="customer-support__avatar" aria-hidden="true">s.</span>
                 <div className="customer-support__incoming-body">
-                  <span className="customer-support__sender">Store · Trợ lý AI</span>
-                  <p className="customer-support__bubble">{message.content || (message.status === 'streaming' ? '…' : message.error || 'Không có nội dung.')}</p>
-                  {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>Dữ liệu Store đã xác minh</strong><p>{message.verified.text}</p></div>}
+                  <span className="customer-support__sender">{english ? 'Store · AI Assistant' : 'Store · Trợ lý AI'}</span>
+                  <p className="customer-support__bubble">{message.content || (message.status === 'streaming' ? '…' : message.error || (english ? 'No content.' : 'Không có nội dung.'))}</p>
+                  {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>{english ? 'Verified Store Data' : 'Dữ liệu Store đã xác minh'}</strong><p>{message.verified.text}</p></div>}
                   {message.sources?.length > 0 && <div className="customer-support__sources">{message.sources.map((source) => <span key={source.id}>{source.label}</span>)}</div>}
                   {(['error', 'incomplete', 'stopped'].includes(message.status)) && <>
-                    <small className="customer-support__state">{message.status === 'incomplete' ? 'Nội dung trên chưa được xác nhận hoàn tất.' : message.error}</small>
-                    <button className="customer-support__retry" type="button" disabled={busy} onClick={() => startRequest(message.retryContent, { assistantId: message.id, requestId: message.requestId })}>Thử lại</button>
+                    <small className="customer-support__state">{message.status === 'incomplete' ? (english ? 'Above content not yet marked complete.' : 'Nội dung trên chưa được xác nhận hoàn tất.') : message.error}</small>
+                    <button className="customer-support__retry" type="button" disabled={busy} onClick={() => startRequest(message.retryContent, { assistantId: message.id, requestId: message.requestId })}>{english ? 'Retry' : 'Thử lại'}</button>
                   </>}
-                  {message.status === 'stopped' && <small className="customer-support__state">Đã dừng · câu trả lời này không được lưu là hoàn tất.</small>}
-                  {message.status === 'pending' && <small className="customer-support__state">Lượt trước vẫn đang xử lý. Hãy tải lại hội thoại sau khi hoàn tất.</small>}
+                  {message.status === 'stopped' && <small className="customer-support__state">{english ? 'Stopped · this answer was not saved as complete.' : 'Đã dừng · câu trả lời này không được lưu là hoàn tất.'}</small>}
+                  {message.status === 'pending' && <small className="customer-support__state">{english ? 'Previous turn still processing. Reload conversation when ready.' : 'Lượt trước vẫn đang xử lý. Hãy tải lại hội thoại sau khi hoàn tất.'}</small>}
                 </div>
               </div>
             ))}
@@ -289,13 +295,13 @@ export default function CustomerSupport({ account, onRequireLogin }) {
           {messages.length === 0 && <div className="customer-support__suggestions">{suggestions.map((suggestion) => <button key={suggestion} type="button" onClick={() => { setDraft(suggestion); inputRef.current?.focus() }}>{suggestion}<span aria-hidden="true">↗</span></button>)}</div>}
 
           <form className="customer-support__form" onSubmit={sendMessage}>
-            <label className="customer-support__sr-only" htmlFor="store-support-message">Nội dung tin nhắn</label>
+            <label className="customer-support__sr-only" htmlFor="store-support-message">{english ? 'Message content' : 'Nội dung tin nhắn'}</label>
             <div className="customer-support__composer">
-              <input ref={inputRef} id="store-support-message" autoComplete="off" maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Nhập lời nhắn cho Store…" disabled={busy} />
-              {busy ? <button type="button" onClick={stopRequest} aria-label="Dừng trả lời"><span aria-hidden="true">■</span></button> : <button type="submit" disabled={!draft.trim()} aria-label="Gửi tin nhắn"><SupportIcon kind="send" /></button>}
+              <input ref={inputRef} id="store-support-message" autoComplete="off" maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={english ? 'Type a message for Store…' : 'Nhập lời nhắn cho Store…'} disabled={busy} />
+              {busy ? <button type="button" onClick={stopRequest} aria-label={english ? 'Stop response' : 'Dừng trả lời'}><span aria-hidden="true">■</span></button> : <button type="submit" disabled={!draft.trim()} aria-label={english ? 'Send message' : 'Gửi tin nhắn'}><SupportIcon kind="send" /></button>}
             </div>
             <p className={'customer-support__disclaimer' + (busy ? ' customer-support__disclaimer--active' : '')}>
-              {busy ? activity : 'AI có thể trả lời sai. Thông tin quan trọng được hệ thống xác minh riêng.'}
+              {busy ? activity : (english ? 'AI may make mistakes. Important information is verified separately.' : 'AI có thể trả lời sai. Thông tin quan trọng được hệ thống xác minh riêng.')}
             </p>
           </form>
         </section>

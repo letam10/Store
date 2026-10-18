@@ -19,6 +19,7 @@ import Catalog from './pages/Catalog'
 import ProductDetail from './pages/ProductDetail'
 import Contact from './pages/Contact'
 import Cart from './pages/Cart'
+import { LanguageContext, translateCategory } from './storefront/i18n'
 import Checkout from './pages/Checkout'
 import Account from './pages/Account'
 import Favorites from './pages/Favorites'
@@ -271,11 +272,11 @@ export default function App() {
     const inCart = cart.find((item) => String(item.id) === String(product.id))?.quantity || 0
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
     if (product.stockCount !== null && inCart >= product.stockCount) {
-      setNotice('Đã đạt số lượng tồn kho của ' + product.name + '.')
+      setNotice(language === 'en' ? 'Reached stock limit for ' + product.name + '.' : 'Đã đạt số lượng tồn kho của ' + product.name + '.')
       return
     }
     setCart((current) => addCartItem(current, { ...product, selected: false }))
-    setNotice('Đã thêm ' + product.name + ' vào giỏ hàng.')
+    setNotice(language === 'en' ? 'Added ' + product.name + ' to cart.' : 'Đã thêm ' + product.name + ' vào giỏ hàng.')
   }
   // Chức năng updateQuantity: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const updateQuantity = (id, quantity) => setCart((current) => setCartQuantity(current, id, quantity))
@@ -292,9 +293,10 @@ export default function App() {
   const membershipTier = account?.tier || 'bronze'
   function paymentComplete(state) {
     setNotice({
-      message: state === 'paid' ? 'Đã thanh toán. Thông báo được lưu trong trang cá nhân.'
-        : 'Đã lưu thông báo chuyển khoản trong trang cá nhân. Cửa hàng sẽ đối soát khoản tiền.',
-      href: '/account', action: 'Xem trang cá nhân →',
+      message: language === 'en'
+        ? (state === 'paid' ? 'Payment confirmed. Notification saved in your account.' : 'Bank transfer notification saved. The store will verify your payment.')
+        : (state === 'paid' ? 'Đã thanh toán. Thông báo được lưu trong trang cá nhân.' : 'Đã lưu thông báo chuyển khoản trong trang cá nhân. Cửa hàng sẽ đối soát khoản tiền.'),
+      href: '/account', action: language === 'en' ? 'View profile →' : 'Xem trang cá nhân →',
     })
     navigate('/')
   }
@@ -324,40 +326,50 @@ export default function App() {
     setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
   }
 
+  const languageContextValue = useMemo(() => ({
+    language,
+    setLanguage,
+    english: language === 'en',
+    translateCategory: (cat) => translateCategory(cat, language),
+  }), [language])
+
   let page = <NotFound />
-  if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>Đang kiểm tra phiên đăng nhập…</p></div>
+  if (!authReady && (protectedPage || route === 'auth')) page = <div className="container page-shell"><p>{language === 'en' ? 'Checking login session…' : 'Đang kiểm tra phiên đăng nhập…'}</p></div>
   else if (isAuth) page = <Auth key={location.pathname + location.search} mode={route === 'auth' ? location.pathname : '/login'} next={route === 'auth' ? new URLSearchParams(location.search).get('next') || '/account' : location.pathname + location.search} onLogin={(value) => { customerEpoch.current += 1; setAccount(value || null); refreshCustomer() }} onNavigate={navigate} language={language} onLanguageChange={setLanguage} />
   else if (route === 'home') page = <Home
+    language={language}
     appearance={appearance} products={products} onAddToCart={addToCart}
     favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite}
     promotionOverview={promotionOverview} account={account}
     promotions={<PromotionBoard overview={promotionOverview} account={account}
       selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} />}
   />
-  else if (route === 'products') page = <Catalog key={location.search} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
+  else if (route === 'products') page = <Catalog key={location.search} language={language} products={products} search={location.search} onAddToCart={addToCart} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'product') page = <ProductDetail key={location.pathname} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
-  else if (route === 'contact') page = <Contact appearance={appearance} products={products} account={account} onRequireLogin={() => requireLogin('/contact')} />
-  else if (route === 'cart') page = <Cart cart={liveCart} products={products} account={account} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onRequireLogin={() => requireLogin('/cart')} onNavigate={navigate} />
+  else if (route === 'product') page = <ProductDetail key={location.pathname} language={language} products={products} pathname={location.pathname} onAddToCart={addToCart} account={account} membershipTier={membershipTier} wallet={wallet} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
+  else if (route === 'contact') page = <Contact language={language} appearance={appearance} products={products} account={account} onRequireLogin={() => requireLogin('/contact')} />
+  else if (route === 'cart') page = <Cart language={language} cart={liveCart} products={products} account={account} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onRequireLogin={() => requireLogin('/cart')} onNavigate={navigate} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'checkout') page = <Checkout search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} onCatalogRefresh={refreshCatalog} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
-  else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
+  else if (route === 'checkout') page = <Checkout language={language} search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} onCatalogRefresh={refreshCatalog} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
+  else if (route === 'membership') page = <Membership language={language} account={account} tier={membershipTier} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
-  else if (route === 'favorites') page = <Favorites products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
+  else if (route === 'rewards') page = <Rewards language={language} account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
+  else if (route === 'favorites') page = <Favorites language={language} products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'account') page = <Account onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
+  else if (route === 'account') page = <Account language={language} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 
-  return <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
-    {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
-    <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
-      onChangeCapture={clearValidation}>
-      {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
-        ? <StorePromotions route={route} overview={promotionOverview} account={account}
-          selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher}>{page}</StorePromotions> : page}
-    </main>
-    {!isAuth && <Footer appearance={appearance} />}
-    {!isAuth && notice && createPortal(<StoreNotice notice={notice} onClose={() => setNotice('')} />, document.body)}
-    {!isAuth && <CustomerSupport account={account} onRequireLogin={requireLogin} />}
-  </div>
+  return <LanguageContext.Provider value={languageContextValue}>
+    <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
+      {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} language={language} onLanguageChange={setLanguage} />}
+      <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
+        onChangeCapture={clearValidation}>
+        {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
+          ? <StorePromotions route={route} overview={promotionOverview} account={account}
+            selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher}>{page}</StorePromotions> : page}
+      </main>
+      {!isAuth && <Footer appearance={appearance} language={language} />}
+      {!isAuth && notice && createPortal(<StoreNotice notice={notice} onClose={() => setNotice('')} />, document.body)}
+      {!isAuth && <CustomerSupport account={account} onRequireLogin={requireLogin} language={language} />}
+    </div>
+  </LanguageContext.Provider>
 }
