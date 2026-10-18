@@ -31,7 +31,13 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
   const query = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
   const initialView = mode === '/register' ? 'register' : mode === '/forgot-password' ? 'forgot' : mode === '/reset-password' ? 'reset' : 'login'
   const [view, setView] = useState(initialView)
-  const [error, setError] = useState(query.get('googleError') ? 'Đăng nhập Google thất bại. Vui lòng thử lại.' : '')
+  const googleErr = query.get('googleError')
+  const initialGoogleError = googleErr
+    ? (googleErr === 'access_denied'
+        ? (english ? 'Access denied: Google account is not added to Test users in Google Cloud Console.' : 'Truy cập bị từ chối: Tài khoản Gmail này chưa được thêm vào "Người dùng thử nghiệm" (Test users) trên Google Cloud Console.')
+        : (english ? 'Google sign in failed. Please try again.' : 'Đăng nhập Google thất bại. Vui lòng thử lại.'))
+    : ''
+  const [error, setError] = useState(initialGoogleError)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [challengeId, setChallengeId] = useState(query.get('challengeId') || '')
