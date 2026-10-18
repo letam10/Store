@@ -166,3 +166,23 @@ html[data-theme='dark'] body .site-frame .header-inner .account-link {
   border-color: var(--theme-border, #355943) !important;
   color: var(--theme-text, #edf7ef) !important;
 }
+
+/* Brand and cart accents stay red/orange and never fall back to blue/green theme tokens. */
+.brand__mark,
+.header-inner .brand__mark {
+  border-color: #b91c1c !important;
+  background: linear-gradient(135deg, #b91c1c 0%, #ef4444 58%, #f97316 100%) !important;
+  box-shadow: 0 7px 18px rgb(185 28 28 / 35%) !important;
+}
+
+.header-inner .cart-count {
+  background: linear-gradient(135deg, #991b1b 0%, #dc2626 58%, #f87171 100%) !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgb(220 38 38 / 32%) !important;
+}
+
+.header-inner .cart-count b {
+  background: #ffffff !important;
+  color: #991b1b !important;
+}

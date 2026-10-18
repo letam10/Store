@@ -219,3 +219,94 @@
   .account-profile--redesign .account-profile__stat span{display:block;line-height:1.3}
   .membership-hero{padding:20px}
 }
+
+/* Account surfaces use one green gradient family and keep clear spacing. */
+.account-page--redesign {
+  display: grid;
+  gap: 20px;
+}
+
+.account-page--redesign .account-page-head,
+.account-page--redesign .account-shortcuts--redesign,
+.account-page--redesign .account-payment-notifications,
+.account-page--redesign .account-content-grid--single,
+.account-page--redesign .account-orders--redesign,
+.account-page--redesign .account-security-card,
+.account-page--redesign .account-logout--redesign {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.account-page--redesign .account-shortcuts--redesign a,
+.account-page--redesign .account-payment-notifications,
+.account-page--redesign .account-content-grid--single .account-side-panel,
+.account-page--redesign .account-orders--redesign,
+.account-page--redesign .account-security-card {
+  border-color: #84b891 !important;
+  background: linear-gradient(135deg, #e8f6e9 0%, #cde8d2 58%, #b5d9bc 100%) !important;
+  color: #18362a !important;
+}
+
+.account-page--redesign .account-shortcuts--redesign a b,
+.account-page--redesign .account-shortcuts--redesign a small,
+.account-page--redesign .account-payment-notifications header > span,
+.account-page--redesign .account-payment-notifications p,
+.account-page--redesign .account-payment-notifications small,
+.account-page--redesign .account-side-panel span,
+.account-page--redesign .account-orders--redesign .account-orders__head > span,
+.account-page--redesign .account-security-card p,
+.account-page--redesign .account-security-card small {
+  color: #3f654b !important;
+}
+
+.account-page--redesign .account-shortcuts--redesign a span,
+.account-page--redesign .account-side-panel h2,
+.account-page--redesign .account-payment-notifications h2,
+.account-page--redesign .account-orders--redesign h2,
+.account-page--redesign .account-security-card h2 {
+  color: #1f5535 !important;
+}
+
+.account-page--redesign .account-payment-notifications li,
+.account-page--redesign .account-security-card .account-2fa-promo,
+.account-page--redesign .account-security-card .account-2fa-active-panel {
+  border-color: #84b891 !important;
+  background: color-mix(in srgb, #d9efdc 82%, transparent) !important;
+}
+
+:root[data-theme='dark'] .account-page--redesign .account-shortcuts--redesign a,
+:root[data-theme='dark'] .account-page--redesign .account-payment-notifications,
+:root[data-theme='dark'] .account-page--redesign .account-content-grid--single .account-side-panel,
+:root[data-theme='dark'] .account-page--redesign .account-orders--redesign,
+:root[data-theme='dark'] .account-page--redesign .account-security-card {
+  border-color: #4d8a61 !important;
+  background: linear-gradient(135deg, #28583e 0%, #1b422f 58%, #143123 100%) !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .account-page--redesign .account-shortcuts--redesign a b,
+:root[data-theme='dark'] .account-page--redesign .account-shortcuts--redesign a small,
+:root[data-theme='dark'] .account-page--redesign .account-payment-notifications header > span,
+:root[data-theme='dark'] .account-page--redesign .account-payment-notifications p,
+:root[data-theme='dark'] .account-page--redesign .account-payment-notifications small,
+:root[data-theme='dark'] .account-page--redesign .account-side-panel span,
+:root[data-theme='dark'] .account-page--redesign .account-orders--redesign .account-orders__head > span,
+:root[data-theme='dark'] .account-page--redesign .account-security-card p,
+:root[data-theme='dark'] .account-page--redesign .account-security-card small {
+  color: #c7e5cb !important;
+}
+
+:root[data-theme='dark'] .account-page--redesign .account-shortcuts--redesign a span,
+:root[data-theme='dark'] .account-page--redesign .account-side-panel h2,
+:root[data-theme='dark'] .account-page--redesign .account-payment-notifications h2,
+:root[data-theme='dark'] .account-page--redesign .account-orders--redesign h2,
+:root[data-theme='dark'] .account-page--redesign .account-security-card h2 {
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .account-page--redesign .account-payment-notifications li,
+:root[data-theme='dark'] .account-page--redesign .account-security-card .account-2fa-promo,
+:root[data-theme='dark'] .account-page--redesign .account-security-card .account-2fa-active-panel {
+  border-color: #4d8a61 !important;
+  background: color-mix(in srgb, #28583e 78%, transparent) !important;
+}
