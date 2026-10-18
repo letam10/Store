@@ -310,3 +310,50 @@
   border-color: #4d8a61 !important;
   background: color-mix(in srgb, #28583e 78%, transparent) !important;
 }
+
+/* Hồ sơ đầu trang cần chữ đậm và tương phản rõ trên nền xanh sáng. */
+.account-profile--redesign {
+  color: #123b26;
+}
+
+.account-profile--redesign .membership-badge {
+  background: #0c3a25;
+  color: #f4fff6;
+  font-weight: 900;
+}
+
+.account-profile--redesign .account-profile__identity h2,
+.account-profile--redesign .account-profile__stat strong {
+  color: #123b26;
+  font-weight: 950;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 28%);
+}
+
+.account-profile--redesign .account-profile__identity p,
+.account-profile--redesign .account-profile__stat span {
+  color: #245d3a;
+  font-weight: 750;
+}
+
+.account-profile--redesign .account-profile__stat {
+  border-left-color: rgb(36 93 58 / 42%);
+}
+
+:root[data-theme='dark'] .account-profile--redesign {
+  color: #f4fff6;
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__identity h2,
+:root[data-theme='dark'] .account-profile--redesign .account-profile__stat strong {
+  color: #f4fff6;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 20%);
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__identity p,
+:root[data-theme='dark'] .account-profile--redesign .account-profile__stat span {
+  color: #d9efde;
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__stat {
+  border-left-color: rgb(181 219 189 / 40%);
+}
