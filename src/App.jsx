@@ -83,6 +83,18 @@ export default function App() {
     return { ...item, ...currentProduct, quantity: item.quantity, selected: item.selected === true }
   }), [cart, products])
   const selectedCart = liveCart.filter((item) => item.selected && canPurchase(item))
+  const refreshCatalog = useCallback(async (signal) => {
+    try {
+      const response = await fetch(apiEndpoint('/api/storefront/catalog?details=1'), { signal, credentials: apiCredentials, cache: 'no-store' })
+      if (!response.ok) return false
+      const payload = await response.json()
+      if (!Array.isArray(payload.products)) return false
+      setOffers(payload.products)
+      return true
+    } catch {
+      return false
+    }
+  }, [])
 
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 3500); return () => clearTimeout(timer) }, [notice])
   useEffect(() => { saveCart(cartAccountId.current, cart) }, [cart])
@@ -178,22 +190,12 @@ export default function App() {
 
   useEffect(() => {
     const controller = new AbortController()
-    // Chức năng refreshCatalog: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-    async function refreshCatalog() {
-      try {
-        // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-        const response = await fetch(apiEndpoint('/api/storefront/catalog?details=1'), { signal: controller.signal, credentials: apiCredentials, cache: 'no-store' })
-        if (response.ok) {
-          const payload = await response.json()
-          if (Array.isArray(payload.products)) setOffers(payload.products)
-        }
-      } catch { /* Danh mục tĩnh vẫn dùng được khi API demo tắt. */ }
-    }
-    refreshCatalog()
-    window.addEventListener('focus', refreshCatalog)
-    const timer = setInterval(refreshCatalog, 30000)
-    return () => { controller.abort(); window.removeEventListener('focus', refreshCatalog); clearInterval(timer) }
-  }, [])
+    const initialTimer = setTimeout(() => { refreshCatalog(controller.signal) }, 0)
+    const reloadCatalog = () => { refreshCatalog() }
+    window.addEventListener('focus', reloadCatalog)
+    const timer = setInterval(reloadCatalog, 30000)
+    return () => { controller.abort(); window.removeEventListener('focus', reloadCatalog); clearTimeout(initialTimer); clearInterval(timer) }
+  }, [refreshCatalog])
 
   useEffect(() => {
     const old = window.history.scrollRestoration
@@ -338,7 +340,7 @@ export default function App() {
   else if (route === 'contact') page = <Contact appearance={appearance} products={products} account={account} onRequireLogin={() => requireLogin('/contact')} />
   else if (route === 'cart') page = <Cart cart={liveCart} products={products} account={account} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onRequireLogin={() => requireLogin('/cart')} onNavigate={navigate} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'checkout') page = <Checkout search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
+  else if (route === 'checkout') page = <Checkout search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} onCatalogRefresh={refreshCatalog} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership account={account} tier={membershipTier} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'rewards') page = <Rewards account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />

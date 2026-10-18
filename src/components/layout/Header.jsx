@@ -13,6 +13,10 @@ import './Header.css'
 const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
 const currencyFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
+function SearchIcon() {
+  return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" /><path d="m16 16 5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+}
+
 function SearchSuggestions({ items, query, onSelect, id }) {
   const normalizedQuery = query.trim().toLowerCase()
   const allMatches = items.filter((product) => {
@@ -142,7 +146,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
         <form className="site-search header-inline-search" action="/products" method="get" role="search" onFocus={() => setSuggestionsOpen(true)} onSubmit={() => setSuggestionsOpen(false)}>
           <label className="sr-only" htmlFor="header-inline-search-input">Tìm sản phẩm</label>
           <input id="header-inline-search-input" name="q" type="search" autoComplete="off" value={searchTerm} onChange={(event) => { setSearchTerm(event.target.value); setSuggestionsOpen(true) }} aria-controls="header-inline-suggestions" aria-expanded={suggestionsOpen} placeholder={searchPlaceholder} />
-          <button type="submit" aria-label="Tìm kiếm">⌕</button>
+          <button type="submit" aria-label="Tìm kiếm"><SearchIcon /></button>
         </form>
         {suggestionsOpen && <SearchSuggestions id="header-inline-suggestions" items={products} query={searchTerm} onSelect={() => setSuggestionsOpen(false)} />}
         </div>
@@ -151,7 +155,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
           <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? (english ? 'Your account' : 'Tài khoản của bạn') : (english ? 'Sign in / Register' : 'Đăng nhập / Đăng ký')}</a>
         </nav>
         <div className="header-actions">
-          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}>⌕</button>
+          <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}><SearchIcon /></button>
           <DropdownMenu className="header-language" ariaLabel={english ? 'Language' : 'Ngôn ngữ'} value={language} options={[{ value: 'vi', label: 'VI' }, { value: 'en', label: 'EN' }]} onChange={(nextLanguage) => onLanguageChange?.(nextLanguage)} />
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
@@ -177,7 +181,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
       <form className="site-search header-search-popover" action="/products" method="get" role="search" onSubmit={() => { setSearchOpen(false); setSuggestionsOpen(false) }}>
         <label className="sr-only" htmlFor="site-search-input">Tìm sản phẩm</label>
         <input ref={searchRef} id="site-search-input" name="q" type="search" autoComplete="off" value={searchTerm} onChange={(event) => { setSearchTerm(event.target.value); setSuggestionsOpen(true) }} aria-controls="header-popup-suggestions" aria-expanded={suggestionsOpen} placeholder={searchPlaceholder} />
-        <button type="submit" aria-label="Tìm kiếm">⌕</button>
+        <button type="submit" aria-label="Tìm kiếm"><SearchIcon /></button>
         <button className="header-search-close" type="button" aria-label="Đóng tìm kiếm" onClick={() => { setSearchOpen(false); setSuggestionsOpen(false) }}>×</button>
       </form>
       {suggestionsOpen && <SearchSuggestions id="header-popup-suggestions" items={products} query={searchTerm} onSelect={() => { setSearchOpen(false); setSuggestionsOpen(false) }} />}

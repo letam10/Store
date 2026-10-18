@@ -127,6 +127,43 @@ test('lọc số sao, nội dung và sắp xếp đánh giá giữ nguyên thố
   } finally { window.close() }
 })
 
+test('review timeout releases busy state and shows Vietnamese error', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/products/1', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  const account = { id: 71, username: 'reviewer', email: 'reviewer@example.com', tier: 'bronze', points: 0, spinCredits: 0, csrfToken: 'review-csrf' }
+  const product = { id: '1', name: 'Tai nghe Everyday', category: 'Tự Thiết Kế', price: 890000, originalPrice: 890000, discountPercent: 0, stockCount: 20, viewCount: 1, image: '/products/headphones.svg', features: [], description: 'Sản phẩm kiểm thử' }
+  const nativeSetTimeout = window.setTimeout.bind(window)
+  window.setTimeout = (callback, delay, ...args) => nativeSetTimeout(callback, delay === 10000 ? 0 : delay, ...args)
+  window.scrollTo = () => {}
+  window.fetch = async (url, options = {}) => {
+    const path = String(url)
+    if (path.includes('/customer/session')) return response(200, { authenticated: true, account })
+    if (path.includes('/catalog')) return response(200, { products: [product] })
+    if (path.includes('/reviews') && options.method === 'POST') {
+      return new Promise((resolve, reject) => {
+        options.signal?.addEventListener('abort', () => {
+          const error = new Error('aborted')
+          error.name = 'AbortError'
+          reject(error)
+        }, { once: true })
+      })
+    }
+    if (path.includes('/reviews')) return response(200, { reviews: [] })
+    return response(200, {})
+  }
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => Boolean(window.document.querySelector('.detail-review-form')))
+    const form = window.document.querySelector('.detail-review-form')
+    const submit = window.document.querySelector('.detail-review-form .button')
+    form.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
+    await waitFor(() => Boolean(window.document.querySelector('.form-error')))
+    assert.match(window.document.querySelector('.form-error')?.textContent || '', /thời gian chờ/i)
+    assert.equal(submit.disabled, false)
+    assert.doesNotMatch(submit.textContent, /Đang gửi/)
+  } finally { window.close() }
+})
+
 test('catalog measures attached sticky elements and toggles the compact filter', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/products', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom

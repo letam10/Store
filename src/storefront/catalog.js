@@ -52,9 +52,9 @@ export function enrichProducts(offers = []) {
   const byId = new Map(offers.map((offer) => [String(offer.id), offer]))
   const sourceIds = new Set(sourceProducts.map((product) => String(product.id)))
   const apiProducts = offers.filter((product) => product && product.name && !sourceIds.has(String(product.id)))
-  return [...sourceProducts, ...apiProducts].map((product, index) => {
+  return [...sourceProducts, ...apiProducts].map((product) => {
     const offer = byId.get(String(product.id))
-    const discountPercent = offer?.discountPercent ?? (index >= 4 && index < 12 ? 15 : 0)
+    const discountPercent = Number(offer?.discountPercent ?? product.discountPercent ?? 0)
     const originalPrice = product.originalPrice ?? product.price
     return {
       ...product,
@@ -66,7 +66,7 @@ export function enrichProducts(offers = []) {
       // The API normally supplies the managed stock value. Keep the same
       // default for the local demo fallback so guests cannot add unlimited
       // quantities when the backend is temporarily unavailable.
-      stockCount: offer?.stockCount ?? 20,
+      stockCount: Number(offer?.stockCount ?? product.stockCount ?? 20),
       viewCount: offer?.viewCount ?? 0,
       // Giữ tổng lượt yêu thích từ API để bộ lọc Catalog xếp hạng đúng cả sản phẩm nền.
       favoriteCount: offer?.favoriteCount ?? product.favoriteCount ?? 0,
@@ -80,6 +80,19 @@ export function mostViewed(products, count = 4) {
     .map((product, index) => ({ product, index }))
     .sort((a, b) => b.product.viewCount - a.product.viewCount || a.index - b.index)
     .slice(0, count).map(({ product }) => product)
+}
+
+// Xếp sale trang chủ ổn định để chạy lại luôn cho cùng một thứ tự.
+export function featuredSaleProducts(products, count = 10) {
+  return products
+    .filter((product) => product.stockCount !== 0 && product.discountPercent > 0)
+    .sort((a, b) => (
+      b.discountPercent - a.discountPercent ||
+      b.viewCount - a.viewCount ||
+      b.originalPrice - a.originalPrice ||
+      String(a.id).localeCompare(String(b.id), 'en', { numeric: true })
+    ))
+    .slice(0, count)
 }
 
 // Chức năng similarProducts: lấy ngẫu nhiên sản phẩm còn hàng cùng danh mục,

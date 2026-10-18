@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import MarketBanner from '../components/ui/MarketBanner'
 import HomePromotionRegion from '../components/ui/HomePromotionRegion'
-import { mostViewed } from '../storefront/catalog'
+import { featuredSaleProducts, mostViewed } from '../storefront/catalog'
 import './Home.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -62,7 +62,7 @@ export default function Home({
     const timer = setInterval(() => setSlide((current) => current + 1), 5000)
     return () => clearInterval(timer)
   }, [featured.length])
-  const sale = products.filter((product) => product.discountPercent > 0 && product.stockCount !== 0)
+  const sale = featuredSaleProducts(products, 10)
 
   return <>
     <HomePromotionRegion overview={promotionOverview} account={account} products={products}>

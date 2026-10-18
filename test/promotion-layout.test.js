@@ -86,7 +86,7 @@ function assertHomeRegion(window) {
   assert.ok(region, 'Trang chủ cần vùng giới hạn banner')
   assert.ok(catalog, 'Banner còn lại cần được đưa xuống vùng danh mục')
   assert.ok(sale, 'Mục giảm giá cần đích điều hướng cố định')
-  assert.equal(document.querySelectorAll('.home-promotion-rail').length, 4)
+  assert.equal(document.querySelectorAll('.home-promotion-rail').length, 2)
   assert.equal(region.querySelectorAll('aside.home-promotion-rail').length, 2)
   for (const side of ['left', 'right']) {
     assert.ok(region.querySelector('.home-promotion-rail--' + side + ' .home-side-banner'))
@@ -97,13 +97,8 @@ function assertHomeRegion(window) {
   assert.equal(catalog.contains(sale), true)
   for (const side of ['left', 'right']) {
     const top = region.querySelector('.home-promotion-rail--' + side)
-    const lower = catalog.querySelector('.home-promotion-rail--' + side)
     assert.equal(top.querySelectorAll('.home-side-banner').length, 3)
-    assert.equal(lower.querySelectorAll('.home-side-banner').length, 5)
-    const cards = [
-      ...top.querySelectorAll('.home-side-banner'),
-      ...lower.querySelectorAll('.home-side-banner'),
-    ]
+    const cards = [...top.querySelectorAll('.home-side-banner')]
     assert.equal(new Set(cards.map(card => card.dataset.bannerId)).size, cards.length)
     for (const card of cards) {
       assert.equal(card.tagName, 'A', 'Cả banner cần là một liên kết')
@@ -170,7 +165,7 @@ test('banner lấy mức giảm lớn nhất còn hàng và giữ liên kết c�
     assert.ok(right().querySelector('a[href="/membership"]'))
     assert.ok(right().querySelector('a[href="/rewards"]'))
     const links = [...window.document.querySelectorAll('a.home-side-banner')]
-    assert.equal(links.length, 16)
+    assert.equal(links.length, 6)
     for (const link of links) {
       const href = link.getAttribute('href')
       const routes = /^(products|membership|rewards|favorites|cart|contact|account)$/
@@ -186,17 +181,15 @@ test('banner lấy mức giảm lớn nhất còn hàng và giữ liên kết c�
   }
 })
 
-test('bấm tiêu đề quảng cáo dưới khu giảm giá mở đúng danh mục', async () => {
+test('bấm banner chính đưa người dùng tới khu giảm giá riêng', async () => {
   const dom = await openStore()
   const { window } = dom
   try {
-    const selector = '.home-promotion-region--catalog .home-banner-offer--electronics h3'
+    const selector = '.home-promotion-region--intro .home-side-banner--store'
     await waitFor(() => window.document.querySelector(selector))
     window.document.querySelector(selector).click()
-    await waitFor(() => window.location.pathname === '/products')
-    assert.equal(new URLSearchParams(window.location.search).get('category'), 'Điện tử')
-    await waitFor(() => window.document.querySelector('.catalog-results'))
-    assert.equal(window.document.querySelector('.home-promotion-rail'), null)
+    await waitFor(() => window.location.hash === '#home-sale-products')
+    assert.ok(window.document.querySelector('#home-sale-products'))
   } finally {
     window.close()
   }

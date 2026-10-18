@@ -34,7 +34,7 @@ const regionOptions = [
 
 // Chức năng Checkout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Checkout({ cart: currentCart, account, membershipTier = 'bronze', wallet = [],
-  selectedVoucherCodes = [],
+  selectedVoucherCodes = [], onCatalogRefresh,
   onToggleVoucher, onComplete, onRefresh, search = '', onNavigate, onPaymentComplete }) {
   const [completedOrder, setCompletedOrder] = useState(null)
   const [paymentSession, setPaymentSession] = useState(null)
@@ -70,9 +70,14 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
     customerApi('/api/customer/quote', { method: 'POST', csrfToken: account.csrfToken,
       body: JSON.stringify({ items: selectedItems, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes }), signal: controller.signal })
       .then((result) => { setQuote({ ...result, quoteKey: requestKey }); setQuoteError('') })
-      .catch((error) => { if (!controller.signal.aborted) { setQuote(null); setQuoteError(userMessage(error)) } })
+      .catch((error) => {
+        if (controller.signal.aborted) return
+        setQuote(null)
+        setQuoteError(userMessage(error))
+        if (error.code === 'CATALOG_OUT_OF_SYNC') Promise.resolve(onCatalogRefresh?.()).catch(() => {})
+      })
     return () => controller.abort()
-  }, [account.csrfToken, itemKey, fulfillment, region, weightKg, selectedVoucherCodes])
+  }, [account.csrfToken, itemKey, fulfillment, region, weightKg, selectedVoucherCodes, onCatalogRefresh])
 
   // Chức năng submit: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function submit(event) {

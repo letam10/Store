@@ -7,6 +7,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { customerApi } from '../api/customer'
+import { userMessage } from '../api/userMessages'
 import { getMembershipPlan } from '../storefront/promotions'
 import { productIdFromPath } from '../storefront/state'
 import { similarProducts } from '../storefront/catalog'
@@ -21,6 +22,36 @@ const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' })
 function safeDate(value) {
   const parsed = new Date(value)
   return Number.isNaN(parsed.getTime()) ? 'Chưa xác định ngày' : date.format(parsed)
+}
+
+const REVIEW_TIMEOUT_MS = 10000
+
+async function reviewRequest(path, options = {}, parentSignal) {
+  const controller = new AbortController()
+  let timedOut = false
+  const onParentAbort = () => controller.abort()
+  if (parentSignal) {
+    if (parentSignal.aborted) controller.abort()
+    else parentSignal.addEventListener('abort', onParentAbort, { once: true })
+  }
+  const timer = setTimeout(() => {
+    timedOut = true
+    controller.abort()
+  }, REVIEW_TIMEOUT_MS)
+  try {
+    return await customerApi(path, { ...options, signal: controller.signal })
+  } catch (error) {
+    if (timedOut) {
+      const timeout = new Error('Review request timed out')
+      timeout.name = 'TimeoutError'
+      timeout.code = 'TIMEOUT'
+      throw timeout
+    }
+    throw error
+  } finally {
+    clearTimeout(timer)
+    parentSignal?.removeEventListener('abort', onParentAbort)
+  }
 }
 
 export default function ProductDetail({ products, pathname, onAddToCart, account, membershipTier = 'bronze', favoriteIds = [], onToggleFavorite, onRequireLogin }) {
@@ -39,16 +70,21 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
   const [reviewOrder, setReviewOrder] = useState('newest')
   const plan = getMembershipPlan(membershipTier)
 
-  async function refreshReviews() {
+  async function refreshReviews(reportError = false) {
     try {
-      const payload = await customerApi('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews')
+      const payload = await reviewRequest('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews')
       setReviews(Array.isArray(payload.reviews) ? payload.reviews : [])
-    } catch { setReviews([]) }
+      return true
+    } catch (error) {
+      setReviews([])
+      if (reportError) setReviewError(userMessage(error, 'Chưa thể tải lại danh sách đánh giá.'))
+      return false
+    }
   }
 
   useEffect(() => {
     const controller = new AbortController()
-    customerApi('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews', { signal: controller.signal })
+    reviewRequest('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews', {}, controller.signal)
       .then((payload) => setReviews(Array.isArray(payload.reviews) ? payload.reviews : []))
       .catch(() => { if (!controller.signal.aborted) setReviews([]) })
     return () => controller.abort()
@@ -63,13 +99,13 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
     setReviewError('')
     setReviewSuccess('')
     try {
-      await customerApi('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews', {
+      await reviewRequest('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews', {
         method: 'POST', csrfToken: account.csrfToken, body: JSON.stringify({ rating, comment }),
       })
       setComment('')
-      await refreshReviews()
+      await refreshReviews(true)
       setReviewSuccess('Đã ghi nhận đánh giá của bạn.')
-    } catch (error) { setReviewError(error.message || 'Không thể gửi đánh giá') }
+    } catch (error) { setReviewError(userMessage(error, 'Không thể gửi đánh giá. Vui lòng thử lại sau.')) }
     finally { reviewGate.current = false; setReviewBusy(false) }
   }
 

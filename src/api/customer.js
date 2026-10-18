@@ -29,6 +29,9 @@ export async function customerApi(path, { csrfToken, ...options } = {}) {
     if (!response.ok) {
       const error = new Error(apiErrorMessage(payload, response.status))
       error.code = payload?.error || 'API_ERROR'
+      error.status = response.status
+      error.payload = payload
+      error.missingIds = Array.isArray(payload?.missingIds) ? payload.missingIds : []
       throw error
     }
     return payload

@@ -30,6 +30,7 @@ const messages = {
   CASE_NOT_FOUND: 'Không tìm thấy yêu cầu hỗ trợ đơn hàng.',
   INVALID_SCHEDULE: 'Vui lòng chọn thời gian giao hoặc nhận hàng hợp lệ trong tương lai.',
   QUOTE_CHANGED: 'Giá đơn hàng đã thay đổi. Vui lòng kiểm tra lại tổng tiền.',
+  CATALOG_OUT_OF_SYNC: 'Danh mục sản phẩm đã thay đổi. Vui lòng kiểm tra lại giỏ hàng trước khi thanh toán.',
   PAYMENT_REQUIRED: 'Đơn hàng cần được xác nhận thanh toán trước.',
   PAYMENT_REFERENCE_REQUIRED: 'Vui lòng nhập mã giao dịch đã được đối soát.',
   ACTION_NOT_ALLOWED: 'Trạng thái hiện tại không cho phép thao tác này.',

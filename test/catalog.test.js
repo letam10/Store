@@ -8,7 +8,7 @@
  */
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { displayCategory, enrichProducts, mostViewed, similarProducts } from '../src/storefront/catalog.js'
+import { displayCategory, enrichProducts, featuredSaleProducts, mostViewed, similarProducts } from '../src/storefront/catalog.js'
 
 // Kiểm thử edge case: demo catalog groups jewelry, apparel, laptops, electronics and components.
 test('demo catalog groups jewelry, apparel, laptops, electronics and components', () => {
@@ -42,14 +42,18 @@ test('similar products cap results and keep the current category', () => {
   assert.ok(result.every((product) => product.category === current.category && product.stockCount !== 0 && product.id !== current.id))
 })
 
-// Kiểm thử edge case: admin offer overrides demo discount and view ranking excludes out of stock.
+// Kiểm thử edge case: manifest giữ sale thật, offer Admin ghi đè và view ranking loại hết kho.
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
   assert.equal(imported.length, 1000)
   assert.equal(imported.filter((product) => product.category === 'Tự Thiết Kế').length, 39)
   assert.equal(imported.filter((product) => product.category === 'Thực phẩm').length, 0)
   assert.equal(imported.filter((product) => String(product.id).startsWith('custom-design-')).length, 0)
-  assert.equal(imported[4].discountPercent, 15)
+  assert.equal(imported[4].discountPercent, 0)
+  assert.equal(imported.filter((product) => product.discountPercent > 0).length, 63)
+  const featured = featuredSaleProducts(imported, 10)
+  assert.equal(featured.length, 10)
+  assert.ok(featured.every((product) => product.discountPercent > 0 && product.stockCount !== 0))
   const changed = enrichProducts([{ id: imported[4].id, discountPercent: 20, stockCount: 0, viewCount: 100 }, { id: imported[5].id, discountPercent: 5, stockCount: 2, viewCount: 10 }])
   assert.equal(changed[4].price, Math.round(changed[4].originalPrice * .8 / 10) * 10)
   assert.equal(changed[4].stockCount, 0)
