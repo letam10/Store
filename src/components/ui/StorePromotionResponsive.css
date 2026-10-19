@@ -104,7 +104,10 @@
   }
   .store-promo-service {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
+  }
+  .store-promo-service__item {
+    padding: 14px 16px;
   }
 }
 

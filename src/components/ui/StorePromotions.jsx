@@ -55,7 +55,55 @@ export function PromotionBoard({ route = 'home', overview, account, selectedVouc
     <section className="store-promo-deals" aria-label="Sản phẩm đang ưu đãi"><div className="store-promo-section-head"><div><span className="store-promo-kicker">{favoritesOnSale ? 'TRONG DANH SÁCH YÊU THÍCH' : 'GIÁ TỐT ĐANG CÓ'}</span><h3>{favoritesOnSale ? 'Món đã lưu đang giảm giá' : sales.length ? sales.length + ' sản phẩm đang giảm giá' : 'Khám phá lựa chọn mỗi ngày'}</h3></div>{sales.length > 0 && <span className="store-sale-stamp">Đến −{overview.maxDiscount}%</span>}</div>
       {deals.length ? <div className="store-promo-deals__grid">{deals.map(product => <a className="store-promo-product" key={product.id} href={'/products/' + encodeURIComponent(product.id)}><span className="store-promo-product__image"><img src={product.image} alt={product.name} loading="lazy" width="116" height="116" /><b>−{product.discountPercent}%</b></span><span className="store-promo-product__info"><small>{product.category}</small><strong title={product.name}>{product.name}</strong><span className="store-promo-product__price">{money.format(product.price)}</span>{product.originalPrice > product.price && <del>{money.format(product.originalPrice)}</del>}</span></a>)}</div> : <p className="store-promo-note">Khám phá danh mục Store; ưu đãi mới sẽ xuất hiện khi cửa hàng cập nhật giá.</p>}
     </section>
-    <div className="store-promo-service"><span><b>1.000 ₫ = 1 điểm cơ bản</b> Tiền hàng đã xác nhận thanh toán</span><span><b>100.000 ₫ = 1 lượt quay</b> Sau giảm giá · Dùng chung hai vòng</span><a href="/contact">Nhận tại cửa hàng hoặc giao theo lịch ↗</a></div>
+    <div className="store-promo-service" aria-label="Chính sách và quyền lợi mua sắm">
+      <a className="store-promo-service__item" href="/membership">
+        <span className="store-promo-service__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v10" />
+            <path d="M15 9.5a2.5 2.5 0 0 0-5 0c0 3 5 2 5 5a2.5 2.5 0 0 1-5 0" />
+          </svg>
+        </span>
+        <div className="store-promo-service__text">
+          <span className="store-promo-service__tag">TÍCH ĐIỂM THÀNH VIÊN</span>
+          <b>1.000 ₫ = 1 điểm cơ bản</b>
+          <small>Tiền hàng đã xác nhận thanh toán</small>
+        </div>
+        <span className="store-promo-service__arrow" aria-hidden="true">↗</span>
+      </a>
+      <a className="store-promo-service__item" href="/rewards">
+        <span className="store-promo-service__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="8" width="18" height="13" rx="2" />
+            <path d="M12 8v13" />
+            <path d="M19 12H3" />
+            <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" />
+          </svg>
+        </span>
+        <div className="store-promo-service__text">
+          <span className="store-promo-service__tag">VÒNG QUAY MAY MẮN</span>
+          <b>100.000 ₫ = 1 lượt quay</b>
+          <small>Sau giảm giá · Dùng chung hai vòng</small>
+        </div>
+        <span className="store-promo-service__arrow" aria-hidden="true">↗</span>
+      </a>
+      <a className="store-promo-service__item" href="/contact">
+        <span className="store-promo-service__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2" />
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+        </span>
+        <div className="store-promo-service__text">
+          <span className="store-promo-service__tag">DỊCH VỤ & GIAO NHẬN</span>
+          <b>Nhận tại cửa hàng hoặc giao theo lịch</b>
+          <small>Linh hoạt thời gian · Hỗ trợ toàn quốc</small>
+        </div>
+        <span className="store-promo-service__arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
   </section>
 }
 
