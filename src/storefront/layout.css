@@ -32,26 +32,26 @@ html, body { overflow-x:clip!important; overflow-y:visible!important; }
 .product-detail-thumbnails img,.detail-gallery img { display:block; min-width:0; min-height:0; object-fit:contain; }
 .cart-item__art img,.cart-similar__image-wrap img { object-fit:contain!important; object-position:center!important; }
 
-/* Cùng một gốc cuộn; khoảng top lấy từ ResizeObserver trong Header và Catalog. */
-.catalog-page { --catalog-heading-height:100px; --catalog-filter-height:54px; }
+/* Cùng một gốc cuộn; toàn bộ trang danh mục cuộn liền mạch từ đầu tới footer, không kẹt thanh trượt. */
+.catalog-page { --catalog-heading-height:auto; --catalog-filter-height:auto; }
 .catalog-page .catalog-page-head {
-  position:sticky!important; top:var(--store-header-height,62px)!important;
-  z-index:70!important; margin:0!important; padding:16px 0!important;
-  background:var(--paper)!important; box-shadow:0 8px 0 var(--paper)!important;
+  position:relative!important; top:auto!important;
+  z-index:1!important; margin:0 0 16px!important; padding:16px 0 12px!important;
+  background:transparent!important; box-shadow:none!important;
 }
 .catalog-page .catalog-page-head h1 { font-size:clamp(23px,3.3vw,42px); line-height:1.15; }
 .catalog-page .catalog-layout { overflow:visible!important; align-items:start!important; margin-top:12px; }
 .catalog-page .catalog-sidebar {
-  position:sticky!important; top:calc(var(--store-header-height,62px) + var(--catalog-heading-height) + 8px)!important;
-  max-height:calc(100dvh - var(--store-header-height,62px) - var(--catalog-heading-height) - 24px)!important;
-  overflow-y:auto!important; align-self:start!important; padding:18px!important; z-index:65!important;
+  position:static!important; top:auto!important;
+  max-height:none!important;
+  overflow:visible!important; overflow-y:visible!important; align-self:start!important; padding:18px!important; z-index:auto!important;
 }
 .catalog-page .catalog-sidebar__head { position:static!important; padding:0 0 12px!important; margin:0!important; }
 .catalog-filter-toggle { display:none; }
 .catalog-page .catalog-results { min-width:0; overflow:visible!important; }
 .catalog-page .catalog-results__head {
   position:relative!important; top:auto!important;
-  z-index:2!important; margin:0 0 16px!important; padding:12px 0!important;
+  z-index:1!important; margin:0 0 16px!important; padding:12px 0!important;
   background:transparent!important; box-shadow:none!important;
   border-bottom:1px solid var(--line)!important;
 }

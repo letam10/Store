@@ -28,9 +28,9 @@
 .home-section--sale .eyebrow{color:#9f4d38}.home-section--sale .section-heading h2{color:#6e2d22}
 .product-card--sale{padding:5px;border:1px solid #e16a4c;border-radius:12px;box-shadow:0 0 0 1px #ffb56366}
 .product-label--sale{font-size:12px!important;padding:7px 10px!important;background:linear-gradient(120deg,#c63030,#f37932)!important;color:#fff!important;font-weight:900;letter-spacing:.3px}
-.catalog-page-head{position:sticky;top:74px;z-index:18;margin:0 0 20px;padding:15px 0;background:var(--paper);border-bottom:1px solid var(--line)}
+.catalog-page-head{position:relative;top:auto;z-index:1;margin:0 0 20px;padding:15px 0;background:transparent;border-bottom:1px solid var(--line)}
 .catalog-page-head h1{font-size:clamp(28px,3.4vw,42px)}
-.catalog-sidebar{top:168px;max-height:calc(100dvh - 182px)}
+.catalog-sidebar{position:static;top:auto;max-height:none;overflow:visible}
 .catalog-results .catalog-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:20px 12px}
 .catalog-checkbox{display:flex;align-items:center;gap:9px;color:var(--ink);font-size:13px;font-weight:700;cursor:pointer}.catalog-checkbox input{width:18px;height:18px;accent-color:#3e8d5e}
 .catalog-load-more{display:flex;justify-content:center;margin:16px 0 24px}
