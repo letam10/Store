@@ -119,7 +119,6 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   function changePage(newPage) {
     if (newPage < 1 || newPage > totalPages || newPage === safePage) return
     setCurrentPage(newPage)
-    headingRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
   }
 
   return <div className="container page-shell catalog-page" ref={pageRef}>
@@ -140,9 +139,11 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
             {categories.map((item) => <button key={item} type="button" role="option" aria-selected={category === item} className={category === item ? 'is-active' : ''} onClick={() => { closeDropdownMenus(); setCategory(item); setCurrentPage(1) }}>{translateCategory(item, activeLang)}</button>)}
           </div>
         </fieldset>
-        <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { closeDropdownMenus(); setDiscountOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Discounted products only' : 'Lọc sản phẩm giảm giá'}</label>
-        <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setPopularityOnly(checked); setFavoriteSort(false); setSort(checked ? 'popular' : 'featured'); setCurrentPage(1) }} />{english ? 'Popular products only' : 'Chỉ sản phẩm phổ biến'}</label>
-        <label className="catalog-checkbox"><input type="checkbox" checked={favoriteSort} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setFavoriteSort(checked); setPopularityOnly(false); setSort(checked ? 'favorite' : 'featured'); setCurrentPage(1) }} />{english ? 'Favorited products only' : 'Chỉ sản phẩm yêu thích'}</label>
+        <div className="catalog-checkbox-group">
+          <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { closeDropdownMenus(); setDiscountOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Discounted products only' : 'Lọc sản phẩm giảm giá'}</label>
+          <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setPopularityOnly(checked); setFavoriteSort(false); setSort(checked ? 'popular' : 'featured'); setCurrentPage(1) }} />{english ? 'Popular products only' : 'Chỉ sản phẩm phổ biến'}</label>
+          <label className="catalog-checkbox"><input type="checkbox" checked={favoriteSort} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setFavoriteSort(checked); setPopularityOnly(false); setSort(checked ? 'favorite' : 'featured'); setCurrentPage(1) }} />{english ? 'Favorited products only' : 'Chỉ sản phẩm yêu thích'}</label>
+        </div>
         <label className="field"><span>{english ? 'Max price' : 'Giá tối đa'}</span><DropdownMenu value={maxPrice} options={localizedMaxPriceOptions} ariaLabel={english ? 'Max price' : 'Giá tối đa'} onChange={(nextPrice) => { closeDropdownMenus(); setMaxPrice(Number(nextPrice)); setCurrentPage(1) }} /></label>
         <label className="field"><span>{english ? 'Sort by' : 'Sắp xếp'}</span><DropdownMenu value={sort} options={localizedSortOptions} ariaLabel={english ? 'Sort products' : 'Sắp xếp sản phẩm'} onChange={(nextSort) => { closeDropdownMenus(); setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setCurrentPage(1) }} /></label>
         <p className="catalog-sidebar__hint">{english ? 'Filters stay handy as you browse.' : 'Bộ lọc luôn ở bên cạnh khi bạn cuộn danh sách.'}</p>
@@ -221,8 +222,8 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
           </nav>
         )}
         {visible.length === 0 && <div className="surface empty-panel"><h2>{english ? 'No products found' : 'Không tìm thấy sản phẩm'}</h2><p className="muted">{english ? 'Try different keywords or clear filters.' : 'Thử từ khóa khác hoặc bỏ bộ lọc.'}</p><button className="button button--soft" type="button" onClick={resetFilters}>{english ? 'Clear filters' : 'Xóa bộ lọc'}</button></div>}
-        <p className="muted catalog-attribution">{english ? 'Product images and information from' : 'Ảnh và thông tin sản phẩm từ'} <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>) {english ? 'and' : 'và'} <a href="https://dummyjson.com/docs/products" target="_blank" rel="noopener noreferrer">DummyJSON</a>. {english ? 'Prices and stock confirmed at order time.' : 'Giá và tồn kho được xác nhận khi đặt hàng.'}</p>
       </div>
     </div>
+    <p className="muted catalog-attribution">{english ? 'Product images and information from' : 'Ảnh và thông tin sản phẩm từ'} <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>) {english ? 'and' : 'và'} <a href="https://dummyjson.com/docs/products" target="_blank" rel="noopener noreferrer">DummyJSON</a>. {english ? 'Prices and stock confirmed at order time.' : 'Giá và tồn kho được xác nhận khi đặt hàng.'}</p>
   </div>
 }
