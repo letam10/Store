@@ -26,6 +26,7 @@ async function migrateOldBrowserAccount(username, password) {
 }
 
 export default function Auth({ mode, next = '/account', onLogin, onNavigate, language = 'vi' }) {
+  const english = language === 'en'
   const query = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
   const initialView = mode === '/register' ? 'register' : mode === '/forgot-password' ? 'forgot' : mode === '/reset-password' ? 'reset' : 'login'
   const [view, setView] = useState(initialView)

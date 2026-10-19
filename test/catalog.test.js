@@ -8,7 +8,7 @@
  */
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { displayCategory, enrichProducts, featuredSaleProducts, mostViewed, similarProducts } from '../src/storefront/catalog.js'
+import { CATALOG_PAGE_SIZE, displayCategory, enrichProducts, featuredSaleProducts, generatePaginationItems, mostViewed, similarProducts } from '../src/storefront/catalog.js'
 
 // Kiểm thử edge case: demo catalog groups jewelry, apparel, laptops, electronics and components.
 test('demo catalog groups jewelry, apparel, laptops, electronics and components', () => {
@@ -60,3 +60,38 @@ test('admin offer overrides demo discount and view ranking excludes out of stock
   assert.equal(mostViewed(changed, 1)[0].id, imported[5].id)
   assert.ok(similarProducts(changed, changed[4]).every((item) => item.stockCount !== 0 && item.category === changed[4].category))
 })
+
+// Kiểm thử phân trang danh mục sản phẩm: 15 sản phẩm/trang, đầy đủ 1000 sản phẩm với 67 trang.
+test('catalog pagination enforces 15 items per page and computes pages through 1000 items', () => {
+  assert.equal(CATALOG_PAGE_SIZE, 15)
+  const allProducts = enrichProducts()
+  assert.equal(allProducts.length, 1000)
+
+  const totalPages = Math.ceil(allProducts.length / CATALOG_PAGE_SIZE)
+  assert.equal(totalPages, 67)
+
+  // Trang 1: 15 sản phẩm đầu tiên
+  const page1 = allProducts.slice(0, CATALOG_PAGE_SIZE)
+  assert.equal(page1.length, 15)
+
+  // Trang cuối 67: 10 sản phẩm còn lại
+  const page67 = allProducts.slice((67 - 1) * CATALOG_PAGE_SIZE, 67 * CATALOG_PAGE_SIZE)
+  assert.equal(page67.length, 10)
+
+  // Phân bổ các nút phân trang cho các trường hợp
+  // Trường hợp ít hơn hoặc bằng 7 trang
+  assert.deepEqual(generatePaginationItems(1, 5), [1, 2, 3, 4, 5])
+  assert.deepEqual(generatePaginationItems(3, 7), [1, 2, 3, 4, 5, 6, 7])
+
+  // Trường hợp ở đầu (trang 1..4 của 67 trang)
+  assert.deepEqual(generatePaginationItems(1, 67), [1, 2, 3, 4, 5, '...', 67])
+  assert.deepEqual(generatePaginationItems(4, 67), [1, 2, 3, 4, 5, '...', 67])
+
+  // Trường hợp ở giữa (trang 10 của 67 trang)
+  assert.deepEqual(generatePaginationItems(10, 67), [1, '...', 9, 10, 11, '...', 67])
+
+  // Trường hợp ở cuối (trang 65, 67 của 67 trang)
+  assert.deepEqual(generatePaginationItems(65, 67), [1, '...', 63, 64, 65, 66, 67])
+  assert.deepEqual(generatePaginationItems(67, 67), [1, '...', 63, 64, 65, 66, 67])
+})
+

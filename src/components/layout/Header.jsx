@@ -47,7 +47,7 @@ function SearchSuggestions({ items, query, onSelect, id }) {
 }
 
 // Chức năng Header: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, language = 'vi' }) {
+export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
