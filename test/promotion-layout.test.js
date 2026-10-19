@@ -170,6 +170,7 @@ test('banner lấy mức giảm lớn nhất còn hàng và giữ liên kết c�
     assert.ok(right().querySelector('a[href="/rewards"]'))
     const links = [...window.document.querySelectorAll('a.home-side-banner')]
     assert.equal(links.length, 20)
+    assert.equal(window.document.querySelectorAll('.home-side-banner--compact').length, 3)
     for (const link of links) {
       const href = link.getAttribute('href')
       const routes = /^(products|membership|rewards|favorites|cart|contact|account)$/

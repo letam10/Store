@@ -175,6 +175,18 @@
 .account-page--redesign .account-orders,
 .membership-card,
 .membership-hero{min-width:0}
+
+.membership-auth-actions,
+.favorites-auth-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.favorites-auth-actions {
+  margin: 18px 0 10px;
+}
 .account-profile--redesign .account-profile__identity,
 .account-profile--redesign .account-profile__stats,
 .account-profile--redesign .account-profile__stat,

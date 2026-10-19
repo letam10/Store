@@ -6,12 +6,12 @@ import './HomeBannerProduct.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
-export default function HomeBannerOffers({ side, overview, account, products, count, offset }) {
+export default function HomeBannerOffers({ side, overview, account, products, count, offset, compact = false }) {
   const offers = homeBannerOffers(side, overview, account, products).slice(offset, offset + count)
 
   return offers.map(offer => (
     <a
-      className={'home-side-banner home-banner-offer home-banner-offer--' + offer.kind}
+      className={'home-side-banner home-banner-offer home-banner-offer--' + offer.kind + (compact ? ' home-side-banner--compact' : '')}
       key={offer.id}
       href={offer.href}
       data-banner-id={offer.id}

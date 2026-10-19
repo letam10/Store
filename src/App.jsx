@@ -77,7 +77,7 @@ export default function App() {
   const themePalette = useMemo(() => themeVariables(themeDocument, theme), [themeDocument, theme])
   const hasTheme = Boolean(appearance.theme && typeof appearance.theme === 'object')
   const accentColor = hasTheme ? themePalette['--accent'] : /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : themePalette['--accent']
-  const protectedPage = ['account', 'checkout', 'membership', 'favorites'].includes(route)
+  const protectedPage = ['account', 'checkout'].includes(route)
   const isAuth = route === 'auth' || (protectedPage && !account)
   const liveCart = useMemo(() => cart.map((item) => {
     const currentProduct = products.find((product) => String(product.id) === String(item.id))
@@ -354,7 +354,7 @@ export default function App() {
   else if (route === 'membership') page = <Membership language={language} account={account} tier={membershipTier} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'rewards') page = <Rewards language={language} account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
-  else if (route === 'favorites') page = <Favorites language={language} products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
+  else if (route === 'favorites') page = <Favorites language={language} account={account} products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'account') page = <Account language={language} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
 

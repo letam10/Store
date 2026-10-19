@@ -72,6 +72,29 @@ test('guest can browse but cart, checkout, favorites and chat require login', as
   } finally { window.close() }
 })
 
+test('guest can open membership and favorites with login and register actions', async () => {
+  for (const [path, headingSelector, loginHref, registerHref] of [
+    ['/membership', '.membership-hero', '/login?next=%2Fmembership', '/register?next=%2Fmembership'],
+    ['/favorites', '.empty-panel', '/login?next=%2Ffavorites', '/register?next=%2Ffavorites'],
+  ]) {
+    const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost' + path, pretendToBeVisual: true, runScripts: 'outside-only' })
+    const { window } = dom
+    window.scrollTo = () => {}
+    window.matchMedia = () => ({ matches: true, addEventListener() {}, removeEventListener() {} })
+    window.fetch = async (url) => {
+      if (String(url).endsWith('/api/customer/session')) return response(401, { error: 'LOGIN_REQUIRED' })
+      if (String(url).includes('/catalog')) return response(200, { products: [] })
+      return response(200, {})
+    }
+    window.eval(bundle.outputFiles[0].text)
+    try {
+      await waitFor(() => Boolean(window.document.querySelector(headingSelector)))
+      assert.ok(window.document.querySelector('a[href="' + loginHref + '"]'))
+      assert.ok(window.document.querySelector('a[href="' + registerHref + '"]'))
+    } finally { window.close() }
+  }
+})
+
 // Kiểm thử edge case: server-backed registration loads account without saving a browser password.
 test('server-backed registration loads account without saving a browser password', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/register', pretendToBeVisual: true, runScripts: 'outside-only' })

@@ -93,6 +93,52 @@
   background: color-mix(in srgb, var(--banner-ink) 12%, transparent);
 }
 
+/* Banner phụ lấp khoảng rail: giữ đủ hình, tiêu đề và CTA nhưng không kéo dài theo banner chính. */
+.home-side-banner--compact {
+  gap: 8px;
+  padding: 12px;
+  border-radius: 18px;
+}
+
+.home-side-banner--compact .home-banner-offer__visual {
+  gap: 7px;
+}
+
+.home-side-banner--compact .home-banner-offer__visual .home-side-banner__art,
+.home-side-banner--compact .home-banner-offer__product-art {
+  height: 60px;
+  padding: 7px;
+  border-radius: 13px;
+}
+
+.home-side-banner--compact .home-banner-offer__product-caption {
+  display: none;
+}
+
+.home-side-banner--compact h3 {
+  font-size: 21px;
+  line-height: 1.08;
+}
+
+.home-side-banner--compact .home-banner-offer__note {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.home-side-banner--compact .home-side-banner__details {
+  display: none;
+}
+
+.home-side-banner--compact .home-banner-offer__action {
+  min-height: 34px;
+  padding: 7px 9px;
+  font-size: 11px;
+}
+
 :root[data-theme='dark'] .home-banner-offer--tech {
   --banner-ink: #e1eefb;
   --banner-muted: #b7d0e8;

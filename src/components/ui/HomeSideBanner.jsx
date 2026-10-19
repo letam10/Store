@@ -14,6 +14,7 @@ export default function HomeSideBanner({ side, overview, account, products, area
   const hasSale = sales.length > 0
   const isIntro = area === 'intro' || area === 'page'
   const isPage = area === 'page'
+  const compactCount = isStore ? 1 : 2
   const title = isStore ? 'Món cần. Giá tốt.' : account ? 'Hạng ' + plan.name : 'Thêm nhiều quyền lợi.'
 
   useLayoutEffect(() => {
@@ -89,8 +90,24 @@ export default function HomeSideBanner({ side, overview, account, products, area
       </a>}
       {isPage ? <>
         <HomeBannerOffers side={side} overview={overview} account={account} products={products} offset={0} count={2} />
+        <HomeBannerOffers
+          side={side}
+          overview={overview}
+          account={account}
+          products={products}
+          offset={2}
+          count={compactCount}
+          compact
+        />
         <div ref={saleGapRef} className="home-promotion-rail__sale-gap" aria-hidden="true" />
-        <HomeBannerOffers side={side} overview={overview} account={account} products={products} offset={2} count={7} />
+        <HomeBannerOffers
+          side={side}
+          overview={overview}
+          account={account}
+          products={products}
+          offset={2 + compactCount}
+          count={7 - compactCount}
+        />
       </> : <HomeBannerOffers
         side={side}
         overview={overview}
