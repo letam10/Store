@@ -74,7 +74,7 @@ test('guest can browse but cart, checkout, favorites and chat require login', as
 
 test('guest can open membership and favorites with login and register actions', async () => {
   for (const [path, headingSelector, loginHref, registerHref] of [
-    ['/membership', '.membership-hero', '/login?next=%2Fmembership', '/register?next=%2Fmembership'],
+    ['/membership', '.membership-guest-gate', '/login?next=%2Fmembership', '/register?next=%2Fmembership'],
     ['/favorites', '.empty-panel', '/login?next=%2Ffavorites', '/register?next=%2Ffavorites'],
   ]) {
     const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost' + path, pretendToBeVisual: true, runScripts: 'outside-only' })
@@ -91,6 +91,12 @@ test('guest can open membership and favorites with login and register actions', 
       await waitFor(() => Boolean(window.document.querySelector(headingSelector)))
       assert.ok(window.document.querySelector('a[href="' + loginHref + '"]'))
       assert.ok(window.document.querySelector('a[href="' + registerHref + '"]'))
+      if (path === '/membership') {
+        assert.equal(window.document.querySelector('.membership-grid'), null)
+        assert.equal(window.document.querySelector('.membership-disclaimer'), null)
+      } else {
+        assert.equal(window.document.querySelector('.empty-panel a[href="/products"]'), null)
+      }
     } finally { window.close() }
   }
 })

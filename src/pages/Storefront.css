@@ -187,6 +187,25 @@
 .favorites-auth-actions {
   margin: 18px 0 10px;
 }
+
+.membership-guest-gate {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 42px 24px;
+  text-align: center;
+}
+
+.membership-guest-gate h2,
+.membership-guest-gate p {
+  margin: 0;
+}
+
+.membership-auth-actions,
+.favorites-auth-actions {
+  justify-content: center;
+}
 .account-profile--redesign .account-profile__identity,
 .account-profile--redesign .account-profile__stats,
 .account-profile--redesign .account-profile__stat,
