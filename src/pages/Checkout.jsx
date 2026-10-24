@@ -24,7 +24,7 @@ const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND
 // Chức năng Checkout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Checkout({ cart: currentCart, account, membershipTier = 'bronze', wallet = [],
   selectedVoucherCodes = [], onCatalogRefresh,
-  onToggleVoucher, onComplete, onRefresh, search = '', onNavigate, onPaymentComplete, language: propLanguage }) {
+  onToggleVoucher, onApplyVoucherCode, onComplete, onRefresh, search = '', onNavigate, onPaymentComplete, language: propLanguage }) {
   const { language: contextLanguage, english: contextEnglish } = useLanguage()
   const language = propLanguage || contextLanguage || 'vi'
   const english = language === 'en' || contextEnglish
@@ -56,6 +56,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const [region, setRegion] = useState('hcm')
   const [weightKg, setWeightKg] = useState(1)
   const [openVoucher, setOpenVoucher] = useState('goods')
+  const [manualVoucherCode, setManualVoucherCode] = useState('')
   const [quoteResult, setQuote] = useState(null)
   const [quoteError, setQuoteError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -166,6 +167,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
 
   const goodsVouchers = wallet.filter((voucher) => (voucher.scope || 'goods') === 'goods')
   const shippingVouchers = wallet.filter((voucher) => voucher.scope === 'shipping')
+  const manualCodes = selectedVoucherCodes.filter((code) => !wallet.some((voucher) => voucher.code === code))
   // Chức năng voucherGroup: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const voucherGroup = (key, title, icon, vouchers) => <div className={'checkout-voucher-group' + (openVoucher === key ? ' is-open' : '')}>
     <button className="checkout-voucher-group__trigger" type="button" aria-expanded={openVoucher === key} onClick={() => setOpenVoucher((current) => current === key ? '' : key)}><span className="voucher-type-icon" aria-hidden="true">{icon}</span><span><b>{title}</b><small>{vouchers.length ? (english ? `${vouchers.length} vouchers available` : `${vouchers.length} voucher đang có`) : (english ? 'No vouchers' : 'Chưa có voucher')}</small></span><span aria-hidden="true">{openVoucher === key ? '⌃' : '⌄'}</span></button>
@@ -184,6 +186,8 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
         <label className="field"><span>{english ? 'Delivery / pickup schedule' : 'Lịch giao / nhận'}</span><input type="datetime-local" value={schedule} onChange={event => setSchedule(event.target.value)} required /></label>
         <label className="field"><span>{english ? 'Fulfillment method' : 'Cách nhận hàng'}</span><DropdownMenu value={fulfillment} options={fulfillmentOptions} ariaLabel={english ? 'Fulfillment method' : 'Cách nhận hàng'} onChange={setFulfillment} /></label>
         <section className="checkout-voucher"><div className="checkout-voucher__head"><div><span className="eyebrow">{english ? 'OFFERS' : 'ƯU ĐÃI'}</span><b>{english ? 'Select vouchers for your order' : 'Chọn voucher cho đơn hàng'}</b></div><a href="/rewards">{english ? 'Lucky Spin →' : 'Vòng quay →'}</a></div>
+          <form className="checkout-voucher__input" onSubmit={(event) => { event.preventDefault(); onApplyVoucherCode?.(manualVoucherCode); setManualVoucherCode('') }}><input aria-label={english ? 'Voucher code' : 'Mã voucher'} value={manualVoucherCode} onChange={(event) => setManualVoucherCode(event.target.value)} placeholder={english ? 'Enter voucher code' : 'Nhập mã voucher'} maxLength="80" /><button type="submit">{english ? 'Apply' : 'Áp dụng mã'}</button></form>
+          {manualCodes.length > 0 && <small className="voucher-valid">Mã nhập: {manualCodes.join(', ')}</small>}
           <div className="checkout-voucher-groups">{voucherGroup('goods', english ? 'Goods vouchers' : 'Voucher hàng hóa', '⌂', goodsVouchers)}{voucherGroup('shipping', english ? 'Shipping vouchers' : 'Voucher phí vận chuyển', '✈', shippingVouchers)}</div>
         </section>
         <div className="form-grid">

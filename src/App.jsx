@@ -319,6 +319,11 @@ export default function App() {
   function toggleVoucher(code) {
     setSelectedVoucherCodes((current) => current.includes(code) ? current.filter((item) => item !== code) : normalizeVoucherSelection([...current, code], wallet))
   }
+  function applyVoucherCode(code) {
+    const normalized = String(code || '').trim().toUpperCase()
+    if (!normalized) return
+    setSelectedVoucherCodes((current) => current.includes(normalized) ? current : [...current, normalized])
+  }
   // Chức năng logout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function logout() {
     customerEpoch.current += 1
@@ -350,7 +355,7 @@ export default function App() {
   else if (route === 'contact') page = <Contact language={language} appearance={appearance} products={products} account={account} onRequireLogin={() => requireLogin('/contact')} />
   else if (route === 'cart') page = <Cart language={language} cart={liveCart} products={products} account={account} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onRequireLogin={() => requireLogin('/cart')} onNavigate={navigate} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'checkout') page = <Checkout language={language} search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} onCatalogRefresh={refreshCatalog} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onComplete={completeOrder} />
+  else if (route === 'checkout') page = <Checkout language={language} search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} onCatalogRefresh={refreshCatalog} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onApplyVoucherCode={applyVoucherCode} onComplete={completeOrder} />
   else if (route === 'membership') page = <Membership language={language} account={account} tier={membershipTier} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'rewards') page = <Rewards language={language} account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
