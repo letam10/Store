@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../../api/chat'
 import { userMessage } from '../../api/userMessages'
 import { createRequestGate } from '../../api/requestGate'
-import { applyRestore, createRestoreGuard } from './customerSupportState'
+import { applyRestore, createRestoreGuard, hideSourceDisclosure } from './customerSupportState'
 import { useLanguage } from '../../storefront/i18n'
 import './CustomerSupport.css'
 
@@ -154,6 +154,7 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
     }
 
     setDraft('')
+    inputRef.current?.focus()
     setBusy(true)
     setActivity('Đang chờ AI')
 
@@ -278,9 +279,8 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
                 <span className="customer-support__avatar" aria-hidden="true">s.</span>
                 <div className="customer-support__incoming-body">
                   <span className="customer-support__sender">{english ? 'Store · AI Assistant' : 'Store · Trợ lý AI'}</span>
-                  <p className="customer-support__bubble">{message.content || (message.status === 'streaming' ? '…' : message.error || (english ? 'No content.' : 'Không có nội dung.'))}</p>
+                  <p className="customer-support__bubble">{hideSourceDisclosure(message.content) || (message.status === 'streaming' ? '…' : message.error || (english ? 'No content.' : 'Không có nội dung.'))}</p>
                   {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>{english ? 'Verified Store Data' : 'Dữ liệu Store đã xác minh'}</strong><p>{message.verified.text}</p></div>}
-                  {message.sources?.length > 0 && <div className="customer-support__sources">{message.sources.map((source) => <span key={source.id}>{source.label}</span>)}</div>}
                   {(['error', 'incomplete', 'stopped'].includes(message.status)) && <>
                     <small className="customer-support__state">{message.status === 'incomplete' ? (english ? 'Above content not yet marked complete.' : 'Nội dung trên chưa được xác nhận hoàn tất.') : message.error}</small>
                     <button className="customer-support__retry" type="button" disabled={busy} onClick={() => startRequest(message.retryContent, { assistantId: message.id, requestId: message.requestId })}>{english ? 'Retry' : 'Thử lại'}</button>
@@ -297,7 +297,7 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
           <form className="customer-support__form" onSubmit={sendMessage}>
             <label className="customer-support__sr-only" htmlFor="store-support-message">{english ? 'Message content' : 'Nội dung tin nhắn'}</label>
             <div className="customer-support__composer">
-              <input ref={inputRef} id="store-support-message" autoComplete="off" maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={english ? 'Type a message for Store…' : 'Nhập lời nhắn cho Store…'} disabled={busy} />
+              <input ref={inputRef} id="store-support-message" autoComplete="off" maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={english ? 'Type a message for Store…' : 'Nhập lời nhắn cho Store…'} aria-busy={busy} />
               {busy ? <button type="button" onClick={stopRequest} aria-label={english ? 'Stop response' : 'Dừng trả lời'}><span aria-hidden="true">■</span></button> : <button type="submit" disabled={!draft.trim()} aria-label={english ? 'Send message' : 'Gửi tin nhắn'}><SupportIcon kind="send" /></button>}
             </div>
             <p className={'customer-support__disclaimer' + (busy ? ' customer-support__disclaimer--active' : '')}>

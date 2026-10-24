@@ -8,6 +8,11 @@
  */
 import { userMessage } from '../../api/userMessages.js'
 
+// Ẩn phần metadata nguồn nếu model lặp lại nhãn nguồn trong nội dung trả lời.
+export function hideSourceDisclosure(text) {
+  return String(text || '').replace(/\n\s*(?:Nguồn|Sources?)\s*:?[\s\S]*$/i, '').trim()
+}
+
 // Chức năng mapServerMessages: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function mapServerMessages(messages) {
   return messages.map((message) => ({
