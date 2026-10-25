@@ -48,6 +48,7 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
   const [busy, setBusy] = useState(false)
   const [activity, setActivity] = useState('')
   const [providerStatus, setProviderStatus] = useState(null)
+  const accountId = account?.id
   const inputRef = useRef(null)
   const toggleRef = useRef(null)
   const rootRef = useRef(null)
@@ -63,7 +64,7 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
   useEffect(() => {
     const initialId = initialConversationIdRef.current
     // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-    if (!account || !initialId) return undefined
+    if (!accountId || !initialId) return undefined
     const restoreGuard = restoreGuardRef.current
     const gate = gateRef.current
     const token = restoreGuard.begin()
@@ -91,7 +92,8 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
         }
       })
     return () => { disposed = true; restoreGuard.invalidate() }
-  }, [account])
+  // Chỉ khôi phục khi đổi người dùng; refresh phiên định kỳ không được xóa lịch sử đang hiển thị.
+  }, [accountId])
 
   useEffect(() => {
     const restoreGuard = restoreGuardRef.current
