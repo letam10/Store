@@ -1,0 +1,34 @@
+{
+  "electronics": {
+    "label": "điện tử",
+    "prompt": "premium cinematic advertising banner, product-appropriate composition, clean graphite studio, cool cyan rim light, subtle reflective surface, product hero on the right or center with dark clean negative space for typography, realistic materials, no text, no watermark"
+  },
+  "household": {
+    "label": "đồ gia dụng",
+    "prompt": "premium cinematic home-lifestyle advertising banner, product-appropriate composition, warm ivory studio, natural soft daylight, tasteful home context, product hero on the right or center with clean negative space for typography, realistic materials, no text, no watermark"
+  },
+  "beauty": {
+    "label": "làm đẹp",
+    "prompt": "premium cinematic beauty advertising banner, product-appropriate composition, warm cream and amber lighting, glossy cosmetic surface, elegant minimal studio, product hero on the right or center with clean negative space for typography, realistic packaging and material texture, no text, no watermark"
+  },
+  "laptop": {
+    "label": "laptop",
+    "prompt": "premium cinematic technology advertising banner, product-appropriate composition, dark graphite desk, cool blue rim light and warm key light, clean three-quarter hero view with negative space for typography, realistic metal and fabric texture, no text, no watermark"
+  },
+  "components": {
+    "label": "linh kiện",
+    "prompt": "premium cinematic macro technology advertising banner, product-appropriate composition, dark graphite studio, crisp detail, cyan and orange edge lighting, product hero with clean negative space for typography, no text, no watermark"
+  },
+  "apparel": {
+    "label": "trang phục",
+    "prompt": "premium cinematic fashion advertising banner, product-appropriate composition, warm editorial studio, controlled soft shadows, clean neutral backdrop, detailed fabric weave and stitching, product hero with negative space for typography, no visible face, no text, no watermark"
+  },
+  "jewelry": {
+    "label": "trang sức",
+    "prompt": "luxury cinematic jewelry advertising banner, product-appropriate composition, deep charcoal velvet, warm gold highlights, shallow depth of field, sharp gemstone and metal detail, jewelry hero with negative space for typography, no text, no watermark"
+  },
+  "designed": {
+    "label": "Store thiết kế",
+    "prompt": "premium cinematic Store advertising banner inspired by the supplied restaurant and sports posters, product-appropriate composition, warm ivory paper with rich orange accent lighting, product hero with clean negative space for typography, realistic product materials, no text, no watermark"
+  }
+}
