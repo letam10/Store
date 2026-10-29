@@ -148,3 +148,54 @@ html, body { overflow-x:clip!important; overflow-y:visible!important; }
   .cart-similar__toolbar .cart-similar__arrow { width:26px!important; height:28px!important; padding:0!important; }
   .cart-similar__toolbar span { font-size:10px; }
 }
+
+/* Khung ảnh phủ kín, giữ toàn bộ poster; không kéo giãn hàng cuối theo sidebar. */
+.catalog-page .catalog-results .catalog-grid {
+  flex: 0 0 auto !important;
+  align-content: start;
+  grid-auto-rows: auto;
+}
+body .product-card .product-art {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 0 !important;
+  background: #fff !important;
+}
+body .product-card .product-art .product-image,
+body .hero-product-frame .hero-art-image,
+body .product-detail-art__frame img,
+body .product-detail-thumbnails img,
+body .detail-gallery img,
+body .cart-item__art img,
+body .cart-similar__product-image img,
+body .cart-similar__image-wrap img,
+body .search-suggestion__image img,
+body .home-banner-offer__product-art img,
+body .store-promo-product img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  object-fit: fill !important;
+  object-position: center !important;
+  transform: none !important;
+  mix-blend-mode: normal !important;
+}
+body .cart-item__art,
+body .cart-similar__product-image,
+body .product-detail-art__frame,
+body .product-detail-thumbnails button,
+body .detail-gallery button {
+  padding: 0 !important;
+  overflow: hidden;
+  background: #fff;
+}
+body .product-card .product-view {
+  z-index: 2;
+  background: #ffffffeb;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
