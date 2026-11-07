@@ -8,11 +8,11 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import DropdownMenu from '../components/ui/DropdownMenu'
-import { closeDropdownMenus } from '../components/ui/dropdownEvents'
+import { closeDropdownMenus } from '../utils/dropdownEvents'
 import ProductCard from '../components/ui/ProductCard'
-import { filterProducts } from '../storefront/state'
-import { useLanguage, translateCategory } from '../storefront/i18n'
-import { CATALOG_PAGE_SIZE, generatePaginationItems as makePaginationItems } from '../storefront/catalog'
+import { filterProducts } from '../services/storefrontState'
+import { useLanguage, translateCategory } from '../context/i18n'
+import { CATALOG_PAGE_SIZE, generatePaginationItems as makePaginationItems } from '../services/catalog'
 import './Storefront.css'
 
 const PAGE_SIZE = CATALOG_PAGE_SIZE

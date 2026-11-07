@@ -2,8 +2,10 @@
 
 /**
  * Tạo manifest catalog dùng chung cho Store, Admin và server-dotnet.
- * Curation là quyết định xác định: lọc bản ghi lỗi, sắp theo ID và lấy vòng
- * tròn theo danh mục để lần chạy lại luôn có cùng 996 sản phẩm nhập.
+ * Đây là bước tạo pool nguồn 1000 sản phẩm. Sau bước này, hai script
+ * filter-half-categories-20261026/filter-catalog.mjs và
+ * filter-total-500-20261026/filter-catalog.mjs curation tiếp để tạo
+ * manifest runtime 500 sản phẩm theo các nhóm đã được chọn.
  */
 import fs from 'node:fs'
 import path from 'node:path'

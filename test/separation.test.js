@@ -3,14 +3,14 @@
  * Tệp: test/separation.test.js
  * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
  * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
- * Liên kết trực tiếp: node:test, node:assert/strict, node:fs, node:path, ../src/storefront/state.js, ../src/api/endpoint.js.
+ * Liên kết trực tiếp: node:test, node:assert/strict, node:fs, node:path, ../src/services/storefrontState.js, ../src/api/endpoint.js.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve, join } from 'node:path'
-import { routeName } from '../src/storefront/state.js'
+import { routeName } from '../src/services/storefrontState.js'
 import { apiEndpoint } from '../src/api/endpoint.js'
 
 // Kiểm thử edge case: customer project has no admin/backend source or imports.

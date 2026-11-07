@@ -1,7 +1,7 @@
 /*
   FILE NOTE
   - Mục đích: Hệ thống thiết kế cơ bản cho khách hàng: kích thước, khoảng cách, biến giao diện màu sắc tươi mới.
-  - Liên kết trực tiếp: src/App.jsx, src/storefront/updates.css, src/storefront/polish.css
+  - Liên kết trực tiếp: src/App.jsx, src/styles/updates.css, src/styles/polish.css
   - Vùng ảnh hưởng khi sửa: Toàn bộ layout, màu nền, nút bấm, font chữ và thẻ sản phẩm trên storefront.
 */
 :root { --ink: #0f172a; --paper: #f8fafc; --sage: #f1f5f9; --line: #cbd5e1; --accent: #4f8b67; color: var(--ink); background: var(--paper); }

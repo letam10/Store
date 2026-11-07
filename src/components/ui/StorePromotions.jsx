@@ -1,5 +1,5 @@
 import MarketBanner from './MarketBanner'
-import { membershipPlans } from '../../storefront/promotions'
+import { membershipPlans } from '../../services/promotions'
 import './StorePromotions.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })

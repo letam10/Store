@@ -3,12 +3,12 @@
  * Tệp: test/reward-wheel.test.js
  * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
  * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
- * Liên kết trực tiếp: node:test, node:assert/strict, ../src/storefront/rewardWheel.js.
+ * Liên kết trực tiếp: node:test, node:assert/strict, ../src/utils/rewardWheel.js.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { rewardSectors, pickSector, landingRotation, sectorAtPointer, sectorResult } from '../src/storefront/rewardWheel.js'
+import { rewardSectors, pickSector, landingRotation, sectorAtPointer, sectorResult } from '../src/utils/rewardWheel.js'
 
 // Kiểm thử edge case: server prize index lands at the pointer over repeated spins.
 test('server prize index lands at the pointer over repeated spins', () => {

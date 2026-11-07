@@ -1,12 +1,12 @@
 /*
   FILE NOTE
   - Mục đích: Header chính của Store, điều hướng menu, thanh tìm kiếm thông minh với gợi ý sản phẩm mẫu ngay dưới thanh tìm kiếm, bộ chọn giao diện/ngôn ngữ và trạng thái giỏ hàng/tài khoản.
-  - Liên kết trực tiếp: src/App.jsx, src/data/products.js, src/storefront/promotions.js, src/components/layout/Header.css, src/storefront/polish.css
+  - Liên kết trực tiếp: src/App.jsx, src/data/products.js, src/services/promotions.js, src/components/layout/Header.css, src/styles/polish.css
   - Vùng ảnh hưởng khi sửa: Toàn bộ header trang chủ và các trang storefront, trải nghiệm tìm kiếm gợi ý, điều hướng menu.
 */
 import { useEffect, useRef, useState } from 'react'
 import { products as defaultProducts } from '../../data/products'
-import { getMembershipPlan } from '../../storefront/promotions'
+import { getMembershipPlan } from '../../services/promotions'
 import './Header.css'
 
 const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }

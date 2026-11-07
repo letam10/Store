@@ -1,6 +1,6 @@
 /**
  * @codex-vn-doc
- * Tệp: src/storefront/promotions.js
+ * Tệp: src/services/promotions.js
  * Mục đích: Hạng thành viên, điểm, giảm giá, voucher và quy tắc giao hàng storefront.
  * Thành phần chính: membershipPlans, getMembershipPlan, tierForPoints.
  * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.

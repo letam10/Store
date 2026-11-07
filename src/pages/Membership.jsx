@@ -6,8 +6,8 @@
  * Liên kết trực tiếp: ../storefront/promotions.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import { getMembershipPlan, membershipPlans } from '../storefront/promotions'
-import { useLanguage } from '../storefront/i18n'
+import { getMembershipPlan, membershipPlans } from '../services/promotions'
+import { useLanguage } from '../context/i18n'
 import './Storefront.css'
 
 // Chức năng Membership: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.

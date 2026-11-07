@@ -1,7 +1,7 @@
 /*
   FILE NOTE
   - Mục đích: Định kiểu giao diện trang đăng nhập/đăng ký Store, hiệu ứng chuyển tab mượt mà, căn chỉnh các thành phần, tối ưu ô nhập dữ liệu có độ tương phản cao, chữ không bị chìm vào nền và hỗ trợ cả sáng/tối với màu sắc hấp dẫn khách hàng.
-  - Liên kết trực tiếp: src/pages/Auth.jsx, src/index.css, src/storefront/polish.css
+  - Liên kết trực tiếp: src/pages/Auth.jsx, src/index.css, src/styles/polish.css
   - Vùng ảnh hưởng khi sửa: Trực tiếp tới trải nghiệm thị giác và thao tác của người dùng trên trang /login, /register, /forgot-password, /reset-password.
 */
 

@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { membershipPlans } from '../../storefront/promotions'
+import { membershipPlans } from '../../services/promotions'
 import HomeBannerArtwork from './HomeBannerArtwork'
 import HomeBannerOffers from './HomeBannerOffers'
 import './HomeSideBanner.css'

@@ -6,7 +6,7 @@ import { buildSync } from 'esbuild'
 import { JSDOM } from 'jsdom'
 import React, { act } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { storePromotionOverview } from '../src/storefront/promotions.js'
+import { storePromotionOverview } from '../src/services/promotions.js'
 
 function loadComponent(path) {
   const filename = resolve('test/layout-component.bundle.cjs')

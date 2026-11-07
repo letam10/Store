@@ -3,12 +3,12 @@
  * Tệp: test/promotions.test.js
  * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
  * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
- * Liên kết trực tiếp: node:assert/strict, node:test, ../src/storefront/promotions.js.
+ * Liên kết trực tiếp: node:assert/strict, node:test, ../src/services/promotions.js.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { getMembershipPlan, membershipPlans, tierForPoints, storePromotionOverview } from '../src/storefront/promotions.js'
+import { getMembershipPlan, membershipPlans, tierForPoints, storePromotionOverview } from '../src/services/promotions.js'
 
 // Kiểm thử edge case: four earned membership tiers have exact thresholds and benefits.
 test('four earned membership tiers have exact thresholds and benefits', () => {

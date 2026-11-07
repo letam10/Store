@@ -1,5 +1,5 @@
 import HomeBannerArtwork from './HomeBannerArtwork'
-import { homeBannerOffers } from './homeBannerOfferData'
+import { homeBannerOffers } from '../../data/homeBannerOfferData'
 import './HomeBannerOffers.css'
 import './HomeBannerOfferThemes.css'
 import './HomeBannerProduct.css'

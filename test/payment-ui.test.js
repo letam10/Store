@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { fixture, mount, waitFor, button, setInput, openQr } from './paymentFixture.js'
-import { PAYMENT_WINDOW_MS, formatPaymentTime, paymentSecondsRemaining } from '../src/components/commerce/paymentWindow.js'
+import { PAYMENT_WINDOW_MS, formatPaymentTime, paymentSecondsRemaining } from '../src/utils/paymentWindow.js'
 
 test('đồng hồ đúng 2 phút', () => {
   assert.equal(PAYMENT_WINDOW_MS, 120000)

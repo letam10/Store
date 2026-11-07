@@ -6,7 +6,7 @@
  * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import { useLanguage } from '../../storefront/i18n'
+import { useLanguage } from '../../context/i18n'
 import './ProductCard.css'
 const currency = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const pictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }

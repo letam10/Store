@@ -3,12 +3,12 @@
  * Tệp: test/catalog.test.js
  * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
  * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
- * Liên kết trực tiếp: node:assert/strict, node:test, ../src/storefront/catalog.js.
+ * Liên kết trực tiếp: node:assert/strict, node:test, ../src/services/catalog.js.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { CATALOG_PAGE_SIZE, displayCategory, enrichProducts, featuredSaleProducts, generatePaginationItems, mostViewed, similarProducts } from '../src/storefront/catalog.js'
+import { CATALOG_PAGE_SIZE, displayCategory, enrichProducts, featuredSaleProducts, generatePaginationItems, mostViewed, similarProducts } from '../src/services/catalog.js'
 
 // Kiểm thử edge case: demo catalog groups jewelry, apparel, laptops, electronics and components.
 test('demo catalog groups jewelry, apparel, laptops, electronics and components', () => {
@@ -45,12 +45,15 @@ test('similar products cap results and keep the current category', () => {
 // Kiểm thử edge case: manifest giữ sale thật, offer Admin ghi đè và view ranking loại hết kho.
 test('admin offer overrides demo discount and view ranking excludes out of stock', () => {
   const imported = enrichProducts()
-  assert.equal(imported.length, 1000)
+  assert.equal(imported.length, 500)
+  for (const [category, expected] of Object.entries({ 'Điện tử': 84, 'Đồ gia dụng': 70, 'Linh kiện': 84, 'Trang phục': 69, 'Trang sức': 84, 'Làm đẹp': 57 })) {
+    assert.equal(imported.filter((product) => product.category === category).length, expected)
+  }
   assert.equal(imported.filter((product) => product.category === 'Tự Thiết Kế').length, 39)
   assert.equal(imported.filter((product) => product.category === 'Thực phẩm').length, 0)
   assert.equal(imported.filter((product) => String(product.id).startsWith('custom-design-')).length, 0)
   assert.equal(imported[4].discountPercent, 0)
-  assert.equal(imported.filter((product) => product.discountPercent > 0).length, 63)
+  assert.equal(imported.filter((product) => product.discountPercent > 0).length, 52)
   const featured = featuredSaleProducts(imported, 10)
   assert.equal(featured.length, 10)
   assert.ok(featured.every((product) => product.discountPercent > 0 && product.stockCount !== 0))
@@ -61,37 +64,37 @@ test('admin offer overrides demo discount and view ranking excludes out of stock
   assert.ok(similarProducts(changed, changed[4]).every((item) => item.stockCount !== 0 && item.category === changed[4].category))
 })
 
-// Kiểm thử phân trang danh mục sản phẩm: 15 sản phẩm/trang, đầy đủ 1000 sản phẩm với 67 trang.
-test('catalog pagination enforces 15 items per page and computes pages through 1000 items', () => {
+// Kiểm thử phân trang danh mục sản phẩm: 15 sản phẩm/trang, đầy đủ 500 sản phẩm với 34 trang.
+test('catalog pagination enforces 15 items per page and computes pages through 500 items', () => {
   assert.equal(CATALOG_PAGE_SIZE, 15)
   const allProducts = enrichProducts()
-  assert.equal(allProducts.length, 1000)
+  assert.equal(allProducts.length, 500)
 
   const totalPages = Math.ceil(allProducts.length / CATALOG_PAGE_SIZE)
-  assert.equal(totalPages, 67)
+  assert.equal(totalPages, 34)
 
   // Trang 1: 15 sản phẩm đầu tiên
   const page1 = allProducts.slice(0, CATALOG_PAGE_SIZE)
   assert.equal(page1.length, 15)
 
-  // Trang cuối 67: 10 sản phẩm còn lại
-  const page67 = allProducts.slice((67 - 1) * CATALOG_PAGE_SIZE, 67 * CATALOG_PAGE_SIZE)
-  assert.equal(page67.length, 10)
+  // Trang cuối 34: 5 sản phẩm còn lại
+  const page34 = allProducts.slice((34 - 1) * CATALOG_PAGE_SIZE, 34 * CATALOG_PAGE_SIZE)
+  assert.equal(page34.length, 5)
 
   // Phân bổ các nút phân trang cho các trường hợp
   // Trường hợp ít hơn hoặc bằng 7 trang
   assert.deepEqual(generatePaginationItems(1, 5), [1, 2, 3, 4, 5])
   assert.deepEqual(generatePaginationItems(3, 7), [1, 2, 3, 4, 5, 6, 7])
 
-  // Trường hợp ở đầu (trang 1..4 của 67 trang)
-  assert.deepEqual(generatePaginationItems(1, 67), [1, 2, 3, 4, 5, '...', 67])
-  assert.deepEqual(generatePaginationItems(4, 67), [1, 2, 3, 4, 5, '...', 67])
+  // Trường hợp ở đầu (trang 1..4 của 34 trang)
+  assert.deepEqual(generatePaginationItems(1, 34), [1, 2, 3, 4, 5, '...', 34])
+  assert.deepEqual(generatePaginationItems(4, 34), [1, 2, 3, 4, 5, '...', 34])
 
-  // Trường hợp ở giữa (trang 10 của 67 trang)
-  assert.deepEqual(generatePaginationItems(10, 67), [1, '...', 9, 10, 11, '...', 67])
+  // Trường hợp ở giữa (trang 10 của 34 trang)
+  assert.deepEqual(generatePaginationItems(10, 34), [1, '...', 9, 10, 11, '...', 34])
 
-  // Trường hợp ở cuối (trang 65, 67 của 67 trang)
-  assert.deepEqual(generatePaginationItems(65, 67), [1, '...', 63, 64, 65, 66, 67])
-  assert.deepEqual(generatePaginationItems(67, 67), [1, '...', 63, 64, 65, 66, 67])
+  // Trường hợp ở cuối (trang 32, 34 của 34 trang)
+  assert.deepEqual(generatePaginationItems(32, 34), [1, '...', 30, 31, 32, 33, 34])
+  assert.deepEqual(generatePaginationItems(34, 34), [1, '...', 30, 31, 32, 33, 34])
 })
 

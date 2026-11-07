@@ -7,9 +7,9 @@
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import { useMemo, useRef, useState } from 'react'
-import { similarProducts } from '../storefront/catalog'
-import { canPurchase, cartTotal } from '../storefront/state'
-import { useLanguage } from '../storefront/i18n'
+import { similarProducts } from '../services/catalog'
+import { canPurchase, cartTotal } from '../services/storefrontState'
+import { useLanguage } from '../context/i18n'
 import './Storefront.css'
 import './Cart.css'
 import './CartSuggestions.css'

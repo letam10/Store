@@ -1,12 +1,12 @@
 /**
  * @codex-vn-doc
- * Tệp: src/components/ui/customerSupportState.js
+ * Tệp: src/services/customerSupportState.js
  * Mục đích: State helper cho lịch sử chat, streaming, retry và phục hồi giao diện hỗ trợ.
  * Thành phần chính: mapServerMessages, createRestoreGuard, applyRestore.
  * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
-import { userMessage } from '../../api/userMessages.js'
+import { userMessage } from '../api/userMessages.js'
 
 // Ẩn phần metadata nguồn nếu model lặp lại nhãn nguồn trong nội dung trả lời.
 export function hideSourceDisclosure(text) {

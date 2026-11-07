@@ -10,8 +10,8 @@ import { useEffect, useState } from 'react'
 import ProductCard from '../components/ui/ProductCard'
 import MarketBanner from '../components/ui/MarketBanner'
 import HomePromotionRegion from '../components/ui/HomePromotionRegion'
-import { featuredSaleProducts, mostViewed } from '../storefront/catalog'
-import { useLanguage, translateCategory } from '../storefront/i18n'
+import { featuredSaleProducts, mostViewed } from '../services/catalog'
+import { useLanguage, translateCategory } from '../context/i18n'
 import './Home.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })

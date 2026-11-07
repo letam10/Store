@@ -7,7 +7,7 @@ import test from 'node:test'
 import { apiErrorMessage, userMessage } from '../src/api/userMessages.js'
 import { customerApi } from '../src/api/customer.js'
 import { apiJson, streamChat } from '../src/api/chat.js'
-import { mapServerMessages } from '../src/components/ui/customerSupportState.js'
+import { mapServerMessages } from '../src/services/customerSupportState.js'
 
 const generic = 'Không thể hoàn tất thao tác.'
 const adminRoot = process.env.STORE_ADMIN_ROOT || join(import.meta.dirname, '..', '..', 'Store-Admin')

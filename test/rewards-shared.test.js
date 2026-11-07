@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { buildSync } from 'esbuild'
 import { JSDOM } from 'jsdom'
 import React, { act } from 'react'
-import { rewardSectors, landingRotation, sectorAtPointer } from '../src/storefront/rewardWheel.js'
+import { rewardSectors, landingRotation, sectorAtPointer } from '../src/utils/rewardWheel.js'
 
 const filename = resolve('test/rewards-component.bundle.cjs')
 const compiled = buildSync({ entryPoints: ['src/pages/Rewards.jsx'], bundle: true, write: false,

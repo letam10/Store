@@ -7,11 +7,11 @@ import { products } from '../src/data/products.js'
 
 test('bổ sung nội dung cho mọi sản phẩm nhập mà không đổi giá, ảnh, mã hay danh mục', () => {
   const byId = new Map(products.map((product) => [String(product.id), product]))
-  assert.equal(products.length, 1000)
+  assert.equal(products.length, 500)
   assert.equal(byId.size, products.length)
   assert.equal(Object.keys(details).length, importedProducts.length)
   const selectedImported = manifest.products.filter((product) => product.source !== 'store-designed')
-  assert.equal(selectedImported.length, 996)
+  assert.equal(selectedImported.length, 496)
   for (const original of selectedImported) {
     const enriched = byId.get(String(original.id))
     assert.ok(details[original.id], original.id)

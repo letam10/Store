@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { userMessage } from '../api/userMessages'
 import MarketBanner from '../components/ui/MarketBanner'
-import { useLanguage } from '../storefront/i18n'
+import { useLanguage } from '../context/i18n'
 import './Storefront.css'
 import './Contact.css'
 

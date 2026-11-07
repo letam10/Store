@@ -10,8 +10,8 @@ import { useEffect, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../../api/chat'
 import { userMessage } from '../../api/userMessages'
 import { createRequestGate } from '../../api/requestGate'
-import { applyRestore, createRestoreGuard, hideSourceDisclosure } from './customerSupportState'
-import { useLanguage } from '../../storefront/i18n'
+import { applyRestore, createRestoreGuard, hideSourceDisclosure } from '../../services/customerSupportState'
+import { useLanguage } from '../../context/i18n'
 import './CustomerSupport.css'
 
 const suggestionsVi = ['Tư vấn sản phẩm', 'Thông tin đơn hàng', 'Chính sách đổi trả']

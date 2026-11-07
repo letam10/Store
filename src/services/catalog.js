@@ -1,6 +1,6 @@
 /**
  * @codex-vn-doc
- * Tệp: src/storefront/catalog.js
+ * Tệp: src/services/catalog.js
  * Mục đích: Chuẩn hóa catalog, nhóm danh mục, xếp hạng xem nhiều và sản phẩm tương tự.
  * Thành phần chính: displayCategory, enrichProducts, mostViewed, similarProducts.
  * Liên kết trực tiếp: ../data/products.js.

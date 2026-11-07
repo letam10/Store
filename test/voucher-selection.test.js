@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { normalizeVoucherSelection } from '../src/storefront/voucherSelection.js'
+import { normalizeVoucherSelection } from '../src/utils/voucherSelection.js'
 
 const wallet = [{ code: 'GOODS1', scope: 'goods' }, { code: 'GOODS2', scope: 'goods' }, { code: 'SHIP1', scope: 'shipping' }, { code: 'SHIP2', scope: 'shipping' }]
 test('chọn voucher mới cùng loại thay voucher cũ và vẫn ghép được hàng hóa với ship', () => {

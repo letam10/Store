@@ -1,6 +1,6 @@
 /**
  * @codex-vn-doc
- * Tệp: src/storefront/rewardWheel.js
+ * Tệp: src/utils/rewardWheel.js
  * Mục đích: Tính sector, góc quay và kết quả vòng quay may mắn với tỷ lệ ẩn.
  * Thành phần chính: rewardSectors, pickSector, landingRotation, sectorAtPointer, sectorResult, sectorPath.
  * Liên kết trực tiếp: không có import/using trực tiếp được phát hiện.

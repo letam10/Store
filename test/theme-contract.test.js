@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { normalizeTheme, presetTheme, themeVariables } from '../shared/theme.js'
-import { accountCartKey, cartStorageKey, migrateLegacyCart } from '../src/storefront/state.js'
+import { accountCartKey, cartStorageKey, migrateLegacyCart } from '../src/services/storefrontState.js'
 
 test('theme contract keeps all presets and safe fallback', () => {
   const theme = normalizeTheme({ presetId: 'olive', defaultMode: 'dark', dark: { colors: { accent: 'bad' }, radius: { card: 99 } } })

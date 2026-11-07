@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { customerApi } from '../../api/customer'
 import { userMessage } from '../../api/userMessages'
-import { PAYMENT_WINDOW_MS, formatPaymentTime, paymentSecondsRemaining } from './paymentWindow'
+import { PAYMENT_WINDOW_MS, formatPaymentTime, paymentSecondsRemaining } from '../../utils/paymentWindow'
 import PaymentModal from './PaymentModal'
 import './PaymentBox.css'
 

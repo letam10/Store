@@ -3,12 +3,12 @@
  * Tệp: test/storefront-state.test.js
  * Mục đích: Tệp kiểm thử tự động cho các luồng chính và tình huống biên của module này.
  * Thành phần chính: các hàm/lớp và xử lý nội bộ trong tệp.
- * Liên kết trực tiếp: node:assert/strict, node:test, ../src/storefront/state.js.
+ * Liên kết trực tiếp: node:assert/strict, node:test, ../src/services/storefrontState.js.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
  */
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { addCartItem, cartCount, cartTotal, createDemoOrder, filterProducts, orderMatches, productIdFromPath, productMatches, routeName, setCartQuantity } from '../src/storefront/state.js'
+import { addCartItem, cartCount, cartTotal, createDemoOrder, filterProducts, orderMatches, productIdFromPath, productMatches, routeName, setCartQuantity } from '../src/services/storefrontState.js'
 
 const product={id:1,name:'A',price:100}
 // Kiểm thử edge case: cart helpers add, increment, total and remove deterministically.

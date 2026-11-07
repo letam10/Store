@@ -1,7 +1,7 @@
 /*
   FILE NOTE
   - Mục đích: Bộ quy tắc cải tiến giao diện storefront: hiệu ứng, bố cục giỏ hàng, thông tin tài khoản và giao diện nền tối.
-  - Liên kết trực tiếp: src/App.jsx, src/storefront/design.css, src/storefront/polish.css
+  - Liên kết trực tiếp: src/App.jsx, src/styles/design.css, src/styles/polish.css
   - Vùng ảnh hưởng khi sửa: Toàn bộ storefront trong chế độ dark mode, layout catalog, cart và tài khoản.
 */
 .site-frame,.site-header,.site-footer,.surface,.shop-hero,.shop-hero-art,.field input,.field select,.field textarea{transition:background-color .3s ease,color .3s ease,border-color .3s ease}

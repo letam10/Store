@@ -8,6 +8,16 @@ const directory = path.dirname(fileURLToPath(import.meta.url))
 const storeRoot = path.resolve(directory, '..', '..')
 const adminRoot = path.resolve(storeRoot, '..', 'Store-Admin')
 const featuredIds = ['1', '2', '3', '4']
+const expectedCategoryCounts = {
+  'Điện tử': 84,
+  'Đồ gia dụng': 70,
+  'Làm đẹp': 57,
+  Laptop: 13,
+  'Linh kiện': 84,
+  'Trang phục': 69,
+  'Trang sức': 84,
+  'Tự Thiết Kế': 39,
+}
 
 function loadManifest(root) {
   return JSON.parse(fs.readFileSync(path.join(root, 'shared', 'catalog-manifest.json'), 'utf8'))
@@ -19,12 +29,12 @@ function assert(condition, message) {
 
 function audit(root, manifest) {
   assert(manifest.schemaVersion === 1, `${root}: schemaVersion không phải 1`)
-  assert(manifest.selectedCount === 1000, `${root}: selectedCount không phải 1000`)
-  assert(Array.isArray(manifest.products) && manifest.products.length === 1000, `${root}: số sản phẩm không phải 1000`)
+  assert(manifest.selectedCount === 500, `${root}: selectedCount không phải 500`)
+  assert(Array.isArray(manifest.products) && manifest.products.length === 500, `${root}: số sản phẩm không phải 500`)
   const ids = manifest.products.map((product) => String(product.id))
   assert(new Set(ids).size === ids.length, `${root}: ID bị trùng`)
   assert(JSON.stringify(ids.slice(0, 4)) === JSON.stringify(featuredIds), `${root}: bốn ID đầu không phải 1..4`)
-  assert(ids.filter((id) => !featuredIds.includes(id)).length === 996, `${root}: số sản phẩm nhập không phải 996`)
+  assert(ids.filter((id) => !featuredIds.includes(id)).length === 496, `${root}: số sản phẩm nhập không phải 496`)
   const categoryCounts = new Map()
   for (const product of manifest.products) {
     assert(product.name && product.category && product.description, `${root}: thiếu trường nội dung ở ${product.id}`)
@@ -32,6 +42,9 @@ function audit(root, manifest) {
     const image = path.join(root, 'public', product.image.replace(/^\/+/, ''))
     assert(fs.existsSync(image), `${root}: không tìm thấy ảnh ${product.image}`)
     categoryCounts.set(product.category, (categoryCounts.get(product.category) || 0) + 1)
+  }
+  for (const [category, expected] of Object.entries(expectedCategoryCounts)) {
+    assert(categoryCounts.get(category) === expected, `${root}: ${category} cần ${expected} sản phẩm`)
   }
   return { count: manifest.products.length, ids, categoryCounts: Object.fromEntries(categoryCounts) }
 }

@@ -1,4 +1,4 @@
-import { paymentNotifications } from './paymentNoticeData.js'
+import { paymentNotifications } from '../../data/paymentNoticeData.js'
 import './PaymentNotifications.css'
 
 export default function PaymentNotifications({ orders }) {
