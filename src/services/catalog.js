@@ -54,12 +54,13 @@ export function enrichProducts(offers = []) {
   const apiProducts = offers.filter((product) => product && product.name && !sourceIds.has(String(product.id)))
   return [...sourceProducts, ...apiProducts].map((product) => {
     const offer = byId.get(String(product.id))
+    const currentProduct = { ...product, ...offer }
     const discountPercent = Number(offer?.discountPercent ?? product.discountPercent ?? 0)
-    const originalPrice = product.originalPrice ?? product.price
+    const originalPrice = Number(offer?.price ?? product.originalPrice ?? product.price)
     return {
-      ...product,
-      label: /\bdemo\b/i.test(product.label || '') ? (product.label || '').replace(/\bdemo\b/ig, '').trim() || 'Hàng mới' : product.label,
-      category: displayCategory(product),
+      ...currentProduct,
+      label: /\bdemo\b/i.test(currentProduct.label || '') ? (currentProduct.label || '').replace(/\bdemo\b/ig, '').trim() || 'Hàng mới' : currentProduct.label,
+      category: displayCategory(currentProduct),
       originalPrice,
       discountPercent,
       price: Math.round(originalPrice * (100 - discountPercent) / 1000) * 10,

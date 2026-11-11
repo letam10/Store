@@ -1,7 +1,7 @@
 export function paymentNotifications(orders = []) {
   return orders.flatMap(order => {
     const notifications = []
-    if (order.paymentReportedAt) notifications.push({
+    if (order.paymentReportedAt && !order.paidAt) notifications.push({
       id: order.id + '-reported',
       orderId: order.id,
       createdAt: order.paymentReportedAt,

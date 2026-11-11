@@ -4,6 +4,7 @@
   - Liên kết trực tiếp: src/components/layout/Header.jsx, src/components/layout/Footer.jsx, src/pages/Home.jsx, src/pages/Catalog.jsx, src/pages/ProductDetail.jsx, src/pages/Auth.jsx, src/pages/Cart.jsx
   - Vùng ảnh hưởng khi sửa: Toàn bộ vòng đời ứng dụng, các route công khai và bảo vệ, luồng thêm sản phẩm vào giỏ hàng.
 */
+import { consumeCheckoutDraft, subtractCheckoutItems } from './utils/checkoutDrafts'
 import StorePromotions, { PromotionBoard } from './components/ui/StorePromotions'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -114,6 +115,14 @@ export default function App() {
     root.style.setProperty('--accent', accentColor)
   }, [accentColor, theme, themePalette, themePreset])
   useEffect(() => { localStorage.removeItem('storeLanguageV1'); document.documentElement.lang = 'vi' }, [])
+  const reconcilePaidCart = useCallback((customerId, paidOrders) => {
+    if (customerId == null) return
+    const owner = String(customerId)
+    const purchased = paidOrders.flatMap(order => consumeCheckoutDraft(localStorage, owner, order.id))
+    if (!purchased.length) return
+    if (cartAccountId.current === owner) setCart(current => subtractCheckoutItems(current, purchased))
+    else saveCart(owner, subtractCheckoutItems(loadCart(owner), purchased))
+  }, [])
 
   const refreshCustomer = useCallback(async () => {
     const epoch = customerEpoch.current
@@ -135,6 +144,7 @@ export default function App() {
       const favoritesResponse = await customerApi('/api/customer/favorites').catch(() => ({ ids: [] }))
       if (epoch !== customerEpoch.current) return
       setOrders(ordersResponse.orders || [])
+      reconcilePaidCart(session.account?.id, ordersResponse.orders || [])
       setWallet(vouchersResponse.vouchers || [])
       setSelectedVoucherCodes((current) => normalizeVoucherSelection(current, vouchersResponse.vouchers || []))
       const ids = favoritesResponse.ids || favoritesResponse.favorites || []
@@ -143,7 +153,7 @@ export default function App() {
       if (epoch !== customerEpoch.current) return
       setOrders([]); setWallet([]); setFavoriteIds([]); setSelectedVoucherCodes([])
     } finally { if (epoch === customerEpoch.current) setAuthReady(true) }
-  }, [])
+  }, [reconcilePaidCart])
 
   useEffect(() => {
     const epoch = customerEpoch.current
@@ -158,6 +168,7 @@ export default function App() {
         const favoritesResponse = await customerApi('/api/customer/favorites').catch(() => ({ ids: [] }))
         if (cancelled || epoch !== customerEpoch.current) return
         setOrders(ordersResponse.orders || [])
+        reconcilePaidCart(session.account?.id, ordersResponse.orders || [])
         setWallet(vouchersResponse.vouchers || [])
         setSelectedVoucherCodes((current) => normalizeVoucherSelection(current, vouchersResponse.vouchers || []))
         const ids = favoritesResponse.ids || favoritesResponse.favorites || []
@@ -166,7 +177,7 @@ export default function App() {
       .catch(() => { if (!cancelled && epoch === customerEpoch.current) { setAccount(null); setOrders([]); setWallet([]); setFavoriteIds([]) } })
       .finally(() => { if (!cancelled && epoch === customerEpoch.current) setAuthReady(true) })
     return () => { cancelled = true }
-  }, [])
+  }, [reconcilePaidCart])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -214,7 +225,7 @@ export default function App() {
   }, [location])
 
   useLayoutEffect(() => {
-    if (navigationAction.current === 'initial') return
+    if (['initial', 'preserve'].includes(navigationAction.current)) return
     const y = navigationAction.current === 'pop' ? scrollPositions.current.get(location.pathname + location.search) || 0 : 0
     requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: y, behavior: 'instant' })))
   }, [location])
@@ -234,11 +245,11 @@ export default function App() {
   }, [location, route, products])
 
   // Chức năng navigate: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-  function navigate(url) {
+  function navigate(url, { preserveScroll = false } = {}) {
     const next = new URL(url, window.location.href)
     scrollPositions.current.set(location.pathname + location.search, window.scrollY)
     window.history.pushState({}, '', next.pathname + next.search + next.hash)
-    navigationAction.current = 'push'
+    navigationAction.current = preserveScroll ? 'preserve' : 'push'
     setLocation(currentLocation())
   }
 
@@ -284,9 +295,9 @@ export default function App() {
   const toggleCartItem = (id) => setCart((current) => current.map((item) => String(item.id) === String(id) ? { ...item, selected: !item.selected } : item))
   // Chức năng completeOrder: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const completeOrder = (order, purchasedItems) => {
-    setOrders((current) => [order, ...current])
-    const purchasedIds = new Set(purchasedItems.map((item) => String(item.id)))
-    setCart((current) => current.filter((item) => !purchasedIds.has(String(item.id))))
+    if (['paid', 'completed', 'refunded'].includes(order.status)) setOrders(current => [order, ...current.filter(item => item.id !== order.id)])
+    const purchased = consumeCheckoutDraft(localStorage, account.id, order.id, purchasedItems)
+    if (purchased.length) setCart(current => subtractCheckoutItems(current, purchased))
     setSelectedVoucherCodes([])
     refreshCustomer()
   }
@@ -295,7 +306,7 @@ export default function App() {
     setNotice({
       message: language === 'en'
         ? (state === 'paid' ? 'Payment confirmed. Notification saved in your account.' : 'Bank transfer notification saved. The store will verify your payment.')
-        : (state === 'paid' ? 'Đã thanh toán. Thông báo được lưu trong trang cá nhân.' : 'Đã lưu thông báo chuyển khoản trong trang cá nhân. Cửa hàng sẽ đối soát khoản tiền.'),
+        : (state === 'paid' ? 'Đã thanh toán. Thông báo được lưu trong trang cá nhân.' : 'Đã gửi thông tin chuyển khoản. Cửa hàng sẽ đối soát; chưa ghi nhận mua hàng.'),
       href: '/account', action: language === 'en' ? 'View profile →' : 'Xem trang cá nhân →',
     })
     navigate('/')

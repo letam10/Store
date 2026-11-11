@@ -10,6 +10,15 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { CATALOG_PAGE_SIZE, displayCategory, enrichProducts, featuredSaleProducts, generatePaginationItems, mostViewed, similarProducts } from '../src/services/catalog.js'
 
+test('giá và thông tin admin cập nhật thay dữ liệu nền ở trang khách hàng', () => {
+  const product = enrichProducts([{ id: '2', name: 'Túi đã cập nhật', category: 'Tự Thiết Kế', price: 10000, discountPercent: 10, stockCount: 8, image: '/products/current.svg' }]).find(item => String(item.id) === '2')
+  assert.equal(product.originalPrice, 10000)
+  assert.equal(product.price, 9000)
+  assert.equal(product.name, 'Túi đã cập nhật')
+  assert.equal(product.category, 'Tự Thiết Kế')
+  assert.equal(product.image, '/products/current.svg')
+})
+
 // Kiểm thử edge case: demo catalog groups jewelry, apparel, laptops, electronics and components.
 test('demo catalog groups jewelry, apparel, laptops, electronics and components', () => {
   assert.equal(displayCategory({ name: 'Gold Pendant Necklace', category: 'Chưa phân loại' }), 'Trang sức')

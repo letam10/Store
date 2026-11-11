@@ -17,6 +17,7 @@ import DropdownMenu from '../components/ui/DropdownMenu'
 import OrderCenter from '../components/commerce/OrderCenter'
 import CheckoutOrder from '../components/commerce/CheckoutOrder'
 import PaymentBox from '../components/commerce/PaymentBox'
+import PendingCheckouts from '../components/commerce/PendingCheckouts'
 import VoucherCodeInput from '../components/commerce/VoucherCodeInput'
 import './Storefront.css'
 
@@ -51,6 +52,8 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const [returnedItems, setReturnedItems] = useState([])
   const cart = currentCart.length ? currentCart : returnedItems
   const submitGate = useRef(false)
+  const checkoutRequest = useRef(null)
+  const [pendingVersion, setPendingVersion] = useState(0)
   const [paymentChoice, setPaymentChoice] = useState('bank_transfer')
   const [schedule, setSchedule] = useState(() => { const d = new Date(Date.now() + 86400000); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,16) })
   const [fulfillment, setFulfillment] = useState('delivery')
@@ -59,6 +62,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const [openVoucher, setOpenVoucher] = useState('goods')
   const [quoteResult, setQuote] = useState(null)
   const [quoteError, setQuoteError] = useState('')
+  const [quoteVersion, setQuoteVersion] = useState(0)
   const [busy, setBusy] = useState(false)
   const items = useMemo(() => cart.map((item) => ({ id: item.id, quantity: item.quantity })), [cart])
   const itemKey = JSON.stringify(items)
@@ -66,6 +70,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const request = { items, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes }
   const quoteKey = JSON.stringify(request)
   const quote = quoteResult?.quoteKey === quoteKey ? quoteResult : null
+  const quotedItems = new Map((quote?.items || []).map(item => [String(item.id), item]))
 
   useEffect(() => {
     const selectedItems = JSON.parse(itemKey)
@@ -75,7 +80,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
     const requestKey = JSON.stringify({ items: selectedItems, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes })
     customerApi('/api/customer/quote', { method: 'POST', csrfToken: account.csrfToken,
       body: JSON.stringify({ items: selectedItems, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes }), signal: controller.signal })
-      .then((result) => { setQuote({ ...result, quoteKey: requestKey }); setQuoteError('') })
+      .then((result) => { if (!controller.signal.aborted) { setQuote({ ...result, quoteKey: requestKey }); setQuoteError('') } })
       .catch((error) => {
         if (controller.signal.aborted) return
         setQuote(null)
@@ -83,7 +88,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
         if (error.code === 'CATALOG_OUT_OF_SYNC') Promise.resolve(onCatalogRefresh?.()).catch(() => {})
       })
     return () => controller.abort()
-  }, [account.csrfToken, itemKey, fulfillment, region, weightKg, selectedVoucherCodes, onCatalogRefresh])
+  }, [account.csrfToken, itemKey, fulfillment, region, weightKg, selectedVoucherCodes, onCatalogRefresh, quoteVersion])
 
   // Chức năng submit: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function submit(event) {
@@ -94,46 +99,62 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
     try {
       const bankTransfer = paymentChoice === 'bank_transfer'
       const path = bankTransfer ? '/api/customer/payment-sessions' : '/api/customer/orders'
-      const payload = await customerApi(path, {
-        method: 'POST',
-        csrfToken: account.csrfToken,
-        body: JSON.stringify({
-          ...request,
-          expectedTotal: quote.total,
-          paymentMethod: bankTransfer ? 'bank_transfer' : fulfillment === 'pickup' ? 'cash' : 'cod',
-          scheduledAt: new Date(schedule).toISOString(),
-          recipient: fields.get('recipient'),
-          phone: fields.get('phone'),
-          address: fields.get('address') || '',
-        }),
-      })
+      const body = {
+        ...request, expectedTotal: quote.total,
+        paymentMethod: bankTransfer ? 'bank_transfer' : fulfillment === 'pickup' ? 'cash' : 'cod',
+        scheduledAt: new Date(schedule).toISOString(), recipient: fields.get('recipient'),
+        phone: fields.get('phone'), address: fields.get('address') || '',
+      }
+      const fingerprint = JSON.stringify(body)
+      if (checkoutRequest.current?.fingerprint !== fingerprint) checkoutRequest.current = {
+        fingerprint, id: globalThis.crypto?.randomUUID?.() || Date.now() + '-' + Math.random().toString(36).slice(2),
+      }
+      const payload = await customerApi(path, { method: 'POST', csrfToken: account.csrfToken,
+        body: JSON.stringify({ ...body, requestId: checkoutRequest.current.id }) })
       if (bankTransfer) {
         setPaymentNotice('')
         setPaymentSession({ ...payload, purchasedItems: cart })
+        localStorage.setItem('storeCheckoutItems:' + account.id + ':' + payload.sessionId, JSON.stringify(cart.map(item => ({ id: item.id, quantity: item.quantity }))))
+        onNavigate?.('/checkout?payment=' + encodeURIComponent(payload.sessionId), { preserveScroll: true })
       } else {
         setCompletedOrder(payload.order)
         onComplete(payload.order, cart)
       }
-    } catch (error) { setQuoteError(userMessage(error, 'Vui lòng kiểm tra thông tin giao nhận và lịch hẹn.')) }
+    } catch (error) {
+      setQuoteError(userMessage(error, 'Vui lòng kiểm tra thông tin giao nhận và lịch hẹn.'))
+      setPendingVersion(value => value + 1)
+      if (error.code === 'QUOTE_CHANGED') {
+        setQuote(null)
+        setQuoteVersion(value => value + 1)
+        setPaymentNotice('Giá đã thay đổi. Hãy kiểm tra tổng mới trước khi bấm thanh toán lại.')
+        onCatalogRefresh?.()
+      }
+    }
     finally { submitGate.current = false; setBusy(false) }
   }
 
-  function exitPayment(reason) {
-    const session = paymentSession
+  async function afterCancel() {
+    checkoutRequest.current = null
+    await Promise.allSettled([onRefresh?.(), onCatalogRefresh?.()])
+    setQuoteVersion(value => value + 1)
+  }
+
+  function exitPayment(state) {
     setPaymentSession(null)
-    setPaymentNotice(reason === 'expired'
-      ? 'Đã hết 2 phút. Bạn có thể kiểm tra lại thông tin và thanh toán; đơn chưa được lưu.'
-      : 'Đã thoát thanh toán. Thông tin đã nhập và giỏ hàng được giữ nguyên; đơn chưa được lưu.')
-    if (session) customerApi('/api/customer/payment-sessions/' + encodeURIComponent(session.sessionId), {
-      method: 'DELETE', csrfToken: account.csrfToken,
-    }).catch(() => {
-      // Phiên tạm tự hết hạn trên API nếu mất mạng lúc đóng QR.
-    })
+    if (['expired', 'cancelled'].includes(state)) checkoutRequest.current = null
+    setPendingVersion(value => value + 1)
+    setPaymentNotice('Phiên đã được giữ để theo dõi. Đóng QR không xác nhận hay hủy khoản tiền đã chuyển.')
+    onNavigate?.('/checkout', { preserveScroll: true })
   }
 
   function finishPayment(state, order) {
-    onComplete(order, paymentSession.purchasedItems)
-    onPaymentComplete?.(state)
+    if (state !== 'paid' || !order) return
+    const key = 'storeCheckoutItems:' + account.id + ':' + order.id
+    let purchased = paymentSession?.purchasedItems || []
+    try { purchased = JSON.parse(localStorage.getItem(key) || 'null') || purchased } catch { /* Dùng bản nháp trong phiên hiện tại. */ }
+    localStorage.removeItem(key)
+    onComplete(order, purchased)
+    onPaymentComplete?.('paid')
   }
 
   function exitSavedPayment(reason, order) {
@@ -156,14 +177,18 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   }
 
   // VietQR, xác nhận thanh toán và biên nhận dùng chung dữ liệu ngân hàng từ API.
+  const savedPaymentId = new URLSearchParams(search).get('payment')
+  const paymentId = savedPaymentId || paymentSession?.sessionId
+  const paymentModal = paymentId && <PaymentBox key={paymentId} orderId={paymentId} sessionId={paymentId}
+    initialData={paymentSession?.sessionId === paymentId ? paymentSession : undefined}
+    account={account} onExit={exitPayment} onDone={finishPayment} />
   const savedOrderId = new URLSearchParams(search).get('order')
   if (savedOrderId || completedOrder?.paymentMethod === 'bank_transfer') return <CheckoutOrder
     key={savedOrderId || completedOrder.id} orderId={savedOrderId || completedOrder.id}
     initialOrder={completedOrder?.id === (savedOrderId || completedOrder.id) ? completedOrder : undefined}
     account={account} onRefresh={onRefresh} onPaymentComplete={onPaymentComplete} onExit={exitSavedPayment} />
-  if (completedOrder) return <div className="container page-shell"><section className="surface checkout-card"><div className="checkout-email-badge" style={{background:'#eaf8ee',border:'1px solid #c3e6cb',color:'#1e5e34',padding:'12px 18px',borderRadius:'10px',marginBottom:'18px',fontSize:'14px',display:'flex',alignItems:'center',gap:'10px'}}><span style={{fontSize:'18px'}}>✉</span><span><strong>Đã gửi hóa đơn điện tử:</strong> Bản chi tiết đơn hàng đã được gửi tới <u>{account.email}</u>. Vui lòng kiểm tra hộp thư của bạn.</span></div><h1>Đơn hàng đã được tạo</h1><OrderCenter orderId={completedOrder.id} account={account} onRefresh={onRefresh} /><div className="commerce-actions"><a className="button button--soft" href="/account">Tất cả đơn hàng</a><a className="button button--soft" href="/rewards">Đến vòng quay may mắn</a></div></section></div>
-  // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>{english ? 'No items selected for checkout' : 'Chưa chọn sản phẩm để thanh toán'}</h2><a className="button" href="/cart">{english ? 'Back to cart' : 'Về giỏ hàng'}</a></section></div>
+  if (completedOrder) return <div className="container page-shell"><section className="surface checkout-card"><h1>Đã tiếp nhận yêu cầu đặt hàng</h1><p>Chưa xác nhận thanh toán. Biên nhận và email được gửi sau khi cửa hàng xác nhận đã thu tiền.</p><OrderCenter orderId={completedOrder.id} account={account} onRefresh={onRefresh} /><a href="/checkout">Các phiên chờ xử lý</a></section></div>
+  if (!cart.length) return <div className="container page-shell"><PendingCheckouts account={account} onNavigate={onNavigate} refreshKey={pendingVersion} onCancelled={afterCancel} /><section className="surface empty-panel"><h2>{english ? 'No items selected for checkout' : 'Chưa chọn sản phẩm để thanh toán'}</h2><a className="button" href="/cart">{english ? 'Back to cart' : 'Về giỏ hàng'}</a></section>{paymentModal}</div>
 
   const goodsVouchers = wallet.filter((voucher) => (voucher.scope || 'goods') === 'goods')
   const shippingVouchers = wallet.filter((voucher) => voucher.scope === 'shipping')
@@ -218,25 +243,18 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
         </button>
       </form>
       <aside className="surface summary-card"><p className="eyebrow">{english ? 'Your order' : 'Đơn của bạn'}</p>
-        {cart.map((item) => <div className="summary-row" key={item.id}><span>{item.name} × {item.quantity}</span><b>{money.format(item.price * item.quantity)}</b></div>)}
+        {cart.map((item) => { const line = quotedItems.get(String(item.id)) || item; return <div className="summary-row" key={item.id}><span>{line.name} × {item.quantity}</span><b>{money.format(line.price * item.quantity)}</b></div> })}
         <div className="summary-row"><span>{english ? 'Subtotal' : 'Tạm tính'}</span><span>{money.format(quote?.subtotal ?? cartTotal(cart))}</span></div>
         <div className="summary-row"><span>{english ? `Voucher + Tier ${plan.name}` : `Voucher + hạng ${plan.name}`}</span><b>-{money.format(quote ? quote.subtotal - quote.goodsTotal : 0)}</b></div>
         <div className="summary-row"><span>{english ? 'Shipping fee' : 'Phí giao hàng'}</span><span>{money.format(quote?.shippingFeeBeforeDiscount ?? quote?.shippingFee ?? 0)}</span></div>
         {quote?.shippingDiscount > 0 && <div className="summary-row"><span>{english ? 'Shipping discount' : 'Đã giảm phí ship'}</span><b>-{money.format(quote.shippingDiscount)}</b></div>}
         <div className="summary-row summary-row--total"><span>{english ? 'Total' : 'Tổng'}</span><span>{money.format(quote?.total ?? 0)}</span></div>
         <p className="checkout-disclaimer">
-          {english ? 'Check total before scanning QR. Bank transfer orders are saved only after payment confirmation.' : 'Kiểm tra tổng tiền trước khi mở QR. Đơn chuyển khoản chỉ được lưu sau khi bạn xác nhận thanh toán.'}
+          {english ? 'Check total before scanning QR. Bank transfer orders are saved only after payment confirmation.' : 'Kiểm tra tổng tiền trước khi mở QR. Đơn chỉ vào lịch sử mua sau khi cửa hàng xác nhận đã nhận tiền.'}
         </p>
       </aside>
     </div>
-    {paymentSession && <PaymentBox
-      key={paymentSession.sessionId}
-      orderId={paymentSession.order.id}
-      sessionId={paymentSession.sessionId}
-      initialData={paymentSession}
-      account={account}
-      onExit={exitPayment}
-      onDone={finishPayment}
-    />}
+    <PendingCheckouts account={account} onNavigate={onNavigate} refreshKey={pendingVersion} onCancelled={afterCancel} />
+    {paymentModal}
   </div>
 }

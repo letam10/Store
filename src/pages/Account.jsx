@@ -17,6 +17,8 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
   const [orderQuery, setOrderQuery] = useState('')
   const [security, setSecurity] = useState(null)
 
+  useEffect(() => { onRefresh?.() }, [account?.id, onRefresh])
+
   useEffect(() => {
     if (!account?.id) return
     customerApi('/api/customer/security').then(setSecurity).catch(() => {})
@@ -46,7 +48,7 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
 
     <section className="surface account-orders account-orders--redesign"><div className="account-orders__head"><div><p className="eyebrow">{english ? 'Order history' : 'Lịch sử đơn hàng'}</p><h2>{english ? 'Your orders' : 'Đơn hàng của bạn'}</h2></div><span>{orders.length} {english ? 'orders' : 'đơn'}</span></div>
       {orders.length > 0 && <div className="account-order-toolbar"><label className="field"><span>{english ? 'Search orders' : 'Tìm đơn'}</span><input type="search" value={orderQuery} onChange={(event) => setOrderQuery(event.target.value)} placeholder={english ? 'Order code, status…' : 'Mã đơn, trạng thái…'} /></label><span>{visibleOrders.length}/{orders.length} {english ? 'results' : 'kết quả'}</span></div>}
-      {orders.length === 0 ? <div className="account-empty-state"><span aria-hidden="true">▱</span><div><strong>{english ? 'No orders yet' : 'Chưa có đơn hàng'}</strong><p className="muted">{english ? 'Orders will appear here once placed.' : 'Đơn hàng sau khi đặt sẽ được lưu tại đây.'}</p></div><a href="/products">{english ? 'Explore products →' : 'Khám phá sản phẩm →'}</a></div> : visibleOrders.length === 0 ? <p className="account-empty-state__message">{english ? 'No matching orders found.' : 'Không tìm thấy đơn phù hợp.'}</p> : <CustomerOrders key={account.id} orders={visibleOrders} account={account} onRefresh={onRefresh} onPaymentComplete={onPaymentComplete} onNavigate={onNavigate} />}
+      {orders.length === 0 ? <div className="account-empty-state"><span aria-hidden="true">▱</span><div><strong>{english ? 'No orders yet' : 'Chưa có đơn hàng'}</strong><p className="muted">{english ? 'Orders appear here after payment is confirmed.' : 'Đơn hàng chỉ hiển thị tại đây sau khi cửa hàng xác nhận đã thu tiền.'}</p></div><a href="/products">{english ? 'Explore products →' : 'Khám phá sản phẩm →'}</a></div> : visibleOrders.length === 0 ? <p className="account-empty-state__message">{english ? 'No matching orders found.' : 'Không tìm thấy đơn phù hợp.'}</p> : <CustomerOrders key={account.id} orders={visibleOrders} account={account} onRefresh={onRefresh} onPaymentComplete={onPaymentComplete} onNavigate={onNavigate} />}
     </section>
 
     <AccountTwoFactor

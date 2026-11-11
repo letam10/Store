@@ -242,42 +242,36 @@ test('banner liên trang dùng dữ liệu ưu đãi thật và chọn đúng m�
   } finally { window.close() }
 })
 
-test('checkout ghép VietQR của main với biên nhận và chỉ gửi mô phỏng một lần', async () => {
+test('checkout giữ VietQR và chỉ mở biên nhận sau khi backend xác nhận tiền', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/checkout', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
   window.scrollTo = () => {}
   const account = { id: 82, username: 'qa-checkout', tier: 'bronze', points: 0, spinCredits: 0, csrfToken: 'qa-merge-checkout' }
-  const order = { id: 'ST-MERGE-TEST', total: 420000, extraPaid: 0, refundAmount: 0, recipient: 'Khách thử', phone: '0901234567', address: 'Địa chỉ thử', fulfillment: 'delivery', deliveryStatus: 'processing', paymentMethod: 'bank_transfer', paymentMode: 'demo', scheduledAt: '2999-01-01T00:00:00Z', status: 'pending' }
+  const order = { id: 'ST-MERGE-TEST', total: 420000, extraPaid: 0, refundAmount: 0, recipient: 'Khách thử', phone: '0901234567', address: 'Địa chỉ thử', fulfillment: 'delivery', deliveryStatus: 'processing', paymentMethod: 'bank_transfer', paymentMode: 'manual', scheduledAt: '2999-01-01T00:00:00Z', status: 'pending' }
   let payments = 0, submitted = null
+  const expiresAt = new Date(Date.now() + 120000).toISOString()
+  const payment = { mode: 'manual', amount: order.total, reference: order.id, bankName: 'Ngân hàng thử', accountNumber: '0000000000', accountName: 'STORE TEST', qrImage: '/products/cup.svg' }
+  const payload = () => ({ sessionId: order.id, order, expiresAt, status: order.status === 'paid' ? 'paid' : payments ? 'reported' : 'pending', canPay: !payments && order.status !== 'paid', payment: payments ? null : payment })
   window.localStorage.setItem('storeCartAccountV2:82', JSON.stringify([{ id: 1, quantity: 1, selected: true }]))
   window.fetch = async (url, options = {}) => {
     const path = String(url)
     if (path.endsWith('/customer/session')) return response(200, { account })
     if (path.endsWith('/customer/payment-sessions') && options.method === 'POST') {
       submitted = JSON.parse(options.body)
-      return response(201, {
-        sessionId: order.id,
-        expiresAt: new Date(Date.now() + 120000).toISOString(),
-        order,
-        payment: {
-          mode: 'demo', amount: order.total, reference: order.id, bankName: 'Ngân hàng thử',
-          accountNumber: '0000000000', accountName: 'STORE TEST', qrImage: '/products/cup.svg',
-        },
-      })
+      return response(201, payload())
     }
-    if (path.endsWith('/customer/orders')) return response(200, { orders: payments ? [order] : [] })
+    if (path.endsWith('/customer/orders')) return response(200, { orders: order.status === 'paid' ? [order] : [] })
     if (path.endsWith('/customer/quote')) return response(200, { subtotal: 390000, goodsTotal: 390000, shippingFee: 30000, total: order.total })
     if (path.endsWith('/customer/vouchers')) return response(200, { vouchers: [] })
     if (path.endsWith('/customer/favorites')) return response(200, { ids: [] })
     if (path.endsWith('/catalog')) return response(200, { products: [] })
     if (path.endsWith('/receipt')) return response(200, { order, afterSales: [], events: [] })
-    if (path.endsWith('/payment-info')) return response(200, { order, payment: { mode: 'demo', amount: order.total, reference: order.id, bankName: 'Ngân hàng thử', accountNumber: '0000000000', accountName: 'STORE TEST', qrImage: '/products/cup.svg' } })
-    if (path.endsWith('/simulate-pay')) {
+    if (path.endsWith('/payment-report')) {
       payments++
       await new Promise(resolve => setTimeout(resolve, 30))
-      order.status = 'paid'
-      return response(200, { success: true, order })
+      return response(200, payload())
     }
+    if (path.endsWith('/payment-info') || path.includes('/payment-sessions/')) return response(200, payload())
     return response(200, {})
   }
   window.eval(bundle.outputFiles[0].text)
@@ -292,8 +286,18 @@ test('checkout ghép VietQR của main với biên nhận và chỉ gửi mô ph
     assert.equal(submitted.paymentMethod, 'bank_transfer')
     assert.equal(window.document.querySelector('.bank-payment-qr img').getAttribute('src'), '/products/cup.svg')
     assert.match(window.document.querySelector('.bank-payment-card .commerce-facts').textContent, /Ngân hàng thử/)
-    const pay = [...window.document.querySelectorAll('button')].find(button => button.textContent === 'Mô phỏng chuyển khoản thành công')
+    const input = window.document.querySelector('.bank-payment-details input')
+    Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(input, 'BANK-QA')
+    input.dispatchEvent(new window.Event('input', { bubbles: true }))
+    const pay = [...window.document.querySelectorAll('button')].find(button => button.textContent === 'Tôi đã chuyển khoản')
+    await waitFor(() => !pay.disabled)
     pay.click(); pay.click()
+    await waitFor(() => window.document.querySelector('.bank-payment-card')?.textContent.includes('Chờ cửa hàng đối soát'))
+    assert.equal(order.status, 'pending')
+    assert.equal(window.location.pathname, '/checkout')
+    order.status = 'paid'
+    order.paidAt = new Date().toISOString()
+    window.dispatchEvent(new window.Event('focus'))
     await waitFor(() => window.location.pathname === '/')
     assert.equal(payments, 1)
     assert.equal(window.document.querySelector('.bank-payment-card'), null)
