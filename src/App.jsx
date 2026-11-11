@@ -319,10 +319,15 @@ export default function App() {
   function toggleVoucher(code) {
     setSelectedVoucherCodes((current) => current.includes(code) ? current.filter((item) => item !== code) : normalizeVoucherSelection([...current, code], wallet))
   }
-  function applyVoucherCode(code) {
+  async function applyVoucherCode(code) {
     const normalized = String(code || '').trim().toUpperCase()
-    if (!normalized) return
-    setSelectedVoucherCodes((current) => current.includes(normalized) ? current : [...current, normalized])
+    const epoch = customerEpoch.current
+    const { voucher } = await customerApi('/api/customer/vouchers/' + encodeURIComponent(normalized))
+    if (epoch !== customerEpoch.current) throw new Error('Phiên đăng nhập đã thay đổi. Vui lòng thử lại.')
+    const nextWallet = [...wallet.filter(item => item.code !== voucher.code), voucher]
+    setWallet(nextWallet)
+    setSelectedVoucherCodes(current => normalizeVoucherSelection([...current, voucher.code], nextWallet))
+    return voucher
   }
   // Chức năng logout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function logout() {

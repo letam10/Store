@@ -12,6 +12,8 @@ const messages = {
   CHALLENGE_EXPIRED: 'Phiên đăng nhập 2 lớp đã hết hạn. Vui lòng thử lại.',
   CUSTOMER_NOT_FOUND: 'Không tìm thấy tài khoản.',
   INVALID_VOUCHER: 'Mã giảm giá không còn hiệu lực hoặc không áp dụng cho đơn hàng này.',
+  DUPLICATE_VOUCHER: 'Một mã giảm giá chỉ được áp dụng một lần trong đơn.',
+  VOUCHER_SCOPE_LIMIT: 'Mỗi đơn dùng tối đa một mã hàng hóa và một mã vận chuyển.',
   VOUCHER_NOT_FOUND: 'Không tìm thấy mã giảm giá.',
   VOUCHER_CODE_EXHAUSTED: 'Chưa thể cấp mã giảm giá. Vui lòng thử lại sau.',
   PRODUCT_UNAVAILABLE: 'Sản phẩm đã hết hàng hoặc không còn đủ số lượng.',

@@ -17,6 +17,7 @@ import DropdownMenu from '../components/ui/DropdownMenu'
 import OrderCenter from '../components/commerce/OrderCenter'
 import CheckoutOrder from '../components/commerce/CheckoutOrder'
 import PaymentBox from '../components/commerce/PaymentBox'
+import VoucherCodeInput from '../components/commerce/VoucherCodeInput'
 import './Storefront.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -56,7 +57,6 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const [region, setRegion] = useState('hcm')
   const [weightKg, setWeightKg] = useState(1)
   const [openVoucher, setOpenVoucher] = useState('goods')
-  const [manualVoucherCode, setManualVoucherCode] = useState('')
   const [quoteResult, setQuote] = useState(null)
   const [quoteError, setQuoteError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -186,7 +186,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
         <label className="field"><span>{english ? 'Delivery / pickup schedule' : 'Lịch giao / nhận'}</span><input type="datetime-local" value={schedule} onChange={event => setSchedule(event.target.value)} required /></label>
         <label className="field"><span>{english ? 'Fulfillment method' : 'Cách nhận hàng'}</span><DropdownMenu value={fulfillment} options={fulfillmentOptions} ariaLabel={english ? 'Fulfillment method' : 'Cách nhận hàng'} onChange={setFulfillment} /></label>
         <section className="checkout-voucher"><div className="checkout-voucher__head"><div><span className="eyebrow">{english ? 'OFFERS' : 'ƯU ĐÃI'}</span><b>{english ? 'Select vouchers for your order' : 'Chọn voucher cho đơn hàng'}</b></div><a href="/rewards">{english ? 'Lucky Spin →' : 'Vòng quay →'}</a></div>
-          <div className="checkout-voucher__input"><input aria-label={english ? 'Voucher code' : 'Mã voucher'} value={manualVoucherCode} onChange={(event) => setManualVoucherCode(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); onApplyVoucherCode?.(manualVoucherCode); setManualVoucherCode('') } }} placeholder={english ? 'Enter voucher code' : 'Nhập mã voucher'} maxLength="80" /><button type="button" onClick={() => { onApplyVoucherCode?.(manualVoucherCode); setManualVoucherCode('') }}>{english ? 'Apply' : 'Áp dụng mã'}</button></div>
+          <VoucherCodeInput onApply={onApplyVoucherCode} english={english} />
           {manualCodes.length > 0 && <small className="voucher-valid">Mã nhập: {manualCodes.join(', ')}</small>}
           <div className="checkout-voucher-groups">{voucherGroup('goods', english ? 'Goods vouchers' : 'Voucher hàng hóa', '⌂', goodsVouchers)}{voucherGroup('shipping', english ? 'Shipping vouchers' : 'Voucher phí vận chuyển', '✈', shippingVouchers)}</div>
         </section>
