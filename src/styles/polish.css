@@ -731,6 +731,7 @@ html[data-theme=dark] :is(h1,h2,h3,h4,h5,h6){color:var(--ink,#f8fafc)}html[data-
 }
 .header-inner .account-link{
   min-width: 110px !important;
+  max-width: 210px !important;
   border: 1.5px solid var(--line, #cbd5e1) !important;
   background: var(--paper, #fff) !important;
   color: var(--ink, #0f172a) !important;
@@ -752,8 +753,9 @@ html[data-theme=dark] :is(h1,h2,h3,h4,h5,h6){color:var(--ink,#f8fafc)}html[data-
   background: rgba(82, 183, 136, 0.1) !important;
 }
 .header-inner .account-link__name{
-  overflow: visible !important;
-  text-overflow: clip !important;
+  min-width: 0;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
 .header-inner .account-link__avatar{
@@ -1163,12 +1165,24 @@ select, select option {
   .header-search-popover{min-height: 56px !important}
 }
 @media(max-width: 560px){
-  .site-header .header-inner{min-height: 68px !important}
+  .site-header .header-inner{min-height: 68px !important;grid-template-columns:auto minmax(0,1fr)!important;gap:8px!important}
   .header-inner .brand__word{font-size: 28px !important}
   .header-inner .header-actions{gap: 4px !important}
+  .header-inner .theme-switch{min-width:40px!important;width:40px!important;padding:2px!important}
+  .header-inner .account-link{min-width:34px!important;max-width:34px!important;width:34px!important;padding:2px!important}
+  .header-inner .account-link__name,.header-inner .account-menu__caret,.header-inner .cart-count__text{display:none!important}
+  .header-inner .cart-count{min-width:0!important;width:54px!important;max-width:54px!important;padding:0 7px!important;gap:4px!important;font-size:11px!important}
+  .header-inner .header-search-trigger,.header-inner .header-menu-trigger{min-width:32px!important;width:32px!important}
+  .header-inner .account-menu{position:static!important}
+  .header-inner .account-menu__dropdown{left:12px!important;right:12px!important;min-width:0!important;max-width:none!important;width:auto!important}
+  .header-inner .account-menu__hello{overflow-wrap:anywhere;white-space:normal}
   .header-inner .header-nav a{font-size: 14px !important}
   .header-search-popover input{font-size: 15px !important}
   .search-suggestion__copy strong{font-size: 13px !important}
+}
+@media(max-width:360px){
+  .site-header .header-inner{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important;gap:6px!important}
+  .header-inner .header-actions{grid-column:1!important;grid-row:2!important}
 }
 
 /* Final interaction pass: search action stays wider than its height and uses an inset focus state. */

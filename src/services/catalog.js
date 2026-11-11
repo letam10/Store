@@ -47,6 +47,14 @@ export function displayCategory(product) {
   return category
 }
 
+// Đồng bộ decimal.Round(ToEven) của backend, kể cả mức giá nằm đúng giữa hai chục đồng.
+export function salePrice(price, discountPercent = 0) {
+  const numerator = Number(price) * (100 - Number(discountPercent))
+  const quotient = Math.floor(numerator / 1000)
+  const remainder = numerator - quotient * 1000
+  return (quotient + (remainder > 500 || (remainder === 500 && quotient % 2 !== 0) ? 1 : 0)) * 10
+}
+
 // Chức năng enrichProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export function enrichProducts(offers = []) {
   const byId = new Map(offers.map((offer) => [String(offer.id), offer]))
@@ -63,7 +71,7 @@ export function enrichProducts(offers = []) {
       category: displayCategory(currentProduct),
       originalPrice,
       discountPercent,
-      price: Math.round(originalPrice * (100 - discountPercent) / 1000) * 10,
+      price: salePrice(originalPrice, discountPercent),
       // The API normally supplies the managed stock value. Keep the same
       // default for the local demo fallback so guests cannot add unlimited
       // quantities when the backend is temporarily unavailable.

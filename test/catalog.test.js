@@ -8,7 +8,16 @@
  */
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { CATALOG_PAGE_SIZE, displayCategory, enrichProducts, featuredSaleProducts, generatePaginationItems, mostViewed, similarProducts } from '../src/services/catalog.js'
+import { CATALOG_PAGE_SIZE, displayCategory, enrichProducts, featuredSaleProducts, generatePaginationItems, mostViewed, similarProducts, salePrice } from '../src/services/catalog.js'
+
+test('giá lẻ và giảm giá làm tròn đúng như bảng phí backend', () => {
+  assert.equal(salePrice(1005), 1000)
+  assert.equal(salePrice(1015), 1020)
+  assert.equal(salePrice(10050, 90), 1000)
+  assert.equal(salePrice(10150, 90), 1020)
+  assert.equal(salePrice(10004), 10000)
+  assert.equal(salePrice(10006), 10010)
+})
 
 test('giá và thông tin admin cập nhật thay dữ liệu nền ở trang khách hàng', () => {
   const product = enrichProducts([{ id: '2', name: 'Túi đã cập nhật', category: 'Tự Thiết Kế', price: 10000, discountPercent: 10, stockCount: 8, image: '/products/current.svg' }]).find(item => String(item.id) === '2')

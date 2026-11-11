@@ -156,7 +156,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
           <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}><SearchIcon /></button>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
-            <button type="button" className="account-link account-menu__trigger" aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title="Mở dashboard người dùng">
+            <button type="button" className="account-link account-menu__trigger" aria-label={'Mở tài khoản ' + account.username} aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title="Mở dashboard người dùng">
               <span className="account-link__avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span><span className="account-link__name">{getMembershipPlan(membershipTier).badge + ' · ' + account.username}</span><span className="account-menu__caret" aria-hidden="true">▾</span>
             </button>
             {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label="Dashboard người dùng">
@@ -167,7 +167,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
               <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}>🎁 Ưu đãi & voucher</a>
               <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}>★ Hạng thành viên</a>
             </div>}
-          </div> : <a className="account-link" href="/account"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">Đăng nhập</span></a>}
+          </div> : <a className="account-link" href="/account" aria-label="Đăng nhập tài khoản"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">Đăng nhập</span></a>}
           <a className="cart-count" href="/cart" aria-label={'Giỏ hàng có ' + cartCount + ' sản phẩm'}><span aria-hidden="true">🛒</span><span className="cart-count__text">Giỏ hàng</span><b>{cartCount}</b></a>
           <button className="header-menu-trigger" type="button" aria-controls="header-navigation" aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} onClick={() => { setSearchOpen(false); setMenuOpen((current) => !current) }}>☰</button>
         </div>

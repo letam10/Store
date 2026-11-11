@@ -48,7 +48,7 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
         const result = await customerApi(path + (requestId ? '/payment' : ''), { signal: controller.signal })
         if (controller.signal.aborted || sequence !== version.current || finished.current) return
         setData(result)
-        if (!requestId && ['paid', 'completed'].includes(result.order?.status)) {
+        if (requestId ? result.status === 'paid' : ['paid', 'completed'].includes(result.order?.status)) {
           finished.current = true
           await callbacks.current.onDone?.('paid', result.order)
         }
@@ -76,11 +76,9 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
         body: JSON.stringify(requestId ? { action: 'payment_report', reference: reference.trim() } : { reference: reference.trim() }),
       })
       if (controller.signal.aborted || finished.current) return
-      if (requestId) await callbacks.current.onDone?.('reported')
-      else {
-        setData(result)
-        setNotice('Đã lưu thông tin chuyển khoản. Cửa hàng đang đối chiếu sao kê; bạn không cần chuyển lại.')
-      }
+      if (requestId) setData(current => ({ ...current, status: 'reported', canPay: false, payment: null }))
+      else setData(result)
+      setNotice('Đã lưu thông tin chuyển khoản. Cửa hàng đang đối chiếu sao kê; bạn không cần chuyển lại.')
     } catch (failure) {
       if (!controller.signal.aborted) setError(userMessage(failure))
     } finally { gate.current = false; setBusy(false) }
@@ -93,7 +91,29 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
     callbacks.current.onExit?.(phase === 'pending' && data?.expiresAt && !seconds ? 'expired' : phase)
   }
 
-  if (data?.payment?.mode === 'counter') return <section className="commerce-payment"><h3>Thanh toán phí tại cửa hàng</h3><p>{money.format(data.payment.amount)} · Mã {data.payment.reference}. Cửa hàng xác nhận khi đã thu tiền.</p></section>
+  async function renewPayment() {
+    if (!requestId || gate.current || finished.current) return
+    gate.current = true
+    version.current += 1
+    setBusy(true)
+    setError('')
+    setNotice('')
+    const controller = new AbortController()
+    request.current = controller
+    try {
+      await customerApi(path + '/action', { method: 'POST', signal: controller.signal, csrfToken: account.csrfToken, body: JSON.stringify({ action: 'renew_payment' }) })
+      const result = await customerApi(path + '/payment', { signal: controller.signal })
+      if (!controller.signal.aborted && !finished.current) setData(result)
+    } catch (failure) {
+      if (!controller.signal.aborted) setError(userMessage(failure))
+    } finally { gate.current = false; setBusy(false) }
+  }
+
+  if (data?.payment?.mode === 'counter') return <PaymentModal onClose={close}><section className="bank-payment-card surface">
+    <header className="bank-payment-card__head"><h2>Thanh toán khoản bù tại cửa hàng</h2><button type="button" className="bank-payment-close" aria-label="Đóng thanh toán" onClick={close}>×</button></header>
+    <div className="bank-payment-details"><p>{money.format(data.payment.amount)} · Mã {data.payment.reference}.</p><p>Cửa hàng xác nhận sau khi đã thu tiền thực tế. Trạng thái được cập nhật tự động.</p></div>
+    <footer className="bank-payment-card__footer"><button type="button" className="button button--soft" onClick={close}>Về chi tiết đơn hàng</button></footer>
+  </section></PaymentModal>
   const state = data?.status || data?.order?.paymentState || 'pending'
   const payment = data?.payment
   const canPay = Boolean(payment?.mode === 'manual' && seconds > 0 && (data?.canPay ?? state === 'pending'))
@@ -101,7 +121,7 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
   return <PaymentModal onClose={close}>
     <section className="bank-payment-card surface" aria-label="Thanh toán chuyển khoản">
       <header className="bank-payment-card__head">
-        <div className="bank-payment-card__title"><p className="eyebrow">{requestId ? 'Phí xử lý yêu cầu' : 'Thanh toán đơn hàng'}</p><h1>{canPay ? 'Mã QR ngân hàng' : waiting ? 'Chờ cửa hàng đối soát' : data ? 'Phiên chuyển khoản' : 'Đang tải thanh toán…'}</h1><p>Mã: <strong>{id || requestId}</strong></p></div>
+        <div className="bank-payment-card__title"><p className="eyebrow">{requestId ? 'Khoản bù đổi hàng' : 'Thanh toán đơn hàng'}</p><h1>{canPay ? 'Mã QR ngân hàng' : waiting ? 'Chờ cửa hàng đối soát' : data ? 'Phiên chuyển khoản' : 'Đang tải thanh toán…'}</h1><p>Mã: <strong>{requestId || id}</strong></p></div>
         {canPay && <div className="bank-payment-timer"><span>Thời gian còn lại</span><strong role="timer" aria-label="Thời gian thanh toán còn lại">{formatPaymentTime(seconds)}</strong></div>}
         <button type="button" className="bank-payment-close" aria-label="Đóng thanh toán" onClick={close}><span aria-hidden="true">×</span></button>
       </header>
@@ -111,12 +131,13 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
           <dl className="commerce-facts">{[['Ngân hàng',payment.bankName],['Số tài khoản',payment.accountNumber],['Người nhận',payment.accountName],['Nội dung chuyển khoản',payment.reference]].map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
         </div>
       </div>}
-      {data && !canPay && <p role="status">{waiting ? 'Đã tiếp nhận thông báo, chưa xác nhận đã nhận tiền. Đơn chỉ vào lịch sử mua sau khi cửa hàng đối soát thành công.' : 'QR đã đóng hoặc hết hạn. Không chuyển tiền theo mã đã lưu. Nếu đã chuyển, gửi mã giao dịch bên dưới để cửa hàng kiểm tra.'}</p>}
+      {data && !canPay && <p role="status">{waiting ? requestId ? 'Đã tiếp nhận thông báo khoản bù. Cửa hàng sẽ đối chiếu sao kê trước khi giao hàng thay thế.' : 'Đã tiếp nhận thông báo, chưa xác nhận đã nhận tiền. Đơn chỉ vào lịch sử mua sau khi cửa hàng đối soát thành công.' : 'QR đã đóng hoặc hết hạn. Không chuyển tiền theo mã đã lưu. Nếu đã chuyển, gửi mã giao dịch bên dưới để cửa hàng kiểm tra.'}</p>}
+      {requestId && data?.canRenew && !waiting && <button type="button" className="button button--soft" disabled={busy} onClick={renewPayment}>Tôi chưa chuyển tiền — mở QR mới</button>}
       {data && !['paid','refunded_unmatched'].includes(state) && <div className="bank-payment-details">
         <label className="field"><span>Mã giao dịch của bạn</span><input value={reference} maxLength="100" onChange={event => setReference(event.target.value)} /></label>
         <button type="button" className="button" disabled={busy || reference.trim().length < 3} onClick={reportPayment}>{busy ? 'Đang gửi…' : waiting ? 'Cập nhật mã giao dịch' : 'Tôi đã chuyển khoản'}</button>
       </div>}
-      {notice && <p role="status">{notice}</p>}{error && <p className="commerce-error" role="alert">{error}</p>}
+      {notice && !['paid', 'refunded_unmatched'].includes(state) && <p role="status">{notice}</p>}{error && <p className="commerce-error" role="alert">{error}</p>}
       <footer className="bank-payment-card__footer"><p>Hạn QR do cửa hàng xác định, tải lại trang không gia hạn. Báo chuyển khoản không đồng nghĩa đã nhận tiền.</p><button type="button" className="button button--soft" onClick={close}>Về trang thanh toán</button></footer>
     </section>
   </PaymentModal>
