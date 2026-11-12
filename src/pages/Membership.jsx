@@ -28,7 +28,7 @@ export default function Membership({ account, tier = 'bronze', language: propLan
       <ul>{plan.benefits.map((benefit) => <li key={benefit}>✓ {benefit}</li>)}</ul>
       <strong>{plan.id === tier ? (english ? 'Current tier' : 'Hạng hiện tại') : account.points < plan.points ? (english ? `Need ${(plan.points - account.points).toLocaleString('en-US')} more points` : 'Còn ' + (plan.points - account.points).toLocaleString('vi-VN') + ' điểm') : (english ? 'Achieved' : 'Đã vượt mốc')}</strong>
     </article>)}</div>
-    <p className="membership-disclaimer">{english ? 'Only confirmed goods payment is counted towards points. Every 1,000 ₫ earns 1 base point. Gold and Diamond bonus multipliers are calculated after confirmed orders.' : 'Chỉ tính tiền hàng hóa đã ghi nhận thanh toán. Mỗi 1.000 ₫ tròn nhận 1 điểm cơ bản; 999 ₫ không cộng điểm. Điểm thưởng hạng Vàng và Kim Cương được tính sau bước này.'}</p>
+    <p className="membership-disclaimer">{english ? 'Only confirmed goods payment after discounts counts; shipping and service fees are excluded. Each full 1,000 ₫ earns 1 base point. Apply the tier multiplier saved at checkout, then drop fractional points. Exchanges and returns adjust the points for that order.' : 'Chỉ tính tiền hàng đã thanh toán sau giảm giá, không gồm phí vận chuyển và phí dịch vụ. Mỗi 1.000 ₫ tròn nhận 1 điểm cơ bản; 999 ₫ không cộng điểm. Sau đó nhân quyền lợi hạng tại lúc đặt đơn và bỏ phần lẻ điểm. Đổi/trả hàng sẽ điều chỉnh điểm của đơn tương ứng.'}</p>
     </>}
   </div>
 }

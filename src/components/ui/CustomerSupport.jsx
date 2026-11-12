@@ -16,7 +16,7 @@ import './CustomerSupport.css'
 
 const suggestionsVi = ['Tư vấn sản phẩm', 'Thông tin đơn hàng', 'Chính sách đổi trả']
 const suggestionsEn = ['Product advice', 'Order information', 'Return policy']
-const STORAGE_KEY = 'storeSupportConversationId'
+const LEGACY_STORAGE_KEY = 'storeSupportConversationId'
 
 // Chức năng localId: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function localId() {
@@ -35,12 +35,18 @@ function SupportIcon({ kind = 'chat' }) {
 }
 
 // Chức năng CustomerSupport: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function CustomerSupport({ account, onRequireLogin, language: propLanguage }) {
+export default function CustomerSupport(props) {
+  // Đổi tài khoản phải hủy request và bỏ toàn bộ trạng thái riêng của người trước.
+  return <CustomerSupportSession key={props.account?.id ?? 'guest'} {...props} />
+}
+
+function CustomerSupportSession({ account, onRequireLogin, language: propLanguage }) {
   const { language: contextLanguage, english: contextEnglish } = useLanguage()
   const language = propLanguage || contextLanguage || 'vi'
   const english = language === 'en' || contextEnglish
   const suggestions = english ? suggestionsEn : suggestionsVi
-  const initialConversationIdRef = useRef(localStorage.getItem(STORAGE_KEY) || '')
+  const storageKey = `${LEGACY_STORAGE_KEY}:${account?.id ?? 'guest'}`
+  const initialConversationIdRef = useRef(account?.id ? localStorage.getItem(storageKey) || localStorage.getItem(LEGACY_STORAGE_KEY) || '' : '')
   const [isOpen, setIsOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const [messages, setMessages] = useState([])
@@ -77,6 +83,10 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
           currentConversationId: conversationIdRef.current,
         })
         setMessages((current) => applyRestore(current, payload.messages, { canApply }))
+        if (canApply) {
+          localStorage.setItem(storageKey, initialId)
+          if (localStorage.getItem(LEGACY_STORAGE_KEY) === initialId) localStorage.removeItem(LEGACY_STORAGE_KEY)
+        }
       })
       .catch((error) => {
         // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
@@ -86,14 +96,14 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
         })) return
         // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
         if (error.code === 'CONVERSATION_NOT_FOUND') {
-          localStorage.removeItem(STORAGE_KEY)
+          localStorage.removeItem(storageKey)
           conversationIdRef.current = ''
           setConversationId('')
         }
       })
     return () => { disposed = true; restoreGuard.invalidate() }
   // Chỉ khôi phục khi đổi người dùng; refresh phiên định kỳ không được xóa lịch sử đang hiển thị.
-  }, [accountId])
+  }, [accountId, storageKey])
 
   useEffect(() => {
     const restoreGuard = restoreGuardRef.current
@@ -173,7 +183,7 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
           if (event.type === 'conversation') {
             conversationIdRef.current = event.conversationId
             setConversationId(event.conversationId)
-            localStorage.setItem(STORAGE_KEY, event.conversationId)
+            localStorage.setItem(storageKey, event.conversationId)
           } else if (event.type === 'status') {
             const activities = { queued: 'Đang xếp hàng', waiting: 'Đang chờ AI', generating: 'Đang trả lời' }
             setActivity(activities[event.status] || 'Đang xử lý')
@@ -224,7 +234,7 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
   function startNewConversation() {
     if (gateRef.current.locked) return
     restoreGuardRef.current.invalidate()
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(storageKey)
     initialConversationIdRef.current = ''
     conversationIdRef.current = ''
     setConversationId('')
@@ -264,7 +274,7 @@ export default function CustomerSupport({ account, onRequireLogin, language: pro
         <section id="store-support-panel" className="customer-support__panel" aria-label={english ? 'Chat with Store' : 'Trò chuyện với Store'}>
           <div className="customer-support__intro">
             <span>{english ? 'CUSTOMER CARE' : 'CHĂM SÓC KHÁCH HÀNG'}</span>
-            <span className="customer-support__badge">{providerStatus?.reachable && providerStatus?.modelAvailable ? `AI Local · ${providerStatus.model || 'qwen3.5:4b'}` : providerStatus ? 'AI fallback local' : (english ? 'Checking AI' : 'Đang kiểm tra AI')}</span>
+            <span className="customer-support__badge">{providerStatus?.reachable && providerStatus?.modelAvailable ? `AI Local · ${providerStatus.model || 'qwen3.5:4b'}` : providerStatus ? (english ? 'AI offline' : 'AI chưa kết nối') : (english ? 'Checking AI' : 'Đang kiểm tra AI')}</span>
           </div>
           <div className="customer-support__toolbar"><button type="button" disabled={busy} onClick={startNewConversation}>{english ? 'New conversation' : 'Cuộc trò chuyện mới'}</button></div>
 

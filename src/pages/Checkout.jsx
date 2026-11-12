@@ -111,7 +111,11 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
       }
       const payload = await customerApi(path, { method: 'POST', csrfToken: account.csrfToken,
         body: JSON.stringify({ ...body, requestId: checkoutRequest.current.id }) })
-      if (bankTransfer) {
+      if (payload.status === 'paid') {
+        onComplete(payload.order, cart)
+        onPaymentComplete?.('paid')
+        onNavigate?.('/checkout?order=' + encodeURIComponent(payload.order.id))
+      } else if (bankTransfer) {
         setPaymentNotice('')
         setPaymentSession({ ...payload, purchasedItems: cart })
         localStorage.setItem('storeCheckoutItems:' + account.id + ':' + payload.sessionId, JSON.stringify(cart.map(item => ({ id: item.id, quantity: item.quantity }))))

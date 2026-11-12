@@ -1,4 +1,11 @@
 const messages = {
+  AI_PROVIDER_ERROR: 'AI Local gặp lỗi khi tạo câu trả lời. Vui lòng thử lại.',
+  AI_EMPTY_RESPONSE: 'AI chưa tạo được câu trả lời. Vui lòng thử lại.',
+  AI_OUTPUT_LIMIT: 'Câu trả lời chưa hoàn tất do đạt giới hạn xử lý. Bạn có thể hỏi ngắn hơn hoặc thử lại.',
+  AI_TIMEOUT: 'AI xử lý quá thời gian chờ. Vui lòng thử lại.',
+  CHAT_FAILED: 'Chưa thể hoàn tất hoặc lưu câu trả lời. Vui lòng thử lại.',
+  CHAT_STOPPED: 'Cuộc trò chuyện đã dừng. Bạn có thể thử lại.',
+  INVALID_CHAT_REQUEST: 'Nhập câu hỏi từ 1 đến 2.000 ký tự.',
   LOGIN_REQUIRED: 'Vui lòng đăng nhập để tiếp tục.',
   UNAUTHENTICATED: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
   UNAUTHORIZED: 'Bạn không có quyền thực hiện thao tác này.',
