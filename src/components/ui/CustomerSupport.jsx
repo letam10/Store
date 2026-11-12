@@ -46,11 +46,12 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
   const english = language === 'en' || contextEnglish
   const suggestions = english ? suggestionsEn : suggestionsVi
   const storageKey = `${LEGACY_STORAGE_KEY}:${account?.id ?? 'guest'}`
-  const initialConversationIdRef = useRef(account?.id ? localStorage.getItem(storageKey) || localStorage.getItem(LEGACY_STORAGE_KEY) || '' : '')
+  const savedConversationIdRef = useRef(account?.id ? localStorage.getItem(storageKey) || '' : '')
+  const initialConversationIdRef = useRef(account?.id ? savedConversationIdRef.current || localStorage.getItem(LEGACY_STORAGE_KEY) || '' : '')
   const [isOpen, setIsOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const [messages, setMessages] = useState([])
-  const [conversationId, setConversationId] = useState(initialConversationIdRef.current)
+  const [conversationId, setConversationId] = useState(savedConversationIdRef.current)
   const [busy, setBusy] = useState(false)
   const [activity, setActivity] = useState('')
   const [providerStatus, setProviderStatus] = useState(null)
@@ -61,7 +62,7 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
   const logRef = useRef(null)
   const gateRef = useRef(createRequestGate())
   const restoreGuardRef = useRef(createRestoreGuard(initialConversationIdRef.current))
-  const conversationIdRef = useRef(initialConversationIdRef.current)
+  const conversationIdRef = useRef(savedConversationIdRef.current)
 
   useEffect(() => {
     conversationIdRef.current = conversationId
@@ -80,10 +81,12 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
         if (disposed) return
         const canApply = restoreGuard.canApply(token, {
           requestActive: gate.locked,
-          currentConversationId: conversationIdRef.current,
+          currentConversationId: conversationIdRef.current || initialId,
         })
         setMessages((current) => applyRestore(current, payload.messages, { canApply }))
         if (canApply) {
+          conversationIdRef.current = initialId
+          setConversationId(initialId)
           localStorage.setItem(storageKey, initialId)
           if (localStorage.getItem(LEGACY_STORAGE_KEY) === initialId) localStorage.removeItem(LEGACY_STORAGE_KEY)
         }
@@ -92,7 +95,7 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
         // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
         if (disposed || !restoreGuard.canApply(token, {
           requestActive: gate.locked,
-          currentConversationId: conversationIdRef.current,
+          currentConversationId: conversationIdRef.current || initialId,
         })) return
         // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
         if (error.code === 'CONVERSATION_NOT_FOUND') {
