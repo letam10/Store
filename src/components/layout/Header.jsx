@@ -7,6 +7,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { products as defaultProducts } from '../../data/products'
 import { getMembershipPlan } from '../../services/promotions'
+import { productMatches } from '../../services/storefrontState'
+import { translateCategory } from '../../context/i18n'
 import './Header.css'
 
 const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
@@ -21,7 +23,7 @@ function SearchSuggestions({ items, query, onSelect, id }) {
   const allMatches = items.filter((product) => {
     if (!product?.name) return false
     if (!normalizedQuery) return true
-    return `${product.name} ${product.category || ''}`.toLowerCase().includes(normalizedQuery)
+    return productMatches(product, query)
   })
   const limit = 10
   const matches = allMatches.slice(0, limit)
@@ -36,7 +38,7 @@ function SearchSuggestions({ items, query, onSelect, id }) {
       const image = product.image || fallbackPictures[product.id]
       return <a key={product.id} className="search-suggestion" href={'/products/' + encodeURIComponent(product.id)} role="option" onClick={onSelect}>
         <span className="search-suggestion__image">{image ? <img src={image.startsWith('/') || image.startsWith('http') ? image : '/products/' + image + '.svg'} alt="" loading="lazy" /> : <span aria-hidden="true">{product.symbol || '✦'}</span>}</span>
-        <span className="search-suggestion__copy"><strong>{product.name}</strong><small>{product.category || 'Sản phẩm Store'}{product.price ? ` · ${currencyFormat.format(product.price)}` : ''}</small></span>
+        <span className="search-suggestion__copy"><strong>{product.name}</strong><small>{translateCategory(product.category || 'Sản phẩm Store', 'vi')}{product.price ? ` · ${currencyFormat.format(product.price)}` : ''}</small></span>
         <span className="search-suggestion__arrow" aria-hidden="true">↗</span>
       </a>
     }) : <p className="search-suggestions__empty">Chưa có sản phẩm phù hợp. Thử từ khóa khác.</p>}
@@ -161,15 +163,15 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
           <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}><SearchIcon /></button>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
-            <button type="button" className="account-link account-menu__trigger" aria-label={'Mở tài khoản ' + account.username} aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title="Mở dashboard người dùng">
+            <button type="button" className="account-link account-menu__trigger" aria-label={'Mở tài khoản ' + account.username} aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title="Mở trang cá nhân">
               <span className="account-link__avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span><span className="account-link__name">{getMembershipPlan(membershipTier).badge + ' · ' + account.username}</span><span className="account-menu__caret" aria-hidden="true">▾</span>
             </button>
-            {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label="Dashboard người dùng">
+            {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label="Bảng tổng quan người dùng">
               <p className="account-menu__hello">Xin chào, <b>{account.username}</b> · {getMembershipPlan(membershipTier).badge}</p>
-              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>🏠 Dashboard / Tài khoản của tôi</a>
+              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>🏠 Bảng tổng quan / Tài khoản của tôi</a>
               <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>📦 Đơn hàng của bạn</a>
               <a role="menuitem" href="/favorites" onClick={() => setAccountOpen(false)}>♥ Sản phẩm yêu thích</a>
-              <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}>🎁 Ưu đãi & voucher</a>
+              <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}>🎁 Ưu đãi & mã giảm giá</a>
               <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}>★ Hạng thành viên</a>
             </div>}
           </div> : <a className="account-link" href="/account" aria-label="Đăng nhập tài khoản"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">Đăng nhập</span></a>}

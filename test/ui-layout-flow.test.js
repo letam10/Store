@@ -330,7 +330,9 @@ test('checkout giữ VietQR và chỉ mở biên nhận sau khi backend xác nh�
     order.status = 'paid'
     order.paidAt = new Date().toISOString()
     window.dispatchEvent(new window.Event('focus'))
-    await waitFor(() => window.location.pathname === '/')
+    await waitFor(() => window.document.querySelector('.checkout-success'))
+    assert.equal(window.location.pathname, '/checkout')
+    assert.match(window.document.querySelector('.checkout-success').textContent, /Thanh toán thành công/)
     assert.equal(payments, 1)
     assert.equal(window.document.querySelector('.bank-payment-card'), null)
     window.document.querySelector('.header-inner a[href="/account"]').click()

@@ -12,8 +12,15 @@ export const categoryMap = {
 }
 
 export function translateCategory(cat, lang) {
-  if (lang !== 'en') return cat
+  if (lang !== 'en') return cat === 'Laptop' ? 'Máy tính xách tay' : cat
   return categoryMap[cat] || cat
+}
+
+export function translateVoucherLabel(value, lang = 'vi') {
+  if (lang === 'en') return value
+  return String(value || '').replace(/\bVoucher\b/g, 'Mã giảm giá').replace(/\bvoucher\b/g, 'mã giảm giá')
+    .replace(/\bship\b/gi, 'vận chuyển').replaceAll('Miễn vận chuyển', 'Miễn phí vận chuyển')
+    .replaceAll('miễn vận chuyển', 'miễn phí vận chuyển')
 }
 
 export const translations = {

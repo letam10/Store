@@ -1,6 +1,6 @@
 import DropdownMenu from './DropdownMenu'
 
-const topics = ['Hỗ trợ mua hàng', 'Thanh toán & biên nhận', 'Lịch giao / nhận', 'Voucher & thành viên', 'Khác']
+const topics = ['Hỗ trợ mua hàng', 'Thanh toán & biên nhận', 'Lịch giao / nhận', 'Mã giảm giá & thành viên', 'Khác']
 
 export default function ContactForm({ form, onChange, onSubmit, busy, error, success, submitLabel, helperText }) {
   return <section className="surface contact-form-card">
@@ -14,7 +14,7 @@ export default function ContactForm({ form, onChange, onSubmit, busy, error, suc
             onChange={event => onChange('name', event.target.value)} autoComplete="name" placeholder="Tên của bạn" />
         </label>
         <label htmlFor="contact-email">
-          <span>Email nhận phản hồi</span>
+          <span>Thư điện tử nhận phản hồi</span>
           <input id="contact-email" required type="email" maxLength="254" value={form.email}
             onChange={event => onChange('email', event.target.value)} autoComplete="email" placeholder="ban@email.com" />
         </label>

@@ -12,12 +12,11 @@ import { userMessage } from '../api/userMessages'
 import { getMembershipPlan } from '../services/promotions'
 import { cartTotal } from '../services/storefrontState'
 import { DOMESTIC_REGIONS } from '../data/shipping'
-import { useLanguage } from '../context/i18n'
+import { useLanguage, translateVoucherLabel } from '../context/i18n'
 import DropdownMenu from '../components/ui/DropdownMenu'
 import OrderCenter from '../components/commerce/OrderCenter'
 import CheckoutOrder from '../components/commerce/CheckoutOrder'
 import PaymentBox from '../components/commerce/PaymentBox'
-import PendingCheckouts from '../components/commerce/PendingCheckouts'
 import VoucherCodeInput from '../components/commerce/VoucherCodeInput'
 import './Storefront.css'
 
@@ -41,7 +40,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   ]
   const regionOptions = [
     ...DOMESTIC_REGIONS.map(([value, label]) => ({ value, label })),
-    { value: 'international', label: english ? 'International shipping' : 'Ship ngoại quốc · quốc tế' },
+    { value: 'international', label: english ? 'International shipping' : 'Vận chuyển quốc tế' },
   ]
   const [completedOrder, setCompletedOrder] = useState(null)
   const [paymentSession, setPaymentSession] = useState(null)
@@ -53,7 +52,6 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const cart = currentCart.length ? currentCart : returnedItems
   const submitGate = useRef(false)
   const checkoutRequest = useRef(null)
-  const [pendingVersion, setPendingVersion] = useState(0)
   const [paymentChoice, setPaymentChoice] = useState('bank_transfer')
   const [schedule, setSchedule] = useState(() => { const d = new Date(Date.now() + 86400000); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,16) })
   const [fulfillment, setFulfillment] = useState('delivery')
@@ -126,7 +124,6 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
       }
     } catch (error) {
       setQuoteError(userMessage(error, 'Vui lòng kiểm tra thông tin giao nhận và lịch hẹn.'))
-      setPendingVersion(value => value + 1)
       if (error.code === 'QUOTE_CHANGED') {
         setQuote(null)
         setQuoteVersion(value => value + 1)
@@ -137,17 +134,10 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
     finally { submitGate.current = false; setBusy(false) }
   }
 
-  async function afterCancel() {
-    checkoutRequest.current = null
-    await Promise.allSettled([onRefresh?.(), onCatalogRefresh?.()])
-    setQuoteVersion(value => value + 1)
-  }
-
   function exitPayment(state) {
     setPaymentSession(null)
     if (['expired', 'cancelled'].includes(state)) checkoutRequest.current = null
-    setPendingVersion(value => value + 1)
-    setPaymentNotice('Phiên đã được giữ để theo dõi. Đóng QR không xác nhận hay hủy khoản tiền đã chuyển.')
+    setPaymentNotice('Bạn có thể theo dõi phiên chuyển khoản trong trang cá nhân. Nếu đã chuyển tiền, vui lòng chờ đối soát và không chuyển lại.')
     onNavigate?.('/checkout', { preserveScroll: true })
   }
 
@@ -157,8 +147,11 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
     let purchased = paymentSession?.purchasedItems || []
     try { purchased = JSON.parse(localStorage.getItem(key) || 'null') || purchased } catch { /* Dùng bản nháp trong phiên hiện tại. */ }
     localStorage.removeItem(key)
+    setCompletedOrder(order)
+    setPaymentSession(null)
     onComplete(order, purchased)
     onPaymentComplete?.('paid')
+    onNavigate?.('/checkout?order=' + encodeURIComponent(order.id))
   }
 
   function exitSavedPayment(reason, order) {
@@ -191,16 +184,16 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
     key={savedOrderId || completedOrder.id} orderId={savedOrderId || completedOrder.id}
     initialOrder={completedOrder?.id === (savedOrderId || completedOrder.id) ? completedOrder : undefined}
     account={account} onRefresh={onRefresh} onPaymentComplete={onPaymentComplete} onExit={exitSavedPayment} />
-  if (completedOrder) return <div className="container page-shell"><section className="surface checkout-card"><h1>Đã tiếp nhận yêu cầu đặt hàng</h1><p>Chưa xác nhận thanh toán. Biên nhận và email được gửi sau khi cửa hàng xác nhận đã thu tiền.</p><OrderCenter orderId={completedOrder.id} account={account} onRefresh={onRefresh} /><a href="/checkout">Các phiên chờ xử lý</a></section></div>
-  if (!cart.length) return <div className="container page-shell"><PendingCheckouts account={account} onNavigate={onNavigate} refreshKey={pendingVersion} onCancelled={afterCancel} /><section className="surface empty-panel"><h2>{english ? 'No items selected for checkout' : 'Chưa chọn sản phẩm để thanh toán'}</h2><a className="button" href="/cart">{english ? 'Back to cart' : 'Về giỏ hàng'}</a></section>{paymentModal}</div>
+  if (completedOrder) return <div className="container page-shell"><section className="surface checkout-card"><h1>Đã tiếp nhận yêu cầu đặt hàng</h1><p>Chưa xác nhận thanh toán. Biên nhận và thư điện tử được gửi sau khi cửa hàng xác nhận đã thu tiền.</p><OrderCenter orderId={completedOrder.id} account={account} onRefresh={onRefresh} /><a href="/checkout">Các phiên chờ xử lý</a></section></div>
+  if (!cart.length) return <div className="container page-shell"><section className="surface empty-panel"><h2>{english ? 'No items selected for checkout' : 'Chưa chọn sản phẩm để thanh toán'}</h2><a className="button" href="/cart">{english ? 'Back to cart' : 'Về giỏ hàng'}</a><a className="button button--soft" href="/account">{english ? 'View your orders' : 'Theo dõi đơn hàng'}</a></section>{paymentModal}</div>
 
   const goodsVouchers = wallet.filter((voucher) => (voucher.scope || 'goods') === 'goods')
   const shippingVouchers = wallet.filter((voucher) => voucher.scope === 'shipping')
   const manualCodes = selectedVoucherCodes.filter((code) => !wallet.some((voucher) => voucher.code === code))
   // Chức năng voucherGroup: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const voucherGroup = (key, title, icon, vouchers) => <div className={'checkout-voucher-group' + (openVoucher === key ? ' is-open' : '')}>
-    <button className="checkout-voucher-group__trigger" type="button" aria-expanded={openVoucher === key} onClick={() => setOpenVoucher((current) => current === key ? '' : key)}><span className="voucher-type-icon" aria-hidden="true">{icon}</span><span><b>{title}</b><small>{vouchers.length ? (english ? `${vouchers.length} vouchers available` : `${vouchers.length} voucher đang có`) : (english ? 'No vouchers' : 'Chưa có voucher')}</small></span><span aria-hidden="true">{openVoucher === key ? '⌃' : '⌄'}</span></button>
-    {openVoucher === key && <div className="checkout-voucher-group__panel">{vouchers.length ? vouchers.map((voucher) => <label className={'checkout-voucher-option' + (selectedVoucherCodes.includes(voucher.code) ? ' is-selected' : '')} key={voucher.code}><input type="checkbox" checked={selectedVoucherCodes.includes(voucher.code)} onChange={() => onToggleVoucher(voucher.code)} /><span><b>{voucher.label}</b><code>{voucher.code}</code><small>{english ? 'Expires: ' : 'Hạn dùng: '}{new Date(voucher.expiresAt).toLocaleDateString(english ? 'en-US' : 'vi-VN')}</small></span><strong>{voucher.type === 'percent' ? voucher.value + '%' : money.format(voucher.value)}</strong></label>) : <p className="muted">{english ? 'You have no vouchers in this category.' : 'Bạn chưa có voucher loại này.'}</p>}</div>}
+    <button className="checkout-voucher-group__trigger" type="button" aria-expanded={openVoucher === key} onClick={() => setOpenVoucher((current) => current === key ? '' : key)}><span className="voucher-type-icon" aria-hidden="true">{icon}</span><span><b>{title}</b><small>{vouchers.length ? (english ? `${vouchers.length} vouchers available` : `${vouchers.length} mã giảm giá đang có`) : (english ? 'No vouchers' : 'Chưa có mã giảm giá')}</small></span><span aria-hidden="true">{openVoucher === key ? '⌃' : '⌄'}</span></button>
+    {openVoucher === key && <div className="checkout-voucher-group__panel">{vouchers.length ? vouchers.map((voucher) => <label className={'checkout-voucher-option' + (selectedVoucherCodes.includes(voucher.code) ? ' is-selected' : '')} key={voucher.code}><input type="checkbox" checked={selectedVoucherCodes.includes(voucher.code)} onChange={() => onToggleVoucher(voucher.code)} /><span><b>{translateVoucherLabel(voucher.label, english ? 'en' : 'vi')}</b><code>{voucher.code}</code><small>{english ? 'Expires: ' : 'Hạn dùng: '}{new Date(voucher.expiresAt).toLocaleDateString(english ? 'en-US' : 'vi-VN')}</small></span><strong>{voucher.type === 'percent' ? voucher.value + '%' : money.format(voucher.value)}</strong></label>) : <p className="muted">{english ? 'You have no vouchers in this category.' : 'Bạn chưa có mã giảm giá loại này.'}</p>}</div>}
   </div>
 
   return <div className="container page-shell">
@@ -214,10 +207,10 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
         <label className="field"><span>{english ? 'Payment method' : 'Thanh toán'}</span><DropdownMenu value={paymentChoice} options={paymentOptions.map((option) => ({ ...option, label: option.value === 'later' && fulfillment === 'pickup' ? (english ? 'Pay at counter' : 'Thanh toán trực tiếp tại quầy') : option.label }))} ariaLabel={english ? 'Payment method' : 'Phương thức thanh toán'} onChange={setPaymentChoice} /></label>
         <label className="field"><span>{english ? 'Delivery / pickup schedule' : 'Lịch giao / nhận'}</span><input type="datetime-local" value={schedule} onChange={event => setSchedule(event.target.value)} required /></label>
         <label className="field"><span>{english ? 'Fulfillment method' : 'Cách nhận hàng'}</span><DropdownMenu value={fulfillment} options={fulfillmentOptions} ariaLabel={english ? 'Fulfillment method' : 'Cách nhận hàng'} onChange={setFulfillment} /></label>
-        <section className="checkout-voucher"><div className="checkout-voucher__head"><div><span className="eyebrow">{english ? 'OFFERS' : 'ƯU ĐÃI'}</span><b>{english ? 'Select vouchers for your order' : 'Chọn voucher cho đơn hàng'}</b></div><a href="/rewards">{english ? 'Lucky Spin →' : 'Vòng quay →'}</a></div>
+        <section className="checkout-voucher"><div className="checkout-voucher__head"><div><span className="eyebrow">{english ? 'OFFERS' : 'ƯU ĐÃI'}</span><b>{english ? 'Select vouchers for your order' : 'Chọn mã giảm giá cho đơn hàng'}</b></div><a href="/rewards">{english ? 'Lucky Spin →' : 'Vòng quay →'}</a></div>
           <VoucherCodeInput onApply={onApplyVoucherCode} english={english} />
           {manualCodes.length > 0 && <small className="voucher-valid">Mã nhập: {manualCodes.join(', ')}</small>}
-          <div className="checkout-voucher-groups">{voucherGroup('goods', english ? 'Goods vouchers' : 'Voucher hàng hóa', '⌂', goodsVouchers)}{voucherGroup('shipping', english ? 'Shipping vouchers' : 'Voucher phí vận chuyển', '✈', shippingVouchers)}</div>
+          <div className="checkout-voucher-groups">{voucherGroup('goods', english ? 'Goods vouchers' : 'Mã giảm giá hàng hóa', '⌂', goodsVouchers)}{voucherGroup('shipping', english ? 'Shipping vouchers' : 'Mã giảm giá phí vận chuyển', '✈', shippingVouchers)}</div>
         </section>
         <div className="form-grid">
           <label className="field">
@@ -239,7 +232,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
             {region === 'international' && <label className="field"><span>{english ? 'Package weight (kg)' : 'Khối lượng hàng (kg)'}</span><input type="number" min="0.1" max="1000" step="0.1" value={weightKg} onChange={(event) => setWeightKg(event.target.value)} required /></label>}
           </>}
         </div>
-        <p className="checkout-disclaimer">{english ? 'Inner HCM City, Binh Duong & Ba Ria - Vung Tau: 30,000 ₫. Other provinces: 60,000 ₫ flat rate. International: 200,000 ₫ up to 1 kg, 400,000 ₫ for 2–5 kg.' : 'Nội thành TP. Hồ Chí Minh, Bình Dương và Bà Rịa - Vũng Tàu: 30.000 ₫. Các tỉnh, thành khác: 60.000 ₫ cố định. Ship quốc tế: 200.000 ₫ cho tối đa 1 kg, từ 2–5 kg là 400.000 ₫.'}</p>
+        <p className="checkout-disclaimer">{english ? 'Inner HCM City, Binh Duong & Ba Ria - Vung Tau: 30,000 ₫. Other provinces: 60,000 ₫ flat rate. International: 200,000 ₫ up to 1 kg, 400,000 ₫ for 2–5 kg.' : 'Nội thành TP. Hồ Chí Minh, Bình Dương và Bà Rịa - Vũng Tàu: 30.000 ₫. Các tỉnh, thành khác: 60.000 ₫ cố định. Vận chuyển quốc tế: 200.000 ₫ cho tối đa 1 kg, từ 2–5 kg là 400.000 ₫.'}</p>
         {quoteError && <p className="voucher-invalid" role="alert">{quoteError}</p>}
         <button className="button" type="submit" data-payment-trigger disabled={busy || !quote}>
           {busy ? (english ? 'Processing…' : 'Đang xử lý…') : (paymentChoice === 'bank_transfer' ? (english ? 'Pay · ' : 'Thanh toán · ') : (english ? 'Confirm order · ' : 'Xác nhận đơn · '))
@@ -251,14 +244,13 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
         <div className="summary-row"><span>{english ? 'Subtotal' : 'Tạm tính'}</span><span>{money.format(quote?.subtotal ?? cartTotal(cart))}</span></div>
         <div className="summary-row"><span>{english ? `Voucher + Tier ${plan.name}` : `Voucher + hạng ${plan.name}`}</span><b>-{money.format(quote ? quote.subtotal - quote.goodsTotal : 0)}</b></div>
         <div className="summary-row"><span>{english ? 'Shipping fee' : 'Phí giao hàng'}</span><span>{money.format(quote?.shippingFeeBeforeDiscount ?? quote?.shippingFee ?? 0)}</span></div>
-        {quote?.shippingDiscount > 0 && <div className="summary-row"><span>{english ? 'Shipping discount' : 'Đã giảm phí ship'}</span><b>-{money.format(quote.shippingDiscount)}</b></div>}
+        {quote?.shippingDiscount > 0 && <div className="summary-row"><span>{english ? 'Shipping discount' : 'Đã giảm phí vận chuyển'}</span><b>-{money.format(quote.shippingDiscount)}</b></div>}
         <div className="summary-row summary-row--total"><span>{english ? 'Total' : 'Tổng'}</span><span>{money.format(quote?.total ?? 0)}</span></div>
         <p className="checkout-disclaimer">
           {english ? 'Check total before scanning QR. Bank transfer orders are saved only after payment confirmation.' : 'Kiểm tra tổng tiền trước khi mở QR. Đơn chỉ vào lịch sử mua sau khi cửa hàng xác nhận đã nhận tiền.'}
         </p>
       </aside>
     </div>
-    <PendingCheckouts account={account} onNavigate={onNavigate} refreshKey={pendingVersion} onCancelled={afterCancel} />
     {paymentModal}
   </div>
 }

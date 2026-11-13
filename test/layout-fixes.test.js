@@ -126,7 +126,7 @@ test('trang chủ và danh mục vẫn giữ đúng vị trí quảng cáo đang
   }
 })
 
-test('hai vòng đọc đúng May mắn lần sau và Voucher trước giá trị phần thưởng', () => {
+test('hai vòng đọc đúng nhãn tiếng Việt trước giá trị phần thưởng', () => {
   const html = renderToStaticMarkup(React.createElement(Rewards))
   const dom = new JSDOM(html)
   try {
@@ -147,8 +147,8 @@ test('hai vòng đọc đúng May mắn lần sau và Voucher trước giá tr�
         const caption = label.querySelector('.lucky-wheel__caption')
         const expectedPrize = expectedPrizes[wheelIndex][index]
         const expectedValue = expectedPrize === 'Lần sau' ? 'lần sau'
-          : expectedPrize === 'Miễn ship' ? 'miễn ship' : expectedPrize
-        const expectedCaption = expectedPrize === 'Lần sau' ? 'May mắn' : 'Voucher'
+          : expectedPrize === 'Miễn ship' ? 'miễn phí' : expectedPrize === '100K' ? '100.000đ' : expectedPrize
+        const expectedCaption = expectedPrize === 'Lần sau' ? 'May mắn' : expectedPrize === 'Miễn ship' ? 'Giao hàng' : 'Giảm giá'
         assert.equal(caption.textContent, expectedCaption)
         assert.equal(prize.textContent, expectedValue)
         assert.deepEqual([...label.querySelectorAll('text')], [caption, prize])

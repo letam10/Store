@@ -50,7 +50,7 @@ test('guest can browse but cart, checkout, favorites and chat require login', as
     assert.equal(window.document.querySelector('.shop-hero-art')?.getAttribute('href'), '/products/1')
     window.document.querySelector('.shop-hero-art').click()
     await waitFor(() => window.location.pathname === '/products/1')
-    assert.match(window.document.querySelector('h1').textContent, /Tai nghe Everyday/)
+    assert.match(window.document.querySelector('h1').textContent, /Tai nghe gọn nhẹ dùng hằng ngày/)
     window.document.querySelector('.product-detail-actions button').click()
     await waitFor(() => window.location.pathname === '/login' && Boolean(window.document.querySelector('.auth-panel')))
     assert.match(window.location.search, /next=%2Fproducts%2F1/)

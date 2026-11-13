@@ -10,7 +10,14 @@ const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND
 const states = { pending: 'Chờ thanh toán', paid: 'Đã thanh toán', completed: 'Đã nhận hàng', cancelled: 'Đã hủy', refunded: 'Đã hoàn tiền' }
 const deliveryStates = { processing: 'Đang chuẩn bị', ready: 'Sẵn sàng nhận', shipped: 'Đang giao', delivered: 'Đã giao / nhận', cancelled: 'Đã dừng giao', returned: 'Đã nhận hàng trả' }
 const kinds = { cancel: 'Hủy trước khi giao', return: 'Trả hàng đã nhận', exchange: 'Đổi sang sản phẩm khác', reschedule: 'Hoãn / lỡ lịch hẹn', merchant_fault: 'Cửa hàng giao sai / hàng lỗi' }
-const date = value => value ? new Date(value).toLocaleString('vi-VN') : '—'
+const date = value => {
+  if (!value) return '—'
+  // Đơn cũ lưu ngày dạng Việt Nam; giữ đúng ngày thay vì đưa chuỗi này cho Date đoán.
+  const legacy = String(value).match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}:\d{2})(?::\d{2})?$/)
+  if (legacy) return `${legacy[4]} ${legacy[1]}/${legacy[2]}/${legacy[3]}`
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? 'Chưa có thời gian hợp lệ' : parsed.toLocaleString('vi-VN')
+}
 const tomorrow = () => {
   const value = new Date(Date.now() + 86400000)
   return new Date(value.getTime() - value.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
@@ -53,7 +60,7 @@ export default function OrderCenter({ orderId, account, onRefresh, onPaymentComp
   return <section className="commerce-center">
     <header className="commerce-head"><div><p className="eyebrow">Đơn của bạn</p><h2>{order.id}</h2><p>{states[order.status]} · {deliveryStates[order.deliveryStatus]}</p></div><div className="commerce-actions"><button className="button button--soft" type="button" disabled={busy} onClick={() => act()}>Cập nhật trạng thái</button><button className="button button--soft" type="button" onClick={() => window.open(base + '/receipt.html', '_blank', 'noopener')}>In biên nhận / Lưu PDF</button></div></header>
     <div className="commerce-totals"><div><small>Giá trị đơn</small><strong>{money.format(order.total)}</strong></div><div><small>Khoản bù / phí đã trả</small><strong>{money.format(order.extraPaid)}</strong></div><div><small>Đã hoàn lại</small><strong>{money.format(order.refundAmount)}</strong></div></div>
-    <dl className="commerce-facts"><div><dt>Người nhận</dt><dd>{order.recipient} · {order.phone}</dd></div><div><dt>Giao / nhận</dt><dd>{order.fulfillment === 'pickup' ? 'Nhận tại cửa hàng' : order.address}</dd></div><div><dt>Lịch hẹn</dt><dd>{date(order.scheduledAt)}</dd></div><div><dt>Thanh toán</dt><dd>{order.paymentMethod === 'voucher' ? 'Voucher đã thanh toán đủ (0đ)' : order.paymentMethod === 'bank_transfer' ? 'Chuyển khoản' : order.paymentMethod === 'cash' ? 'Trực tiếp tại quầy' : 'Khi nhận hàng'}{order.paymentConfirmation === 'counter' ? ' · Đã xác nhận thu trực tiếp' : ''}</dd></div></dl>
+    <dl className="commerce-facts"><div><dt>Người nhận</dt><dd>{order.recipient} · {order.phone}</dd></div><div><dt>Giao / nhận</dt><dd>{order.fulfillment === 'pickup' ? 'Nhận tại cửa hàng' : order.address}</dd></div><div><dt>Lịch hẹn</dt><dd>{date(order.scheduledAt)}</dd></div><div><dt>Thanh toán</dt><dd>{order.paymentMethod === 'voucher' ? 'Mã giảm giá đã thanh toán đủ (0đ)' : order.paymentMethod === 'bank_transfer' ? 'Chuyển khoản' : order.paymentMethod === 'cash' ? 'Trực tiếp tại quầy' : 'Khi nhận hàng'}{order.paymentConfirmation === 'counter' ? ' · Đã xác nhận thu trực tiếp' : ''}</dd></div></dl>
     <UnmatchedPayments payments={data.unmatchedPayments} />
     {order.status === 'pending' && order.paymentMethod === 'bank_transfer' && <PaymentBox orderId={order.id} account={account} onDone={async state => { try { await reload() } finally { onPaymentComplete?.(state) } }} onExit={() => onNavigate?.('/checkout?order=' + encodeURIComponent(order.id))} />}
     {order.status === 'pending' && order.paymentMethod !== 'bank_transfer' && <p className="commerce-note">Bạn thanh toán khi nhận hàng. Nhân viên xác nhận tiền thực nhận để cập nhật bill và điểm thưởng.</p>}

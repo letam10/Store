@@ -146,7 +146,7 @@ export function normalizeSearch(value) {
 export function productMatches(product, query) {
   const needle = normalizeSearch(query).trim()
   if (!needle) return true
-  return normalizeSearch([product.name, product.category, product.label].join(' ')).includes(needle)
+  return normalizeSearch([product.name, product.category, product.label, product.description, product.brand, product.sourceName].join(' ')).includes(needle)
 }
 
 // Chức năng filterProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.

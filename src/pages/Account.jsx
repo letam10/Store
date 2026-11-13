@@ -5,6 +5,7 @@ import { orderMatches } from '../services/storefrontState'
 import { useLanguage } from '../context/i18n'
 import { CustomerOrders } from '../components/commerce/OrderCenter'
 import PaymentNotifications from '../components/commerce/PaymentNotifications.jsx'
+import PendingCheckouts from '../components/commerce/PendingCheckouts.jsx'
 import AccountTwoFactor from '../components/ui/AccountTwoFactor.jsx'
 import './Storefront.css'
 
@@ -35,13 +36,16 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
     <header className="page-head account-page-head"><div><p className="eyebrow">{english ? 'Personal space' : 'Không gian cá nhân'}</p><h1>{english ? 'Your Account' : 'Tài khoản của bạn'}</h1><p className="account-page-head__lead">{english ? 'Manage points, offers and orders in one place.' : 'Quản lý điểm, ưu đãi và đơn hàng trong một nơi.'}</p></div><a className="account-page-head__link" href="/products">{english ? 'Continue shopping ' : 'Tiếp tục mua sắm '}<span aria-hidden="true">→</span></a></header>
 
     <section className="account-profile account-profile--redesign" aria-label="Tóm tắt tài khoản">
-      <div className="account-profile__top"><div className="account-avatar" aria-hidden="true">{initial}</div><div className="account-profile__identity"><span className="membership-badge">{plan.badge}</span><h2>{english ? `Hello ${username}!` : `Chào ${username}!`}</h2><p>{account?.email || (english ? 'Email not set' : 'Email chưa cập nhật')}</p></div></div>
-      <div className="account-profile__stats"><div className="account-profile__stat"><strong>{points.toLocaleString(english ? 'en-US' : 'vi-VN')}</strong><span>{english ? 'Reward points' : 'Điểm tích lũy'}</span></div><div className="account-profile__stat"><strong>{spinCredits}</strong><span>{english ? 'Lucky spins' : 'Lượt quay'}</span></div><div className="account-profile__stat"><strong>{wallet.length}</strong><span>{english ? 'Available vouchers' : 'Voucher khả dụng'}</span></div></div>
+      <div className="account-profile__top"><div className="account-avatar" aria-hidden="true">{initial}</div><div className="account-profile__identity"><span className="membership-badge">{plan.badge}</span><h2>{english ? `Hello ${username}!` : `Chào ${username}!`}</h2><p>{account?.email || (english ? 'Email not set' : 'Thư điện tử chưa cập nhật')}</p></div></div>
+      <div className="account-profile__stats"><div className="account-profile__stat"><strong>{points.toLocaleString(english ? 'en-US' : 'vi-VN')}</strong><span>{english ? 'Reward points' : 'Điểm tích lũy'}</span></div><div className="account-profile__stat"><strong>{spinCredits}</strong><span>{english ? 'Lucky spins' : 'Lượt quay'}</span></div><div className="account-profile__stat"><strong>{wallet.length}</strong><span>{english ? 'Available vouchers' : 'Mã giảm giá khả dụng'}</span></div></div>
     </section>
 
     <div className="account-shortcuts account-shortcuts--redesign"><a href="/favorites"><span aria-hidden="true">♥</span><b>{english ? 'Favorites' : 'Yêu thích'}</b><small>{english ? 'Saved items ' : 'Sản phẩm đã lưu '}<i aria-hidden="true">→</i></small></a><a href="/membership"><span aria-hidden="true">✦</span><b>{english ? 'Membership' : 'Thành viên'}</b><small>{english ? `Tier: ${plan.name} ` : `Hạng ${plan.name} `}<i aria-hidden="true">→</i></small></a><a href="/rewards"><span aria-hidden="true">◌</span><b>{english ? 'Lucky Spin' : 'Vòng quay'}</b><small>{english ? `${spinCredits} spins left ` : `${spinCredits} lượt còn lại `}<i aria-hidden="true">→</i></small></a></div>
 
     <PaymentNotifications orders={orders} />
+    <details className="surface checkout-card"><summary>Theo dõi các phiên chưa hoàn tất</summary>
+      <PendingCheckouts account={account} onNavigate={onNavigate} onCancelled={onRefresh} />
+    </details>
     <main className="account-content-grid account-content-grid--single">
       <aside className="account-side-panel"><div className="account-side-panel__heading"><p className="eyebrow">{english ? 'Summary' : 'Tóm tắt'}</p><h2>{english ? 'Current benefits' : 'Quyền lợi hiện tại'}</h2></div><div className="account-benefit-list"><div><span>{english ? 'Tier' : 'Hạng'}</span><strong>{plan.name}</strong></div><div><span>{english ? 'Points' : 'Điểm'}</span><strong>{points.toLocaleString(english ? 'en-US' : 'vi-VN')}</strong></div><div><span>{english ? 'Orders' : 'Đơn hàng'}</span><strong>{orders.length}</strong></div></div><a className="button button--soft" href="/membership">{english ? 'View membership benefits' : 'Xem quyền lợi thành viên'}</a></aside>
     </main>
@@ -58,6 +62,6 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
       onRefresh={onRefresh}
     />
 
-    <footer className="account-logout account-logout--redesign"><div><p className="eyebrow">{english ? 'Session' : 'Phiên đăng nhập'}</p><strong>{english ? 'Sign out from Store' : 'Đăng xuất khỏi Store'}</strong><p>{english ? 'Your points, vouchers and orders are securely saved in your account.' : 'Điểm, voucher và đơn hàng được lưu trên tài khoản của bạn.'}</p></div><button type="button" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button></footer>
+    <footer className="account-logout account-logout--redesign"><div><p className="eyebrow">{english ? 'Session' : 'Phiên đăng nhập'}</p><strong>{english ? 'Sign out from Store' : 'Đăng xuất khỏi Store'}</strong><p>{english ? 'Your points, vouchers and orders are securely saved in your account.' : 'Điểm, mã giảm giá và đơn hàng được lưu trên tài khoản của bạn.'}</p></div><button type="button" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button></footer>
   </div>
 }

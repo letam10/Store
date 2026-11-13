@@ -8,6 +8,7 @@ import { consumeCheckoutDraft, subtractCheckoutItems } from './utils/checkoutDra
 import StorePromotions, { PromotionBoard } from './components/ui/StorePromotions'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { installVietnameseValidation } from './services/formValidation'
 import { normalizeVoucherSelection } from './utils/voucherSelection'
 import { storePromotionOverview } from './services/promotions'
 import Header from './components/layout/Header'
@@ -61,6 +62,7 @@ export default function App() {
   const [selectedVoucherCodes, setSelectedVoucherCodes] = useState([])
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light')
   const [language, setLanguage] = useState('vi')
+  useEffect(() => installVietnameseValidation(language), [language])
   const [offers, setOffers] = useState([])
   const [appearance, setAppearance] = useState({})
   const [location, setLocation] = useState(currentLocation)
@@ -309,7 +311,6 @@ export default function App() {
         : (state === 'paid' ? 'Đã thanh toán. Thông báo được lưu trong trang cá nhân.' : 'Đã gửi thông tin chuyển khoản. Cửa hàng sẽ đối soát; chưa ghi nhận mua hàng.'),
       href: '/account', action: language === 'en' ? 'View profile →' : 'Xem trang cá nhân →',
     })
-    navigate('/')
   }
   // Chức năng requireLogin: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function requireLogin(next = location.pathname + location.search) {

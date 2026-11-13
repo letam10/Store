@@ -23,8 +23,8 @@ test('checkout validates manual codes before selecting, keeps invalid input and 
   const dom = mount(state)
   const { window } = dom
   try {
-    await waitFor(() => window.document.querySelector('[aria-label="Mã voucher"]'))
-    const input = window.document.querySelector('[aria-label="Mã voucher"]')
+    await waitFor(() => window.document.querySelector('[aria-label="Mã giảm giá"]'))
+    const input = window.document.querySelector('[aria-label="Mã giảm giá"]')
     async function apply(code) {
       setInput(window, input, code)
       await new Promise(resolve => setTimeout(resolve, 0))

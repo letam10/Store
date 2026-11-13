@@ -72,7 +72,7 @@ test('Tab giữ focus trong card QR, Escape đóng phiên và có thể mở l�
     }))
     await waitFor(() => !document.querySelector('[role="dialog"]'))
     assert.equal(state.creates, 0)
-    assert.match(document.querySelector('.checkout-payment-notice').textContent, /Phiên đã được giữ/)
+    assert.match(document.querySelector('.checkout-payment-notice').textContent, /theo dõi phiên chuyển khoản trong trang cá nhân/)
     await openQr(window)
     assert.ok(document.querySelector('[role="dialog"]'))
     document.querySelector('[aria-label="Đóng thanh toán"]').click()
