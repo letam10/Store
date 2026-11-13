@@ -49,6 +49,7 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
         const result = await customerApi(path + (requestId ? '/payment' : ''), { signal: controller.signal })
         if (controller.signal.aborted || sequence !== version.current || finished.current) return
         setData(result)
+        setError('')
         if (requestId ? result.status === 'paid' : ['paid', 'completed'].includes(result.order?.status)) {
           finished.current = true
           await callbacks.current.onDone?.('paid', result.order)
@@ -120,6 +121,12 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
   const canPay = Boolean(payment?.mode === 'manual' && seconds > 0 && (data?.canPay ?? state === 'pending'))
   const waiting = ['reported', 'needs_review'].includes(state)
   const unmatched = ['unmatched_received', 'refunded_unmatched'].includes(state)
+  const automatic = Boolean(data?.bankConfirmation?.configured)
+  const receivedReview = data?.bankConfirmation?.transfers?.some(item => item.state === 'review')
+  const reportControls = data && !['paid','refunded_unmatched','unmatched_received'].includes(state) && <div className="bank-payment-details">
+    <label className="field"><span>Mã giao dịch của bạn</span><input value={reference} maxLength="100" onChange={event => setReference(event.target.value)} /></label>
+    <button type="button" className="button" disabled={busy || reference.trim().length < 3} onClick={reportPayment}>{busy ? 'Đang gửi…' : waiting ? 'Cập nhật mã giao dịch' : 'Tôi đã chuyển khoản'}</button>
+  </div>
   return <PaymentModal onClose={close}>
     <section className="bank-payment-card surface" aria-label="Thanh toán chuyển khoản">
       <header className="bank-payment-card__head">
@@ -133,13 +140,14 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
           <dl className="commerce-facts">{[['Ngân hàng',payment.bankName],['Số tài khoản',payment.accountNumber],['Người nhận',payment.accountName],['Nội dung chuyển khoản',payment.reference]].map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
         </div>
       </div>}
-      {data && !canPay && <p role="status">{unmatched ? state === 'refunded_unmatched' ? 'Cửa hàng đã ghi nhận hoàn đủ khoản chuyển không khớp. Bạn có thể xem chứng từ bên dưới.' : 'Cửa hàng đã nhận khoản chuyển không khớp và đang xử lý hoàn tiền. Không chuyển thêm theo QR cũ.' : waiting ? requestId ? 'Đã tiếp nhận thông báo khoản bù. Cửa hàng sẽ đối chiếu sao kê trước khi giao hàng thay thế.' : 'Đã tiếp nhận thông báo, chưa xác nhận đã nhận tiền. Đơn chỉ vào lịch sử mua sau khi cửa hàng đối soát thành công.' : 'QR đã đóng hoặc hết hạn. Không chuyển tiền theo mã đã lưu. Nếu đã chuyển, gửi mã giao dịch bên dưới để cửa hàng kiểm tra.'}</p>}
+      {receivedReview && !unmatched && <p role="status">Đã ghi nhận khoản chuyển từ ngân hàng, nhưng cần cửa hàng kiểm tra trước khi xác nhận đơn. Bạn không cần chuyển lại.</p>}
+      {automatic && !receivedReview && !unmatched && <p role="status">{data.bankConfirmation.healthy
+        ? 'Hệ thống tự kiểm tra tiền vào khoảng mỗi 10 giây. Sau khi chuyển đúng số tiền và nội dung, bạn chờ xác nhận tại đây; không cần nhập mã giao dịch.'
+        : 'Hệ thống đang chờ kết nối đối soát ngân hàng. Nếu đã chuyển tiền, bạn không cần chuyển lại; có thể gửi thông tin để cửa hàng hỗ trợ bên dưới.'}</p>}
+      {data && !canPay && !receivedReview && <p role="status">{unmatched ? state === 'refunded_unmatched' ? 'Cửa hàng đã ghi nhận hoàn đủ khoản chuyển không khớp. Bạn có thể xem chứng từ bên dưới.' : 'Cửa hàng đã nhận khoản chuyển không khớp và đang xử lý hoàn tiền. Không chuyển thêm theo QR cũ.' : waiting ? automatic ? 'Đang đối chiếu giao dịch ngân hàng. Trang sẽ tự cập nhật khi thanh toán được xác nhận.' : requestId ? 'Đã tiếp nhận thông báo khoản bù. Cửa hàng sẽ đối chiếu sao kê trước khi giao hàng thay thế.' : 'Đã tiếp nhận thông báo, chưa xác nhận đã nhận tiền. Đơn chỉ vào lịch sử mua sau khi cửa hàng đối soát thành công.' : 'QR đã đóng hoặc hết hạn. Không chuyển tiền theo mã đã lưu. Nếu đã chuyển, hệ thống vẫn tiếp nhận thông tin để đối soát.'}</p>}
       <UnmatchedPayments payments={data?.unmatchedPayments} />
       {requestId && data?.canRenew && !waiting && <button type="button" className="button button--soft" disabled={busy} onClick={renewPayment}>Tôi chưa chuyển tiền — mở QR mới</button>}
-      {data && !['paid','refunded_unmatched','unmatched_received'].includes(state) && <div className="bank-payment-details">
-        <label className="field"><span>Mã giao dịch của bạn</span><input value={reference} maxLength="100" onChange={event => setReference(event.target.value)} /></label>
-        <button type="button" className="button" disabled={busy || reference.trim().length < 3} onClick={reportPayment}>{busy ? 'Đang gửi…' : waiting ? 'Cập nhật mã giao dịch' : 'Tôi đã chuyển khoản'}</button>
-      </div>}
+      {automatic && reportControls ? <details className="bank-payment-details"><summary>Đã chuyển nhưng chưa được xác nhận? Gửi thông tin hỗ trợ</summary>{reportControls}</details> : reportControls}
       {notice && !['paid', 'refunded_unmatched', 'unmatched_received'].includes(state) && <p role="status">{notice}</p>}{error && <p className="commerce-error" role="alert">{error}</p>}
       <footer className="bank-payment-card__footer"><p>Hạn QR do cửa hàng xác định, tải lại trang không gia hạn. Báo chuyển khoản không đồng nghĩa đã nhận tiền.</p><button type="button" className="button button--soft" onClick={close}>Về trang thanh toán</button></footer>
     </section>

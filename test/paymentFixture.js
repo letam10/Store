@@ -44,6 +44,7 @@ export function fixture(mode = 'manual', existing = false) {
     if (state.phase === 'pending' && state.now() >= Date.parse(state.expiresAt)) state.phase = 'expired'
     const canPay = state.phase === 'pending'
     return { sessionId: state.order.id, expiresAt: state.expiresAt, serverTime: new Date(state.now()).toISOString(),
+      bankConfirmation: state.bankConfirmation,
       order: { ...state.order, paymentState: state.phase }, status: state.phase, canPay, payment: canPay ? { ...payment, amount: state.order.total } : null }
   }
   state.fetch = async (url, options = {}) => {
