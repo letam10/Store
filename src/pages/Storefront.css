@@ -19,8 +19,18 @@
 .product-detail-price-row .product-detail-price { margin:0; font-size:clamp(24px,3vw,34px); color:#2f7550; }
 .product-detail-price-row del { color:#86958a; font-size:15px; }
 .product-detail-meta { display:flex; align-items:center; flex-wrap:wrap; gap:8px; color:var(--detail-muted); font-size:13px; }
-.product-detail-actions { margin:22px 0 20px; }
-.product-detail-actions .button { min-height:48px; padding-inline:22px; }
+.product-detail-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:22px 0 20px; }
+.product-detail-actions .button { min-height:48px; padding:12px 24px; font-size:14px; font-weight:700; border-radius:12px; }
+.product-detail-actions .button--soft { background:var(--theme-control-active, #eaf4eb); border:1px solid var(--theme-border, #d6dfd2); color:var(--theme-accent-strong, #2f6949); cursor:pointer; }
+.product-detail-actions .button--soft:hover { background:var(--theme-accent-soft, #d8eadc); border-color:var(--theme-accent, #4f8b67); color:var(--theme-accent-strong, #2f6949); }
+.product-detail-actions .button--soft.is-active,
+.product-detail-actions .button--soft--active { background:#fde8e8; border-color:#f8b4b4; color:#c81e1e; }
+.product-detail-actions .button--soft.is-active:hover,
+.product-detail-actions .button--soft--active:hover { background:#fbd5d5; border-color:#f05252; color:#9b1c1c; }
+html[data-theme='dark'] .product-detail-actions .button--soft { background:var(--theme-control-active, #28543a) !important; border-color:var(--theme-border, #355943) !important; color:var(--theme-text, #edf7ef) !important; }
+html[data-theme='dark'] .product-detail-actions .button--soft:hover { background:var(--theme-accent-soft, #254b31) !important; color:#ffffff !important; }
+html[data-theme='dark'] .product-detail-actions .button--soft.is-active,
+html[data-theme='dark'] .product-detail-actions .button--soft--active { background:#3b1e22 !important; border-color:#772b35 !important; color:#ff8595 !important; }
 .product-detail-highlights { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:20px 0 24px; padding:12px; border:1px solid var(--detail-line); border-radius:14px; background:var(--detail-panel); }
 .product-detail-highlights div { display:grid; gap:5px; min-width:0; padding:4px 10px; border-right:1px solid var(--detail-line); }
 .product-detail-highlights div:last-child { border-right:0; }
