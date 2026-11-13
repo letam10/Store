@@ -72,7 +72,12 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
   // Truyền chiều cao thật cho các vùng sticky, kể cả khi menu/ngôn ngữ đổi kích thước.
   useEffect(() => {
     if (typeof ResizeObserver === 'undefined' || !headerRef.current) return undefined
-    const measure = () => document.documentElement.style.setProperty('--store-header-height', `${headerRef.current.getBoundingClientRect().height}px`)
+    const measure = () => {
+      // Callback đã xếp hàng vẫn có thể chạy khi header vừa bị gỡ lúc chuyển trang.
+      const header = headerRef.current
+      if (!header?.isConnected) return
+      document.documentElement.style.setProperty('--store-header-height', `${header.getBoundingClientRect().height}px`)
+    }
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(headerRef.current)

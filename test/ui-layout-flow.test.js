@@ -183,6 +183,38 @@ test('catalog measures attached sticky elements and toggles the compact filter',
   } finally { window.close() }
 })
 
+test('header bỏ qua callback đo kích thước đến muộn sau khi mở trang đăng nhập', async () => {
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/products', pretendToBeVisual: true, runScripts: 'outside-only' })
+  const { window } = dom
+  const headers = []
+  window.ResizeObserver = class {
+    constructor(callback) { this.callback = callback }
+    observe(element) {
+      if (element.classList.contains('site-header')) { this.element = element; headers.push(this) }
+    }
+    disconnect() { this.disconnected = true }
+  }
+  window.scrollTo = () => {}
+  window.fetch = async url => String(url).includes('/customer/session') ? response(401, {}) : response(200, { products: [] })
+  window.eval(bundle.outputFiles[0].text)
+  try {
+    await waitFor(() => headers.length === 1)
+    const previous = headers[0]
+    previous.element.getBoundingClientRect = () => ({ height: 100 })
+    previous.callback()
+    assert.equal(window.document.documentElement.style.getPropertyValue('--store-header-height'), '100px')
+    window.document.querySelector('.account-link').click()
+    await waitFor(() => previous.disconnected && !window.document.querySelector('.site-header'))
+    assert.doesNotThrow(() => previous.callback())
+    window.document.querySelector('a[href="/"]').click()
+    await waitFor(() => headers.length === 2)
+    headers[1].element.getBoundingClientRect = () => ({ height: 160 })
+    headers[1].callback()
+    assert.doesNotThrow(() => previous.callback())
+    assert.equal(window.document.documentElement.style.getPropertyValue('--store-header-height'), '160px')
+  } finally { window.close() }
+})
+
 test('banner liên trang dùng dữ liệu ưu đãi thật và chọn đúng một mã cho từng loại', async () => {
   const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/', pretendToBeVisual: true, runScripts: 'outside-only' })
   const { window } = dom
