@@ -18,9 +18,22 @@ export default function Favorites({ account, products, favoriteIds, onToggleFavo
   const isGuest = !account
 
   const favorites = favoriteIds.map((id) => products.find((product) => String(product.id) === id)).filter(Boolean)
-  return <div className="container page-shell">
-    <header className="page-head"><div><p className="eyebrow">{english ? 'Just for you' : 'Dành riêng cho bạn'}</p><h1>{english ? 'Saved items' : 'Sản phẩm yêu thích'}</h1></div><span>{favorites.length} {english ? 'products' : 'sản phẩm'}</span></header>
+  return <div className="container page-shell favorites-page">
+    <header className="page-head favorites-head">
+      <div>
+        <p className="eyebrow">{english ? 'Just for you' : 'Dành riêng cho bạn'}</p>
+        <h1>{english ? 'Saved items' : 'Sản phẩm yêu thích'}</h1>
+      </div>
+      <span className="favorites-counter"><i aria-hidden="true">♥</i> {favorites.length} {english ? 'products' : 'sản phẩm'}</span>
+    </header>
     {favorites.length ? <div className="product-grid favorites-grid">{favorites.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} isFavorite onToggleFavorite={onToggleFavorite} />)}</div>
-      : <section className="surface empty-panel"><h2>{isGuest ? (english ? 'Sign in to see saved items' : 'Đăng nhập để xem sản phẩm đã lưu') : (english ? 'No saved items yet' : 'Chưa có sản phẩm yêu thích')}</h2><p>{isGuest ? (english ? 'Sign in or register to save products and see your favorites on every device.' : 'Đăng nhập hoặc đăng ký để lưu sản phẩm và xem lại danh sách yêu thích trên mọi thiết bị.') : (english ? 'Click the heart icon on any product to save it here.' : 'Nhấn biểu tượng trái tim ở một sản phẩm để lưu vào đây.')}</p>{isGuest ? <div className="favorites-auth-actions"><a className="button" href="/login?next=%2Ffavorites">{english ? 'Sign in' : 'Đăng nhập'}</a><a className="button button--soft" href="/register?next=%2Ffavorites">{english ? 'Register' : 'Đăng ký'}</a></div> : <a className="button button--soft" href="/products">{english ? 'Explore products' : 'Xem hàng hóa'}</a>}</section>}
+      : <section className="surface empty-panel favorites-empty">
+          <div className="favorites-empty__badge" aria-hidden="true">
+            <span className="favorites-empty__heart">♥</span>
+          </div>
+          <h2>{isGuest ? (english ? 'Sign in to see saved items' : 'Đăng nhập để xem sản phẩm đã lưu') : (english ? 'No saved items yet' : 'Chưa có sản phẩm yêu thích')}</h2>
+          <p>{isGuest ? (english ? 'Sign in or register to save products and see your favorites on every device.' : 'Đăng nhập hoặc đăng ký để lưu sản phẩm và xem lại danh sách yêu thích trên mọi thiết bị.') : (english ? 'Click the heart icon on any product to save it here.' : 'Nhấn biểu tượng trái tim ở một sản phẩm để lưu vào đây.')}</p>
+          {isGuest ? <div className="favorites-auth-actions"><a className="button" href="/login?next=%2Ffavorites">{english ? 'Sign in' : 'Đăng nhập'}</a><a className="button button--soft" href="/register?next=%2Ffavorites">{english ? 'Register' : 'Đăng ký'}</a></div> : <a className="button button--soft" href="/products">{english ? 'Explore products' : 'Xem hàng hóa'}</a>}
+        </section>}
   </div>
 }

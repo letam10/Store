@@ -82,7 +82,7 @@ export default function Home({
     <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="intro">
       <section className="shop-hero container">
         <div className="shop-hero-copy">
-          <p className="eyebrow">{appearance.bannerLabel || (english ? 'STORE EVERYDAY · DISCOVER EVERY DAY' : 'STORE EVERYDAY · KHÁM PHÁ MỖI NGÀY')}</p>
+          <p className="eyebrow">{appearance.bannerLabel || (english ? 'OMNICART EVERYDAY · DISCOVER EVERY DAY' : 'OMNICART EVERYDAY · KHÁM PHÁ MỖI NGÀY')}</p>
           <h1>{appearance.heroTitle || (english ? 'Choose what you love. Live your own way.' : 'Chọn món bạn yêu. Sống theo cách riêng.')}</h1>
           <p>{appearance.heroDescription || (english ? 'Discover featured products, exclusive offers and curated categories. Trending items appear here automatically.' : 'Khám phá sản phẩm nổi bật, ưu đãi và các nhóm hàng dễ tìm. Sản phẩm được xem nhiều nhất sẽ tự xuất hiện ở đây.')}</p>
           <a className="button" href="/products">{appearance.heroButton || (english ? 'Explore the store' : 'Khám phá cửa hàng')} <span aria-hidden="true">↗</span></a>
@@ -136,11 +136,11 @@ export default function Home({
     </HomePromotionRegion>
     <div className="container home-catalog">
       <section className="member-links" aria-label={english ? 'Discover more' : 'Khám phá thêm'}>
-        <a href="/membership"><span>{english ? '01 — STORE MEMBERSHIP' : '01 — THÀNH VIÊN STORE'}</span><h2>{english ? <>More benefits.<br />More joy.</> : <>Thêm quyền lợi.<br />Thêm niềm vui.</>}</h2><p>{english ? 'Explore 4 membership tiers and earn reward points.' : 'Khám phá bốn hạng thành viên tích điểm.'}</p><b>{english ? 'View membership ↗' : 'Xem thành viên ↗'}</b></a>
-        <a href="/rewards"><span>{english ? '02 — STORE LUCKY' : '02 — STORE LUCKY'}</span><h2>{english ? <>One spin,<br />a small surprise.</> : <>Một vòng quay,<br />một bất ngờ nhỏ.</>}</h2><p>{english ? 'Use your earned spins to unlock vouchers.' : 'Dùng lượt quay đã tích để nhận voucher.'}</p><b>{english ? 'To lucky wheel ↗' : 'Đến vòng quay ↗'}</b></a>
+        <a href="/membership"><span>{english ? '01 — OMNICART MEMBERSHIP' : '01 — THÀNH VIÊN OMNICART'}</span><h2>{english ? <>More benefits.<br />More joy.</> : <>Thêm quyền lợi.<br />Thêm niềm vui.</>}</h2><p>{english ? 'Explore 4 membership tiers and earn reward points.' : 'Khám phá bốn hạng thành viên tích điểm.'}</p><b>{english ? 'View membership ↗' : 'Xem thành viên ↗'}</b></a>
+        <a href="/rewards"><span>{english ? '02 — OMNICART LUCKY' : '02 — OMNICART LUCKY'}</span><h2>{english ? <>One spin,<br />a small surprise.</> : <>Một vòng quay,<br />một bất ngờ nhỏ.</>}</h2><p>{english ? 'Use your earned spins to unlock vouchers.' : 'Dùng lượt quay đã tích để nhận voucher.'}</p><b>{english ? 'To lucky wheel ↗' : 'Đến vòng quay ↗'}</b></a>
       </section>
       <MarketBanner />
-      <section className="visit-strip"><div><p className="eyebrow">{english ? 'STORE, CLOSER TO YOU' : 'STORE, GẦN BẠN HƠN'}</p><h2>{english ? 'Looking for directions or contact?' : 'Muốn tìm đường hoặc liên hệ?'}</h2></div><a className="button button--soft" href="/contact">{english ? 'View locations & contact ↗' : 'Xem địa chỉ & liên hệ ↗'}</a></section>
+      <section className="visit-strip"><div><p className="eyebrow">{english ? 'OMNICART, CLOSER TO YOU' : 'OMNICART, GẦN BẠN HƠN'}</p><h2>{english ? 'Looking for directions or contact?' : 'Muốn tìm đường hoặc liên hệ?'}</h2></div><a className="button button--soft" href="/contact">{english ? 'View locations & contact ↗' : 'Xem địa chỉ & liên hệ ↗'}</a></section>
     </div>
   </HomePromotionRegion>
 }

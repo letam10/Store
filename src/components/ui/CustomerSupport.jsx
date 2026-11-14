@@ -269,12 +269,12 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
       <button className="customer-support__to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} title={english ? 'Back to top' : 'Lên đầu trang'} aria-label={english ? 'Scroll to top' : 'Lên đầu trang ngay'}>↑</button>
       <button ref={toggleRef} className="customer-support__toggle" type="button" aria-label={isOpen ? (english ? 'Collapse customer support' : 'Thu gọn hỗ trợ khách hàng') : (english ? 'Open customer support' : 'Mở hỗ trợ khách hàng')} aria-expanded={isOpen} aria-controls="store-support-panel" onClick={() => { if (!account) onRequireLogin?.(); else setIsOpen((previous) => !previous) }}>
         <span className="customer-support__icon"><SupportIcon /></span>
-        <span className="customer-support__heading"><strong>{english ? 'Customer support' : 'Hỗ trợ khách hàng'}</strong><span>{english ? 'Store AI Assistant' : 'Trợ lý AI của Store'}</span></span>
+        <span className="customer-support__heading"><strong>{english ? 'Customer support' : 'Hỗ trợ khách hàng'}</strong><span>{english ? 'OmniCart AI Assistant' : 'Trợ lý AI của OmniCart'}</span></span>
         <span className="customer-support__chevron"><SupportIcon kind="chevron" /></span>
       </button>
 
       {isOpen && (
-        <section id="store-support-panel" className="customer-support__panel" aria-label={english ? 'Chat with Store' : 'Trò chuyện với Store'}>
+        <section id="store-support-panel" className="customer-support__panel" aria-label={english ? 'Chat with OmniCart' : 'Trò chuyện với OmniCart'}>
           <div className="customer-support__intro">
             <span>{english ? 'CUSTOMER CARE' : 'CHĂM SÓC KHÁCH HÀNG'}</span>
             <span className="customer-support__badge">{providerStatus?.reachable && providerStatus?.modelAvailable ? `AI Local · ${providerStatus.model || 'qwen3.5:4b'}` : providerStatus ? (english ? 'AI offline' : 'AI chưa kết nối') : (english ? 'Checking AI' : 'Đang kiểm tra AI')}</span>
@@ -283,19 +283,19 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
 
           <div ref={logRef} className="customer-support__messages" role="log" aria-label={english ? 'Chat history' : 'Lịch sử trò chuyện'} aria-live="polite" aria-relevant="additions">
             <div className="customer-support__welcome">
-              <span className="customer-support__avatar" aria-hidden="true">s.</span>
-              <div><span className="customer-support__sender">{english ? 'Store · Support' : 'Store · Hỗ trợ'}</span><div className="customer-support__bubble"><strong>{english ? 'Hi there, Store here 👋' : 'Chào bạn, Store đây 👋'}</strong><p>{english ? 'AI assistant only uses current Store data.' : 'AI chỉ dùng dữ liệu mà Store hiện cung cấp.'}</p></div></div>
+              <span className="customer-support__avatar" aria-hidden="true">o.</span>
+              <div><span className="customer-support__sender">{english ? 'OmniCart · Support' : 'OmniCart · Hỗ trợ'}</span><div className="customer-support__bubble"><strong>{english ? 'Hi there, OmniCart here 👋' : 'Chào bạn, OmniCart đây 👋'}</strong><p>{english ? 'AI assistant only uses current OmniCart data.' : 'AI chỉ dùng dữ liệu mà OmniCart hiện cung cấp.'}</p></div></div>
             </div>
 
             {messages.map((message) => message.role === 'user' ? (
               <div className="customer-support__outgoing" key={message.id}><span className="customer-support__sender">{english ? 'You' : 'Bạn'}</span><p className="customer-support__bubble">{message.content}</p></div>
             ) : (
               <div className="customer-support__incoming" key={message.id}>
-                <span className="customer-support__avatar" aria-hidden="true">s.</span>
+                <span className="customer-support__avatar" aria-hidden="true">o.</span>
                 <div className="customer-support__incoming-body">
-                  <span className="customer-support__sender">{english ? 'Store · AI Assistant' : 'Store · Trợ lý AI'}</span>
+                  <span className="customer-support__sender">{english ? 'OmniCart · AI Assistant' : 'OmniCart · Trợ lý AI'}</span>
                   <p className="customer-support__bubble">{hideSourceDisclosure(message.content) || (message.status === 'streaming' ? '…' : message.error || (english ? 'No content.' : 'Không có nội dung.'))}</p>
-                  {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>{english ? 'Verified Store Data' : 'Dữ liệu Store đã xác minh'}</strong><p>{message.verified.text}</p></div>}
+                  {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>{english ? 'Verified OmniCart Data' : 'Dữ liệu OmniCart đã xác minh'}</strong><p>{message.verified.text}</p></div>}
                   {(['error', 'incomplete', 'stopped'].includes(message.status)) && <>
                     <small className="customer-support__state">{message.status === 'incomplete' ? (english ? 'Above content not yet marked complete.' : 'Nội dung trên chưa được xác nhận hoàn tất.') : message.error}</small>
                     <button className="customer-support__retry" type="button" disabled={busy} onClick={() => startRequest(message.retryContent, { assistantId: message.id, requestId: message.requestId })}>{english ? 'Retry' : 'Thử lại'}</button>
@@ -312,7 +312,7 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
           <form className="customer-support__form" onSubmit={sendMessage}>
             <label className="customer-support__sr-only" htmlFor="store-support-message">{english ? 'Message content' : 'Nội dung tin nhắn'}</label>
             <div className="customer-support__composer">
-              <input ref={inputRef} id="store-support-message" autoComplete="off" maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={english ? 'Type a message for Store…' : 'Nhập lời nhắn cho Store…'} aria-busy={busy} />
+              <input ref={inputRef} id="store-support-message" autoComplete="off" maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={english ? 'Type a message for OmniCart…' : 'Nhập lời nhắn cho OmniCart…'} aria-busy={busy} />
               {busy ? <button type="button" onClick={stopRequest} aria-label={english ? 'Stop response' : 'Dừng trả lời'}><span aria-hidden="true">■</span></button> : <button type="submit" disabled={!draft.trim()} aria-label={english ? 'Send message' : 'Gửi tin nhắn'}><SupportIcon kind="send" /></button>}
             </div>
             <p className={'customer-support__disclaimer' + (busy ? ' customer-support__disclaimer--active' : '')}>

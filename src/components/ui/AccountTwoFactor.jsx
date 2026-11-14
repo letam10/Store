@@ -188,7 +188,7 @@ export default function AccountTwoFactor({ account, security, onSecurityChange, 
 
   function handleDownloadCodes() {
     if (!backupCodes.length) return
-    const content = `MÃ SAO LƯU DỰ PHÒNG XÁC THỰC 2 LỚP (STORE 2FA)\n` +
+    const content = `MÃ SAO LƯU DỰ PHÒNG XÁC THỰC 2 LỚP (OMNICART 2FA)\n` +
       `Tài khoản: ${account?.username || ''} (${account?.email || ''})\n` +
       `Ngày tạo: ${new Date().toLocaleString('vi-VN')}\n\n` +
       backupCodes.map((c, i) => `${i + 1}. ${c}`).join('\n') + `\n`
@@ -197,7 +197,7 @@ export default function AccountTwoFactor({ account, security, onSecurityChange, 
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `store-2fa-backup-codes-${Date.now()}.txt`
+    a.download = `omnicart-2fa-backup-codes-${Date.now()}.txt`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)

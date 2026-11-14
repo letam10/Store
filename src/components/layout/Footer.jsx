@@ -9,7 +9,7 @@
 import './Footer.css'
 // Chức năng Footer: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Footer({ appearance = {}, language = 'vi' }) {
-  const brandName = appearance.brandName || 'store'
+  const brandName = appearance.brandName || 'OmniCart'
   const english = language === 'en'
   return (
     <footer className="site-footer">
@@ -19,7 +19,7 @@ export default function Footer({ appearance = {}, language = 'vi' }) {
         <div><b>{appearance.footerSupportTitle || (english ? 'Support' : 'Hỗ trợ')}</b><a href="/contact">{appearance.footerContact || (english ? 'Contact & Locations' : 'Địa chỉ & liên hệ')}</a><a href="/account">{appearance.footerAccount || (english ? 'Your account' : 'Tài khoản của bạn')}</a></div>
         <div><b>{appearance.footerInfoTitle || (english ? 'Information' : 'Thông tin')}</b><p>{appearance.footerInfo || (english ? 'Payment via bank transfer or cash on delivery. Points credited after confirmation.' : 'Thanh toán chuyển khoản hoặc khi nhận hàng. Điểm thành viên được cộng sau khi cửa hàng xác nhận đã thu tiền.')}</p></div>
       </div>
-      <div className="container footer-bottom"><span>{appearance.footerCopyright || '© 2026 Store'}</span><span>{appearance.footerSupport || (english ? 'Shop nearby · Scheduled delivery' : 'Mua sắm gần nhà · Nhận hàng theo lịch')}</span></div>
+      <div className="container footer-bottom"><span>{appearance.footerCopyright || '© 2026 OmniCart'}</span><span>{appearance.footerSupport || (english ? 'Shop nearby · Scheduled delivery' : 'Mua sắm gần nhà · Nhận hàng theo lịch')}</span></div>
     </footer>
   )
 }

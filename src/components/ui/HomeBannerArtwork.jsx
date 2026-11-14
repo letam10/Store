@@ -16,7 +16,7 @@ export default function HomeBannerArtwork({ kind }) {
           <rect x="123" y="52" width="29" height="48" rx="3" fill="#faf4e3" />
           <path d="m123 52 6-14h17l6 14" fill="#8fa989" />
           <path d="M130 65h15v22h-15z" fill="#426b51" />
-          <text x="87" y="80" textAnchor="middle" fill="#305b40" fontSize="19" fontWeight="900">store.</text>
+          <text x="87" y="80" textAnchor="middle" fill="#305b40" fontSize="14" fontWeight="900">omnicart.</text>
         </g>
       )}
       {kind === 'member' && (

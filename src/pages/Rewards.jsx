@@ -97,7 +97,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
   }
 
   return <div className="container page-shell rewards-page">
-    <header className="page-head"><div><p className="eyebrow">Store Lucky</p><h1>{english ? 'Two lucky wheels. One shared balance.' : 'Hai vòng quay. Chung một ví lượt.'}</h1></div><p className="muted">{english ? 'Earn one spin for every 100,000 ₫ of paid goods.' : 'Mỗi 100.000 ₫ tiền hàng hóa đã thanh toán nhận một lượt quay.'}</p></header>
+    <header className="page-head"><div><p className="eyebrow">OmniCart Lucky</p><h1>{english ? 'Two lucky wheels. One shared balance.' : 'Hai vòng quay. Chung một ví lượt.'}</h1></div><p className="muted">{english ? 'Earn one spin for every 100,000 ₫ of paid goods.' : 'Mỗi 100.000 ₫ tiền hàng hóa đã thanh toán nhận một lượt quay.'}</p></header>
     <div className="shared-spin-balance" aria-live="polite"><span>✦</span><div><strong>{english ? `${credits} shared lucky spins` : `${credits} lượt quay dùng chung`}</strong><p>{english ? 'Pick goods voucher or shipping voucher. Every spin on either wheel uses 1 spin.' : 'Chọn mã giảm giá hàng hóa hoặc mã giảm giá vận chuyển. Mỗi lần quay ở bất kỳ vòng nào đều dùng 1 lượt.'}</p></div><a href="/products">{english ? 'Earn more spins →' : 'Tích thêm lượt →'}</a></div>
     {error && <p className="form-error" role="alert">{error}</p>}
     <div className="rewards-workspace">
@@ -112,7 +112,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
               <RewardWheelLabels sector={sector} index={index} count={sectors.length} />
             </g>)}
             <circle cx="180" cy="180" r="32" fill="#254535" stroke="#fffdf7" strokeWidth="5" />
-          </svg><span className="lucky-wheel__hub" aria-hidden="true">store.</span>
+          </svg><span className="lucky-wheel__hub" aria-hidden="true">omnicart.</span>
         </div>
         <button className="button lucky-spin" type="button" onClick={() => spin(wheel)} disabled={Boolean(spinning || result) || Boolean(account && credits < 1)}>{spinning === wheel ? (english ? 'Spinning…' : 'Đang quay…') : account ? wheel === 'goods' ? (english ? 'Spin for goods voucher' : 'Quay mã giảm giá hàng hóa') : (english ? 'Spin for shipping voucher' : 'Quay voucher ship') : (english ? 'Sign in to spin' : 'Đăng nhập để quay')}</button>
         <p className="lucky-wheel__hint">{account ? (english ? `Shared balance: ${credits} spins${credits < 1 ? ' · Shop more to earn spins.' : ''}` : `Ví chung còn ${credits} lượt${credits < 1 ? ' · Mua sắm để tích lượt mới.' : ''}`) : (english ? 'Sign in to use spins earned from orders.' : 'Đăng nhập để dùng lượt quay đã tích từ đơn hàng.')}</p>

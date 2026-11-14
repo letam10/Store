@@ -55,11 +55,11 @@ export default function HomeSideBanner({ side, overview, account, products, area
         aria-label={title + '. ' + (isStore ? 'Xem khu giá tốt' : 'Xem quyền lợi thành viên')}
       >
         <div className="home-side-banner__identity">
-          <p className="home-side-banner__brand">store.</p>
+          <p className="home-side-banner__brand">omnicart.</p>
           <span className="home-side-banner__edition">{isStore ? 'MỖI NGÀY' : 'MEMBER'}</span>
         </div>
         <HomeBannerArtwork kind={isStore ? 'store' : 'member'} />
-        <p className="home-side-banner__kicker">{isStore ? 'CHỌN ĐIỀU THIẾT THỰC' : 'GẮN BÓ CÙNG STORE'}</p>
+        <p className="home-side-banner__kicker">{isStore ? 'CHỌN ĐIỀU THIẾT THỰC' : 'GẮN BÓ CÙNG OMNICART'}</p>
         <h2>{title}</h2>
         <div className="home-side-banner__offer">
           <span>{isStore ? hasSale ? 'Ưu đãi hàng hóa đến' : 'Khám phá cửa hàng' : 'Giảm thêm khi thanh toán'}</span>

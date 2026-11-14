@@ -8,9 +8,9 @@ const pageMessages = {
   home: ['Chọn món hay. Nhận thêm ưu đãi.', 'Một giỏ hàng, nhiều cách tiết kiệm.'],
   products: ['Mua đúng món. Chọn đúng ưu đãi.', 'Giá tốt trong danh mục, quà tặng trong tài khoản.'],
   favorites: ['Món bạn thích, giá bạn chờ.', 'Xem ưu đãi của sản phẩm đã lưu và khám phá thêm lựa chọn.'],
-  rewards: ['Quà nhỏ cho mỗi lần ghé Store.', 'Mã giảm giá hàng hóa và mã giảm giá vận chuyển cùng dùng lượt đã tích.'],
+  rewards: ['Quà nhỏ cho mỗi lần ghé OmniCart.', 'Mã giảm giá hàng hóa và mã giảm giá vận chuyển cùng dùng lượt đã tích.'],
   membership: ['Càng gắn bó, càng thêm quyền lợi.', 'Tích điểm từ đơn đã thanh toán để mở khóa hạng tiếp theo.'],
-  contact: ['Ghé Store. Mang ưu đãi về.', 'Khám phá cửa hàng, chọn món và nhận quà trong tài khoản.'],
+  contact: ['Ghé OmniCart. Mang ưu đãi về.', 'Khám phá cửa hàng, chọn món và nhận quà trong tài khoản.'],
   account: ['Ưu đãi dành riêng cho bạn.', 'Giữ mã quà tặng, theo dõi điểm và chọn ưu đãi cho giỏ tiếp theo.'],
 }
 
@@ -23,7 +23,7 @@ function MemberOffer({ overview, account }) {
   const { plan, nextPlan, points, remainingPoints } = overview
   const bestPlan = membershipPlans.at(-1)
   return <article className="store-member-offer">
-    <span className="store-promo-kicker">THÀNH VIÊN STORE <span aria-hidden="true">✦</span></span>
+    <span className="store-promo-kicker">THÀNH VIÊN OMNICART <span aria-hidden="true">✦</span></span>
     <h3>{account ? 'Hạng ' + plan.name + ' của bạn' : 'Gắn bó hơn. Tiết kiệm hơn.'}</h3>
     <p className="store-member-offer__number">{account && plan.discount ? plan.discount : bestPlan.discount}<span>%</span></p>
     <p>{account && plan.discount ? 'Giảm thêm khi thanh toán theo hạng hiện tại.' : 'Mức giảm thêm khi đạt hạng ' + bestPlan.name + '.'}</p>
@@ -39,8 +39,8 @@ export function PromotionBoard({ route = 'home', overview, account, selectedVouc
   const favoritesOnSale = route === 'favorites' && favoriteSales.length > 0
   const deals = (favoritesOnSale ? favoriteSales : sales).slice(0, 3)
   const message = pageMessages[route] || pageMessages.home
-  return <section className="store-promo-board" aria-label="Ưu đãi và quà tặng Store">
-    <header className="store-promo-board__head"><div><p className="store-promo-kicker">GÓC ƯU ĐÃI · STORE EVERYDAY</p><h2>{message[0]}</h2><p>{message[1]}</p></div><a className="store-promo-link" href="/products?discount=1&sort=discount">Khám phá giá tốt ↗</a></header>
+  return <section className="store-promo-board" aria-label="Ưu đãi và quà tặng OmniCart">
+    <header className="store-promo-board__head"><div><p className="store-promo-kicker">GÓC ƯU ĐÃI · OMNICART EVERYDAY</p><h2>{message[0]}</h2><p>{message[1]}</p></div><a className="store-promo-link" href="/products?discount=1&sort=discount">Khám phá giá tốt ↗</a></header>
     <div className="store-promo-board__offers">
       <section className="store-gift-offer" aria-label="Mã quà tặng và mã giảm giá"><div className="store-promo-section-head"><div><span className="store-promo-kicker">QUÀ TẶNG & VOUCHER</span><h3>{vouchers.length ? vouchers.length + ' mã đang chờ bạn dùng' : 'Thêm một món quà cho giỏ hàng'}</h3></div><span className="store-gift-mark" aria-hidden="true">◇</span></div>
         {vouchers.length ? <><div className="store-gift-list">{vouchers.slice(0, 3).map(voucher => <article className={'store-gift-ticket' + (selectedVoucherCodes.includes(voucher.code) ? ' is-selected' : '')} key={voucher.code}>
@@ -113,7 +113,7 @@ export default function StorePromotions({ route, overview, account, selectedVouc
   const message = pageMessages[route]
   return <div className="store-promo-layout">
     <div className="store-promo-layout__body">
-      <div className="container store-promo-notice" aria-label="Thông tin ưu đãi cửa hàng"><span><b aria-hidden="true">✦</b> {sales.length ? 'Ưu đãi hàng hóa đến ' + maxDiscount + '%' : 'Store · Tiện ích cho mỗi ngày'}</span><a href="/rewards">{vouchers.length ? vouchers.length + ' mã quà tặng trong ví' : 'Quà hàng hóa & mã giảm giá vận chuyển'} →</a><a href="/membership">Thành viên cao hơn, thêm quyền lợi →</a></div>
+      <div className="container store-promo-notice" aria-label="Thông tin ưu đãi cửa hàng"><span><b aria-hidden="true">✦</b> {sales.length ? 'Ưu đãi hàng hóa đến ' + maxDiscount + '%' : 'OmniCart · Tiện ích cho mỗi ngày'}</span><a href="/rewards">{vouchers.length ? vouchers.length + ' mã quà tặng trong ví' : 'Quà hàng hóa & mã giảm giá vận chuyển'} →</a><a href="/membership">Thành viên cao hơn, thêm quyền lợi →</a></div>
       {!['home', 'contact'].includes(route) && <div className="container store-promo-intro"><MarketBanner compact variant={['rewards', 'membership', 'account'].includes(route) ? 'rewards' : 'grocery'} title={message[0]} description={message[1]} href={route === 'favorites' || route === 'products' ? '/products?discount=1&sort=discount' : '/rewards'} action={route === 'favorites' || route === 'products' ? 'Xem sản phẩm giảm giá ↗' : 'Khám phá quà tặng ↗'} /><div className="store-promo-intro__tiles"><a href="/membership"><span aria-hidden="true">✦</span><b>Thành viên Kim Cương</b><strong>Giảm thêm {membershipPlans.at(-1).discount}%</strong><small>Mở khóa khi đủ {membershipPlans.at(-1).points.toLocaleString('vi-VN')} điểm →</small></a><a href="/rewards"><span aria-hidden="true">◇</span><b>{account ? 'Quà tặng của bạn' : 'Hai vòng quay, một ví lượt'}</b><strong>{vouchers.length ? vouchers.length + ' mã còn hạn' : 'Hàng hóa & phí vận chuyển'}</strong><small>{account ? Number(account.spinCredits || 0) + ' lượt quay còn lại →' : 'Tích lượt từ đơn đã thanh toán →'}</small></a></div></div>}
       {children}
       {route !== 'home' && <div className="container store-promo-bottom"><PromotionBoard route={route} overview={overview} account={account} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={onToggleVoucher} /></div>}

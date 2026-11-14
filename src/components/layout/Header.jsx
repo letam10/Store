@@ -38,7 +38,7 @@ function SearchSuggestions({ items, query, onSelect, id }) {
       const image = product.image || fallbackPictures[product.id]
       return <a key={product.id} className="search-suggestion" href={'/products/' + encodeURIComponent(product.id)} role="option" onClick={onSelect}>
         <span className="search-suggestion__image">{image ? <img src={image.startsWith('/') || image.startsWith('http') ? image : '/products/' + image + '.svg'} alt="" loading="lazy" /> : <span aria-hidden="true">{product.symbol || '✦'}</span>}</span>
-        <span className="search-suggestion__copy"><strong>{product.name}</strong><small>{translateCategory(product.category || 'Sản phẩm Store', 'vi')}{product.price ? ` · ${currencyFormat.format(product.price)}` : ''}</small></span>
+        <span className="search-suggestion__copy"><strong>{product.name}</strong><small>{translateCategory(product.category || 'Sản phẩm OmniCart', 'vi')}{product.price ? ` · ${currencyFormat.format(product.price)}` : ''}</small></span>
         <span className="search-suggestion__arrow" aria-hidden="true">↗</span>
       </a>
     }) : <p className="search-suggestions__empty">Chưa có sản phẩm phù hợp. Thử từ khóa khác.</p>}
@@ -68,7 +68,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
     ['/membership', appearance.navMembership || 'Thành viên'],
     ['/contact', appearance.navContact || 'Địa chỉ & liên hệ'],
   ]
-  const brandName = appearance.brandName || 'store'
+  const brandName = appearance.brandName || 'OmniCart'
   const searchPlaceholder = appearance.headerSearchPlaceholder || 'Tìm sản phẩm, danh mục…'
 
   // Truyền chiều cao thật cho các vùng sticky, kể cả khi menu/ngôn ngữ đổi kích thước.
@@ -146,7 +146,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
     <header ref={headerRef} className="site-header">
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <div className="container header-inner">
-        <a className="brand" href="/" aria-label="Store - trang chủ"><span className="brand__mark" aria-hidden="true">✦</span><span className="brand__word">{brandName}<span>.</span></span><small>{appearance.brandTagline || 'EVERYDAY'}</small></a>
+        <a className="brand" href="/" aria-label="OmniCart - trang chủ"><span className="brand__mark" aria-hidden="true">✦</span><span className="brand__word">{brandName}<span>.</span></span><small>{appearance.brandTagline || 'EVERYDAY'}</small></a>
         <div className="header-search-shell" ref={searchShellRef}>
         <form className="site-search header-inline-search" action="/products" method="get" role="search" onFocus={() => setSuggestionsOpen(true)} onSubmit={() => setSuggestionsOpen(false)}>
           <label className="sr-only" htmlFor="header-inline-search-input">Tìm sản phẩm</label>
@@ -168,11 +168,11 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
             </button>
             {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label="Bảng tổng quan người dùng">
               <p className="account-menu__hello">Xin chào, <b>{account.username}</b> · {getMembershipPlan(membershipTier).badge}</p>
-              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>🏠 Bảng tổng quan / Tài khoản của tôi</a>
-              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}>📦 Đơn hàng của bạn</a>
-              <a role="menuitem" href="/favorites" onClick={() => setAccountOpen(false)}>♥ Sản phẩm yêu thích</a>
-              <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}>🎁 Ưu đãi & mã giảm giá</a>
-              <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}>★ Hạng thành viên</a>
+              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">🏠</span><span className="account-menu__label">Bảng tổng quan / Tài khoản của tôi</span></a>
+              <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">📦</span><span className="account-menu__label">Đơn hàng của bạn</span></a>
+              <a role="menuitem" href="/favorites" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">❤️</span><span className="account-menu__label">Sản phẩm yêu thích</span></a>
+              <a role="menuitem" href="/rewards" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">🎁</span><span className="account-menu__label">Ưu đãi & mã giảm giá</span></a>
+              <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">⭐</span><span className="account-menu__label">Hạng thành viên</span></a>
             </div>}
           </div> : <a className="account-link" href="/account" aria-label="Đăng nhập tài khoản"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">Đăng nhập</span></a>}
           <a className="cart-count" href="/cart" aria-label={'Giỏ hàng có ' + cartCount + ' sản phẩm'}><span aria-hidden="true">🛒</span><span className="cart-count__text">Giỏ hàng</span><b>{cartCount}</b></a>

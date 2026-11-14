@@ -16,7 +16,7 @@ function GroceryArt() {
       <path d="M70 82h258v24c-8 12-22 12-32 0-10 12-23 12-32 0-10 12-23 12-33 0-10 12-23 12-32 0-10 12-23 12-33 0-10 12-23 12-32 0-10 12-23 12-32 0-10 12-22 12-32 0z"
         fill="#588666" />
       <rect x="138" y="15" width="123" height="38" rx="9" fill="#264d38" />
-      <text x="199" y="42" textAnchor="middle" fill="#fff6df" fontSize="26" fontWeight="800">store.</text>
+      <text x="199" y="41" textAnchor="middle" fill="#fff6df" fontSize="20" fontWeight="800">omnicart.</text>
       <path d="M194 201h113v31H194z" fill="#e2be80" />
       <circle cx="212" cy="207" r="12" fill="#dd9158" />
       <circle cx="236" cy="207" r="12" fill="#bd6748" />
@@ -44,7 +44,7 @@ function DeliveryArt() {
       <circle cx="284" cy="225" r="10" fill="#ece6cc" />
       <rect x="110" y="133" width="72" height="67" rx="5" fill="#f6e3b9" />
       <path d="M146 134v30m-35-10h70" stroke="#bd955d" strokeWidth="6" />
-      <text x="146" y="188" textAnchor="middle" fill="#355941" fontSize="15" fontWeight="800">store.</text>
+      <text x="146" y="188" textAnchor="middle" fill="#355941" fontSize="12" fontWeight="800">omnicart.</text>
       <circle cx="269" cy="72" r="38" fill="#fbefd6" stroke="#82b492" strokeWidth="6" />
       <path d="M269 49v25l17 10" fill="none" stroke="#355941" strokeWidth="6" strokeLinecap="round" />
       <path d="M23 153h24m-31 23h31m-21 23h21" stroke="#95bb99" strokeWidth="6" strokeLinecap="round" />
@@ -58,7 +58,7 @@ function RewardsArt() {
       <rect x="69" y="70" width="238" height="147" rx="18" fill="#e8c487" transform="rotate(-9 188 143)" />
       <rect x="84" y="94" width="238" height="147" rx="18" fill="#315e45" />
       <path d="M103 170h200" stroke="#749b79" strokeWidth="1" />
-      <text x="107" y="132" fill="#f7edd5" fontWeight="800" fontSize="27">store.</text>
+      <text x="107" y="132" fill="#f7edd5" fontWeight="800" fontSize="24">omnicart.</text>
       <text x="107" y="153" fill="#cfddc4" fontWeight="700" fontSize="10" letterSpacing="2">MEMBER CLUB</text>
       <text x="107" y="215" fill="#f4dfb4" fontWeight="800" fontSize="15">EVERYDAY / TOGETHER</text>
       <path d="m275 116 14 19-14 19-14-19z" fill="#e9c785" />

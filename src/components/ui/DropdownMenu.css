@@ -50,15 +50,24 @@
 }
 
 .dropdown-menu__caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
-  color: var(--accent-strong, #17382c);
-  font-size: 16px;
-  line-height: 1;
-  transition: transform 0.16s ease;
+  color: var(--theme-accent-strong, var(--accent-strong, #17382c));
+  transition: transform 0.2s ease;
+}
+
+.dropdown-menu__caret svg {
+  display: block;
 }
 
 .dropdown-menu.is-open .dropdown-menu__caret {
   transform: rotate(180deg);
+}
+
+html[data-theme='dark'] .dropdown-menu__caret {
+  color: var(--theme-accent, #76b98a) !important;
 }
 
 .dropdown-menu__panel {

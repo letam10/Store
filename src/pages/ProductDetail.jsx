@@ -87,6 +87,7 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
   }
 
   useEffect(() => {
+    window.scrollTo?.(0, 0)
     const controller = new AbortController()
     reviewRequest('/api/storefront/products/' + encodeURIComponent(productId) + '/reviews', {}, controller.signal)
       .then((payload) => setReviews(Array.isArray(payload.reviews) ? payload.reviews : []))
@@ -206,7 +207,7 @@ export default function ProductDetail({ products, pathname, onAddToCart, account
     </section>
 
     <section className="surface product-detail-full detail-reviews-panel" id="reviews" aria-label="Đánh giá và bình luận">
-      <header className="product-detail-full__heading"><div><p className="eyebrow">{english ? 'Store Community' : 'Cộng đồng Store'}</p><h2>{english ? 'Reviews & Comments' : 'Đánh giá và bình luận'}</h2><p className="reviews-subtitle">{english ? 'Real feedback helps you choose better.' : 'Trải nghiệm thật giúp bạn chọn món phù hợp hơn.'}</p></div><span className="reviews-count">{reviews.length} {english ? 'reviews' : 'đánh giá'}</span></header>
+      <header className="product-detail-full__heading"><div><p className="eyebrow">{english ? 'OmniCart Community' : 'Cộng đồng OmniCart'}</p><h2>{english ? 'Reviews & Comments' : 'Đánh giá và bình luận'}</h2><p className="reviews-subtitle">{english ? 'Real feedback helps you choose better.' : 'Trải nghiệm thật giúp bạn chọn món phù hợp hơn.'}</p></div><span className="reviews-count">{reviews.length} {english ? 'reviews' : 'đánh giá'}</span></header>
       <div className="detail-reviews-layout">
         <aside className="review-sidebar"><section className="detail-rating-summary" aria-label="Tổng hợp đánh giá"><strong>{averageRating || '—'}<small>/ 5</small></strong><p>{averageRating ? (english ? 'Average rating score' : 'Điểm đánh giá trung bình') : (english ? 'No reviews yet' : 'Chưa có đánh giá')}</p>
           <div className="review-score-stars" aria-hidden="true">{'★'.repeat(Math.round(Number(averageRating || 0)))}{'☆'.repeat(5 - Math.round(Number(averageRating || 0)))}</div>
