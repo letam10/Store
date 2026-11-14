@@ -19,6 +19,7 @@ import CheckoutOrder from '../components/commerce/CheckoutOrder'
 import PaymentBox from '../components/commerce/PaymentBox'
 import VoucherCodeInput from '../components/commerce/VoucherCodeInput'
 import './Storefront.css'
+import './Checkout.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
@@ -192,63 +193,195 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const manualCodes = selectedVoucherCodes.filter((code) => !wallet.some((voucher) => voucher.code === code))
   // Chức năng voucherGroup: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   const voucherGroup = (key, title, icon, vouchers) => <div className={'checkout-voucher-group' + (openVoucher === key ? ' is-open' : '')}>
-    <button className="checkout-voucher-group__trigger" type="button" aria-expanded={openVoucher === key} onClick={() => setOpenVoucher((current) => current === key ? '' : key)}><span className="voucher-type-icon" aria-hidden="true">{icon}</span><span><b>{title}</b><small>{vouchers.length ? (english ? `${vouchers.length} vouchers available` : `${vouchers.length} mã giảm giá đang có`) : (english ? 'No vouchers' : 'Chưa có mã giảm giá')}</small></span><span aria-hidden="true">{openVoucher === key ? '⌃' : '⌄'}</span></button>
+    <button className="checkout-voucher-group__trigger" type="button" aria-expanded={openVoucher === key} onClick={() => setOpenVoucher((current) => current === key ? '' : key)}>
+      <span className="voucher-type-icon" aria-hidden="true">{icon}</span>
+      <span className="voucher-group-info">
+        <b>{title}</b>
+        <small>{vouchers.length ? (english ? `${vouchers.length} vouchers available` : `${vouchers.length} mã giảm giá đang có`) : (english ? 'No vouchers' : 'Chưa có mã giảm giá')}</small>
+      </span>
+      <span className="voucher-group-chevron" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </span>
+    </button>
     {openVoucher === key && <div className="checkout-voucher-group__panel">{vouchers.length ? vouchers.map((voucher) => <label className={'checkout-voucher-option' + (selectedVoucherCodes.includes(voucher.code) ? ' is-selected' : '')} key={voucher.code}><input type="checkbox" checked={selectedVoucherCodes.includes(voucher.code)} onChange={() => onToggleVoucher(voucher.code)} /><span><b>{translateVoucherLabel(voucher.label, english ? 'en' : 'vi')}</b><code>{voucher.code}</code><small>{english ? 'Expires: ' : 'Hạn dùng: '}{new Date(voucher.expiresAt).toLocaleDateString(english ? 'en-US' : 'vi-VN')}</small></span><strong>{voucher.type === 'percent' ? voucher.value + '%' : money.format(voucher.value)}</strong></label>) : <p className="muted">{english ? 'You have no vouchers in this category.' : 'Bạn chưa có mã giảm giá loại này.'}</p>}</div>}
   </div>
 
   return <div className="container page-shell">
-    <header className="page-head">
-      <div><p className="eyebrow">{english ? 'Shopping' : 'Mua hàng'}</p><h1>{english ? 'Checkout' : 'Thanh toán'}</h1></div>
+    <header className="page-head checkout-page-head">
+      <div className="checkout-page-head__title">
+        <p className="eyebrow">{english ? 'OmniCart Shopping' : 'OmniCart · Mua hàng'}</p>
+        <h1>{english ? 'Checkout' : 'Thanh toán'}</h1>
+      </div>
       <span className="membership-badge">{plan.badge}</span>
     </header>
+
+    <div className="checkout-stepper" aria-label="Tiến trình thanh toán">
+      <span className="checkout-stepper__step is-done">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+        {english ? '1. Cart' : '1. Giỏ hàng'}
+      </span>
+      <span className="checkout-stepper__divider" aria-hidden="true">→</span>
+      <span className="checkout-stepper__step is-active">
+        {english ? '2. Delivery & Vouchers' : '2. Giao nhận & Ưu đãi'}
+      </span>
+      <span className="checkout-stepper__divider" aria-hidden="true">→</span>
+      <span className="checkout-stepper__step">
+        {english ? '3. VietQR Payment' : '3. Thanh toán VietQR'}
+      </span>
+    </div>
+
     {paymentNotice && <p className="checkout-payment-notice" role="status">{paymentNotice}</p>}
+
     <div className="checkout-layout">
       <form className="surface checkout-card" onSubmit={submit}>
-        <label className="field"><span>{english ? 'Payment method' : 'Thanh toán'}</span><DropdownMenu value={paymentChoice} options={paymentOptions.map((option) => ({ ...option, label: option.value === 'later' && fulfillment === 'pickup' ? (english ? 'Pay at counter' : 'Thanh toán trực tiếp tại quầy') : option.label }))} ariaLabel={english ? 'Payment method' : 'Phương thức thanh toán'} onChange={setPaymentChoice} /></label>
-        <label className="field"><span>{english ? 'Delivery / pickup schedule' : 'Lịch giao / nhận'}</span><input type="datetime-local" value={schedule} onChange={event => setSchedule(event.target.value)} required /></label>
-        <label className="field"><span>{english ? 'Fulfillment method' : 'Cách nhận hàng'}</span><DropdownMenu value={fulfillment} options={fulfillmentOptions} ariaLabel={english ? 'Fulfillment method' : 'Cách nhận hàng'} onChange={setFulfillment} /></label>
-        <section className="checkout-voucher"><div className="checkout-voucher__head"><div><span className="eyebrow">{english ? 'OFFERS' : 'ƯU ĐÃI'}</span><b>{english ? 'Select vouchers for your order' : 'Chọn mã giảm giá cho đơn hàng'}</b></div><a href="/rewards">{english ? 'Lucky Spin →' : 'Vòng quay →'}</a></div>
-          <VoucherCodeInput onApply={onApplyVoucherCode} english={english} />
-          {manualCodes.length > 0 && <small className="voucher-valid">Mã nhập: {manualCodes.join(', ')}</small>}
-          <div className="checkout-voucher-groups">{voucherGroup('goods', english ? 'Goods vouchers' : 'Mã giảm giá hàng hóa', '⌂', goodsVouchers)}{voucherGroup('shipping', english ? 'Shipping vouchers' : 'Mã giảm giá phí vận chuyển', '✈', shippingVouchers)}</div>
-        </section>
-        <div className="form-grid">
+        <div className="checkout-section">
+          <div className="checkout-section__title">
+            <span className="checkout-section__step-num">1</span>
+            <span>{english ? 'Fulfillment & Schedule' : 'Hình thức & Lịch nhận hàng'}</span>
+          </div>
           <label className="field">
-            <span>{english ? 'Recipient name' : 'Tên người nhận'}</span>
-            <input name="recipient" required value={recipient} onChange={event => setRecipient(event.target.value)} />
+            <span>{english ? 'Fulfillment method' : 'Cách nhận hàng'}</span>
+            <DropdownMenu value={fulfillment} options={fulfillmentOptions} ariaLabel={english ? 'Fulfillment method' : 'Cách nhận hàng'} onChange={setFulfillment} />
           </label>
           <label className="field">
-            <span>{english ? 'Phone number' : 'Số điện thoại'}</span>
-            <input name="phone" placeholder={english ? 'Delivery phone number' : 'Số điện thoại nhận hàng'} required inputMode="tel"
-              autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} />
+            <span>{english ? 'Delivery / pickup schedule' : 'Lịch giao / nhận'}</span>
+            <input type="datetime-local" value={schedule} onChange={event => setSchedule(event.target.value)} required />
           </label>
-          {fulfillment === 'delivery' && <>
-            <label className="field field--wide">
-              <span>{english ? 'Delivery address' : 'Địa chỉ nhận hàng'}</span>
-              <input name="address" placeholder={english ? 'House number, street, ward / commune' : 'Số nhà, đường, phường / xã'} required
-                autoComplete="street-address" value={address} onChange={event => setAddress(event.target.value)} />
-            </label>
-            <label className="field field--wide"><span>{english ? 'Province / city' : 'Tỉnh / thành nhận hàng'}</span><DropdownMenu value={region} options={regionOptions} ariaLabel={english ? 'Province or city' : 'Tỉnh hoặc thành phố nhận hàng'} onChange={setRegion} /></label>
-            {region === 'international' && <label className="field"><span>{english ? 'Package weight (kg)' : 'Khối lượng hàng (kg)'}</span><input type="number" min="0.1" max="1000" step="0.1" value={weightKg} onChange={(event) => setWeightKg(event.target.value)} required /></label>}
-          </>}
         </div>
-        <p className="checkout-disclaimer">{english ? 'Inner HCM City, Binh Duong & Ba Ria - Vung Tau: 30,000 ₫. Other provinces: 60,000 ₫ flat rate. International: 200,000 ₫ up to 1 kg, 400,000 ₫ for 2–5 kg.' : 'Nội thành TP. Hồ Chí Minh, Bình Dương và Bà Rịa - Vũng Tàu: 30.000 ₫. Các tỉnh, thành khác: 60.000 ₫ cố định. Vận chuyển quốc tế: 200.000 ₫ cho tối đa 1 kg, từ 2–5 kg là 400.000 ₫.'}</p>
+
+        <div className="checkout-section">
+          <div className="checkout-section__title">
+            <span className="checkout-section__step-num">2</span>
+            <span>{english ? 'Recipient Details' : 'Thông tin người nhận'}</span>
+          </div>
+          <div className="form-grid">
+            <label className="field">
+              <span>{english ? 'Recipient name' : 'Tên người nhận'}</span>
+              <input name="recipient" required value={recipient} onChange={event => setRecipient(event.target.value)} />
+            </label>
+            <label className="field">
+              <span>{english ? 'Phone number' : 'Số điện thoại'}</span>
+              <input name="phone" placeholder={english ? 'Delivery phone number' : 'Số điện thoại nhận hàng'} required inputMode="tel"
+                autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} />
+            </label>
+            {fulfillment === 'delivery' && <>
+              <label className="field field--wide">
+                <span>{english ? 'Delivery address' : 'Địa chỉ nhận hàng'}</span>
+                <input name="address" placeholder={english ? 'House number, street, ward / commune' : 'Số nhà, đường, phường / xã'} required
+                  autoComplete="street-address" value={address} onChange={event => setAddress(event.target.value)} />
+              </label>
+              <label className="field field--wide">
+                <span>{english ? 'Province / city' : 'Tỉnh / thành nhận hàng'}</span>
+                <DropdownMenu value={region} options={regionOptions} ariaLabel={english ? 'Province or city' : 'Tỉnh hoặc thành phố nhận hàng'} onChange={setRegion} />
+              </label>
+              {region === 'international' && <label className="field"><span>{english ? 'Package weight (kg)' : 'Khối lượng hàng (kg)'}</span><input type="number" min="0.1" max="1000" step="0.1" value={weightKg} onChange={(event) => setWeightKg(event.target.value)} required /></label>}
+            </>}
+          </div>
+        </div>
+
+        <div className="checkout-section">
+          <div className="checkout-section__title">
+            <span className="checkout-section__step-num">3</span>
+            <span>{english ? 'Payment Method' : 'Phương thức thanh toán'}</span>
+          </div>
+          <label className="field">
+            <span>{english ? 'Payment method' : 'Phương thức thanh toán'}</span>
+            <DropdownMenu value={paymentChoice} options={paymentOptions.map((option) => ({ ...option, label: option.value === 'later' && fulfillment === 'pickup' ? (english ? 'Pay at counter' : 'Thanh toán trực tiếp tại quầy') : option.label }))} ariaLabel={english ? 'Payment method' : 'Phương thức thanh toán'} onChange={setPaymentChoice} />
+          </label>
+        </div>
+
+        <div className="checkout-section">
+          <div className="checkout-section__title">
+            <span className="checkout-section__step-num">4</span>
+            <span>{english ? 'Promotions & Vouchers' : 'Khuyến mãi & Mã giảm giá'}</span>
+          </div>
+          <section className="checkout-voucher">
+            <div className="checkout-voucher__head">
+              <div>
+                <span className="eyebrow">{english ? 'OFFERS' : 'ƯU ĐÃI'}</span>
+                <b>{english ? 'Select vouchers for your order' : 'Chọn mã giảm giá cho đơn hàng'}</b>
+              </div>
+              <a href="/rewards">{english ? 'Lucky Spin →' : 'Vòng quay may mắn →'}</a>
+            </div>
+            <VoucherCodeInput onApply={onApplyVoucherCode} english={english} />
+            {manualCodes.length > 0 && <small className="voucher-valid">Mã nhập: {manualCodes.join(', ')}</small>}
+            <div className="checkout-voucher-groups">
+              {voucherGroup('goods', english ? 'Goods vouchers' : 'Mã giảm giá hàng hóa', <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>, goodsVouchers)}
+              {voucherGroup('shipping', english ? 'Shipping vouchers' : 'Mã giảm giá phí vận chuyển', <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, shippingVouchers)}
+            </div>
+          </section>
+        </div>
+
+        <div className="checkout-disclaimer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px' }}><rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
+          <span>{english ? 'Inner HCM City, Binh Duong & Ba Ria - Vung Tau: 30,000 ₫. Other provinces: 60,000 ₫ flat rate. International: 200,000 ₫ up to 1 kg, 400,000 ₫ for 2–5 kg.' : 'Nội thành TP. Hồ Chí Minh, Bình Dương và Bà Rịa - Vũng Tàu: 30.000 ₫. Các tỉnh, thành khác: 60.000 ₫ cố định. Vận chuyển quốc tế: 200.000 ₫ cho tối đa 1 kg, từ 2–5 kg là 400.000 ₫.'}</span>
+        </div>
+
         {quoteError && <p className="voucher-invalid" role="alert">{quoteError}</p>}
         <button className="button" type="submit" data-payment-trigger disabled={busy || !quote}>
-          {busy ? (english ? 'Processing…' : 'Đang xử lý…') : (paymentChoice === 'bank_transfer' ? (english ? 'Pay · ' : 'Thanh toán · ') : (english ? 'Confirm order · ' : 'Xác nhận đơn · '))
+          {busy ? (english ? 'Processing…' : 'Đang xử lý…') : (paymentChoice === 'bank_transfer' ? (english ? 'Pay with VietQR · ' : 'Thanh toán VietQR · ') : (english ? 'Confirm order · ' : 'Xác nhận đơn · '))
             + money.format(quote?.total ?? cartTotal(cart))}
         </button>
       </form>
-      <aside className="surface summary-card"><p className="eyebrow">{english ? 'Your order' : 'Đơn của bạn'}</p>
-        {cart.map((item) => { const line = quotedItems.get(String(item.id)) || item; return <div className="summary-row" key={item.id}><span>{line.name} × {item.quantity}</span><b>{money.format(line.price * item.quantity)}</b></div> })}
+
+      <aside className="surface summary-card">
+        <p className="eyebrow">{english ? 'Your order' : 'Đơn của bạn'}</p>
+        <div className="summary-card__head">
+          <h3>{english ? 'Order Summary' : 'Tóm tắt đơn hàng'}</h3>
+          <span className="summary-card__badge">{cart.reduce((s, i) => s + i.quantity, 0)} {english ? 'items' : 'món'}</span>
+        </div>
+
+        <div className="checkout-items-list">
+          {cart.map((item) => {
+            const line = quotedItems.get(String(item.id)) || item
+            const artImg = item.image
+              ? (item.image.startsWith('/') || item.image.startsWith('http') ? item.image : '/products/' + item.image + '.svg')
+              : null
+            return (
+              <div className="checkout-item-row" key={item.id}>
+                <div className="checkout-item-row__art">
+                  {artImg ? <img src={artImg} alt={line.name} loading="lazy" /> : <span>{item.symbol || '✦'}</span>}
+                </div>
+                <div className="checkout-item-row__info">
+                  <div className="checkout-item-row__name" title={line.name}>{line.name}</div>
+                  <div className="checkout-item-row__meta">{money.format(line.price)} × {item.quantity}</div>
+                </div>
+                <div className="checkout-item-row__total">{money.format(line.price * item.quantity)}</div>
+              </div>
+            )
+          })}
+        </div>
+
+        {cart.map((item) => { const line = quotedItems.get(String(item.id)) || item; return <div className="summary-row" key={item.id} style={{ display: 'none' }}><span>{line.name} × {item.quantity}</span><b>{money.format(line.price * item.quantity)}</b></div> })}
         <div className="summary-row"><span>{english ? 'Subtotal' : 'Tạm tính'}</span><span>{money.format(quote?.subtotal ?? cartTotal(cart))}</span></div>
-        <div className="summary-row"><span>{english ? `Voucher + Tier ${plan.name}` : `Voucher + hạng ${plan.name}`}</span><b>-{money.format(quote ? quote.subtotal - quote.goodsTotal : 0)}</b></div>
+        <div className="summary-row"><span>{english ? `Voucher + Tier ${plan.name}` : `Voucher + hạng ${plan.name}`}</span><b className="discount-text">-{money.format(quote ? quote.subtotal - quote.goodsTotal : 0)}</b></div>
         <div className="summary-row"><span>{english ? 'Shipping fee' : 'Phí giao hàng'}</span><span>{money.format(quote?.shippingFeeBeforeDiscount ?? quote?.shippingFee ?? 0)}</span></div>
-        {quote?.shippingDiscount > 0 && <div className="summary-row"><span>{english ? 'Shipping discount' : 'Đã giảm phí vận chuyển'}</span><b>-{money.format(quote.shippingDiscount)}</b></div>}
-        <div className="summary-row summary-row--total"><span>{english ? 'Total' : 'Tổng'}</span><span>{money.format(quote?.total ?? 0)}</span></div>
-        <p className="checkout-disclaimer">
+        {quote?.shippingDiscount > 0 && <div className="summary-row"><span>{english ? 'Shipping discount' : 'Đã giảm phí vận chuyển'}</span><b className="discount-text">-{money.format(quote.shippingDiscount)}</b></div>}
+        <div className="summary-row summary-row--total">
+          <span>{english ? 'Total' : 'Tổng cộng'}</span>
+          <span className="total-amount">{money.format(quote?.total ?? 0)}</span>
+        </div>
+
+        <p className="checkout-disclaimer" style={{ marginTop: '14px', marginBottom: '0' }}>
           {english ? 'Check total before scanning QR. Bank transfer orders are saved only after payment confirmation.' : 'Kiểm tra tổng tiền trước khi mở QR. Đơn chỉ vào lịch sử mua sau khi cửa hàng xác nhận đã nhận tiền.'}
         </p>
+
+        <div className="checkout-guarantees">
+          <div className="checkout-guarantee">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>{english ? 'Secure payment via VietQR' : 'Thanh toán bảo mật qua VietQR'}</span>
+          </div>
+          <div className="checkout-guarantee">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>{english ? 'Instant automatic confirmation' : 'Tự động kiểm tra sao kê sau 10 giây'}</span>
+          </div>
+          <div className="checkout-guarantee">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>{english ? '7-day returns & official support' : 'Miễn phí đổi trả trong 7 ngày'}</span>
+          </div>
+        </div>
       </aside>
     </div>
     {paymentModal}

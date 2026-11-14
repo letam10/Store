@@ -154,7 +154,7 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       <div className="auth-topbar">
         <a className="auth-back" href="/">← Về cửa hàng</a>
       </div>
-      <span className="auth-mark">store<span>.</span></span>
+      <span className="auth-mark">OmniCart<span>.</span></span>
       <p className="auth-kicker">MỘT GÓC RIÊNG CỦA BẠN</p>
       <div className="auth-header-stage" key={'header-' + view}>
         <h1>{view === 'register' ? 'Tạo tài khoản mới.' : view === 'forgot' ? 'Quên mật khẩu?' : view === 'reset' ? 'Đặt lại mật khẩu' : 'Chào mừng trở lại.'}</h1>
