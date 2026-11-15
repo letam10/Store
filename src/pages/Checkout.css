@@ -448,92 +448,142 @@ form.checkout-card {
   background: var(--theme-surface-alt, #f9fbf9);
 }
 
-/* Luxury Perforated Ticket Stub Style */
+/* Orderly, High-End Ticket Style Voucher Option */
 .checkout-voucher-option {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 14px;
-  padding: 13px 16px;
-  border: 1.5px dashed var(--theme-border, #cfded4);
-  border-radius: 13px;
-  background: var(--theme-surface, #ffffff);
+  padding: 14px 16px;
+  border: 1.5px solid var(--theme-border, #d2dfd6) !important;
+  border-radius: 14px;
+  background: var(--theme-surface, #ffffff) !important;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 4px rgba(22, 54, 38, 0.03);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(22, 54, 38, 0.04);
   position: relative;
+  user-select: none;
 }
 
 .checkout-voucher-option:hover {
-  border-style: solid;
-  border-color: var(--theme-accent, #559b70);
+  border-color: var(--theme-accent, #489e6e) !important;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(22, 54, 38, 0.08);
+  box-shadow: 0 6px 18px rgba(22, 54, 38, 0.09);
+  background: var(--theme-surface, #ffffff) !important;
 }
 
 .checkout-voucher-option.is-selected {
-  border-style: solid;
-  border-color: var(--theme-accent, #2a734a);
-  background: linear-gradient(135deg, rgba(52, 148, 96, 0.09) 0%, rgba(42, 115, 74, 0.03) 100%), var(--theme-surface, #ffffff);
-  box-shadow: 0 4px 14px rgba(42, 115, 74, 0.16), inset 0 0 0 1px var(--theme-accent, #2a734a);
+  border-color: var(--theme-accent, #215c3b) !important;
+  background: linear-gradient(135deg, rgba(33, 92, 59, 0.08) 0%, rgba(33, 92, 59, 0.02) 100%), var(--theme-surface, #ffffff) !important;
+  box-shadow: 0 4px 16px rgba(33, 92, 59, 0.16), inset 0 0 0 1px var(--theme-accent, #215c3b) !important;
 }
 
-.checkout-voucher-option input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--theme-accent, #215c3b);
+/* Custom Orderly Checkbox */
+.checkout-voucher-option input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--theme-border, #b8cbbe);
+  border-radius: 6px;
+  background: var(--theme-surface, #ffffff);
   cursor: pointer;
+  display: grid;
+  place-content: center;
   margin: 0;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  align-self: center;
 }
 
-.checkout-voucher-option span {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
-  min-width: 0;
+.checkout-voucher-option input[type="checkbox"]:hover {
+  border-color: var(--theme-accent, #215c3b);
 }
 
+.checkout-voucher-option input[type="checkbox"]:checked {
+  background: var(--theme-accent, #215c3b) !important;
+  border-color: var(--theme-accent, #215c3b) !important;
+  box-shadow: 0 2px 6px rgba(33, 92, 59, 0.3);
+}
+
+.checkout-voucher-option input[type="checkbox"]:checked::before {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+/* Content Body */
+.checkout-voucher-option__body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.checkout-voucher-option__name,
 .checkout-voucher-option b {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--theme-text, #17382c);
-  line-height: 1.35;
-  letter-spacing: -0.1px;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  color: var(--theme-text, #17382c) !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.2px !important;
+  margin: 0 !important;
+  text-align: left !important;
 }
 
+.checkout-voucher-option__meta {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  text-align: left !important;
+}
+
+/* Monospace Voucher Code Box */
 .checkout-voucher-option code {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 9px;
-  border-radius: 7px;
-  background: var(--theme-surface-alt, #edf5f0);
-  border: 1px solid var(--theme-border, #d2dfd6);
-  color: var(--theme-accent, #1a5635);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-weight: 800;
-  font-size: 11.5px;
-  letter-spacing: 0.8px;
-  width: fit-content;
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  background: var(--theme-surface-alt, #edf5f0) !important;
+  border: 1px dashed var(--theme-accent, #3d885e) !important;
+  color: var(--theme-accent, #184e31) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-weight: 800 !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.6px !important;
+  width: fit-content !important;
+  line-height: 1.4 !important;
 }
 
 .checkout-voucher-option small {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  color: var(--theme-muted, #6f8075);
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 12px !important;
+  color: var(--theme-muted, #66796e) !important;
+  font-weight: 500 !important;
 }
 
+/* Discount Value Tag Badge */
 .checkout-voucher-option strong {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 8px 16px !important;
-  border-radius: 999px !important;
-  background: linear-gradient(135deg, #184431 0%, #296d4a 100%) !important;
+  min-width: 62px !important;
+  padding: 8px 14px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #184431 0%, #2b7550 100%) !important;
   color: #ffffff !important;
-  font-size: 14px !important;
+  font-size: 13.5px !important;
   font-weight: 900 !important;
   letter-spacing: -0.2px !important;
   white-space: nowrap !important;
@@ -542,23 +592,69 @@ form.checkout-card {
 }
 
 .checkout-voucher-option.is-selected strong {
-  background: linear-gradient(135deg, #143d2b 0%, #225e3f 100%) !important;
-  box-shadow: 0 4px 12px rgba(20, 61, 43, 0.35) !important;
+  background: linear-gradient(135deg, #133c2a 0%, #205c3e 100%) !important;
+  box-shadow: 0 4px 12px rgba(19, 60, 42, 0.38) !important;
 }
 
+/* Upgraded Orderly Empty State */
+.checkout-voucher-empty {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 16px 18px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid var(--theme-border, #d9e5dc) !important;
+  background: var(--theme-surface, #ffffff) !important;
+  box-shadow: 0 1px 4px rgba(22, 54, 38, 0.03) !important;
+}
+
+.checkout-voucher-empty__icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 10px !important;
+  background: var(--theme-surface-alt, #edf5f0) !important;
+  border: 1px solid var(--theme-border, #d2dfd6) !important;
+  color: var(--theme-accent, #215c3b) !important;
+  flex-shrink: 0 !important;
+}
+
+.checkout-voucher-empty__body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  text-align: left !important;
+}
+
+.checkout-voucher-empty__body p,
 .checkout-voucher-group__panel p.muted {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px dashed var(--theme-border, #dbe4de);
-  background: var(--theme-surface, #ffffff);
-  color: var(--theme-muted, #718378);
-  font-size: 12.5px;
-  margin: 0;
-  text-align: center;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: var(--theme-text, #17382c) !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+  text-align: left !important;
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.checkout-voucher-empty__link {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--theme-accent, #215c3b) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: color 0.15s ease !important;
+}
+
+.checkout-voucher-empty__link:hover {
+  color: var(--theme-accent-hover, #18442b) !important;
+  text-decoration: underline !important;
 }
 
 /* Shipping disclaimer box */
@@ -940,6 +1036,18 @@ html[data-theme='dark'] .checkout-voucher-option.is-selected {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), inset 0 0 0 1px #55d68d !important;
 }
 
+:root[data-theme='dark'] .checkout-voucher-option input[type="checkbox"],
+html[data-theme='dark'] .checkout-voucher-option input[type="checkbox"] {
+  background: #132219 !important;
+  border-color: #3b5a47 !important;
+}
+
+:root[data-theme='dark'] .checkout-voucher-option input[type="checkbox"]:checked,
+html[data-theme='dark'] .checkout-voucher-option input[type="checkbox"]:checked {
+  background: #348b59 !important;
+  border-color: #55d68d !important;
+}
+
 :root[data-theme='dark'] .checkout-voucher-option b,
 html[data-theme='dark'] .checkout-voucher-option b {
   color: #eff6f1 !important;
@@ -952,17 +1060,42 @@ html[data-theme='dark'] .checkout-voucher-option code {
   color: #55d68d !important;
 }
 
+:root[data-theme='dark'] .checkout-voucher-option small,
+html[data-theme='dark'] .checkout-voucher-option small {
+  color: #9ab4a3 !important;
+}
+
 :root[data-theme='dark'] .checkout-voucher-option strong,
 html[data-theme='dark'] .checkout-voucher-option strong {
   background: linear-gradient(135deg, #245840, #36825e) !important;
   color: #ffffff !important;
 }
 
-:root[data-theme='dark'] .checkout-voucher-group__panel p.muted,
-html[data-theme='dark'] .checkout-voucher-group__panel p.muted {
+/* Dark Mode support for empty state */
+:root[data-theme='dark'] .checkout-voucher-empty,
+html[data-theme='dark'] .checkout-voucher-empty {
   background: #182a1f !important;
   border-color: #2b4535 !important;
-  color: #8da394 !important;
+}
+
+:root[data-theme='dark'] .checkout-voucher-empty__icon,
+html[data-theme='dark'] .checkout-voucher-empty__icon {
+  background: #1e3627 !important;
+  border-color: #31533d !important;
+  color: #55d68d !important;
+}
+
+:root[data-theme='dark'] .checkout-voucher-empty__body p,
+:root[data-theme='dark'] .checkout-voucher-group__panel p.muted,
+html[data-theme='dark'] .checkout-voucher-empty__body p,
+html[data-theme='dark'] .checkout-voucher-group__panel p.muted {
+  background: transparent !important;
+  color: #e5efe8 !important;
+}
+
+:root[data-theme='dark'] .checkout-voucher-empty__link,
+html[data-theme='dark'] .checkout-voucher-empty__link {
+  color: #55d68d !important;
 }
 
 :root[data-theme='dark'] .checkout-item-row,

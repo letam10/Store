@@ -1,123 +1,161 @@
-/* Rewards Page Styles - OmniCart Fortune Center */
+/*
+  OmniCart - Fortune Center (Lucky Rewards) Stylesheet
+  Elevated with luxury gaming aesthetics, luminous metallic wheels,
+  orderly ticket cards, glassmorphic banners, and seamless dual-theme harmony.
+*/
+
 .rewards-page {
   max-width: 1240px;
+  margin: 0 auto;
 }
+
+/* Page Header */
 .rewards-page .page-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  gap: 24px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 24px !important;
 }
-.rewards-page .page-head h1 {
-  font-size: clamp(28px, 4vw, 42px);
-  font-weight: 800;
-  letter-spacing: -1.2px;
-  line-height: 1.15;
-  margin: 6px 0 0;
-  color: var(--theme-text, var(--ink, #17382c));
+
+.rewards-page .page-head > div {
+  min-width: 280px;
 }
+
 .rewards-page .page-head .eyebrow {
-  color: #2b774d;
-  font-weight: 800;
-  letter-spacing: 2px;
-  font-size: 11.5px;
-  text-transform: uppercase;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 14px !important;
+  border-radius: 999px !important;
+  background: var(--theme-accent-soft, #eef7f1) !important;
+  color: var(--theme-accent, #21603d) !important;
+  border: 1px solid var(--theme-border, #d2e4d8) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
 }
+
+.rewards-page .page-head h1 {
+  font-size: clamp(28px, 4vw, 38px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.8px !important;
+  line-height: 1.2 !important;
+  margin: 6px 0 0 !important;
+  color: var(--theme-text, #17382c) !important;
+}
+
 .rewards-page .page-head .muted {
-  font-size: 13.5px;
-  max-width: 320px;
-  line-height: 1.5;
-  color: var(--theme-muted, var(--muted, #617366));
-  margin: 0;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  max-width: 340px !important;
+  line-height: 1.55 !important;
+  color: var(--theme-muted, #617366) !important;
+  margin: 0 !important;
+  background: var(--theme-surface, #ffffff) !important;
+  padding: 10px 18px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--theme-border, #dce6de) !important;
+  box-shadow: 0 4px 14px rgba(18, 48, 33, 0.04) !important;
 }
 
 /* Shared Spin Balance Banner */
 .shared-spin-balance {
   display: flex !important;
   align-items: center !important;
-  gap: 20px !important;
-  padding: 24px 30px !important;
+  gap: 22px !important;
+  padding: 24px 32px !important;
   margin: 0 0 32px !important;
-  border-radius: 24px !important;
-  background: linear-gradient(135deg, #173d2a 0%, #23583c 50%, #2e714e 100%) !important;
-  border: 1px solid rgba(255, 215, 0, 0.25) !important;
+  border-radius: 26px !important;
+  background: linear-gradient(135deg, #133924 0%, #1c5234 50%, #266b44 100%) !important;
+  border: 1.5px solid rgba(255, 215, 0, 0.35) !important;
   color: #ffffff !important;
-  box-shadow: 0 14px 32px rgba(19, 45, 32, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 16px 42px -10px rgba(19, 57, 36, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   position: relative !important;
   overflow: hidden !important;
 }
+
 .shared-spin-balance::before {
   content: '';
   position: absolute;
   top: -60%;
   right: -10%;
-  width: 340px;
-  height: 340px;
+  width: 360px;
+  height: 360px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 226, 154, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 226, 154, 0.18) 0%, transparent 70%);
   pointer-events: none;
 }
+
 .shared-spin-balance > span {
   display: grid !important;
   place-items: center !important;
-  width: 54px !important;
-  height: 54px !important;
-  border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.14) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.08) 100%) !important;
+  border: 1.5px solid rgba(255, 215, 0, 0.45) !important;
   font-size: 26px !important;
-  color: #ffd875 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  color: #ffe07a !important;
+  text-shadow: 0 0 12px rgba(255, 224, 122, 0.6) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15) !important;
   flex-shrink: 0 !important;
 }
+
 .shared-spin-balance > div {
   flex: 1;
   min-width: 200px;
 }
+
 .shared-spin-balance strong {
   display: block !important;
-  font-size: 23px !important;
+  font-size: 24px !important;
   font-weight: 800 !important;
-  letter-spacing: -0.3px !important;
+  letter-spacing: -0.4px !important;
   color: #ffffff !important;
 }
+
 .shared-spin-balance p {
   margin: 6px 0 0 !important;
-  color: #dbebe0 !important;
+  color: #d8ece0 !important;
   font-size: 13.5px !important;
   line-height: 1.5 !important;
 }
+
 .shared-spin-balance a {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
   margin-left: auto !important;
-  padding: 10px 22px !important;
+  padding: 11px 24px !important;
   border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.16) !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #f7d070 0%, #e5b342 100%) !important;
+  border: 1px solid #ffd875 !important;
+  color: #163825 !important;
   font-size: 13.5px !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   text-decoration: none !important;
   white-space: nowrap !important;
-  backdrop-filter: blur(8px) !important;
-  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 16px rgba(229, 179, 66, 0.35) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
+
 .shared-spin-balance a:hover {
-  background: #ffffff !important;
-  color: #173d2a !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18) !important;
-  transform: translateY(-1px) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 24px rgba(229, 179, 66, 0.5) !important;
+  background: linear-gradient(135deg, #ffe085 0%, #f0bf50 100%) !important;
+  color: #112a1c !important;
 }
 
 /* Wheel Game Cards */
 .rewards-workspace {
   display: block !important;
 }
+
 .rewards-wheels {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -125,33 +163,38 @@
   align-items: start !important;
   min-width: 0;
 }
+
 .rewards-wheels .reward-game-card {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
   gap: 16px !important;
-  padding: 28px !important;
-  border-radius: 26px !important;
+  padding: 30px !important;
+  border-radius: 28px !important;
   border-width: 1.5px !important;
   border-style: solid !important;
   background: var(--theme-surface, #ffffff) !important;
-  box-shadow: 0 10px 32px rgba(18, 48, 33, 0.05) !important;
-  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+  box-shadow: 0 14px 40px rgba(18, 48, 33, 0.07), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
   position: relative !important;
   overflow: hidden !important;
 }
+
 .rewards-wheels .reward-game-card:hover {
-  box-shadow: 0 16px 42px rgba(18, 48, 33, 0.09) !important;
+  box-shadow: 0 20px 50px rgba(18, 48, 33, 0.12), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
   transform: translateY(-2px) !important;
 }
+
 .reward-game-card--goods {
   border-color: rgba(45, 122, 80, 0.22) !important;
-  background: radial-gradient(circle at top right, rgba(235, 248, 240, 0.8) 0%, var(--theme-surface, #ffffff) 65%) !important;
+  background: radial-gradient(circle at top right, rgba(230, 248, 238, 0.7) 0%, var(--theme-surface, #ffffff) 65%) !important;
 }
+
 .reward-game-card--shipping {
   border-color: rgba(35, 116, 155, 0.22) !important;
-  background: radial-gradient(circle at top right, rgba(230, 245, 252, 0.8) 0%, var(--theme-surface, #ffffff) 65%) !important;
+  background: radial-gradient(circle at top right, rgba(228, 245, 254, 0.7) 0%, var(--theme-surface, #ffffff) 65%) !important;
 }
+
 .rewards-wheel-heading {
   display: flex !important;
   justify-content: space-between !important;
@@ -162,54 +205,62 @@
   width: 100% !important;
   text-align: left !important;
 }
+
 .rewards-wheel-heading .eyebrow {
   display: inline-block !important;
-  padding: 4px 10px !important;
-  border-radius: 8px !important;
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
   font-size: 11px !important;
   font-weight: 800 !important;
-  letter-spacing: 1px !important;
+  letter-spacing: 0.8px !important;
   text-transform: uppercase !important;
   margin-bottom: 6px !important;
 }
+
 .reward-game-card--goods .rewards-wheel-heading .eyebrow {
-  background: #e4f3ea !important;
-  color: #1c5e39 !important;
-  border: 1px solid rgba(28, 94, 57, 0.15) !important;
+  background: #eef8f2 !important;
+  color: #1e633d !important;
+  border: 1px solid #cde6d7 !important;
 }
+
 .reward-game-card--shipping .rewards-wheel-heading .eyebrow {
-  background: #e1f2fa !important;
-  color: #155575 !important;
-  border: 1px solid rgba(21, 85, 117, 0.15) !important;
+  background: #edf6fb !important;
+  color: #185a7a !important;
+  border: 1px solid #cce3ef !important;
 }
+
 .rewards-wheel-heading h2 {
   margin: 0 !important;
   font-size: clamp(21px, 2.5vw, 24px) !important;
   font-weight: 800 !important;
-  letter-spacing: -0.4px !important;
-  color: var(--theme-text, var(--ink, #17382c)) !important;
+  letter-spacing: -0.5px !important;
+  color: var(--theme-text, #17382c) !important;
   line-height: 1.25 !important;
 }
+
 .rewards-wheel-heading > span {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 52px !important;
-  height: 52px !important;
-  border-radius: 16px !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 18px !important;
   font-size: 26px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
   flex-shrink: 0 !important;
   transition: transform 0.25s ease !important;
 }
+
 .reward-game-card--goods .rewards-wheel-heading > span {
-  background: linear-gradient(135deg, #e8f6ed 0%, #d8ece0 100%) !important;
-  border: 1.5px solid rgba(45, 122, 80, 0.2) !important;
+  background: linear-gradient(135deg, #eaf6ee 0%, #d5ece0 100%) !important;
+  border: 1.5px solid rgba(45, 122, 80, 0.22) !important;
 }
+
 .reward-game-card--shipping .rewards-wheel-heading > span {
-  background: linear-gradient(135deg, #e6f3fa 0%, #d0e8f5 100%) !important;
-  border: 1.5px solid rgba(35, 116, 155, 0.2) !important;
+  background: linear-gradient(135deg, #e6f3fa 0%, #cde6f5 100%) !important;
+  border: 1.5px solid rgba(35, 116, 155, 0.22) !important;
 }
+
 .reward-game-card:hover .rewards-wheel-heading > span {
   transform: scale(1.08) rotate(-4deg) !important;
 }
@@ -224,30 +275,33 @@
   isolation: isolate !important;
   align-self: center !important;
 }
+
 .lucky-wheel::before {
   content: '';
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  background: radial-gradient(circle, transparent 65%, rgba(212, 160, 62, 0.12) 85%, rgba(212, 160, 62, 0.35) 100%);
-  border: 2.5px solid rgba(212, 160, 62, 0.35);
-  box-shadow: 0 0 16px rgba(212, 160, 62, 0.12), inset 0 0 12px rgba(212, 160, 62, 0.08);
+  background: radial-gradient(circle, transparent 65%, rgba(229, 190, 98, 0.12) 85%, rgba(229, 190, 98, 0.35) 100%);
+  border: 2.5px solid rgba(229, 190, 98, 0.4);
+  box-shadow: 0 0 0 4px #e5be62, 0 0 0 7px rgba(229, 190, 98, 0.25), 0 16px 36px rgba(18, 48, 33, 0.18);
   pointer-events: none;
   z-index: 0;
 }
+
 .lucky-wheel__pointer {
   position: absolute !important;
   left: 50% !important;
-  top: -4px !important;
+  top: -5px !important;
   transform: translateX(-50%) !important;
   z-index: 10 !important;
-  width: 24px !important;
-  height: 38px !important;
+  width: 26px !important;
+  height: 40px !important;
   border: 0 !important;
-  background: linear-gradient(180deg, #d4a03e 0%, #e8ba5d 40%, #b88228 100%) !important;
-  clip-path: polygon(50% 100%, 0% 20%, 0% 0%, 100% 0%, 100% 20%) !important;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35)) !important;
+  background: linear-gradient(180deg, #f7d070 0%, #e2a838 50%, #b88220 100%) !important;
+  clip-path: polygon(50% 100%, 0% 22%, 0% 0%, 100% 0%, 100% 22%) !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35)) !important;
 }
+
 .lucky-wheel__pointer::after {
   content: '';
   position: absolute;
@@ -260,6 +314,7 @@
   background: #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
+
 .lucky-wheel__disc {
   position: relative !important;
   z-index: 1 !important;
@@ -267,26 +322,30 @@
   width: 100% !important;
   height: 100% !important;
   overflow: visible !important;
-  filter: drop-shadow(0 12px 24px rgba(23, 55, 40, 0.18)) !important;
+  filter: drop-shadow(0 10px 22px rgba(23, 55, 40, 0.16)) !important;
   transition-property: transform;
   transition-timing-function: cubic-bezier(.15, .65, .12, 1);
 }
+
 .lucky-wheel__prize {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: 18px;
   font-weight: 800;
   fill: #263d30;
 }
-.rewards-wheel-card--shipping .lucky-wheel__prize {
+
+.reward-game-card--shipping .lucky-wheel__prize {
   font-size: 16px;
 }
+
 .lucky-wheel__caption {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 1px;
   fill: #40533e;
 }
+
 .lucky-wheel__hub {
   position: absolute !important;
   inset: 0 !important;
@@ -307,7 +366,7 @@
   align-items: center !important;
   justify-content: center !important;
   align-self: center !important;
-  min-width: 230px !important;
+  min-width: 240px !important;
   min-height: 48px !important;
   padding: 12px 28px !important;
   border: 0 !important;
@@ -319,36 +378,47 @@
   cursor: pointer !important;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
+
 .reward-game-card--goods .lucky-spin {
-  background: linear-gradient(135deg, #1b5e39 0%, #2f855a 100%) !important;
-  box-shadow: 0 6px 18px rgba(27, 94, 57, 0.28) !important;
+  background: linear-gradient(135deg, #1b6038 0%, #29854f 50%, #34a362 100%) !important;
+  box-shadow: 0 6px 20px rgba(35, 120, 72, 0.32) !important;
 }
+
 .reward-game-card--goods .lucky-spin:hover:not(:disabled) {
-  background: linear-gradient(135deg, #227045 0%, #389767 100%) !important;
-  box-shadow: 0 10px 25px rgba(27, 94, 57, 0.38) !important;
-  transform: translateY(-2px) !important;
+  background: linear-gradient(135deg, #227545 0%, #32995c 50%, #3cb86f 100%) !important;
+  box-shadow: 0 10px 28px rgba(35, 120, 72, 0.45) !important;
+  transform: translateY(-2px) scale(1.02) !important;
 }
+
 .reward-game-card--shipping .lucky-spin {
-  background: linear-gradient(135deg, #185a7a 0%, #2982ab 100%) !important;
-  box-shadow: 0 6px 18px rgba(24, 90, 122, 0.28) !important;
+  background: linear-gradient(135deg, #155d82 0%, #1f7fae 50%, #299ed8 100%) !important;
+  box-shadow: 0 6px 20px rgba(25, 110, 160, 0.32) !important;
 }
+
 .reward-game-card--shipping .lucky-spin:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1f6d93 0%, #3194c2 100%) !important;
-  box-shadow: 0 10px 25px rgba(24, 90, 122, 0.38) !important;
-  transform: translateY(-2px) !important;
+  background: linear-gradient(135deg, #1c729f 0%, #2695cd 50%, #31aee8 100%) !important;
+  box-shadow: 0 10px 28px rgba(25, 110, 160, 0.45) !important;
+  transform: translateY(-2px) scale(1.02) !important;
 }
+
 .reward-game-card .lucky-spin:active:not(:disabled) {
   transform: scale(0.97) !important;
 }
+
 .lucky-spin:disabled {
-  opacity: 0.6 !important;
+  background: var(--theme-control, #edf4ee) !important;
+  color: var(--theme-muted, #72877a) !important;
+  border: 1.5px solid var(--theme-border, #d8e5dc) !important;
+  box-shadow: none !important;
+  opacity: 0.85 !important;
   cursor: not-allowed !important;
   transform: none !important;
-  box-shadow: none !important;
 }
+
 .lucky-wheel__hint {
   font-size: 13px !important;
-  color: var(--theme-muted, var(--muted, #617366)) !important;
+  font-weight: 500 !important;
+  color: var(--theme-muted, #617366) !important;
   text-align: center !important;
   margin: 0 !important;
 }
@@ -359,67 +429,76 @@
   height: auto !important;
   min-height: 0 !important;
   margin-top: 32px !important;
-  padding: 30px 32px !important;
-  border-radius: 26px !important;
+  padding: 32px 34px !important;
+  border-radius: 28px !important;
   border: 1.5px solid var(--theme-border, #dce6df) !important;
   background: var(--theme-surface, #ffffff) !important;
-  box-shadow: 0 10px 32px rgba(18, 48, 33, 0.04) !important;
+  box-shadow: 0 12px 36px rgba(18, 48, 33, 0.05) !important;
 }
+
 .rewards-wallet-head {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   gap: 20px !important;
-  margin-bottom: 20px !important;
+  margin-bottom: 22px !important;
 }
+
 .rewards-wallet-head h2 {
   margin: 8px 0 4px !important;
   font-size: 24px !important;
   font-weight: 800 !important;
-  letter-spacing: -0.3px !important;
-  color: var(--theme-text, var(--ink, #17382c)) !important;
+  letter-spacing: -0.4px !important;
+  color: var(--theme-text, #17382c) !important;
 }
+
 .rewards-wallet-head p {
-  font-size: 13px !important;
-  color: var(--theme-muted, var(--muted, #64776b)) !important;
+  font-size: 13.5px !important;
+  color: var(--theme-muted, #617366) !important;
   margin: 0 !important;
   font-weight: 500 !important;
 }
+
 .membership-badge {
   display: inline-flex !important;
   align-items: center !important;
-  padding: 4px 12px !important;
+  padding: 5px 14px !important;
   border-radius: 999px !important;
   font-size: 11px !important;
   font-weight: 800 !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.8px !important;
   text-transform: uppercase !important;
-  background: linear-gradient(135deg, #1b5336 0%, #2f7a52 100%) !important;
+  background: linear-gradient(135deg, #a3683b 0%, #c4824d 100%) !important;
   color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(163, 104, 59, 0.3) !important;
 }
+
 .rewards-wallet-scroll {
   display: flex !important;
   gap: 8px !important;
   flex-shrink: 0 !important;
 }
+
 .rewards-wallet-scroll button {
   width: 38px !important;
   height: 38px !important;
-  border: 1px solid var(--line, #dce4dd) !important;
+  border: 1px solid var(--theme-border, #dce4dd) !important;
   border-radius: 11px !important;
-  background: var(--paper, #ffffff) !important;
-  color: var(--ink, #17382c) !important;
+  background: var(--theme-surface, #ffffff) !important;
+  color: var(--theme-text, #17382c) !important;
   font-size: 20px !important;
   cursor: pointer !important;
   transition: all 0.15s ease !important;
 }
+
 .rewards-wallet-scroll button:disabled {
   opacity: 0.35 !important;
   cursor: default !important;
 }
+
 .rewards-wallet-scroll button:not(:disabled):hover {
-  border-color: var(--accent, #4f8b67) !important;
-  background: var(--control-active, #edf4ee) !important;
+  border-color: var(--theme-accent, #4f8b67) !important;
+  background: var(--theme-control-active, #edf4ee) !important;
 }
 
 /* Empty State */
@@ -429,10 +508,10 @@
   align-items: center !important;
   justify-content: center !important;
   text-align: center !important;
-  padding: 36px 20px !important;
+  padding: 38px 24px !important;
   margin: 14px 0 24px !important;
-  border-radius: 18px !important;
-  background: var(--theme-surface-subtle, #f5f9f6) !important;
+  border-radius: 20px !important;
+  background: var(--theme-control, #f6faf7) !important;
   border: 1.5px dashed var(--theme-border, #d5e3d9) !important;
   color: var(--theme-muted, #5f7466) !important;
   font-size: 14px !important;
@@ -441,9 +520,10 @@
   height: auto !important;
   min-height: 0 !important;
 }
+
 .rewards-voucher-empty::before {
   content: '🎟️';
-  font-size: 38px;
+  font-size: 40px;
   margin-bottom: 10px;
   display: block;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.08));
@@ -453,39 +533,43 @@
 .rewards-voucher-table {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-  grid-auto-rows: 84px !important;
+  gap: 12px !important;
+  grid-auto-rows: minmax(84px, auto) !important;
   align-items: start !important;
   align-content: start !important;
   min-height: 0 !important;
   min-width: 0 !important;
   margin-top: 16px !important;
 }
+
 .rewards-voucher-table article {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
   grid-template-rows: auto auto !important;
-  gap: 4px 14px !important;
-  padding: 12px 16px !important;
-  height: 84px !important;
-  min-height: 0 !important;
+  gap: 6px 14px !important;
+  padding: 14px 18px !important;
+  min-height: 84px !important;
   box-sizing: border-box !important;
-  border-radius: 14px !important;
-  border: 1.5px solid var(--theme-border, var(--line, #d8e5dc)) !important;
-  background: var(--theme-surface, var(--paper, #ffffff)) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+  border-radius: 16px !important;
+  border: 1.5px solid var(--theme-border, #d8e5dc) !important;
+  background: var(--theme-surface, #ffffff) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
   transition: all 0.2s ease !important;
   position: relative !important;
 }
+
 .rewards-voucher-table article:hover {
   border-color: var(--theme-accent, #4f8b67) !important;
-  box-shadow: 0 4px 14px rgba(32, 75, 50, 0.08) !important;
+  box-shadow: 0 6px 18px rgba(32, 75, 50, 0.08) !important;
+  transform: translateY(-1px) !important;
 }
+
 .rewards-voucher-table article.is-selected {
-  border-color: var(--theme-accent, #3b895b) !important;
-  background: var(--theme-accent-soft, #f0f7f2) !important;
-  box-shadow: 0 0 0 2px rgba(59, 137, 91, 0.25) !important;
+  border-color: #2cb658 !important;
+  background: var(--theme-accent-soft, #f0f8f3) !important;
+  box-shadow: 0 0 0 2px rgba(44, 182, 88, 0.25) !important;
 }
+
 .rewards-voucher-table article > strong {
   grid-column: 1 !important;
   grid-row: 1 !important;
@@ -495,59 +579,68 @@
   -webkit-line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
   overflow: hidden !important;
-  font-weight: 700 !important;
-  color: var(--theme-text, var(--ink, #17382c)) !important;
+  font-weight: 800 !important;
+  color: var(--theme-text, #17382c) !important;
 }
+
 .rewards-voucher-table code {
   display: inline-block !important;
-  padding: 2px 7px !important;
+  padding: 3px 8px !important;
   border-radius: 6px !important;
-  background: var(--theme-control-active, #eaf3ec) !important;
-  border: 1px solid var(--theme-border, #cedfd3) !important;
-  color: var(--theme-accent-strong, #134227) !important;
+  background: var(--theme-control-active, #eef6f0) !important;
+  border: 1px solid var(--theme-border, #cfe2d5) !important;
+  color: var(--theme-accent, #175432) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   font-weight: 700 !important;
-  font-size: 11px !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.5px !important;
   overflow-wrap: normal !important;
 }
+
 .rewards-voucher-table article > small {
   grid-column: 1 / -1 !important;
   grid-row: 2 !important;
   white-space: nowrap !important;
-  color: var(--theme-muted, var(--muted, #627568)) !important;
+  color: var(--theme-muted, #617366) !important;
   font-size: 11.5px !important;
+  font-weight: 500 !important;
 }
+
 .rewards-voucher-table article > button {
   grid-column: 2 !important;
   grid-row: 1 / span 2 !important;
   align-self: center !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  padding: 6px 14px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 7px 18px !important;
   border-radius: 999px !important;
   font-size: 12px !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   border: 1px solid transparent !important;
   cursor: pointer !important;
   white-space: nowrap !important;
   transition: all 0.18s ease !important;
 }
-:root:not([data-theme='dark']) .rewards-voucher-table button {
-  color: #fff;
-}
+
 .rewards-voucher-table article button[aria-pressed="false"] {
-  background: var(--theme-accent, #23583c) !important;
+  background: var(--theme-accent, #21603d) !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(35, 88, 60, 0.2) !important;
+  box-shadow: 0 3px 10px rgba(33, 96, 61, 0.22) !important;
 }
+
 .rewards-voucher-table article button[aria-pressed="false"]:hover {
-  background: #2e714e !important;
-  box-shadow: 0 4px 12px rgba(35, 88, 60, 0.3) !important;
+  background: #28774c !important;
+  box-shadow: 0 5px 14px rgba(33, 96, 61, 0.32) !important;
+  transform: translateY(-1px) !important;
 }
+
 .rewards-voucher-table article button[aria-pressed="true"] {
-  background: #eef3ee !important;
-  color: #17382c !important;
-  border-color: #c7d8cb !important;
+  background: #e0f2e5 !important;
+  color: #164629 !important;
+  border-color: #b2dbbe !important;
+  box-shadow: none !important;
 }
+
 .rewards-voucher-table.has-overflow {
   max-height: 452px !important;
   overflow-y: auto !important;
@@ -555,11 +648,12 @@
   overscroll-behavior: contain !important;
   scrollbar-gutter: stable !important;
   scrollbar-width: thin !important;
-  scrollbar-color: #76a087 var(--paper, #fff) !important;
+  scrollbar-color: #76a087 var(--theme-surface, #ffffff) !important;
   padding-right: 4px !important;
 }
+
 .rewards-voucher-table:focus-visible {
-  outline: 2px solid var(--accent, #4f8b67) !important;
+  outline: 2px solid var(--theme-accent, #4f8b67) !important;
   outline-offset: 5px !important;
 }
 
@@ -569,23 +663,27 @@
   gap: 12px !important;
   margin-top: 24px !important;
 }
+
 .rewards-wallet-panel .page-actions .button {
-  padding: 10px 22px !important;
+  padding: 10px 24px !important;
   border-radius: 999px !important;
   font-size: 13.5px !important;
   font-weight: 700 !important;
   transition: all 0.2s ease !important;
 }
+
 .rewards-wallet-panel .page-actions .button--soft {
-  background: var(--theme-control-active, #edf4ee) !important;
-  color: var(--theme-accent-strong, #17382c) !important;
-  border: 1px solid var(--theme-border, #d2ded5) !important;
+  background: var(--theme-control-active, #edf5f0) !important;
+  color: var(--theme-text, #17382c) !important;
+  border: 1px solid var(--theme-border, #d0e2d6) !important;
 }
+
 .rewards-wallet-panel .page-actions .button--soft:hover {
-  background: var(--theme-accent, #23583c) !important;
+  background: var(--theme-accent, #21603d) !important;
   color: #ffffff !important;
-  border-color: var(--theme-accent, #23583c) !important;
-  box-shadow: 0 4px 14px rgba(35, 88, 60, 0.18) !important;
+  border-color: var(--theme-accent, #21603d) !important;
+  box-shadow: 0 4px 14px rgba(33, 96, 61, 0.2) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Modal */
@@ -596,37 +694,41 @@
   display: grid !important;
   place-items: center !important;
   padding: 18px !important;
-  background: rgba(10, 25, 18, 0.72) !important;
-  backdrop-filter: blur(10px) !important;
+  background: rgba(8, 22, 15, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
 }
+
 .reward-modal {
   width: min(100%, 420px) !important;
   display: grid !important;
   justify-items: center !important;
   gap: 12px !important;
-  padding: 36px 30px !important;
-  border-radius: 26px !important;
-  border: 1px solid rgba(255, 215, 0, 0.3) !important;
+  padding: 38px 32px !important;
+  border-radius: 28px !important;
+  border: 1.5px solid rgba(255, 215, 0, 0.4) !important;
   background: var(--theme-surface, #ffffff) !important;
   text-align: center !important;
-  box-shadow: 0 25px 70px rgba(7, 24, 16, 0.4), 0 0 35px rgba(212, 160, 62, 0.15) !important;
+  box-shadow: 0 28px 80px rgba(7, 24, 16, 0.4), 0 0 40px rgba(212, 160, 62, 0.15) !important;
   animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
+
 @keyframes modal-pop {
   from { opacity: 0; transform: scale(0.92) translateY(12px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
 .reward-modal__icon {
   display: grid !important;
   place-items: center !important;
-  width: 70px !important;
-  height: 70px !important;
+  width: 72px !important;
+  height: 72px !important;
   border-radius: 50% !important;
   background: radial-gradient(circle, #ffe9a8 0%, #ffd064 100%) !important;
   color: #5d440d !important;
-  font-size: 36px !important;
-  box-shadow: 0 8px 20px rgba(255, 208, 100, 0.4) !important;
+  font-size: 38px !important;
+  box-shadow: 0 8px 24px rgba(255, 208, 100, 0.45) !important;
 }
+
 .reward-modal h2 {
   margin: 4px 0 !important;
   font-size: 26px !important;
@@ -634,38 +736,42 @@
   letter-spacing: -0.5px !important;
   color: var(--theme-text, #17382c) !important;
 }
+
 .reward-modal code {
-  padding: 10px 20px !important;
-  border-radius: 10px !important;
-  background: #f0f7f2 !important;
-  border: 1.5px dashed #89b79a !important;
-  font-size: 19px !important;
+  padding: 10px 22px !important;
+  border-radius: 12px !important;
+  background: #f0f8f3 !important;
+  border: 1.5px dashed #2da05d !important;
+  font-size: 20px !important;
   font-weight: 900 !important;
   letter-spacing: 2px !important;
   color: #17382c !important;
 }
+
 .reward-modal small,
 .reward-modal p {
   color: #65736a;
   line-height: 1.6;
 }
+
 .reward-modal__close {
   min-width: 160px !important;
   margin-top: 14px !important;
   padding: 12px 28px !important;
   border-radius: 999px !important;
   border: 0 !important;
-  background: linear-gradient(135deg, #1b5336 0%, #2f7a52 100%) !important;
+  background: linear-gradient(135deg, #1b6038 0%, #29854f 100%) !important;
   color: #ffffff !important;
   font-weight: 800 !important;
   font-size: 14px !important;
   cursor: pointer !important;
-  box-shadow: 0 6px 18px rgba(27, 83, 54, 0.25) !important;
+  box-shadow: 0 6px 18px rgba(27, 96, 56, 0.28) !important;
   transition: all 0.2s ease !important;
 }
+
 .reward-modal__close:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 10px 24px rgba(27, 83, 54, 0.35) !important;
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 10px 24px rgba(27, 96, 56, 0.38) !important;
 }
 
 /* Responsive */
@@ -674,6 +780,7 @@
     grid-template-columns: 1fr !important;
   }
 }
+
 @media (max-width: 760px) {
   .shared-spin-balance {
     flex-wrap: wrap !important;
@@ -689,10 +796,11 @@
   }
   .rewards-wheel-heading > span {
     font-size: 24px !important;
-    width: 44px !important;
-    height: 44px !important;
+    width: 46px !important;
+    height: 46px !important;
   }
 }
+
 @media (max-width: 700px) {
   .rewards-voucher-table {
     grid-template-columns: 1fr !important;
@@ -711,117 +819,204 @@
     padding: 20px 16px !important;
   }
 }
+
 @media (max-width: 480px) {
   .lucky-wheel {
     max-width: 320px !important;
   }
 }
 
-/* Dark Mode */
+/* =========================================================
+   DARK MODE OVERRIDES FOR REWARDS
+   ========================================================= */
+:root[data-theme='dark'] .rewards-page .page-head h1,
 html[data-theme='dark'] .rewards-page .page-head h1 {
   color: #eff8f2 !important;
 }
+
+:root[data-theme='dark'] .rewards-page .page-head .eyebrow,
+html[data-theme='dark'] .rewards-page .page-head .eyebrow {
+  background: #183324 !important;
+  border-color: #2b553c !important;
+  color: #7ce5a5 !important;
+}
+
+:root[data-theme='dark'] .rewards-page .page-head .muted,
 html[data-theme='dark'] .rewards-page .page-head .muted {
-  color: #9cbca8 !important;
+  background: #132219 !important;
+  border-color: #263e2f !important;
+  color: #a4c4b2 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
 }
+
+:root[data-theme='dark'] .shared-spin-balance,
+html[data-theme='dark'] .shared-spin-balance {
+  background: linear-gradient(135deg, #102519 0%, #173825 50%, #1e4a32 100%) !important;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+:root[data-theme='dark'] .rewards-wheels .reward-game-card,
 html[data-theme='dark'] .rewards-wheels .reward-game-card {
-  background: #14281e !important;
-  border-color: #274533 !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
+  background: #132219 !important;
+  border-color: #263e2f !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4) !important;
 }
+
+:root[data-theme='dark'] .reward-game-card--goods,
 html[data-theme='dark'] .reward-game-card--goods {
   border-color: #2e553e !important;
-  background: radial-gradient(circle at top right, rgba(32, 65, 48, 0.7) 0%, #14281e 65%) !important;
+  background: radial-gradient(circle at top right, rgba(32, 65, 48, 0.7) 0%, #132219 65%) !important;
 }
+
+:root[data-theme='dark'] .reward-game-card--shipping,
 html[data-theme='dark'] .reward-game-card--shipping {
   border-color: #254d63 !important;
-  background: radial-gradient(circle at top right, rgba(25, 55, 72, 0.7) 0%, #14281e 65%) !important;
+  background: radial-gradient(circle at top right, rgba(25, 55, 72, 0.7) 0%, #132219 65%) !important;
 }
+
+:root[data-theme='dark'] .reward-game-card--goods .rewards-wheel-heading .eyebrow,
 html[data-theme='dark'] .reward-game-card--goods .rewards-wheel-heading .eyebrow {
   background: #1c3d2c !important;
   color: #79dc9d !important;
   border-color: #2e5f44 !important;
 }
+
+:root[data-theme='dark'] .reward-game-card--shipping .rewards-wheel-heading .eyebrow,
 html[data-theme='dark'] .reward-game-card--shipping .rewards-wheel-heading .eyebrow {
   background: #183848 !important;
   color: #79c9ee !important;
   border-color: #26556e !important;
 }
+
+:root[data-theme='dark'] .reward-game-card--goods .rewards-wheel-heading > span,
 html[data-theme='dark'] .reward-game-card--goods .rewards-wheel-heading > span {
   background: #1a3527 !important;
   border-color: #2d583f !important;
 }
+
+:root[data-theme='dark'] .reward-game-card--shipping .rewards-wheel-heading > span,
 html[data-theme='dark'] .reward-game-card--shipping .rewards-wheel-heading > span {
   background: #173240 !important;
   border-color: #275269 !important;
 }
+
+:root[data-theme='dark'] .rewards-wheel-heading h2,
 html[data-theme='dark'] .rewards-wheel-heading h2 {
   color: #eff8f2 !important;
 }
+
+:root[data-theme='dark'] .lucky-wheel__hint,
 html[data-theme='dark'] .lucky-wheel__hint {
   color: #9cbca8 !important;
 }
-html[data-theme='dark'] .rewards-wallet-panel {
-  background: #14281e !important;
-  border-color: #274533 !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
+
+:root[data-theme='dark'] .lucky-spin:disabled,
+html[data-theme='dark'] .lucky-spin:disabled {
+  background: #1b2d23 !important;
+  color: #648271 !important;
+  border-color: #274032 !important;
 }
+
+:root[data-theme='dark'] .rewards-wallet-panel,
+html[data-theme='dark'] .rewards-wallet-panel {
+  background: #132219 !important;
+  border-color: #263e2f !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root[data-theme='dark'] .rewards-wallet-head h2,
 html[data-theme='dark'] .rewards-wallet-head h2 {
   color: #eff8f2 !important;
 }
+
+:root[data-theme='dark'] .rewards-wallet-head p,
 html[data-theme='dark'] .rewards-wallet-head p {
   color: #9cbca8 !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-empty,
 html[data-theme='dark'] .rewards-voucher-empty {
   background: #102118 !important;
-  border-color: #274533 !important;
+  border-color: #274032 !important;
   color: #8dafa0 !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table article,
 html[data-theme='dark'] .rewards-voucher-table article {
-  background: #183023 !important;
-  border-color: #2b4d3a !important;
+  background: #182c20 !important;
+  border-color: #294835 !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table article:hover,
 html[data-theme='dark'] .rewards-voucher-table article:hover {
-  border-color: #55966d !important;
+  border-color: #4da571 !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table article.is-selected,
 html[data-theme='dark'] .rewards-voucher-table article.is-selected {
-  background: #204130 !important;
-  border-color: #5cb57c !important;
+  background: #1e3b2b !important;
+  border-color: #4da571 !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table article > strong,
 html[data-theme='dark'] .rewards-voucher-table article > strong {
   color: #eff8f2 !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table code,
 html[data-theme='dark'] .rewards-voucher-table code {
   background: #102118 !important;
   border-color: #355d45 !important;
-  color: #84db9f !important;
+  color: #7fe29f !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table small,
 html[data-theme='dark'] .rewards-voucher-table small {
   color: #9cbca8 !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table article button[aria-pressed="false"],
 html[data-theme='dark'] .rewards-voucher-table article button[aria-pressed="false"] {
-  background: #2e714e !important;
+  background: #236540 !important;
   color: #ffffff !important;
 }
+
+:root[data-theme='dark'] .rewards-voucher-table article button[aria-pressed="true"],
 html[data-theme='dark'] .rewards-voucher-table article button[aria-pressed="true"] {
-  background: #244131 !important;
+  background: #213c2c !important;
   color: #eff8f2 !important;
   border-color: #3d684f !important;
 }
+
+:root[data-theme='dark'] .rewards-wallet-panel .page-actions .button--soft,
 html[data-theme='dark'] .rewards-wallet-panel .page-actions .button--soft {
-  background: #1b3527 !important;
+  background: #1b2f23 !important;
   color: #d8ece0 !important;
-  border-color: #2b4d3a !important;
+  border-color: #294835 !important;
 }
+
+:root[data-theme='dark'] .rewards-wallet-panel .page-actions .button--soft:hover,
+html[data-theme='dark'] .rewards-wallet-panel .page-actions .button--soft:hover {
+  background: #236540 !important;
+  color: #ffffff !important;
+  border-color: #236540 !important;
+}
+
+:root[data-theme='dark'] .reward-modal,
 html[data-theme='dark'] .reward-modal {
-  background: #14281e !important;
+  background: #14241b !important;
   border-color: rgba(255, 215, 0, 0.35) !important;
 }
+
+:root[data-theme='dark'] .reward-modal h2,
 html[data-theme='dark'] .reward-modal h2 {
   color: #eff8f2 !important;
 }
+
+:root[data-theme='dark'] .reward-modal code,
 html[data-theme='dark'] .reward-modal code {
   background: #102118 !important;
   border-color: #3b6b4e !important;
-  color: #80e3a4 !important;
+  color: #7de0a3 !important;
 }

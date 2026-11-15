@@ -15,6 +15,7 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
   const [busy, setBusy] = useState(false)
   const [seconds, setSeconds] = useState(0)
   const [notice, setNotice] = useState('')
+  const [copiedKey, setCopiedKey] = useState('')
   const gate = useRef(false)
   const finished = useRef(false)
   const version = useRef(0)
@@ -86,6 +87,16 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
     } finally { gate.current = false; setBusy(false) }
   }
 
+  function copyText(key, text) {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(String(text).trim()).catch(() => {})
+      }
+    } catch {}
+    setCopiedKey(key)
+    setTimeout(() => setCopiedKey(curr => curr === key ? '' : curr), 2000)
+  }
+
   function close() {
     finished.current = true
     request.current?.abort()
@@ -135,9 +146,60 @@ export default function PaymentBox({ orderId, requestId, sessionId, initialData,
         <button type="button" className="bank-payment-close" aria-label="Đóng thanh toán" onClick={close}><span aria-hidden="true">×</span></button>
       </header>
       {canPay && <div className="bank-payment-card__body">
-        <div className="bank-payment-qr"><div className="bank-payment-qr__frame"><img src={payment.qrImage} width="280" height="280" alt={'Mã QR: ' + payment.purpose} /></div><p>Quét bằng ứng dụng ngân hàng</p></div>
-        <div className="bank-payment-details"><div className="bank-payment-total"><span>Số tiền cần thanh toán</span><strong className="bank-payment-amount">{money.format(payment.amount)}</strong></div>
-          <dl className="commerce-facts">{[['Ngân hàng',payment.bankName],['Số tài khoản',payment.accountNumber],['Người nhận',payment.accountName],['Nội dung chuyển khoản',payment.reference]].map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+        <div className="bank-payment-qr">
+          <div className="bank-payment-qr__frame"><img src={payment.qrImage} width="280" height="280" alt={'Mã QR: ' + payment.purpose} /></div>
+          <p>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            Quét bằng ứng dụng ngân hàng
+          </p>
+        </div>
+        <div className="bank-payment-details">
+          <div className="bank-payment-total">
+            <span>Số tiền cần thanh toán</span>
+            <strong className="bank-payment-amount">{money.format(payment.amount)}</strong>
+          </div>
+          <dl className="commerce-facts">{[
+            ['Ngân hàng', payment.bankName, false],
+            ['Số tài khoản', payment.accountNumber, true],
+            ['Người nhận', payment.accountName, false],
+            ['Nội dung chuyển khoản', payment.reference, true],
+          ].map(([label, value, copyable]) => (
+            <div key={label} className={copyable ? 'has-copy' : ''}>
+              <dt>{label}</dt>
+              <dd>
+                <span className="fact-value">{value}</span>
+                {copyable && (
+                  <button
+                    type="button"
+                    className={'bank-fact-copy-btn' + (copiedKey === label ? ' is-copied' : '')}
+                    aria-label={'Sao chép ' + label}
+                    onClick={() => copyText(label, value)}
+                  >
+                    {copiedKey === label ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Đã chép</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        <span>Sao chép</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </dd>
+            </div>
+          ))}</dl>
         </div>
       </div>}
       {receivedReview && !unmatched && <p role="status">Đã ghi nhận khoản chuyển từ ngân hàng, nhưng cần cửa hàng kiểm tra trước khi xác nhận đơn. Bạn không cần chuyển lại.</p>}

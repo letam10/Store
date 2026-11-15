@@ -205,7 +205,46 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
         </svg>
       </span>
     </button>
-    {openVoucher === key && <div className="checkout-voucher-group__panel">{vouchers.length ? vouchers.map((voucher) => <label className={'checkout-voucher-option' + (selectedVoucherCodes.includes(voucher.code) ? ' is-selected' : '')} key={voucher.code}><input type="checkbox" checked={selectedVoucherCodes.includes(voucher.code)} onChange={() => onToggleVoucher(voucher.code)} /><span><b>{translateVoucherLabel(voucher.label, english ? 'en' : 'vi')}</b><code>{voucher.code}</code><small>{english ? 'Expires: ' : 'Hạn dùng: '}{new Date(voucher.expiresAt).toLocaleDateString(english ? 'en-US' : 'vi-VN')}</small></span><strong>{voucher.type === 'percent' ? voucher.value + '%' : money.format(voucher.value)}</strong></label>) : <p className="muted">{english ? 'You have no vouchers in this category.' : 'Bạn chưa có mã giảm giá loại này.'}</p>}</div>}
+    {openVoucher === key && <div className="checkout-voucher-group__panel">
+      {vouchers.length ? vouchers.map((voucher) => (
+        <label className={'checkout-voucher-option' + (selectedVoucherCodes.includes(voucher.code) ? ' is-selected' : '')} key={voucher.code}>
+          <input
+            type="checkbox"
+            checked={selectedVoucherCodes.includes(voucher.code)}
+            onChange={() => onToggleVoucher(voucher.code)}
+          />
+          <span className="checkout-voucher-option__body">
+            <b className="checkout-voucher-option__name">{translateVoucherLabel(voucher.label, english ? 'en' : 'vi')}</b>
+            <span className="checkout-voucher-option__meta">
+              <code>{voucher.code}</code>
+              <small>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                {english ? 'Expires: ' : 'Hạn dùng: '}{new Date(voucher.expiresAt).toLocaleDateString(english ? 'en-US' : 'vi-VN')}
+              </small>
+            </span>
+          </span>
+          <strong>{voucher.type === 'percent' ? voucher.value + '%' : money.format(voucher.value)}</strong>
+        </label>
+      )) : (
+        <div className="checkout-voucher-empty">
+          <span className="checkout-voucher-empty__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+              <line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+          </span>
+          <div className="checkout-voucher-empty__body">
+            <p className="muted">{english ? 'You have no vouchers in this category.' : 'Bạn chưa có mã giảm giá loại này.'}</p>
+            <a href="/rewards" className="checkout-voucher-empty__link">
+              {english ? 'Spin lucky wheel to win vouchers →' : 'Quay thưởng nhận mã tại Vòng quay may mắn →'}
+            </a>
+          </div>
+        </div>
+      )}
+    </div>}
   </div>
 
   return <div className="container page-shell">

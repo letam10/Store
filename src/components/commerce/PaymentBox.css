@@ -1,34 +1,24 @@
 /*
   OmniCart - Bank Payment (VietQR) Modal Stylesheet
   Redesigned for banking card aesthetics, glowing timers, seamless dark mode,
-  and crystal clear typography.
+  crystal clear typography, and zero unwanted decorative borders.
 */
 
 .bank-payment-card.surface {
   width: min(500px, 100%);
   box-sizing: border-box;
   margin: 0 auto;
-  padding: clamp(20px, 4vw, 32px);
-  border-radius: 28px;
+  padding: clamp(22px, 4.5vw, 32px);
+  border-radius: 26px;
   background: var(--theme-surface, #ffffff);
   color: var(--theme-text, #17382c);
   border: 1px solid var(--theme-border, #dce6de);
-  box-shadow: 0 28px 90px rgba(16, 43, 36, 0.18);
+  box-shadow: 0 24px 64px -12px rgba(16, 44, 34, 0.16), 0 4px 16px rgba(0, 0, 0, 0.04);
   position: relative;
   overflow: hidden;
 }
 
-/* Subtle decorative banking gradient glow at the top */
-.bank-payment-card.surface::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #1b4332 0%, #38b000 50%, #2d6a4f 100%);
-}
-
+/* Header */
 .bank-payment-card__head {
   position: relative;
   display: flex;
@@ -44,16 +34,16 @@
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 0 40px;
+  padding: 0 38px;
 }
 
 .bank-payment-card__head .eyebrow {
   display: inline-block;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
   line-height: 1.2;
-  letter-spacing: 1.2px;
-  padding: 4px 12px;
+  letter-spacing: 1px;
+  padding: 4px 14px;
   border-radius: 999px;
   background: var(--theme-accent-soft, #eef7f1);
   color: var(--theme-accent, #21603d);
@@ -62,16 +52,16 @@
 
 .bank-payment-card__head h1 {
   margin: 8px 0 4px;
-  font-size: clamp(22px, 3.5vw, 26px);
+  font-size: clamp(22px, 3.8vw, 26px);
   font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -0.8px;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
   color: var(--theme-text, #15382a);
 }
 
 .bank-payment-card__head p {
   margin: 0;
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.4;
   color: var(--theme-muted, #67786f);
   overflow-wrap: anywhere;
@@ -87,6 +77,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11.5px;
   letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
 /* Close round button */
@@ -111,7 +102,7 @@
 
 .bank-payment-close:hover {
   background: var(--theme-surface-alt, #e8f2eb);
-  transform: rotate(90deg);
+  transform: rotate(90deg) scale(1.06);
   border-color: var(--theme-accent, #4f8b67);
 }
 
@@ -126,8 +117,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  gap: 10px;
-  padding: 6px 16px;
+  gap: 8px;
+  padding: 6px 18px;
   border-radius: 999px;
   background: var(--theme-surface-alt, #edf7f1);
   border: 1.5px solid var(--theme-border, #cce4d4);
@@ -136,14 +127,25 @@
   transition: all 0.3s ease;
 }
 
+.bank-payment-timer::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2cb658;
+  box-shadow: 0 0 0 3px rgba(44, 182, 88, 0.22);
+  animation: live-dot 1.5s infinite ease-in-out;
+}
+
 .bank-payment-timer span {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--theme-muted, #566c5f);
 }
 
 .bank-payment-timer strong {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 900;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -156,6 +158,11 @@
   background: #fdf2ec;
   color: #b84018;
   animation: timer-pulse 1.2s infinite ease-in-out;
+}
+
+.bank-payment-timer.is-ending::before {
+  background: #e04b16;
+  box-shadow: 0 0 0 3px rgba(224, 75, 22, 0.25);
 }
 
 @keyframes timer-pulse {
@@ -174,26 +181,28 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 16px;
-  padding: 16px 0 12px;
+  padding: 18px 0 12px;
 }
 
 /* VietQR Frame */
 .bank-payment-qr {
   width: min(220px, 100%);
   margin: 0 auto;
+  text-align: center;
 }
 
 .bank-payment-qr__frame {
   padding: 12px;
   background: #ffffff;
   border: 1.5px solid #dbe6de;
-  border-radius: 22px;
-  box-shadow: 0 12px 36px rgba(18, 48, 36, 0.12), inset 0 0 0 1px #eef3ee;
-  transition: transform 0.2s ease;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(18, 48, 36, 0.1), inset 0 0 0 1px #eef3ee;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
 .bank-payment-qr__frame:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(18, 48, 36, 0.14), inset 0 0 0 1px #eef3ee;
 }
 
 .bank-payment-qr img {
@@ -205,12 +214,21 @@
 }
 
 .bank-payment-qr p {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   text-align: center;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   line-height: 1.4;
   color: var(--theme-muted, #67786f);
+}
+
+.bank-payment-qr p svg {
+  flex-shrink: 0;
+  color: var(--theme-accent, #236540);
 }
 
 /* Amount Display */
@@ -243,8 +261,8 @@
 .bank-payment-details .commerce-facts {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 6px;
-  margin: 0 0 12px;
+  gap: 7px;
+  margin: 0 0 14px;
   padding: 0;
 }
 
@@ -253,16 +271,22 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 9px 14px;
+  padding: 10px 14px;
   border-radius: 12px;
   background: var(--theme-control, #f8fbf9);
   border: 1px solid var(--theme-border, #e3ece5);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.bank-payment-details .commerce-facts > div:hover {
+  border-color: var(--theme-border-strong, #c8dcd0);
 }
 
 .bank-payment-details .commerce-facts dt {
   font-size: 12px;
   font-weight: 600;
   color: var(--theme-muted, #617469);
+  flex-shrink: 0;
 }
 
 .bank-payment-details .commerce-facts dd {
@@ -272,15 +296,67 @@
   color: var(--theme-text, #17382c);
   text-align: right;
   overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.bank-payment-details .commerce-facts dd .fact-value {
+  display: inline-block;
+}
+
+/* Copy Button */
+.bank-fact-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  border-radius: 6px;
+  background: var(--theme-surface, #ffffff);
+  color: var(--theme-accent, #1e633d);
+  border: 1px solid var(--theme-border, #d2e4d8);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.bank-fact-copy-btn svg {
+  flex-shrink: 0;
+}
+
+.bank-fact-copy-btn:hover {
+  background: var(--theme-accent-soft, #eef7f1);
+  border-color: var(--theme-accent, #2d7a4c);
+  transform: translateY(-1px);
+}
+
+.bank-fact-copy-btn.is-copied {
+  background: #2cb658 !important;
+  color: #ffffff !important;
+  border-color: #2cb658 !important;
+}
+
+/* Account Number Monospace */
+.bank-payment-details .commerce-facts > div:nth-child(2) dd .fact-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13.5px;
+  letter-spacing: 0.5px;
 }
 
 /* Emphasize the transfer content / message */
 .bank-payment-details .commerce-facts > div:last-child {
   background: var(--theme-accent-soft, #edf7f1);
   border-color: var(--theme-border, #bce0cb);
+  box-shadow: 0 2px 8px rgba(29, 91, 56, 0.05);
 }
 
-.bank-payment-details .commerce-facts > div:last-child dd {
+.bank-payment-details .commerce-facts > div:last-child dd .fact-value {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 13.5px;
   font-weight: 900;
@@ -291,16 +367,16 @@
 /* Status paragraph & notification */
 .bank-payment-card p[role="status"] {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-  padding: 11px 14px;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 12px 16px;
   border-radius: 14px;
   background: var(--theme-surface-alt, #eef7f1);
   border: 1px solid var(--theme-border, #d2e7d9);
   color: var(--theme-accent, #1d5b38);
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 12.5px;
+  line-height: 1.55;
   text-align: left;
 }
 
@@ -309,6 +385,7 @@
   display: inline-block;
   width: 8px;
   height: 8px;
+  margin-top: 5px;
   flex-shrink: 0;
   border-radius: 50%;
   background: #2cb658;
@@ -324,10 +401,16 @@
 /* Collapsible manual report section */
 .bank-payment-details details {
   margin-top: 10px;
-  padding: 10px 14px;
+  padding: 11px 15px;
   border-radius: 12px;
   background: var(--theme-control, #f7faf8);
   border: 1px solid var(--theme-border, #dfe8e2);
+  transition: all 0.2s ease;
+}
+
+.bank-payment-details details[open] {
+  background: var(--theme-surface, #ffffff);
+  box-shadow: 0 4px 14px rgba(16, 44, 34, 0.05);
 }
 
 .bank-payment-details summary {
@@ -336,6 +419,10 @@
   color: var(--theme-accent, #215c3c);
   cursor: pointer;
   outline: none;
+}
+
+.bank-payment-details summary:hover {
+  color: var(--theme-text, #15382a);
 }
 
 .bank-payment-details .button {
@@ -353,15 +440,15 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
-  margin-top: 8px;
-  padding-top: 14px;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 16px;
   border-top: 1px solid var(--theme-border, #edf3ef);
 }
 
 .bank-payment-card__footer p {
   margin: 0;
-  font-size: 11px;
+  font-size: 11.5px;
   line-height: 1.45;
   color: var(--theme-muted, #728379);
   text-align: center;
@@ -370,9 +457,9 @@
 .bank-payment-card__footer .button {
   flex-shrink: 0;
   min-height: 44px;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-radius: 14px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   background: var(--theme-surface-alt, #edf5f0);
   color: var(--theme-text, #17382c);
@@ -384,6 +471,7 @@
 .bank-payment-card__footer .button:hover {
   background: var(--theme-control-active, #dfeee4);
   border-color: var(--theme-accent, #4f8b67);
+  transform: translateY(-1px);
 }
 
 /* =========================================================
@@ -407,6 +495,18 @@ html[data-theme='dark'] .bank-payment-card__footer {
 :root[data-theme='dark'] .bank-payment-card__head h1,
 html[data-theme='dark'] .bank-payment-card__head h1 {
   color: #f1f8f3 !important;
+}
+
+:root[data-theme='dark'] .bank-payment-card__head p,
+html[data-theme='dark'] .bank-payment-card__head p {
+  color: #9cb5a6 !important;
+}
+
+:root[data-theme='dark'] .bank-payment-card__head p strong,
+html[data-theme='dark'] .bank-payment-card__head p strong {
+  background: #1a2d22 !important;
+  border-color: #2d4837 !important;
+  color: #edf5f0 !important;
 }
 
 :root[data-theme='dark'] .bank-payment-close,
@@ -468,14 +568,34 @@ html[data-theme='dark'] .bank-payment-details .commerce-facts dd {
   color: #edf6f1 !important;
 }
 
+:root[data-theme='dark'] .bank-fact-copy-btn,
+html[data-theme='dark'] .bank-fact-copy-btn {
+  background: #1e3327 !important;
+  color: #7de0a3 !important;
+  border-color: #31523e !important;
+}
+
+:root[data-theme='dark'] .bank-fact-copy-btn:hover,
+html[data-theme='dark'] .bank-fact-copy-btn:hover {
+  background: #274534 !important;
+  border-color: #4da571 !important;
+}
+
+:root[data-theme='dark'] .bank-fact-copy-btn.is-copied,
+html[data-theme='dark'] .bank-fact-copy-btn.is-copied {
+  background: #2cb658 !important;
+  color: #ffffff !important;
+  border-color: #2cb658 !important;
+}
+
 :root[data-theme='dark'] .bank-payment-details .commerce-facts > div:last-child,
 html[data-theme='dark'] .bank-payment-details .commerce-facts > div:last-child {
   background: rgba(43, 98, 66, 0.3) !important;
   border-color: #3f7b57 !important;
 }
 
-:root[data-theme='dark'] .bank-payment-details .commerce-facts > div:last-child dd,
-html[data-theme='dark'] .bank-payment-details .commerce-facts > div:last-child dd {
+:root[data-theme='dark'] .bank-payment-details .commerce-facts > div:last-child dd .fact-value,
+html[data-theme='dark'] .bank-payment-details .commerce-facts > div:last-child dd .fact-value {
   color: #7de0a3 !important;
 }
 
@@ -490,6 +610,11 @@ html[data-theme='dark'] .bank-payment-card p[role="status"] {
 html[data-theme='dark'] .bank-payment-details details {
   background: #192a20 !important;
   border-color: #274032 !important;
+}
+
+:root[data-theme='dark'] .bank-payment-details details[open],
+html[data-theme='dark'] .bank-payment-details details[open] {
+  background: #16261d !important;
 }
 
 :root[data-theme='dark'] .bank-payment-card__footer .button,

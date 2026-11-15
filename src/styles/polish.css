@@ -60,7 +60,6 @@
 .checkout-voucher-group__trigger{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:13px 14px;border:0;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
 .checkout-voucher-group__trigger>span:nth-child(2){display:grid;gap:2px}.checkout-voucher-group__trigger small{color:var(--muted);font-size:11px}.voucher-type-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#e2efe4;color:#2e704a;font-weight:900}
 .checkout-voucher-group__panel{display:grid;gap:7px;padding:0 10px 10px;border-top:1px solid var(--line)}
-.checkout-voucher-option{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff;cursor:pointer}.checkout-voucher-option.is-selected{border-color:#6aa47a;background:#eff8f0}.checkout-voucher-option input{accent-color:#2d754e}.checkout-voucher-option span{display:grid;gap:2px;min-width:0}.checkout-voucher-option code{font-size:11px}.checkout-voucher-option small{color:var(--muted);font-size:10px}.checkout-voucher-option>strong{font-size:11px;color:#2f734d;white-space:nowrap}
 .reward-wallet-list{max-height:min(720px,calc(100dvh - 300px))!important;overflow:auto;padding-right:6px;scrollbar-gutter:stable}
 .rewards-info{display:flex;flex-direction:column;min-height:100%}.rewards-info .page-actions{margin-top:auto;padding-top:22px;justify-content:flex-start!important}
 .reward-modal{max-width:410px!important}.reward-result__actions{display:none!important}.reward-modal__close{min-width:150px}
@@ -162,10 +161,10 @@
 /* Checkout surfaces retain readable contrast after the theme switch. */
 .checkout-card,.summary-card{background:var(--theme-surface,var(--paper))!important;color:var(--theme-text,var(--ink))!important;border-color:var(--theme-border,var(--line))!important}
 .checkout-card .field input,.checkout-card .field textarea,.checkout-card .field select,.checkout-card .dropdown-menu__trigger,.checkout-voucher__input input{background:var(--theme-control,var(--paper))!important;color:var(--theme-text,var(--ink))!important;border-color:var(--theme-border,var(--line))!important}
-.checkout-voucher,.checkout-voucher-group,.checkout-voucher-option,.fulfillment-picker label{background:var(--theme-surface-alt,var(--sage))!important;color:var(--theme-text,var(--ink))!important;border-color:var(--theme-border,var(--line))!important}
-.checkout-voucher-option.is-selected,.fulfillment-picker label.is-active{background:var(--theme-control-active,var(--theme-accent-soft))!important;border-color:var(--theme-accent,var(--accent))!important;color:var(--theme-text,var(--ink))!important}
-.checkout-voucher-group__trigger,.checkout-voucher-option b,.checkout-voucher-option code,.fulfillment-picker b{color:var(--theme-text,var(--ink))!important}
-.checkout-voucher-option small,.fulfillment-picker small,.checkout-disclaimer{color:var(--theme-muted,var(--muted))!important}
+.checkout-voucher,.checkout-voucher-group,.fulfillment-picker label{background:var(--theme-surface-alt,var(--sage))!important;color:var(--theme-text,var(--ink))!important;border-color:var(--theme-border,var(--line))!important}
+.fulfillment-picker label.is-active{background:var(--theme-control-active,var(--theme-accent-soft))!important;border-color:var(--theme-accent,var(--accent))!important;color:var(--theme-text,var(--ink))!important}
+.checkout-voucher-group__trigger,.fulfillment-picker b{color:var(--theme-text,var(--ink))!important}
+.fulfillment-picker small,.checkout-disclaimer{color:var(--theme-muted,var(--muted))!important}
 
 /* Home lower banners use the same surface tokens as the rest of the page. */
 .member-links>a,.lead-capture,.visit-strip{border-color:var(--line)!important}
@@ -1373,3 +1372,27 @@ select, select option {
 .home-promotion-region--page .home-promotion-region--catalog .home-section--sale {
   isolation: isolate;
 }
+
+/* Sticky footer: luôn neo chân trang xuống sát đáy màn hình khi nội dung ngắn, không để khoảng trống thừa dưới footer */
+.site-frame {
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.site-frame > main,
+#main-content {
+  flex: 1 0 auto !important;
+}
+
+.site-footer {
+  margin-top: auto !important;
+  padding-bottom: clamp(32px, 4vw, 48px) !important;
+}
+
+.site-footer .footer-bottom {
+  padding-right: clamp(0px, 25vw, 360px) !important;
+}
+
+
