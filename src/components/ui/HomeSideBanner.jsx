@@ -29,6 +29,24 @@ export default function HomeSideBanner({ side, overview, account, products, area
       const gapTop = saleGap.getBoundingClientRect().top
       const saleBottom = sale.getBoundingClientRect().bottom
       saleGap.style.height = Math.max(0, saleBottom - gapTop) + 'px'
+
+      // Cân đối mép đáy của 2 card cuối cùng hai bên rail
+      const leftCards = region.querySelectorAll('.home-promotion-rail--left .home-side-banner')
+      const rightCards = region.querySelectorAll('.home-promotion-rail--right .home-side-banner')
+      const lastLeft = leftCards[leftCards.length - 1]
+      const lastRight = rightCards[rightCards.length - 1]
+      if (lastLeft && lastRight) {
+        lastLeft.style.minHeight = ''
+        lastRight.style.minHeight = ''
+        const leftBottom = lastLeft.getBoundingClientRect().bottom
+        const rightBottom = lastRight.getBoundingClientRect().bottom
+        const diff = leftBottom - rightBottom
+        if (diff > 1) {
+          lastRight.style.minHeight = Math.round(lastRight.offsetHeight + diff) + 'px'
+        } else if (diff < -1) {
+          lastLeft.style.minHeight = Math.round(lastLeft.offsetHeight + (-diff)) + 'px'
+        }
+      }
     }
 
     syncSaleGap()
@@ -46,7 +64,7 @@ export default function HomeSideBanner({ side, overview, account, products, area
     <div
       className="home-side-banner-stack"
       ref={stackRef}
-      style={{ '--home-banner-card-count': isPage ? 10 : isIntro ? 3 : 5 }}
+      style={{ '--home-banner-card-count': isPage ? (isStore ? 11 : 13) : isIntro ? 3 : 5 }}
     >
       {isIntro && <a
         className={'home-side-banner home-side-banner--' + (isStore ? 'store' : 'member')}
@@ -106,7 +124,7 @@ export default function HomeSideBanner({ side, overview, account, products, area
           account={account}
           products={products}
           offset={2 + compactCount}
-          count={7 - compactCount}
+          count={isStore ? 7 : 8}
         />
       </> : <HomeBannerOffers
         side={side}

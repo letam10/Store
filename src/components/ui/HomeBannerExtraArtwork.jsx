@@ -133,6 +133,47 @@ export default function HomeBannerExtraArtwork({ kind }) {
           <path d="M86 17v-6c0-10 14-10 14 0v7" stroke="#9a794b" strokeWidth="3" fill="none" />
         </g>
       )}
+      {kind === 'newest' && (
+        <g>
+          <circle cx="90" cy="54" r="45" fill="#a4d1b8" opacity=".25" />
+          <rect x="42" y="28" width="96" height="58" rx="12" fill="#4d7a5b" />
+          <rect x="48" y="34" width="84" height="46" rx="8" fill="#eaf4ec" />
+          <path d="M58 48h40M58 58h28M58 68h50" stroke="#7aa186" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="120" cy="46" r="14" fill="#dfa44c" />
+          <path d="m120 37 2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#fff" />
+          <path d="m36 68 8-16 12 6-8 16z" fill="#d97554" />
+        </g>
+      )}
+      {kind === 'tiers' && (
+        <g>
+          <circle cx="90" cy="54" r="45" fill="#f0d59e" opacity=".3" />
+          <path d="M58 84h64v8H58z" fill="#8e6732" />
+          <path d="M66 66h48v18H66z" fill="#b88b48" />
+          <path d="M74 48h32v18H74z" fill="#dfb36a" />
+          <path d="m90 18 6 12 13 2-10 9 2 13-11-6-11 6 2-13-10-9 13-2z" fill="#f7cf68" stroke="#aa7932" strokeWidth="2" />
+          <circle cx="48" cy="42" r="5" fill="#dfb36a" />
+          <circle cx="132" cy="42" r="5" fill="#dfb36a" />
+        </g>
+      )}
+      {kind === 'support' && (
+        <g>
+          <circle cx="90" cy="54" r="45" fill="#9ec4dc" opacity=".3" />
+          <path d="M90 20c22 0 38 12 38 32 0 24-24 40-38 48-14-8-38-24-38-48 0-20 16-32 38-32z" fill="#507c9b" />
+          <path d="M90 28c16 0 28 9 28 24 0 18-18 30-28 36-10-6-28-18-28-36 0-15 12-24 28-24z" fill="#d6e8f4" />
+          <path d="m80 52 7 7 14-14" stroke="#35617f" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </g>
+      )}
+      {kind === 'curated' && (
+        <g>
+          <circle cx="90" cy="54" r="45" fill="#d9b4c7" opacity=".3" />
+          <rect x="42" y="24" width="44" height="44" rx="8" fill="#a46083" />
+          <rect x="94" y="24" width="44" height="44" rx="8" fill="#e8c0d4" />
+          <rect x="42" y="74" width="44" height="26" rx="6" fill="#f3dfeb" />
+          <rect x="94" y="74" width="44" height="26" rx="6" fill="#884d6c" />
+          <circle cx="90" cy="54" r="16" fill="#eed182" stroke="#fff" strokeWidth="3" />
+          <path d="m85 54 3 3 7-7" stroke="#875825" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </g>
+      )}
     </g>
   )
 }

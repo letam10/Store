@@ -1,0 +1,417 @@
+/**
+ * OmniCart Modern Animation & Micro-interaction System
+ * Design tokens, keyframes, transitions and accessibility rules.
+ */
+
+:root {
+  /* Animation Timing Tokens */
+  --anim-duration-instant: 120ms;
+  --anim-duration-fast: 200ms;
+  --anim-duration-normal: 300ms;
+  --anim-duration-slow: 450ms;
+
+  /* Easing Curves */
+  --anim-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --anim-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --anim-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --anim-ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+
+/* 1. Fade In */
+@keyframes omniFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 2. Fade Up (Smooth Entrance) */
+@keyframes omniFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 3. Scale In (Modals, Dialogs, Tooltips) */
+@keyframes omniScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 4. Slide Down (Banners, Notices, Dropdowns) */
+@keyframes omniSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 5. Shimmer Wave (Skeleton Loading) */
+@keyframes omniShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 6. Pulse Glow (Focus & Active States) */
+@keyframes omniPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(79, 139, 103, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(79, 139, 103, 0);
+  }
+}
+
+/* 7. Shake Error (Form Validation Feedback) */
+@keyframes omniShakeError {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-4px);
+  }
+  40%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+/* 8. Float (Illustrations & Empty States) */
+@keyframes omniFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* 9. Spinner Rotate */
+@keyframes omniSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 10. Pop & Bounce (Badge, Like / Heart) */
+@keyframes omniPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.24);
+  }
+  75% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   Utility Animation Classes
+   ========================================================================== */
+
+.anim-fade-in {
+  animation: omniFadeIn var(--anim-duration-normal) var(--anim-ease-out) both;
+}
+
+.anim-fade-up {
+  animation: omniFadeUp var(--anim-duration-normal) var(--anim-ease-out) both;
+}
+
+.anim-scale-in {
+  animation: omniScaleIn var(--anim-duration-fast) var(--anim-ease-out) both;
+}
+
+.anim-slide-down {
+  animation: omniSlideDown var(--anim-duration-normal) var(--anim-ease-out) both;
+}
+
+.anim-float {
+  animation: omniFloat 3.6s ease-in-out infinite;
+}
+
+.anim-pop {
+  animation: omniPop var(--anim-duration-normal) var(--anim-ease-spring) both;
+}
+
+.anim-shake {
+  animation: omniShakeError var(--anim-duration-slow) cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ==========================================================================
+   Scroll Reveal System (Progressive Enhancement)
+   ========================================================================== */
+
+.js-reveal .reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity var(--anim-duration-slow) var(--anim-ease-out),
+              transform var(--anim-duration-slow) var(--anim-ease-out);
+  will-change: opacity, transform;
+}
+
+.js-reveal .reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger Children Delays */
+.reveal-stagger-1 { transition-delay: 50ms; }
+.reveal-stagger-2 { transition-delay: 100ms; }
+.reveal-stagger-3 { transition-delay: 150ms; }
+.reveal-stagger-4 { transition-delay: 200ms; }
+.reveal-stagger-5 { transition-delay: 250ms; }
+.reveal-stagger-6 { transition-delay: 300ms; }
+
+/* ==========================================================================
+   Route Page Transition
+   ========================================================================== */
+
+.page-transition-wrapper {
+  animation: omniFadeUp var(--anim-duration-normal) var(--anim-ease-out) both;
+  will-change: opacity, transform;
+}
+
+/* ==========================================================================
+   Skeleton Shimmer
+   ========================================================================== */
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(224, 238, 226, 0.4) 0%,
+    rgba(255, 255, 255, 0.75) 50%,
+    rgba(224, 238, 226, 0.4) 100%
+  );
+  background-size: 200% 100%;
+  animation: omniShimmer 1.8s infinite;
+}
+
+:root[data-theme='dark'] .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(21, 44, 32, 0.6) 0%,
+    rgba(40, 75, 54, 0.8) 50%,
+    rgba(21, 44, 32, 0.6) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* ==========================================================================
+   Accessibility - Prefers Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .page-transition-wrapper {
+    animation: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   Form Controls, Inputs & Button Micro-interactions
+   ========================================================================== */
+
+input, select, textarea {
+  transition: border-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              box-shadow var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              background-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 0 !important;
+  border-color: var(--theme-accent, #4f8b67) !important;
+  box-shadow: 0 0 0 3.5px rgba(79, 139, 103, 0.22) !important;
+}
+
+:root[data-theme='dark'] input:focus-visible,
+:root[data-theme='dark'] select:focus-visible,
+:root[data-theme='dark'] textarea:focus-visible {
+  box-shadow: 0 0 0 3.5px rgba(118, 215, 149, 0.28) !important;
+}
+
+/* Error Shake on user invalid entry */
+input:user-invalid,
+textarea:user-invalid {
+  animation: omniShakeError var(--anim-duration-slow, 400ms) cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Button Micro-interactions */
+button, .button {
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              box-shadow var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              background-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              opacity var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+  will-change: transform;
+}
+
+button:not(:disabled):active,
+.button:not(.is-disabled):active {
+  transform: scale(0.97);
+}
+
+button:focus-visible,
+.button:focus-visible {
+  outline: 0 !important;
+  box-shadow: 0 0 0 3.5px rgba(79, 139, 103, 0.3) !important;
+}
+
+button:disabled,
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none !important;
+}
+
+.button--loading {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+}
+
+.button--loading::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 50%;
+  left: 50%;
+  margin: -9px 0 0 -9px;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: omniSpin 0.75s linear infinite;
+}
+
+
+/* ==========================================================================
+   Notice Toast, Empty States & Back to Top Micro-interactions
+   ========================================================================== */
+
+.cart-notice {
+  animation: omniSlideDown var(--anim-duration-normal, 300ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+  backdrop-filter: blur(12px);
+}
+
+.cart-notice button {
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              opacity var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+
+.cart-notice button:hover {
+  transform: scale(1.22);
+  opacity: 0.85;
+}
+
+.cart-notice a {
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+
+.cart-notice a:hover {
+  transform: translateX(3px);
+}
+
+.not-found {
+  animation: omniFadeUp var(--anim-duration-slow, 450ms) var(--anim-ease-out, ease-out) both;
+}
+
+.not-found .eyebrow {
+  display: inline-block;
+  font-size: clamp(64px, 10vw, 110px);
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #4f8b67 0%, #2f6847 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: omniFloat 4s ease-in-out infinite;
+  letter-spacing: -2px;
+  margin-bottom: 8px;
+}
+
+:root[data-theme='dark'] .not-found .eyebrow {
+  background: linear-gradient(135deg, #76d795 0%, #4f8b67 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cart-empty,
+.favorites-empty,
+.search-suggestions__empty {
+  animation: omniFadeIn var(--anim-duration-normal, 300ms) var(--anim-ease-out, ease-out) both;
+}
+
+.customer-support__to-top {
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              box-shadow var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              background-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+
+.customer-support__to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(23, 56, 44, 0.22);
+}
+
+.customer-support__to-top:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.customer-support__toggle {
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              box-shadow var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+
+.customer-support__toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(23, 56, 44, 0.28);
+}
+
+.customer-support__toggle:active {
+  transform: translateY(0) scale(0.97);
+}

@@ -55,6 +55,10 @@
   max-height: none;
 }
 
+.home-banner-offer--curated .home-side-banner__art {
+  height: 200px;
+}
+
 .home-banner-offer h3 {
   margin: 0;
   color: var(--banner-ink);

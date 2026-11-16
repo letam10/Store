@@ -42,6 +42,7 @@ import './styles/commerce.css'
 import './styles/polish.css'
 import './styles/layout.css'
 import './styles/theme.css'
+import './styles/animations.css'
 
 const THEME_KEY = 'storeThemeV1'
 
@@ -385,9 +386,11 @@ export default function App() {
       {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
       <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
         onChangeCapture={clearValidation}>
-        {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
-          ? <StorePromotions route={route} overview={promotionOverview} account={account}
-            selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher}>{page}</StorePromotions> : page}
+        <div key={location.pathname} className="page-transition-wrapper">
+          {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
+            ? <StorePromotions route={route} overview={promotionOverview} account={account}
+              selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher}>{page}</StorePromotions> : page}
+        </div>
       </main>
       {!isAuth && <Footer appearance={appearance} language={language} />}
       {!isAuth && notice && createPortal(<StoreNotice notice={notice} onClose={() => setNotice('')} />, document.body)}

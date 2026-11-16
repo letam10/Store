@@ -24,3 +24,110 @@
 :root[data-theme='dark'] .account-menu__hello{color:#a3c4b1;border-bottom-color:#244432}
 :root[data-theme='dark'] .account-menu__dropdown a{color:#edf7ef}
 :root[data-theme='dark'] .account-menu__dropdown a:hover{background:#1c382b;color:#76d795}
+
+
+/* ==========================================================================
+   Header Micro-interactions & Smooth Transitions
+   ========================================================================== */
+
+.header-inner nav a {
+  position: relative;
+  transition: color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              transform var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+.header-inner nav a:hover {
+  transform: translateY(-1px);
+}
+.header-inner nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--theme-accent, #4f8b67);
+  border-radius: 999px;
+  transition: width var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+.header-inner nav a:hover::after,
+.header-inner nav a[aria-current='page']::after {
+  width: 100%;
+}
+
+.cart-count {
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              box-shadow var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              background-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+.cart-count:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(23, 56, 44, 0.25);
+}
+.cart-count:active {
+  transform: translateY(0) scale(0.97);
+}
+.cart-count b {
+  display: grid;
+  place-items: center;
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+.cart-count:hover b {
+  transform: scale(1.12);
+}
+
+.theme-switch {
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              border-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              background-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+.theme-switch:hover {
+  transform: scale(1.03);
+}
+.theme-switch:active {
+  transform: scale(0.96);
+}
+.theme-switch__icon {
+  display: inline-block;
+  transition: transform var(--anim-duration-normal, 300ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+.theme-switch:hover .theme-switch__icon {
+  transform: rotate(20deg) scale(1.12);
+}
+
+.account-menu__trigger {
+  transition: border-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              transform var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+.account-menu__trigger:hover {
+  transform: translateY(-1px);
+}
+.account-menu__dropdown {
+  animation: omniScaleIn var(--anim-duration-fast, 200ms) var(--anim-ease-out, ease-out) both;
+  transform-origin: top right;
+}
+.account-menu__dropdown a {
+  transition: background-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              transform var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+.account-menu__dropdown a:hover {
+  transform: translateX(3px);
+}
+
+.search-suggestions {
+  animation: omniFadeUp var(--anim-duration-fast, 200ms) var(--anim-ease-out, ease-out) both;
+}
+.search-suggestion {
+  transition: background-color var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out),
+              transform var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+}
+.search-suggestion:hover {
+  transform: translateX(4px);
+}
+.search-suggestion__arrow {
+  display: inline-block;
+  transition: transform var(--anim-duration-fast, 180ms) var(--anim-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+.search-suggestion:hover .search-suggestion__arrow {
+  transform: translate(2px, -2px);
+}

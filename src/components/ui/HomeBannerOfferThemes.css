@@ -2,7 +2,8 @@
   .home-banner-offer--electronics,
   .home-banner-offer--components,
   .home-banner-offer--orders,
-  .home-banner-offer--contact
+  .home-banner-offer--contact,
+  .home-banner-offer--support
 ) {
   --banner-ink: #304f69;
   --banner-muted: #4e687d;
@@ -14,7 +15,8 @@
 .home-banner-offer:is(
   .home-banner-offer--fashion,
   .home-banner-offer--beauty,
-  .home-banner-offer--favorites
+  .home-banner-offer--favorites,
+  .home-banner-offer--curated
 ) {
   --banner-ink: #724357;
   --banner-muted: #805b6a;
@@ -27,7 +29,8 @@
   .home-banner-offer--jewelry,
   .home-banner-offer--popular,
   .home-banner-offer--points,
-  .home-banner-offer--sale
+  .home-banner-offer--sale,
+  .home-banner-offer--tiers
 ) {
   --banner-ink: #6c4c29;
   --banner-muted: #7f6545;
@@ -39,7 +42,8 @@
 .home-banner-offer:is(
   .home-banner-offer--design,
   .home-banner-offer--wallet,
-  .home-banner-offer--cart
+  .home-banner-offer--cart,
+  .home-banner-offer--newest
 ) {
   --banner-ink: #3e5c42;
   --banner-muted: #597153;
@@ -52,7 +56,8 @@
   .home-banner-offer--electronics,
   .home-banner-offer--components,
   .home-banner-offer--orders,
-  .home-banner-offer--contact
+  .home-banner-offer--contact,
+  .home-banner-offer--support
 ) {
   --banner-ink: #e0edf6;
   --banner-muted: #b7cddd;
@@ -64,7 +69,8 @@
 :root[data-theme='dark'] .home-banner-offer:is(
   .home-banner-offer--fashion,
   .home-banner-offer--beauty,
-  .home-banner-offer--favorites
+  .home-banner-offer--favorites,
+  .home-banner-offer--curated
 ) {
   --banner-ink: #f7e4e9;
   --banner-muted: #dec0ca;
@@ -77,7 +83,8 @@
   .home-banner-offer--jewelry,
   .home-banner-offer--popular,
   .home-banner-offer--points,
-  .home-banner-offer--sale
+  .home-banner-offer--sale,
+  .home-banner-offer--tiers
 ) {
   --banner-ink: #f9ecd1;
   --banner-muted: #dfcba5;
@@ -89,7 +96,8 @@
 :root[data-theme='dark'] .home-banner-offer:is(
   .home-banner-offer--design,
   .home-banner-offer--wallet,
-  .home-banner-offer--cart
+  .home-banner-offer--cart,
+  .home-banner-offer--newest
 ) {
   --banner-ink: #e4efdd;
   --banner-muted: #c0d1b8;

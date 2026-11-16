@@ -1,0 +1,197 @@
+/* ==========================================================================
+   StoreNotice - Luxury Modern Emerald Toast Notification
+   ========================================================================== */
+
+@keyframes omniToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes omniToastProgress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes omniCheckBounce {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+body .cart-notice {
+  position: fixed !important;
+  z-index: 9999 !important;
+  top: 96px !important;
+  right: 28px !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: min(440px, calc(100vw - 36px)) !important;
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: start !important;
+  gap: 14px !important;
+  padding: 16px 18px 18px !important;
+  box-sizing: border-box !important;
+  
+  /* Modern Luxury Emerald Glassmorphism */
+  background: linear-gradient(135deg, rgba(20, 48, 34, 0.96) 0%, rgba(13, 34, 23, 0.98) 100%) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(118, 215, 149, 0.3) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 48px -8px rgba(5, 18, 12, 0.5),
+              0 4px 14px rgba(0, 0, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  color: #edf7ef !important;
+  overflow: hidden !important;
+  
+  animation: omniToastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+/* Badge Icon */
+body .cart-notice .cart-notice__badge {
+  display: grid !important;
+  place-items: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #388e5c 0%, #225e3c 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(56, 142, 92, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+  animation: omniCheckBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+}
+
+body .cart-notice .cart-notice__badge svg {
+  display: block !important;
+  width: 17px !important;
+  height: 17px !important;
+}
+
+/* Content Area */
+body .cart-notice .cart-notice__content {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+body .cart-notice .cart-notice__text {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.45 !important;
+  color: #f0faf3 !important;
+  letter-spacing: -0.15px !important;
+  word-break: break-word !important;
+}
+
+/* CTA Pill Button */
+body .cart-notice a.cart-notice__cta,
+body .cart-notice a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: fit-content !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  background: rgba(118, 215, 149, 0.16) !important;
+  border: 1px solid rgba(118, 215, 149, 0.35) !important;
+  color: #76d795 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  letter-spacing: -0.1px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+}
+
+body .cart-notice a.cart-notice__cta:hover,
+body .cart-notice a:hover {
+  background: #76d795 !important;
+  color: #0b1f14 !important;
+  border-color: #76d795 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(118, 215, 149, 0.35) !important;
+}
+
+body .cart-notice a.cart-notice__cta:active,
+body .cart-notice a:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* Close Button */
+body .cart-notice button.cart-notice__close,
+body .cart-notice button {
+  display: grid !important;
+  place-items: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #a3c4b1 !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease-out !important;
+  flex-shrink: 0 !important;
+}
+
+body .cart-notice button.cart-notice__close:hover,
+body .cart-notice button:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: scale(1.08) !important;
+}
+
+body .cart-notice button.cart-notice__close:active,
+body .cart-notice button:active {
+  transform: scale(0.92) !important;
+}
+
+/* Progress Auto-close Bar */
+body .cart-notice .cart-notice__bar {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #388e5c 0%, #76d795 100%) !important;
+  transform-origin: left center !important;
+  animation: omniToastProgress 3.5s linear forwards !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  body .cart-notice {
+    top: auto !important;
+    bottom: 24px !important;
+    right: 16px !important;
+    left: 16px !important;
+    width: auto !important;
+    padding: 14px 16px 16px !important;
+  }
+}
+
+/* Dark mode refinement */
+:root[data-theme='dark'] body .cart-notice {
+  background: linear-gradient(135deg, rgba(16, 38, 27, 0.96) 0%, rgba(10, 24, 17, 0.98) 100%) !important;
+  border-color: rgba(118, 215, 149, 0.22) !important;
+  box-shadow: 0 24px 54px -8px rgba(0, 0, 0, 0.7),
+              0 6px 18px rgba(0, 0, 0, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}

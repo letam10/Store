@@ -6,8 +6,9 @@ import './HomeBannerProduct.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
-export default function HomeBannerOffers({ side, overview, account, products, count, offset, compact = false }) {
-  const offers = homeBannerOffers(side, overview, account, products).slice(offset, offset + count)
+export default function HomeBannerOffers({ side, overview, account, products, count, offset = 0, compact = false }) {
+  const allOffers = homeBannerOffers(side, overview, account, products)
+  const offers = count !== undefined ? allOffers.slice(offset, offset + count) : allOffers.slice(offset)
 
   return offers.map(offer => (
     <a

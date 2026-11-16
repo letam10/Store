@@ -12,6 +12,7 @@ import MarketBanner from '../components/ui/MarketBanner'
 import HomePromotionRegion from '../components/ui/HomePromotionRegion'
 import { featuredSaleProducts, mostViewed } from '../services/catalog'
 import { useLanguage, translateCategory } from '../context/i18n'
+import { useScrollReveal } from '../utils/useScrollReveal'
 import './Home.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -48,7 +49,7 @@ function ProductRow({ title, subtitle, products, onAddToCart, favoriteIds, onTog
   const visible = products.length <= 6 ? products : Array.from({ length: 6 }, (_, index) => products[(offset + index) % products.length])
   return <section
     id={sale ? 'home-sale-products' : undefined}
-    className={'home-section home-product-row' + (sale ? ' home-section--sale' : '')}
+    className={'home-section home-product-row reveal-on-scroll' + (sale ? ' home-section--sale' : '')}
     onPointerEnter={() => setPaused(true)}
     onPointerLeave={() => setPaused(false)}
     onFocusCapture={() => setPaused(true)}
@@ -77,6 +78,7 @@ export default function Home({
     return () => clearInterval(timer)
   }, [featured.length])
   const sale = featuredSaleProducts(products, 10)
+  useScrollReveal()
 
   return <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="page">
     <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="intro">
@@ -96,7 +98,7 @@ export default function Home({
         </a>}
       </section>
       <div className="container">
-        <section className="shopping-shortcuts" aria-label={english ? 'Shopping shortcuts' : 'Lối tắt mua sắm'}>
+        <section className="shopping-shortcuts reveal-on-scroll" aria-label={english ? 'Shopping shortcuts' : 'Lối tắt mua sắm'}>
           <a href="/products"><span aria-hidden="true">⌕</span><div><b>{english ? 'Find what you need' : 'Tìm đúng món bạn cần'}</b><small>{english ? 'Filter by category and price' : 'Lọc theo danh mục và mức giá'}</small></div></a>
           <a href="/cart"><span aria-hidden="true">▣</span><div><b>{english ? 'Your shopping cart' : 'Giỏ hàng của bạn'}</b><small>{english ? 'Select items ready for checkout' : 'Tích chọn món muốn thanh toán'}</small></div></a>
           <a href="/contact"><span aria-hidden="true">☏</span><div><b>{english ? 'Contact & stores' : 'Địa chỉ & liên hệ'}</b><small>{english ? 'View map and support channels' : 'Xem bản đồ và kênh hỗ trợ'}</small></div></a>

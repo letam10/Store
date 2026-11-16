@@ -118,14 +118,33 @@ const categoryOffers = [
     action: 'Xem nhiều nhất',
     href: '/products?sort=popular',
   },
+  {
+    id: 'newest',
+    kind: 'newest',
+    label: 'HÀNG MỚI LÊN KỆ',
+    title: 'Xu hướng mới',
+    note: 'Cập nhật những mẫu sản phẩm mới nhất vừa có mặt tại cửa hàng.',
+    details: [
+      'Khám phá xu hướng mua sắm mới',
+      'Xem thông tin và giá từng mẫu',
+    ],
+    action: 'Xem hàng mới',
+    href: '/products?sort=newest',
+  },
 ]
 
 export function homeBannerOffers(side, overview, account, products = []) {
-  if (side === 'left') return categoryOffers.map(offer => {
-    const category = new URLSearchParams(offer.href.split('?')[1]).get('category')
-    // Ảnh quảng cáo lấy từ sản phẩm còn bán, thuộc đúng danh mục của liên kết.
-    const product = products.find(item => item.stockCount !== 0 && item.image
-      && (!category || item.category === category))
+  if (side === 'left') return categoryOffers.map((offer, idx) => {
+    const category = new URLSearchParams(offer.href.split('?')[1] || '').get('category')
+    // Ảnh quảng cáo lấy từ sản phẩm còn bán, thuộc đúng danh mục hoặc phân bổ đa dạng.
+    let product
+    if (category) {
+      product = products.find(item => item.stockCount !== 0 && item.image
+        && item.category === category)
+    } else {
+      const candidates = products.filter(item => item.stockCount !== 0 && item.image)
+      product = candidates[idx % (candidates.length || 1)] || candidates[0]
+    }
     return { ...offer, product }
   })
 
@@ -253,6 +272,47 @@ export function homeBannerOffers(side, overview, account, products = []) {
       ],
       action: 'Mở giỏ hàng',
       href: '/cart',
+    },
+    {
+      id: 'tiers',
+      kind: 'tiers',
+      label: 'ĐẶC QUYỀN HỘI VIÊN',
+      title: 'Hạng & Quyền lợi',
+      note: account
+        ? 'Đang ở hạng ' + (overview?.plan?.name || 'Đồng') + ' · Tích điểm để mở khóa ưu đãi.'
+        : 'Nâng hạng thành viên để nhận thêm chiết khấu và ưu đãi ngày hội viên.',
+      details: [
+        'Khám phá 4 hạng mức thành viên',
+        'Tích lũy chi tiêu nhận hoàn điểm',
+      ],
+      action: 'Xem đặc quyền',
+      href: '/membership',
+    },
+    {
+      id: 'support',
+      kind: 'support',
+      label: 'HỖ TRỢ TẬN TÂM',
+      title: 'Bảo hành & Đổi trả',
+      note: 'Chính sách đổi trả minh bạch và đội ngũ hỗ trợ luôn sẵn sàng đồng hành.',
+      details: [
+        'Đổi trả linh hoạt trong 7 ngày',
+        'Tư vấn và giải đáp nhanh chóng',
+      ],
+      action: 'Kênh hỗ trợ',
+      href: '/contact',
+    },
+    {
+      id: 'curated',
+      kind: 'curated',
+      label: 'GỢI Ý HÔM NAY',
+      title: 'Bộ sưu tập nổi bật',
+      note: 'Tìm kiếm nhanh các món đồ yêu thích với bộ lọc thông minh theo tầm giá.',
+      details: [
+        'Lọc theo tầm giá và danh mục',
+        'Dễ dàng chọn món phù hợp',
+      ],
+      action: 'Khám phá ngay',
+      href: '/products',
     },
   ]
 }
