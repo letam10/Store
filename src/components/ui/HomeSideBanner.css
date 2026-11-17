@@ -14,6 +14,42 @@
   pointer-events: none;
 }
 
+/* Chế độ custom: stack flex lấp đầy rail, các card chia đều chiều cao cột,
+   khe sale giữ đúng chiều cao mục Đang giảm giá, không co giãn theo card. */
+.home-side-banner-stack--custom {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 20px;
+}
+
+.home-side-banner-stack--custom .home-side-banner {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.home-side-banner-stack--custom .home-promotion-rail__sale-gap {
+  flex: 0 0 auto;
+}
+
+/* Card custom: ảnh giữ tỉ lệ (object-fit: contain trong HomeBannerProduct.css),
+   vùng ảnh không vượt quá 200px và được phép co lại khi cột có nhiều banner. */
+.home-banner-custom .home-banner-offer__visual {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.home-banner-custom .home-banner-offer__product-art {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  max-height: 200px;
+}
+
+.home-banner-custom .home-banner-offer__product-art img {
+  max-height: 176px;
+}
+
 .home-side-banner {
   --banner-ink: #294331;
   --banner-muted: #526247;

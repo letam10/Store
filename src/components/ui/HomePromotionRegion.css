@@ -62,16 +62,23 @@
     width: var(--home-content-width);
   }
 
-  /* Rail thuộc frame toàn trang, sale vẫn nằm trong body ở cột giữa. */
+  /* Rail thuộc frame toàn trang, sale vẫn nằm trong body ở cột giữa.
+     top:0 ngang mép trên hero; bottom:32px (= padding-bottom của region--page)
+     kéo rail tới đúng mép dưới của region__body, ngay trên footer. */
   .home-promotion-rail {
     display: block;
     position: absolute;
     z-index: 15;
     top: 0;
-    bottom: auto;
-    height: max-content;
+    bottom: 32px;
+    height: auto;
     width: var(--home-banner-width);
     min-width: 0;
+  }
+
+  /* Stack custom lấp đầy rail để các card flex chia đều chiều cao, đáy thẳng. */
+  .home-promotion-rail .home-side-banner-stack--custom {
+    height: 100%;
   }
 
   .home-promotion-rail--left {

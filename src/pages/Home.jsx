@@ -80,8 +80,8 @@ export default function Home({
   const sale = featuredSaleProducts(products, 10)
   useScrollReveal()
 
-  return <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="page">
-    <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="intro">
+  return <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="page" appearance={appearance}>
+    <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="intro" appearance={appearance}>
       <section className="shop-hero container">
         <div className="shop-hero-copy">
           <p className="eyebrow">{appearance.bannerLabel || (english ? 'OMNICART EVERYDAY · DISCOVER EVERY DAY' : 'OMNICART EVERYDAY · KHÁM PHÁ MỖI NGÀY')}</p>
@@ -107,7 +107,7 @@ export default function Home({
         <ProductRow title={english ? 'Featured Products' : 'Sản phẩm nổi bật'} subtitle={english ? 'TOP 20 MOST VIEWED' : 'TOP 20 ĐƯỢC XEM NHIỀU NHẤT'} products={featured} onAddToCart={onAddToCart} favoriteIds={favoriteIds} onToggleFavorite={onToggleFavorite} link="/products?featured=1&sort=popular" english={english} />
       </div>
     </HomePromotionRegion>
-    <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="catalog">
+    <HomePromotionRegion overview={promotionOverview} account={account} products={products} area="catalog" appearance={appearance}>
       <div className="container home-catalog">
         <ProductRow
           title={english ? 'On Sale' : 'Đang giảm giá'}
