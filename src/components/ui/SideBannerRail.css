@@ -1,0 +1,11 @@
+/* Một đoạn rail banner (vòng 3): flex column lấp đầy vùng neo, các thẻ
+   flex: 1 1 0 nên cao bằng nhau tuyệt đối trong đoạn. Không grid hàng
+   chung, không span bù, không khe sale đo bằng JS. */
+.side-banner-rail__segment {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}

@@ -2,15 +2,23 @@
  * @codex-vn-doc
  * Tệp: src/services/sideBanners.js
  * Mục đích: Chuẩn hóa, chia và resolve cấu hình banner hai bên trang chủ
- * lưu trong appearance.sideBanners (chuỗi JSON hoặc object).
- * Thành phần chính: normalizeSideBanners, resolveSideBanners, splitSideBanners.
- * Liên kết trực tiếp: không có import trực tiếp; HomeSideBanner dùng các hàm này.
+ * lưu trong appearance.sideBanners (chuỗi JSON hoặc object), và chọn banner
+ * mặc định mới khi chưa có cấu hình.
+ * Thành phần chính: normalizeSideBanners, resolveSideBanners,
+ * splitSideBanners, defaultSideBanners, resolveSideBannersWithDefaults.
+ * Liên kết trực tiếp: không có import trực tiếp; HomePromotionRegion dùng
+ * các hàm này.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó;
- * không đệm thêm sản phẩm, không khử trùng lặp productId, không đổi hợp đồng hàm hiện có.
+ * không đệm thêm sản phẩm vào cấu hình đã lưu, không khử trùng lặp productId.
  */
 
-export const SIDE_BANNER_MAX_PER_SIDE = 20
+// Vòng 3 (làm lại từ đầu): mỗi bên 5–10 banner, một số lượng N chung cho
+// cả hai bên. Cấu hình cũ lưu 11–20 banner/bên được kẹp về tối đa 10 khi
+// normalize (giữ 10 slot đầu, theo đúng thứ tự đã lưu).
 export const SIDE_BANNER_MIN_PER_SIDE = 5
+export const SIDE_BANNER_MAX_PER_SIDE = 10
+// Số banner mặc định mỗi bên khi chưa có cấu hình: 5 (tổng 10).
+export const DEFAULT_SIDE_BANNER_COUNT = 5
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 
@@ -51,7 +59,8 @@ function normalizeSide(value) {
 
 // Chức năng normalizeSideBanners: parse appearance.sideBanners dạng chuỗi JSON
 // hoặc object thành { version: 1, left: [...], right: [...] }.
-// Bỏ slot không có productId hợp lệ, cắt thừa quá 20 mỗi bên, cắt title 120
+// Bỏ slot không có productId hợp lệ, kẹp tối đa 10 mỗi bên (cấu hình cũ
+// 11–20 banner/bên giữ 10 slot đầu theo thứ tự đã lưu), cắt title 120
 // ký tự, note 240 ký tự, chỉ giữ màu #RRGGBB hợp lệ và chuẩn hóa thành chữ hoa.
 // KHÔNG khử trùng lặp productId: giữ đúng như cấu hình đã lưu.
 export function normalizeSideBanners(value) {
@@ -75,12 +84,24 @@ export function normalizeSideBanners(value) {
   }
 }
 
+// Chức năng clampSideBannerCount: kẹp số lượng mỗi bên về 5–10; số không
+// hợp lệ (NaN, chuỗi, null, undefined) thì dùng mặc định 5.
+export function clampSideBannerCount(count) {
+  const number = Number(count)
+  if (!Number.isFinite(number)) return DEFAULT_SIDE_BANNER_COUNT
+  return Math.max(
+    SIDE_BANNER_MIN_PER_SIDE,
+    Math.min(SIDE_BANNER_MAX_PER_SIDE, Math.floor(number)),
+  )
+}
+
 // Chức năng resolveSideBanners: ghép từng slot đã normalize với danh sách
 // products đã enrich mà Home.jsx truyền xuống (id, name, price đã áp giảm giá,
-// image, category, stockCount, viewCount). Slot trỏ tới sản phẩm không tồn tại
-// thì bỏ. KHÔNG đệm thêm sản phẩm nào: render đúng các slot hợp lệ đã lưu.
-// Bên nào không còn slot hợp lệ thì trả null để bên đó fallback y như cũ.
-// Hai bên độc lập. Tên/giá/ảnh lấy từ sản phẩm, slot.title/note ghi đè.
+// image, category, stockCount, viewCount, discountPercent). Slot trỏ tới
+// sản phẩm không tồn tại thì bỏ. KHÔNG đệm thêm sản phẩm nào: render đúng
+// các slot hợp lệ đã lưu. Bên nào không còn slot hợp lệ thì trả null để bên
+// đó dùng banner mặc định mới. Hai bên độc lập. Tên/giá/ảnh lấy từ sản phẩm,
+// slot.title/note ghi đè.
 export function resolveSideBanners(value, products = []) {
   const normalized = normalizeSideBanners(value)
   const byId = new Map()
@@ -107,78 +128,78 @@ export function resolveSideBanners(value, products = []) {
 }
 
 // Chức năng splitSideBanners: chia danh sách banner đã resolve của một bên
-// thành { before, after } quanh khe sale (mục Đang giảm giá full-width).
-// Dùng CHUNG một tỉ lệ 4/11 cho cả hai bên (không còn tỉ lệ riêng trái 4/11,
-// phải 5/13 như vòng 1): hai bên cùng số lượng thì chia giống hệt nhau, nên
-// hàng ngang thẳng nhau; khác số lượng thì computeSideBannerSync bù bằng span.
-// Luôn ≥ 1 banner mỗi phía khi cột có ≥ 2 banner.
+// thành { before, after } quanh mục Đang giảm giá full-width. Một quy tắc
+// CHUNG cho cả hai bên, không tỉ lệ riêng, không span bù:
+// before = max(1, round(N * 0.35)), kẹp ≤ N - 1 khi N ≥ 2, vì vùng intro
+// (hero + Sản phẩm nổi bật) ngắn hơn nhiều so với vùng catalog sau sale.
+// Bảng chia: N=5 → 2/3, N=6 → 2/4, N=7 → 2/5, N=8 → 3/5, N=9 → 3/6,
+// N=10 → 4/6. N=1 → 1/0, N=0 → 0/0.
 export function splitSideBanners(banners) {
   const list = Array.isArray(banners) ? banners : []
   if (list.length === 0) return { before: [], after: [] }
   if (list.length === 1) return { before: list.slice(), after: [] }
-  const ratio = 4 / 11
-  let beforeCount = Math.round(list.length * ratio)
+  let beforeCount = Math.round(list.length * 0.35)
   beforeCount = Math.max(1, Math.min(list.length - 1, beforeCount))
   return { before: list.slice(0, beforeCount), after: list.slice(beforeCount) }
 }
 
-// Số mục fallback mặc định của mỗi bên ở area="page", đếm theo đúng JSX
-// fallback của HomeSideBanner: trái = thẻ đầu + 2 offer + 1 compact trước
-// sale, 7 offer sau sale (tổng 11); phải = thẻ đầu + 2 offer + 2 compact
-// trước sale, 8 offer sau sale (tổng 13).
-export const FALLBACK_SIDE_BANNER_COUNTS = {
-  left: { before: 4, after: 7 },
-  right: { before: 5, after: 8 },
-}
-
-// Chức năng leadSpanFor: số hàng grid mà mục đầu một đoạn phải span để đoạn
-// đó lấp đủ số hàng chung. Bên đủ hàng thì span 1; bên thiếu d hàng thì mục
-// đầu span 1 + d, các mục còn lại span 1 — mọi mép thẻ đều rơi đúng đường
-// lưới chung, không để trống hàng, đáy đoạn thẳng nhau.
-export function leadSpanFor(itemCount, rowCount) {
-  if (itemCount <= 0) return 1
-  return Math.max(1, rowCount - itemCount + 1)
-}
-
-function syncForSide(banners, side) {
-  if (Array.isArray(banners)) {
-    const split = splitSideBanners(banners)
-    return {
-      banners,
-      before: split.before,
-      after: split.after,
-      beforeCount: split.before.length,
-      afterCount: split.after.length,
-      isCustom: true,
-    }
-  }
-  const fallback = FALLBACK_SIDE_BANNER_COUNTS[side]
+// Quy tắc chọn banner mặc định mới (khi chưa lưu cấu hình), cố định và lặp
+// lại được:
+// 0. Chỉ xét sản phẩm còn hàng (stockCount !== 0); sản phẩm chưa có
+//    stockCount thì giữ lại.
+// 1. Sắp xếp sản phẩm: đang giảm giá trước (discountPercent > 0, % cao
+//    trước), rồi tới lượt xem cao (viewCount giảm dần); thiếu
+//    discountPercent/viewCount thì tính là 0; hòa thì giữ thứ tự gốc.
+// 2. Lấy 2 × N sản phẩm đầu danh sách đã sắp xếp.
+// 3. Trái lấy sản phẩm ở vị trí chẵn (0, 2, 4, ...), phải lấy vị trí lẻ
+//    (1, 3, 5, ...) — hai bên cùng một danh sách, lệch nhau một vị trí nên
+//    không trùng nhau hoàn toàn mà vẫn đều có sản phẩm giảm giá/xem nhiều.
+// Mỗi banner mặc định có cùng dạng với banner đã resolve để dùng chung một
+// component thẻ: { productId, title: '', note: '', bg: '', text: '',
+// accent: '', product } (title/note rỗng → thẻ lấy tên sản phẩm).
+export function defaultSideBanners(products = [], count = DEFAULT_SIDE_BANNER_COUNT) {
+  const wanted = clampSideBannerCount(count)
+  const list = (Array.isArray(products) ? products : [])
+    .filter((product) => product && product.id !== null && product.id !== undefined)
+    // Banner mặc định không trỏ tới sản phẩm hết hàng (stockCount === 0);
+    // sản phẩm chưa có stockCount thì giữ lại như cũ.
+    .filter((product) => product.stockCount !== 0)
+    .map((product, index) => ({ product, index }))
+    .sort((a, b) => {
+      const discountA = Number(a.product.discountPercent) || 0
+      const discountB = Number(b.product.discountPercent) || 0
+      const onSale = (discountB > 0) - (discountA > 0)
+      if (onSale !== 0) return onSale
+      if (discountB !== discountA) return discountB - discountA
+      const views = (Number(b.product.viewCount) || 0) - (Number(a.product.viewCount) || 0)
+      if (views !== 0) return views
+      return a.index - b.index
+    })
+    .slice(0, wanted * 2)
+    .map(({ product }) => ({
+      productId: String(product.id),
+      title: '',
+      note: '',
+      bg: '',
+      text: '',
+      accent: '',
+      product,
+    }))
   return {
-    banners: null,
-    before: [],
-    after: [],
-    beforeCount: fallback.before,
-    afterCount: fallback.after,
-    isCustom: false,
+    left: list.filter((_, index) => index % 2 === 0),
+    right: list.filter((_, index) => index % 2 === 1),
   }
 }
 
-// Chức năng computeSideBannerSync: tính CHUNG cấu trúc hàng cho cả hai rail
-// từ banner đã resolve của hai bên (null = bên đó fallback mặc định).
-// Trả { left, right, rowsBefore, rowsAfter } với rowsBefore =
-// max(số banner trước sale trái, phải), rowsAfter tương tự đoạn sau; mỗi bên
-// kèm leadBeforeSpan/leadAfterSpan để mục đầu đoạn span bù hàng thiếu.
-// HomePromotionRegion tính một lần rồi truyền xuống cả hai HomeSideBanner;
-// HomeSideBanner tự tính lại bằng hàm này khi render lẻ không qua region.
-export function computeSideBannerSync(leftBanners, rightBanners) {
-  const left = syncForSide(leftBanners, 'left')
-  const right = syncForSide(rightBanners, 'right')
-  const rowsBefore = Math.max(left.beforeCount, right.beforeCount)
-  const rowsAfter = Math.max(left.afterCount, right.afterCount)
-  const withSpans = (entry) => ({
-    ...entry,
-    leadBeforeSpan: leadSpanFor(entry.beforeCount, rowsBefore),
-    leadAfterSpan: leadSpanFor(entry.afterCount, rowsAfter),
-  })
-  return { left: withSpans(left), right: withSpans(right), rowsBefore, rowsAfter }
+// Chức năng resolveSideBannersWithDefaults: danh sách banner cuối cùng để
+// render cho mỗi bên — cấu hình đã lưu (đã resolve) nếu bên đó còn slot hợp
+// lệ, còn không thì banner mặc định mới. Trả về { left: [...], right: [...] }
+// luôn là mảng (không null) để rail render thẳng không cần nhánh fallback.
+export function resolveSideBannersWithDefaults(value, products = [], count = DEFAULT_SIDE_BANNER_COUNT) {
+  const resolved = resolveSideBanners(value, products)
+  const defaults = defaultSideBanners(products, count)
+  return {
+    left: resolved.left ?? defaults.left,
+    right: resolved.right ?? defaults.right,
+  }
 }

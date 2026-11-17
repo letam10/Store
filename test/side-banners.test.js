@@ -1,22 +1,27 @@
 /**
  * @codex-vn-doc
  * Tệp: test/side-banners.test.js
- * Mục đích: Kiểm thử unit cho src/services/sideBanners.js (normalize, resolve, split).
- * Thành phần chính: normalizeSideBanners, resolveSideBanners, splitSideBanners,
- * computeSideBannerSync, leadSpanFor.
+ * Mục đích: Kiểm thử unit cho src/services/sideBanners.js vòng 3 (làm lại
+ * từ đầu): normalize kẹp 5–10, resolve, split theo quy tắc 0.35 chung,
+ * banner mặc định mới, resolve kèm mặc định.
+ * Thành phần chính: normalizeSideBanners, resolveSideBanners,
+ * splitSideBanners, defaultSideBanners, resolveSideBannersWithDefaults,
+ * clampSideBannerCount.
  * Liên kết trực tiếp: node:test, node:assert/strict, ../src/services/sideBanners.js.
  * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó.
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  FALLBACK_SIDE_BANNER_COUNTS,
-  computeSideBannerSync,
-  leadSpanFor,
+  DEFAULT_SIDE_BANNER_COUNT,
+  SIDE_BANNER_MAX_PER_SIDE,
+  SIDE_BANNER_MIN_PER_SIDE,
+  clampSideBannerCount,
+  defaultSideBanners,
   normalizeSideBanners,
   resolveSideBanners,
+  resolveSideBannersWithDefaults,
   splitSideBanners,
-  SIDE_BANNER_MAX_PER_SIDE,
 } from '../src/services/sideBanners.js'
 
 const products = Array.from({ length: 10 }, (_, index) => ({
@@ -27,9 +32,30 @@ const products = Array.from({ length: 10 }, (_, index) => ({
   category: 'Điện tử',
   stockCount: 20,
   viewCount: index,
+  discountPercent: index === 0 ? 10 : 0,
 }))
 
 const slot = (productId, extra = {}) => ({ productId, title: '', note: '', bg: '', text: '', accent: '', ...extra })
+
+test('giới hạn mới: mỗi bên tối thiểu 5, tối đa 10, mặc định 5', () => {
+  assert.equal(SIDE_BANNER_MIN_PER_SIDE, 5)
+  assert.equal(SIDE_BANNER_MAX_PER_SIDE, 10)
+  assert.equal(DEFAULT_SIDE_BANNER_COUNT, 5)
+})
+
+test('clampSideBannerCount kẹp 5–10, số không hợp lệ dùng mặc định 5', () => {
+  assert.equal(clampSideBannerCount(3), 5)
+  assert.equal(clampSideBannerCount(4), 5)
+  assert.equal(clampSideBannerCount(5), 5)
+  assert.equal(clampSideBannerCount(7), 7)
+  assert.equal(clampSideBannerCount(10), 10)
+  assert.equal(clampSideBannerCount(13), 10)
+  assert.equal(clampSideBannerCount(20), 10)
+  assert.equal(clampSideBannerCount(7.8), 7)
+  for (const value of [undefined, null, Number.NaN, 'x', {}, []]) {
+    assert.equal(clampSideBannerCount(value), 5)
+  }
+})
 
 test('normalize parse được chuỗi JSON và object, bỏ slot không có productId', () => {
   const config = { version: 1, left: [slot('1'), { title: 'không id' }, slot('  '), slot('2')], right: [] }
@@ -46,12 +72,13 @@ test('normalize trả rỗng với chuỗi JSON sai, null, số hoặc mảng', 
   }
 })
 
-test('normalize cắt thừa quá 20 mỗi bên, cắt title 120 và note 240 ký tự', () => {
-  assert.equal(SIDE_BANNER_MAX_PER_SIDE, 20)
+test('normalize kẹp tối đa 10 mỗi bên (cấu hình cũ 11–20 giữ 10 slot đầu)', () => {
   const many = Array.from({ length: 25 }, (_, index) => slot(String((index % 10) + 1)))
   const normalized = normalizeSideBanners({ left: many, right: many })
-  assert.equal(normalized.left.length, 20)
-  assert.equal(normalized.right.length, 20)
+  assert.equal(normalized.left.length, 10)
+  assert.equal(normalized.right.length, 10)
+  // Giữ đúng 10 slot đầu theo thứ tự đã lưu.
+  assert.deepEqual(normalized.left.map(item => item.productId), ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
   const long = normalizeSideBanners({
     left: [slot('1', { title: 'x'.repeat(200), note: 'y'.repeat(300) })],
     right: [],
@@ -116,90 +143,94 @@ test('resolve lấy tên/giá/ảnh từ sản phẩm, slot.title/note ghi đè'
   assert.equal(resolved.right[0].title, 'Sản phẩm 2')
 })
 
-test('split dùng CHUNG một tỉ lệ 4/11 cho cả hai bên (không còn tỉ lệ riêng)', () => {
-  const five = [1, 2, 3, 4, 5]
-  // Hai bên cùng 5 banner thì chia giống hệt nhau — vòng 1 tỉ lệ riêng
-  // trái 4/11, phải 5/13 cũng cho 2/3 ở đây, nhưng 20 banner thì lệch.
-  assert.deepEqual([splitSideBanners(five).before.length, splitSideBanners(five).after.length], [2, 3])
-  assert.deepEqual([splitSideBanners(Array.from({ length: 10 }, (_, i) => i)).before.length, splitSideBanners(Array.from({ length: 10 }, (_, i) => i)).after.length], [4, 6])
-  assert.deepEqual([splitSideBanners(Array.from({ length: 13 }, (_, i) => i)).before.length, splitSideBanners(Array.from({ length: 13 }, (_, i) => i)).after.length], [5, 8])
-  assert.deepEqual([splitSideBanners(Array.from({ length: 11 }, (_, i) => i)).before.length, splitSideBanners(Array.from({ length: 11 }, (_, i) => i)).after.length], [4, 7])
-  // Trường hợp vòng 1 lệch: 20 banner mỗi bên — tỉ lệ riêng cho trái 7/13,
-  // phải 8/12; tỉ lệ chung cho cả hai bên đều 7/13 nên hàng ngang thẳng nhau.
-  assert.deepEqual([splitSideBanners(Array.from({ length: 20 }, (_, i) => i)).before.length, splitSideBanners(Array.from({ length: 20 }, (_, i) => i)).after.length], [7, 13])
-})
-
-test('split luôn ≥ 1 banner mỗi phía khi cột có ≥ 2 banner', () => {
-  assert.deepEqual([splitSideBanners([1, 2]).before.length, splitSideBanners([1, 2]).after.length], [1, 1])
-  assert.deepEqual([splitSideBanners([1]).before.length, splitSideBanners([1]).after.length], [1, 0])
-  assert.deepEqual([splitSideBanners([]).before.length, splitSideBanners([]).after.length], [0, 0])
-})
-
-test('computeSideBannerSync custom 20/20: hàng chung 7 trước/13 sau, hai bên span 1', () => {
-  const left = Array.from({ length: 20 }, (_, i) => ({ productId: String(i + 1) }))
-  const right = Array.from({ length: 20 }, (_, i) => ({ productId: String(i + 1) }))
-  const sync = computeSideBannerSync(left, right)
-  assert.equal(sync.rowsBefore, 7)
-  assert.equal(sync.rowsAfter, 13)
-  assert.equal(sync.left.beforeCount, 7)
-  assert.equal(sync.left.afterCount, 13)
-  assert.equal(sync.right.beforeCount, 7)
-  assert.equal(sync.right.afterCount, 13)
-  assert.equal(sync.left.leadBeforeSpan, 1)
-  assert.equal(sync.left.leadAfterSpan, 1)
-  assert.equal(sync.right.leadBeforeSpan, 1)
-  assert.equal(sync.right.leadAfterSpan, 1)
-})
-
-test('computeSideBannerSync custom lệch nhau: hàng chung lấy max, bên ít span bù', () => {
-  const left = Array.from({ length: 20 }, (_, i) => ({ productId: String(i + 1) }))
-  const right = Array.from({ length: 5 }, (_, i) => ({ productId: String(i + 1) }))
-  const sync = computeSideBannerSync(left, right)
-  assert.equal(sync.rowsBefore, 7)
-  assert.equal(sync.rowsAfter, 13)
-  assert.deepEqual([sync.right.beforeCount, sync.right.afterCount], [2, 3])
-  // Phải thiếu 5 hàng trước sale → mục đầu span 6; thiếu 10 hàng sau sale → span 11.
-  assert.equal(sync.right.leadBeforeSpan, 6)
-  assert.equal(sync.right.leadAfterSpan, 11)
-  assert.equal(sync.left.leadBeforeSpan, 1)
-  assert.equal(sync.left.leadAfterSpan, 1)
-  // Tổng hàng chiếm của mỗi đoạn bằng đúng số hàng chung, không trống hàng.
-  for (const entry of [sync.left, sync.right]) {
-    assert.equal(entry.leadBeforeSpan + (entry.beforeCount - 1), sync.rowsBefore)
-    assert.equal(entry.leadAfterSpan + (entry.afterCount - 1), sync.rowsAfter)
+test('split dùng CHUNG quy tắc before = max(1, round(N * 0.35)) cho cả hai bên', () => {
+  // Bảng chia N=5..10: 2/3, 2/4, 2/5, 3/5, 3/6, 4/6 — không còn tỉ lệ
+  // 4/11 hay 5/13 cũ, không span bù.
+  const expected = { 5: [2, 3], 6: [2, 4], 7: [2, 5], 8: [3, 5], 9: [3, 6], 10: [4, 6] }
+  for (const [n, [before, after]] of Object.entries(expected)) {
+    const list = Array.from({ length: Number(n) }, (_, i) => i)
+    assert.deepEqual(
+      [splitSideBanners(list).before.length, splitSideBanners(list).after.length],
+      [before, after],
+      'N=' + n,
+    )
   }
+  // Hai bên cùng số lượng thì chia giống hệt nhau.
+  const leftSplit = splitSideBanners([1, 2, 3, 4, 5])
+  const rightSplit = splitSideBanners([6, 7, 8, 9, 10])
+  assert.deepEqual(
+    [leftSplit.before.length, leftSplit.after.length],
+    [rightSplit.before.length, rightSplit.after.length],
+  )
 })
 
-test('computeSideBannerSync fallback cả hai bên: hàng chung 5 trước/8 sau, trái span 2', () => {
-  assert.deepEqual(FALLBACK_SIDE_BANNER_COUNTS.left, { before: 4, after: 7 })
-  assert.deepEqual(FALLBACK_SIDE_BANNER_COUNTS.right, { before: 5, after: 8 })
-  const sync = computeSideBannerSync(null, null)
-  assert.equal(sync.rowsBefore, 5)
-  assert.equal(sync.rowsAfter, 8)
-  assert.equal(sync.left.isCustom, false)
-  assert.equal(sync.right.isCustom, false)
-  // Trái thiếu 1 hàng mỗi đoạn → thẻ đầu trước sale span 2, offer đầu sau sale span 2.
-  assert.equal(sync.left.leadBeforeSpan, 2)
-  assert.equal(sync.left.leadAfterSpan, 2)
-  assert.equal(sync.right.leadBeforeSpan, 1)
-  assert.equal(sync.right.leadAfterSpan, 1)
+test('split trường hợp biên: 1 → 1/0, 2 → 1/1, 0 → 0/0', () => {
+  assert.deepEqual([splitSideBanners([1]).before.length, splitSideBanners([1]).after.length], [1, 0])
+  assert.deepEqual([splitSideBanners([1, 2]).before.length, splitSideBanners([1, 2]).after.length], [1, 1])
+  assert.deepEqual([splitSideBanners([]).before.length, splitSideBanners([]).after.length], [0, 0])
+  assert.deepEqual([splitSideBanners(null).before.length, splitSideBanners(null).after.length], [0, 0])
 })
 
-test('computeSideBannerSync một bên custom, một bên fallback: hàng chung lấy max', () => {
-  const left = [{ productId: '1' }, { productId: '2' }, { productId: '3' }]
-  const sync = computeSideBannerSync(left, null)
-  assert.equal(sync.rowsBefore, 5)
-  assert.equal(sync.rowsAfter, 8)
-  assert.deepEqual([sync.left.beforeCount, sync.left.afterCount], [1, 2])
-  assert.equal(sync.left.leadBeforeSpan, 5)
-  assert.equal(sync.left.leadAfterSpan, 7)
-  assert.equal(sync.right.leadBeforeSpan, 1)
-  assert.equal(sync.right.leadAfterSpan, 1)
+test('defaultSideBanners: giảm giá trước rồi lượt xem cao, trái chẵn/phải lẻ, không trùng', () => {
+  const defaults = defaultSideBanners(products)
+  // Sắp xếp: sản phẩm 1 đang giảm 10% lên đầu, rồi lượt xem giảm dần
+  // 10, 9, 8, 7, 6, 5, 4, 3, 2 → trái vị trí chẵn, phải vị trí lẻ.
+  assert.deepEqual(defaults.left.map(item => item.productId), ['1', '9', '7', '5', '3'])
+  assert.deepEqual(defaults.right.map(item => item.productId), ['10', '8', '6', '4', '2'])
+  assert.equal(defaults.left.length, 5)
+  assert.equal(defaults.right.length, 5)
+  // Hai bên không trùng nhau hoàn toàn (thực tế không trùng sản phẩm nào).
+  const leftIds = new Set(defaults.left.map(item => item.productId))
+  assert.equal(defaults.right.filter(item => leftIds.has(item.productId)).length, 0)
+  // Banner mặc định dùng chung dạng với banner đã resolve.
+  assert.equal(defaults.left[0].title, '')
+  assert.equal(defaults.left[0].product.name, 'Sản phẩm 1')
 })
 
-test('leadSpanFor: đủ hàng span 1, thiếu d hàng span 1 + d, không mục span 1', () => {
-  assert.equal(leadSpanFor(5, 5), 1)
-  assert.equal(leadSpanFor(4, 5), 2)
-  assert.equal(leadSpanFor(2, 7), 6)
-  assert.equal(leadSpanFor(0, 8), 1)
+test('defaultSideBanners: không chọn sản phẩm hết hàng', () => {
+  const mixed = [
+    { id: 'het', name: 'Hết hàng', price: 1000, stockCount: 0, viewCount: 999, discountPercent: 50 },
+    ...products,
+  ]
+  const defaults = defaultSideBanners(mixed)
+  assert.equal(defaults.left.some(item => item.productId === 'het'), false)
+  assert.equal(defaults.right.some(item => item.productId === 'het'), false)
+  assert.equal(defaults.left.length, 5)
+  assert.equal(defaults.right.length, 5)
+})
+
+test('defaultSideBanners: ít sản phẩm thì lấy đúng số có, không đệm', () => {
+  const three = defaultSideBanners(products.slice(0, 3))
+  assert.deepEqual(three.left.map(item => item.productId), ['1', '2'])
+  assert.deepEqual(three.right.map(item => item.productId), ['3'])
+  assert.deepEqual(defaultSideBanners([]), { left: [], right: [] })
+  assert.deepEqual(defaultSideBanners(null), { left: [], right: [] })
+})
+
+test('defaultSideBanners: chịu được products chưa enrich (thiếu discountPercent/viewCount)', () => {
+  const plain = [{ id: 'a', name: 'A', price: 1000 }, { id: 'b', name: 'B', price: 2000 }]
+  const defaults = defaultSideBanners(plain, 5)
+  assert.deepEqual(defaults.left.map(item => item.productId), ['a'])
+  assert.deepEqual(defaults.right.map(item => item.productId), ['b'])
+})
+
+test('resolveSideBannersWithDefaults: bên custom giữ nguyên, bên trống dùng mặc định', () => {
+  const both = resolveSideBannersWithDefaults(undefined, products)
+  assert.equal(both.left.length, 5)
+  assert.equal(both.right.length, 5)
+  const mixed = resolveSideBannersWithDefaults({ left: [slot('1'), slot('2'), slot('3')], right: [] }, products)
+  assert.deepEqual(mixed.left.map(item => item.productId), ['1', '2', '3'])
+  assert.equal(mixed.right.length, 5)
+  assert.deepEqual(mixed.right.map(item => item.productId), ['10', '8', '6', '4', '2'])
+  // Cấu hình cũ 13 slot/bên kẹp về 10, chia 4 trước/6 sau.
+  const legacy = resolveSideBannersWithDefaults({
+    left: Array.from({ length: 13 }, (_, i) => slot(String((i % 10) + 1))),
+    right: Array.from({ length: 13 }, (_, i) => slot(String((i % 10) + 1))),
+  }, products)
+  assert.equal(legacy.left.length, 10)
+  assert.equal(legacy.right.length, 10)
+  assert.deepEqual(
+    [splitSideBanners(legacy.left).before.length, splitSideBanners(legacy.left).after.length],
+    [4, 6],
+  )
 })

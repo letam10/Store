@@ -120,6 +120,8 @@ export default function Home({
           sale
           english={english}
         />
+      </div>
+      <div className="container home-catalog">
         {rows.map(({ category, subtitle }) => {
           const trans = rowEnglish[category]
           return <ProductRow

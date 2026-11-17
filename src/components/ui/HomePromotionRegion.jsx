@@ -1,73 +1,86 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import { computeSideBannerSync, resolveSideBanners } from '../../services/sideBanners'
-import HomeSideBanner from './HomeSideBanner'
+import { Children } from 'react'
+import { resolveSideBannersWithDefaults, splitSideBanners } from '../../services/sideBanners'
+import SideBannerRail from './SideBannerRail'
 import './HomePromotionRegion.css'
 
-export default function HomePromotionRegion({ overview, account, products, area = 'intro', appearance = {}, children }) {
-  const showRails = area === 'page'
-  const regionRef = useRef(null)
-  const [saleGapHeight, setSaleGapHeight] = useState(null)
+// Vòng 3 (làm lại từ đầu): cột banner tách thành HAI ĐOẠN ĐỘC LẬP, mỗi đoạn
+// neo vào đúng vùng nội dung của nó — KHÔNG còn một cột dài duy nhất, KHÔNG
+// đo chiều cao khe sale bằng JS, KHÔNG lưới hàng chung, KHÔNG span bù.
+//
+// - Đoạn TRƯỚC sale (segment="before"): rail tuyệt đối trong vùng intro
+//   (hero + Sản phẩm nổi bật), top ngang hero, bottom đúng mép dưới vùng
+//   intro. Render bởi region area="intro".
+// - Đoạn SAU sale (segment="after"): rail tuyệt đối trong vùng
+//   .home-promotion-region__after — phần catalog sau mục Đang giảm giá —
+//   top đúng mép dưới mục sale, bottom đúng mép dưới vùng catalog.
+//   Render bởi region area="catalog"; mục Đang giảm giá full-width nằm
+//   GIỮA hai vùng nên tự nhiên ngắt cột.
+// - Region area="page" chỉ bọc toàn trang, không render rail nữa.
+// - Mỗi đoạn là flex column, height: 100%, các thẻ flex: 1 1 0 nên cao bằng
+//   nhau tuyệt đối trong đoạn; trái/phải cùng một vùng có cùng chiều cao
+//   vùng cha nên tự động thẳng hàng.
+// - Thẻ hero ở giữa trang là nội dung trung tâm, không phải banner cột bên:
+//   không động vào. Thẻ hero cũ và các offer cũ KHÔNG còn render trong rail
+//   (xem SideBannerRail/SideBannerCard).
+export default function HomePromotionRegion({ products, area = 'intro', appearance = {}, children }) {
+  const showBeforeRails = area === 'intro'
+  const showAfterRails = area === 'catalog'
+  const showRails = showBeforeRails || showAfterRails
 
-  // Đồng bộ hai rail: tính CHUNG một lần ở region — số hàng mỗi đoạn
-  // (rowsBefore/rowsAfter) lấy max của cả hai bên, kèm span bù hàng thiếu
-  // cho bên ít banner hơn — rồi truyền cùng một sync xuống cả hai rail,
-  // thay vì mỗi rail tự chia tỉ lệ riêng như vòng 1.
-  const resolved = showRails ? resolveSideBanners(appearance?.sideBanners, products) : { left: null, right: null }
-  const sync = showRails ? computeSideBannerSync(resolved.left, resolved.right) : null
+  // Danh sách banner cuối mỗi bên: cấu hình đã lưu nếu còn slot hợp lệ,
+  // không thì banner mặc định mới (mỗi bên 5, tổng 10). Tính một lần cho
+  // cả hai bên rồi chia trước/sau sale theo CÙNG một quy tắc.
+  const lists = showRails
+    ? resolveSideBannersWithDefaults(appearance?.sideBanners, products)
+    : { left: [], right: [] }
+  const splitLeft = showRails ? splitSideBanners(lists.left) : { before: [], after: [] }
+  const splitRight = showRails ? splitSideBanners(lists.right) : { before: [], after: [] }
 
-  // Khe sale chỉ đo MỘT lần chung cho cả region: lấy khe của rail trái làm
-  // mốc (hai rail dùng chung lưới hàng nên mép trên khe bằng nhau), đặt
-  // chiều cao đo được vào biến chung --home-sale-gap-height trên region để
-  // cả hai rail cùng áp — không đo riêng từng rail như vòng 1.
-  useLayoutEffect(() => {
-    if (!showRails) return undefined
-    const region = regionRef.current
-    if (!region) return undefined
-    const sale = region.querySelector('#home-sale-products')
-    const gap = region.querySelector('.home-promotion-rail--left .home-promotion-rail__sale-gap')
-    if (!sale || !gap) return undefined
-
-    const syncSaleGap = () => {
-      const gapTop = gap.getBoundingClientRect().top
-      const saleBottom = sale.getBoundingClientRect().bottom
-      const next = Math.max(0, Math.round(saleBottom - gapTop))
-      setSaleGapHeight((prev) => (prev === null || Math.abs(prev - next) > 1 ? next : prev))
-    }
-
-    syncSaleGap()
-    // Lưới hàng làm mép trên khe sale dịch chuyển sau lần đo đầu, đo lại thêm 1 nhịp.
-    const raf = requestAnimationFrame(syncSaleGap)
-    window.addEventListener('resize', syncSaleGap)
-    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(syncSaleGap) : null
-    observer?.observe(region)
-    observer?.observe(sale)
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', syncSaleGap)
-      observer?.disconnect()
-    }
-  }, [showRails, products.length, overview?.sales?.length, sync?.left.beforeCount, sync?.left.afterCount, sync?.right.beforeCount, sync?.right.afterCount])
+  if (showAfterRails) {
+    // Vùng catalog nhận đúng hai con: [mục Đang giảm giá, phần sau sale].
+    // Phần sau sale bọc trong .home-promotion-region__after (position:
+    // relative) để rail đoạn sau neo đúng vào nó, không chạm tới mục sale.
+    const [saleChild, ...afterChildren] = Children.toArray(children)
+    return (
+      <div className="home-promotion-region home-promotion-region--catalog">
+        <div className="home-promotion-region__body">
+          {saleChild}
+          <div className="home-promotion-region__after">
+            {afterChildren}
+            <aside
+              className="home-promotion-rail home-promotion-rail--left"
+              aria-label="Banner sản phẩm bên trái"
+            >
+              <SideBannerRail side="left" segment="after" banners={splitLeft.after} offset={splitLeft.before.length} />
+            </aside>
+            <aside
+              className="home-promotion-rail home-promotion-rail--right"
+              aria-label="Banner sản phẩm bên phải"
+            >
+              <SideBannerRail side="right" segment="after" banners={splitRight.after} offset={splitRight.before.length} />
+            </aside>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div
-      ref={regionRef}
-      className={'home-promotion-region home-promotion-region--' + area}
-      style={saleGapHeight === null ? undefined : { '--home-sale-gap-height': saleGapHeight + 'px' }}
-    >
-      {showRails && <aside
+    <div className={'home-promotion-region home-promotion-region--' + area}>
+      {showBeforeRails && <aside
         className="home-promotion-rail home-promotion-rail--left"
-        aria-label="Ưu đãi cửa hàng và các nhóm hàng"
+        aria-label="Banner sản phẩm bên trái"
       >
-        <HomeSideBanner side="left" overview={overview} account={account} products={products} area="page" appearance={appearance} sync={sync} />
+        <SideBannerRail side="left" segment="before" banners={splitLeft.before} />
       </aside>}
       <div className="home-promotion-region__body">
         {children}
       </div>
-      {showRails && <aside
+      {showBeforeRails && <aside
         className="home-promotion-rail home-promotion-rail--right"
-        aria-label="Quyền lợi thành viên và tiện ích mua sắm"
+        aria-label="Banner sản phẩm bên phải"
       >
-        <HomeSideBanner side="right" overview={overview} account={account} products={products} area="page" appearance={appearance} sync={sync} />
+        <SideBannerRail side="right" segment="before" banners={splitRight.before} />
       </aside>}
     </div>
   )

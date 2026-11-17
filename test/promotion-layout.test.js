@@ -78,6 +78,10 @@ async function openStore({ customer = null, offers = [saleProduct], vouchers = [
   return dom
 }
 
+// Vòng 3 (làm lại từ đầu): rail chỉ còn thẻ banner sản phẩm mới
+// (.side-banner-card), chia hai đoạn độc lập — đoạn trước sale neo trong
+// vùng intro, đoạn sau sale neo trong vùng catalog sau mục sale; region
+// trang không render rail nữa; không còn thẻ hero/offer cũ, không khe sale.
 function assertHomeRegion(window) {
   const { document, Node } = window
   const region = document.querySelector('.home-promotion-region--page')
@@ -88,27 +92,34 @@ function assertHomeRegion(window) {
   assert.ok(intro, 'Trang chủ cần vùng intro')
   assert.ok(catalog, 'Banner còn lại cần được đưa xuống vùng danh mục')
   assert.ok(sale, 'Mục giảm giá cần đích điều hướng cố định')
-  assert.equal(document.querySelectorAll('.home-promotion-rail').length, 2)
-  assert.equal(region.querySelectorAll('aside.home-promotion-rail').length, 2)
-  assert.equal(intro.querySelectorAll('aside.home-promotion-rail').length, 0)
-  for (const side of ['left', 'right']) {
-    assert.ok(region.querySelector('.home-promotion-rail--' + side + ' .home-side-banner'))
-  }
+  // Bốn rail: mỗi bên một đoạn trước sale (vùng intro) + một đoạn sau sale
+  // (vùng catalog sau mục sale); region trang không render rail trực tiếp.
+  assert.equal(document.querySelectorAll('aside.home-promotion-rail').length, 4)
+  assert.equal(region.querySelectorAll(':scope > aside.home-promotion-rail').length, 0)
+  assert.equal(intro.querySelectorAll('aside.home-promotion-rail').length, 2)
+  assert.equal(catalog.querySelectorAll('.home-promotion-region__after aside.home-promotion-rail').length, 2)
   assert.ok(region.querySelector('.home-promotion-region__body .shop-hero'))
   assert.ok(region.querySelector('.home-promotion-region__body .store-promo-board'))
   assert.equal(intro.contains(sale), false)
   assert.equal(catalog.contains(sale), true)
+  // Không còn thẻ hero/offer cũ hay khe sale trong rail.
+  assert.equal(document.querySelectorAll('.home-side-banner').length, 0)
+  assert.equal(document.querySelectorAll('.home-promotion-rail__sale-gap').length, 0)
   for (const side of ['left', 'right']) {
-    const top = region.querySelector('.home-promotion-rail--' + side)
-    assert.equal(top.querySelectorAll('.home-side-banner').length, side === 'left' ? 11 : 13)
-    assert.equal(top.querySelectorAll('.home-promotion-rail__sale-gap').length, 1)
-    const cards = [...top.querySelectorAll('.home-side-banner')]
+    const before = intro.querySelectorAll('.home-promotion-rail--' + side + ' .side-banner-card')
+    const after = catalog.querySelectorAll('.home-promotion-region__after .home-promotion-rail--' + side + ' .side-banner-card')
+    // Mặc định mỗi bên 5 banner, chia 2 trước/3 sau sale.
+    assert.equal(before.length, 2, side + ': đoạn trước sale phải có 2 thẻ')
+    assert.equal(after.length, 3, side + ': đoạn sau sale phải có 3 thẻ')
+    const cards = [...before, ...after]
     assert.equal(new Set(cards.map(card => card.dataset.bannerId)).size, cards.length)
     for (const card of cards) {
       assert.equal(card.tagName, 'A', 'Cả banner cần là một liên kết')
-      assert.ok(card.getAttribute('href'))
+      assert.match(card.getAttribute('href'), /^\/products\/.+/, 'Banner phải mở trang chi tiết sản phẩm')
       assert.equal(card.querySelector('a, button'), null, 'Banner không được chứa liên kết hoặc nút lồng nhau')
-      assert.ok(card.querySelector('.home-side-banner__details'))
+      assert.ok(card.querySelector('.side-banner-card__media img'), 'Banner cần ảnh sản phẩm')
+      assert.ok(card.querySelector('.side-banner-card__name'), 'Banner cần tên sản phẩm')
+      assert.ok(card.querySelector('.side-banner-card__price'), 'Banner cần giá sản phẩm')
     }
   }
   assert.ok(region.contains(sale) || region.compareDocumentPosition(sale) & Node.DOCUMENT_POSITION_FOLLOWING)
@@ -155,46 +166,45 @@ for (const customer of [null, account]) {
   })
 }
 
-test('banner lấy mức giảm lớn nhất còn hàng và giữ liên kết có đích thật', async () => {
+test('banner mặc định lấy sản phẩm giảm giá còn hàng, bỏ sản phẩm hết hàng', async () => {
   const offers = [saleProduct, { ...saleProduct, id: 'sold-out', discountPercent: 91, stockCount: 0 }]
   const dom = await openStore({ offers, customer: account })
   const { window } = dom
   try {
-    const left = () => window.document.querySelector('.home-promotion-rail--left')
-    const right = () => window.document.querySelector('.home-promotion-rail--right')
-    await waitFor(() => /37\s*%/.test(left()?.textContent || ''))
-    assert.doesNotMatch(left().textContent, /91\s*%/)
-    await waitFor(() => /Vàng/.test(right()?.textContent || ''))
-    assert.match(right().textContent, /2\s*%/)
-    assert.ok(right().querySelector('a[href="/membership"]'))
-    assert.ok(right().querySelector('a[href="/rewards"]'))
-    const links = [...window.document.querySelectorAll('a.home-side-banner')]
-    assert.equal(links.length, 24)
-    assert.equal(window.document.querySelectorAll('.home-side-banner--compact').length, 3)
+    const rails = () => [...window.document.querySelectorAll('.home-promotion-rail')]
+    await waitFor(() => rails().length === 4)
+    await waitFor(() => window.document.querySelector('a.side-banner-card[href="/products/banner-sale"]'))
+    // Sản phẩm giảm giá còn hàng có mặt trong rail; sản phẩm hết hàng
+    // (giảm 91%) không được chọn làm banner mặc định.
+    assert.equal(window.document.querySelectorAll('a.side-banner-card[href="/products/sold-out"]').length, 0)
+    assert.doesNotMatch(rails().map(rail => rail.textContent).join(' '), /91\s*%/)
+    // Mọi banner đều là thẻ sản phẩm mới, link tới trang chi tiết thật.
+    const links = [...window.document.querySelectorAll('a.side-banner-card')]
+    assert.equal(links.length, 10)
     for (const link of links) {
-      const href = link.getAttribute('href')
-      const routes = /^(products|membership|rewards|favorites|cart|contact|account)$/
-      const path = new URL(href, window.location.origin).pathname.slice(1)
-      assert.ok(href === '#home-sale-products' || routes.test(path))
-      if (href.startsWith('#')) assert.ok(window.document.querySelector(href))
+      assert.match(link.getAttribute('href'), /^\/products\/.+/)
     }
-    right().querySelector('a[href="/rewards"]').click()
-    await waitFor(() => window.location.pathname === '/rewards' && window.document.querySelector('.lucky-wheel'))
+    // Bấm banner sản phẩm giảm giá mở đúng trang chi tiết của nó.
+    window.document.querySelector('a.side-banner-card[href="/products/banner-sale"]').click()
+    await waitFor(() => window.location.pathname === '/products/banner-sale' && window.document.querySelector('.product-detail-layout'))
+    assert.match(window.document.querySelector('.product-detail-layout').textContent, /Món giảm giá còn hàng/)
     assert.equal(window.document.querySelector('.home-promotion-rail'), null)
   } finally {
     window.close()
   }
 })
 
-test('bấm banner chính đưa người dùng tới khu giảm giá riêng', async () => {
+test('bấm banner sản phẩm mở trang chi tiết của đúng sản phẩm đó', async () => {
   const dom = await openStore()
   const { window } = dom
   try {
-    const selector = '.home-promotion-region--page .home-side-banner--store'
-    await waitFor(() => window.document.querySelector(selector))
-    window.document.querySelector(selector).click()
-    await waitFor(() => window.location.hash === '#home-sale-products')
-    assert.ok(window.document.querySelector('#home-sale-products'))
+    await waitFor(() => window.document.querySelector('a.side-banner-card'))
+    const card = window.document.querySelector('.home-promotion-region--intro a.side-banner-card')
+    const href = card.getAttribute('href')
+    const name = card.querySelector('.side-banner-card__name').textContent
+    card.click()
+    await waitFor(() => window.location.pathname === href && window.document.querySelector('.product-detail-layout'))
+    assert.match(window.document.querySelector('.product-detail-layout').textContent, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   } finally {
     window.close()
   }
@@ -204,17 +214,16 @@ test('khách không có hàng giảm giá không nhận mức giảm hàng hóa 
   const dom = await openStore({ offers: [], vouchers: wallet })
   const { window } = dom
   try {
-    const left = () => window.document.querySelector('.home-promotion-rail--left')
-    await waitFor(() => left() && window.document.querySelector('.home-empty-sale'))
-    assert.doesNotMatch(left().textContent, /\d\s*%/)
+    const rails = () => [...window.document.querySelectorAll('.home-promotion-rail')]
+    await waitFor(() => rails().length === 4 && window.document.querySelector('.home-empty-sale'))
+    // Rail chỉ còn thẻ sản phẩm mới: không số % giảm giá, không mã voucher.
+    for (const rail of rails()) {
+      assert.doesNotMatch(rail.textContent, /\d\s*%/)
+      for (const voucher of wallet) assert.equal(rail.textContent.includes(voucher.code), false)
+    }
+    assert.equal(window.document.querySelectorAll('a.side-banner-card').length, 10)
     assert.equal(window.document.querySelector('.store-gift-ticket'), null)
     assert.equal(window.document.querySelector('.store-sale-stamp'), null)
-    const right = window.document.querySelector('.home-promotion-rail--right')
-    assert.match(right.textContent, /Kim Cương/)
-    assert.match(right.textContent, /10[.\s]?000/)
-    assert.match(right.textContent, /5\s*%/)
-    assert.ok(right.querySelector('a[href="/membership"]'))
-    for (const voucher of wallet) assert.equal(right.textContent.includes(voucher.code), false)
   } finally {
     window.close()
   }

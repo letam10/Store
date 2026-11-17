@@ -54,6 +54,13 @@
     padding-bottom: 0;
   }
 
+  /* Vùng neo của đoạn rail SAU sale: phần catalog sau mục Đang giảm giá.
+     Rail đoạn sau tuyệt đối trong vùng này, top: 0 (đúng mép dưới mục sale),
+     bottom: 0 (đúng mép dưới vùng catalog). */
+  .home-promotion-region__after {
+    position: relative;
+  }
+
   .home-promotion-region__body {
     container: home-ad-content / inline-size;
   }
@@ -62,23 +69,28 @@
     width: var(--home-content-width);
   }
 
-  /* Rail thuộc frame toàn trang, sale vẫn nằm trong body ở cột giữa.
-     top:0 ngang mép trên hero; bottom:32px (= padding-bottom của region--page)
-     kéo rail tới đúng mép dưới của region__body, ngay trên footer. */
+  /* Rail tuyệt đối trong đúng vùng neo của nó, lấp đầy chiều cao vùng đó
+     (top: 0, bottom: 0, height: 100% qua đoạn flex bên trong). Mục Đang
+     giảm giá full-width nằm giữa hai vùng nên tự nhiên ngắt cột — không đo
+     khe sale, không biến chiều cao khe. */
   .home-promotion-rail {
     display: block;
     position: absolute;
     z-index: 15;
     top: 0;
-    bottom: 32px;
+    bottom: 0;
     height: auto;
     width: var(--home-banner-width);
     min-width: 0;
   }
 
-  /* Stack đồng bộ (custom lẫn fallback) lấp đầy rail để lưới hàng chung
-     chia đều chiều cao, đáy thẳng. */
-  .home-promotion-rail .home-side-banner-stack--synced {
+  /* Vùng intro có padding-bottom 32px: rail đoạn trước dừng ở mép dưới của
+     region__body, không tràn xuống phần đệm. */
+  .home-promotion-region--intro > .home-promotion-rail {
+    bottom: 32px;
+  }
+
+  .home-promotion-rail .side-banner-rail__segment {
     height: 100%;
   }
 
