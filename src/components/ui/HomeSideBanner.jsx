@@ -1,6 +1,5 @@
-import { useLayoutEffect, useRef } from 'react'
 import { membershipPlans } from '../../services/promotions'
-import { resolveSideBanners, splitSideBanners } from '../../services/sideBanners'
+import { computeSideBannerSync, resolveSideBanners } from '../../services/sideBanners'
 import HomeBannerArtwork from './HomeBannerArtwork'
 import HomeBannerOffers from './HomeBannerOffers'
 import './HomeSideBanner.css'
@@ -46,9 +45,7 @@ function SideBannerCard({ banner, index }) {
   )
 }
 
-export default function HomeSideBanner({ side, overview, account, products, area, appearance = {} }) {
-  const stackRef = useRef(null)
-  const saleGapRef = useRef(null)
+export default function HomeSideBanner({ side, overview, account, products, area, appearance = {}, sync = null }) {
   const { sales, maxDiscount, plan, points } = overview
   const isStore = side === 'left'
   const bestPlan = membershipPlans.at(-1)
@@ -61,72 +58,34 @@ export default function HomeSideBanner({ side, overview, account, products, area
 
   // Cấu hình banner custom (nếu có) resolve từ appearance.sideBanners.
   // Bên nào không còn slot hợp lệ thì trả null để bên đó fallback y như cũ.
+  // Đồng bộ hai rail: dùng sync chung do HomePromotionRegion tính từ cả hai
+  // bên (số hàng chung mỗi đoạn + span bù hàng thiếu); render lẻ không qua
+  // region thì tự tính lại bằng cùng hàm computeSideBannerSync.
   const resolved = isPage ? resolveSideBanners(appearance?.sideBanners, products) : { left: null, right: null }
-  const customBanners = isStore ? resolved.left : resolved.right
+  const railSync = isPage ? (sync ?? computeSideBannerSync(resolved.left, resolved.right)) : null
+  const sideSync = railSync ? railSync[side] : null
+  const customBanners = sideSync?.isCustom ? sideSync.banners : null
   const isCustom = isPage && customBanners !== null
-  const anyCustom = resolved.left !== null || resolved.right !== null
-  const split = isCustom ? splitSideBanners(customBanners, side) : null
-
-  useLayoutEffect(() => {
-    if (!isPage) return undefined
-    const stack = stackRef.current
-    const saleGap = saleGapRef.current
-    const region = stack?.closest('.home-promotion-region--page')
-    const sale = region?.querySelector('#home-sale-products')
-    if (!stack || !saleGap || !region || !sale) return undefined
-
-    const syncSaleGap = () => {
-      const gapTop = saleGap.getBoundingClientRect().top
-      const saleBottom = sale.getBoundingClientRect().bottom
-      saleGap.style.height = Math.max(0, saleBottom - gapTop) + 'px'
-
-      // Chế độ custom: bỏ cân minHeight 2 card cuối — 2 rail cùng stretch tới
-      // đáy region và flex chia đều nên đáy tự thẳng. Chỉ cân ở chế độ fallback.
-      if (anyCustom) return
-      // Cân đối mép đáy của 2 card cuối cùng hai bên rail
-      const leftCards = region.querySelectorAll('.home-promotion-rail--left .home-side-banner')
-      const rightCards = region.querySelectorAll('.home-promotion-rail--right .home-side-banner')
-      const lastLeft = leftCards[leftCards.length - 1]
-      const lastRight = rightCards[rightCards.length - 1]
-      if (lastLeft && lastRight) {
-        lastLeft.style.minHeight = ''
-        lastRight.style.minHeight = ''
-        const leftBottom = lastLeft.getBoundingClientRect().bottom
-        const rightBottom = lastRight.getBoundingClientRect().bottom
-        const diff = leftBottom - rightBottom
-        if (diff > 1) {
-          lastRight.style.minHeight = Math.round(lastRight.offsetHeight + diff) + 'px'
-        } else if (diff < -1) {
-          lastLeft.style.minHeight = Math.round(lastLeft.offsetHeight + (-diff)) + 'px'
-        }
-      }
-    }
-
-    syncSaleGap()
-    // Stack flex làm mép trên khe sale dịch chuyển sau lần đo đầu, đo lại thêm 1 nhịp.
-    const raf = requestAnimationFrame(syncSaleGap)
-    window.addEventListener('resize', syncSaleGap)
-    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(syncSaleGap) : null
-    observer?.observe(region)
-    observer?.observe(sale)
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', syncSaleGap)
-      observer?.disconnect()
-    }
-  }, [isPage, products.length, sales.length, customBanners?.length, anyCustom])
+  const split = isCustom ? { before: sideSync.before, after: sideSync.after } : null
+  // Biến lưới hàng chung: cả hai rail cùng số hàng mỗi đoạn, mục đầu mỗi
+  // đoạn span bù hàng thiếu — xem .home-side-banner-stack--synced trong CSS.
+  const syncStyle = isPage ? {
+    '--rows-before': railSync.rowsBefore,
+    '--rows-after': railSync.rowsAfter,
+    '--before-lead-span': sideSync.leadBeforeSpan,
+    '--after-lead-span': sideSync.leadAfterSpan,
+  } : {}
 
   // Chế độ custom thay toàn bộ cột: thẻ đầu và offer mặc định không render,
   // tổng số card trong cột đúng bằng số slot đã resolve, chia trước/sau khe sale.
   if (isCustom) {
     return (
       <div
-        className="home-side-banner-stack home-side-banner-stack--custom"
-        ref={stackRef}
-        style={{ '--home-banner-card-count': customBanners.length }}
+        className="home-side-banner-stack home-side-banner-stack--custom home-side-banner-stack--synced"
+        style={{ '--home-banner-card-count': customBanners.length, ...syncStyle }}
       >
         {split.before.map((banner, index) => <SideBannerCard key={banner.productId + '-' + index} banner={banner} index={index} />)}
-        <div ref={saleGapRef} className="home-promotion-rail__sale-gap" aria-hidden="true" />
+        <div className="home-promotion-rail__sale-gap" aria-hidden="true" />
         {split.after.map((banner, index) => <SideBannerCard key={banner.productId + '-' + (split.before.length + index)} banner={banner} index={split.before.length + index} />)}
       </div>
     )
@@ -134,9 +93,8 @@ export default function HomeSideBanner({ side, overview, account, products, area
 
   return (
     <div
-      className="home-side-banner-stack"
-      ref={stackRef}
-      style={{ '--home-banner-card-count': isPage ? (isStore ? 11 : 13) : isIntro ? 3 : 5 }}
+      className={'home-side-banner-stack' + (isPage ? ' home-side-banner-stack--synced' : '')}
+      style={{ '--home-banner-card-count': isPage ? (isStore ? 11 : 13) : isIntro ? 3 : 5, ...syncStyle }}
     >
       {isIntro && <a
         className={'home-side-banner home-side-banner--' + (isStore ? 'store' : 'member')}
@@ -189,7 +147,7 @@ export default function HomeSideBanner({ side, overview, account, products, area
           count={compactCount}
           compact
         />
-        <div ref={saleGapRef} className="home-promotion-rail__sale-gap" aria-hidden="true" />
+        <div className="home-promotion-rail__sale-gap" aria-hidden="true" />
         <HomeBannerOffers
           side={side}
           overview={overview}

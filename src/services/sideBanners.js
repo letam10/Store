@@ -108,15 +108,77 @@ export function resolveSideBanners(value, products = []) {
 
 // Chức năng splitSideBanners: chia danh sách banner đã resolve của một bên
 // thành { before, after } quanh khe sale (mục Đang giảm giá full-width).
-// Giữ tỉ lệ bố cục mặc định: trái 4/11, phải 5/13
-// (VD: 5 banner → 2 trước / 3 sau; 10 trái → 4/6; 13 phải → 5/8).
+// Dùng CHUNG một tỉ lệ 4/11 cho cả hai bên (không còn tỉ lệ riêng trái 4/11,
+// phải 5/13 như vòng 1): hai bên cùng số lượng thì chia giống hệt nhau, nên
+// hàng ngang thẳng nhau; khác số lượng thì computeSideBannerSync bù bằng span.
 // Luôn ≥ 1 banner mỗi phía khi cột có ≥ 2 banner.
-export function splitSideBanners(banners, side) {
+export function splitSideBanners(banners) {
   const list = Array.isArray(banners) ? banners : []
   if (list.length === 0) return { before: [], after: [] }
   if (list.length === 1) return { before: list.slice(), after: [] }
-  const ratio = side === 'right' ? 5 / 13 : 4 / 11
+  const ratio = 4 / 11
   let beforeCount = Math.round(list.length * ratio)
   beforeCount = Math.max(1, Math.min(list.length - 1, beforeCount))
   return { before: list.slice(0, beforeCount), after: list.slice(beforeCount) }
+}
+
+// Số mục fallback mặc định của mỗi bên ở area="page", đếm theo đúng JSX
+// fallback của HomeSideBanner: trái = thẻ đầu + 2 offer + 1 compact trước
+// sale, 7 offer sau sale (tổng 11); phải = thẻ đầu + 2 offer + 2 compact
+// trước sale, 8 offer sau sale (tổng 13).
+export const FALLBACK_SIDE_BANNER_COUNTS = {
+  left: { before: 4, after: 7 },
+  right: { before: 5, after: 8 },
+}
+
+// Chức năng leadSpanFor: số hàng grid mà mục đầu một đoạn phải span để đoạn
+// đó lấp đủ số hàng chung. Bên đủ hàng thì span 1; bên thiếu d hàng thì mục
+// đầu span 1 + d, các mục còn lại span 1 — mọi mép thẻ đều rơi đúng đường
+// lưới chung, không để trống hàng, đáy đoạn thẳng nhau.
+export function leadSpanFor(itemCount, rowCount) {
+  if (itemCount <= 0) return 1
+  return Math.max(1, rowCount - itemCount + 1)
+}
+
+function syncForSide(banners, side) {
+  if (Array.isArray(banners)) {
+    const split = splitSideBanners(banners)
+    return {
+      banners,
+      before: split.before,
+      after: split.after,
+      beforeCount: split.before.length,
+      afterCount: split.after.length,
+      isCustom: true,
+    }
+  }
+  const fallback = FALLBACK_SIDE_BANNER_COUNTS[side]
+  return {
+    banners: null,
+    before: [],
+    after: [],
+    beforeCount: fallback.before,
+    afterCount: fallback.after,
+    isCustom: false,
+  }
+}
+
+// Chức năng computeSideBannerSync: tính CHUNG cấu trúc hàng cho cả hai rail
+// từ banner đã resolve của hai bên (null = bên đó fallback mặc định).
+// Trả { left, right, rowsBefore, rowsAfter } với rowsBefore =
+// max(số banner trước sale trái, phải), rowsAfter tương tự đoạn sau; mỗi bên
+// kèm leadBeforeSpan/leadAfterSpan để mục đầu đoạn span bù hàng thiếu.
+// HomePromotionRegion tính một lần rồi truyền xuống cả hai HomeSideBanner;
+// HomeSideBanner tự tính lại bằng hàm này khi render lẻ không qua region.
+export function computeSideBannerSync(leftBanners, rightBanners) {
+  const left = syncForSide(leftBanners, 'left')
+  const right = syncForSide(rightBanners, 'right')
+  const rowsBefore = Math.max(left.beforeCount, right.beforeCount)
+  const rowsAfter = Math.max(left.afterCount, right.afterCount)
+  const withSpans = (entry) => ({
+    ...entry,
+    leadBeforeSpan: leadSpanFor(entry.beforeCount, rowsBefore),
+    leadAfterSpan: leadSpanFor(entry.afterCount, rowsAfter),
+  })
+  return { left: withSpans(left), right: withSpans(right), rowsBefore, rowsAfter }
 }

@@ -76,8 +76,9 @@
     min-width: 0;
   }
 
-  /* Stack custom lấp đầy rail để các card flex chia đều chiều cao, đáy thẳng. */
-  .home-promotion-rail .home-side-banner-stack--custom {
+  /* Stack đồng bộ (custom lẫn fallback) lấp đầy rail để lưới hàng chung
+     chia đều chiều cao, đáy thẳng. */
+  .home-promotion-rail .home-side-banner-stack--synced {
     height: 100%;
   }
 

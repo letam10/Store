@@ -14,22 +14,35 @@
   pointer-events: none;
 }
 
-/* Chế độ custom: stack flex lấp đầy rail, các card chia đều chiều cao cột,
-   khe sale giữ đúng chiều cao mục Đang giảm giá, không co giãn theo card. */
-.home-side-banner-stack--custom {
-  display: flex;
-  flex-direction: column;
+/* Đồng bộ hai rail (chỉ area="page"): cả hai stack dùng CHUNG một lưới hàng —
+   số hàng mỗi đoạn (--rows-before/--rows-after) do HomePromotionRegion tính
+   từ cả hai bên, khe sale là một hàng cao bằng biến chung
+   --home-sale-gap-height do region đo một lần. Nhờ đó mép trên, mép dưới,
+   vị trí khe sale và mọi đường ngang đều trùng nhau ở hai rail; mỗi hàng
+   cao bằng nhau (1fr), ảnh giữ tỉ lệ bằng object-fit: contain như cũ.
+   Mục đầu mỗi đoạn span bù số hàng thiếu (--before-lead-span /
+   --after-lead-span): fallback trái thẻ đầu span 2 trước sale, offer đầu
+   sau sale span 2; bên đủ hàng span 1. */
+.home-side-banner-stack--synced {
   height: 100%;
-  gap: 20px;
+  grid-template-rows:
+    repeat(var(--rows-before, 1), minmax(0, 1fr))
+    var(--home-sale-gap-height, 0px)
+    repeat(var(--rows-after, 1), minmax(0, 1fr));
+  align-content: stretch;
 }
 
-.home-side-banner-stack--custom .home-side-banner {
-  flex: 1 1 0;
+.home-side-banner-stack--synced > .home-side-banner:first-child {
+  grid-row: span var(--before-lead-span, 1);
+}
+
+.home-side-banner-stack--synced > .home-promotion-rail__sale-gap + .home-side-banner {
+  grid-row: span var(--after-lead-span, 1);
+}
+
+.home-side-banner-stack--synced .home-promotion-rail__sale-gap {
+  height: 100%;
   min-height: 0;
-}
-
-.home-side-banner-stack--custom .home-promotion-rail__sale-gap {
-  flex: 0 0 auto;
 }
 
 /* Card custom: ảnh giữ tỉ lệ (object-fit: contain trong HomeBannerProduct.css),
