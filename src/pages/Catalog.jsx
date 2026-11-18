@@ -146,7 +146,6 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
         </div>
         <label className="field"><span>{english ? 'Max price' : 'Giá tối đa'}</span><DropdownMenu value={maxPrice} options={localizedMaxPriceOptions} ariaLabel={english ? 'Max price' : 'Giá tối đa'} onChange={(nextPrice) => { closeDropdownMenus(); setMaxPrice(Number(nextPrice)); setCurrentPage(1) }} /></label>
         <label className="field"><span>{english ? 'Sort by' : 'Sắp xếp'}</span><DropdownMenu value={sort} options={localizedSortOptions} ariaLabel={english ? 'Sort products' : 'Sắp xếp sản phẩm'} onChange={(nextSort) => { closeDropdownMenus(); setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setCurrentPage(1) }} /></label>
-        <p className="catalog-sidebar__hint">{english ? 'Filters stay handy as you browse.' : 'Bộ lọc luôn ở bên cạnh khi bạn cuộn danh sách.'}</p>
       </div></aside>
       <div className="catalog-results">
         <div className="catalog-results__head">
