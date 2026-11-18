@@ -1,11 +1,51 @@
+/*
+  FILE NOTE
+  - Mục đích: Định kiểu bố cục cho đoạn rail banner hai bên trang chủ, hỗ trợ cuộn mượt mà khi có nhiều banner (10-30 banner mỗi bên) và tự động tăng gấp đôi khoảng cách (gap) khi số banner ít.
+  - Liên kết trực tiếp: Store/src/components/ui/SideBannerRail.jsx, Store/src/components/ui/HomePromotionRegion.jsx.
+  - Vùng ảnh hưởng khi sửa: Bố cục hiển thị dải banner bên trái và bên phải ở trang chủ.
+*/
+
 /* Một đoạn rail banner (vòng 3): flex column lấp đầy vùng neo, các thẻ
    flex: 1 1 0 nên cao bằng nhau tuyệt đối trong đoạn. Không grid hàng
    chung, không span bù, không khe sale đo bằng JS. */
 .side-banner-rail__segment {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--side-banner-gap, 20px);
   height: 100%;
   min-width: 0;
   min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(79, 139, 103, 0.4) transparent;
+  padding: 4px 6px 12px 6px;
+  box-sizing: border-box;
+}
+
+/* Khi số lượng banner ít (như mỗi bên 10 cái hoặc ít hơn): tăng khoảng cách (gap)
+   dài gấp đôi (từ 20px lên 40px) để các banner trải đều, thoáng đãng và đẹp mắt. */
+.side-banner-rail__segment--sparse,
+.side-banner-rail__segment[data-sparse="true"] {
+  --side-banner-gap: 40px;
+  gap: 40px;
+}
+
+.side-banner-rail__segment::-webkit-scrollbar {
+  width: 5px;
+}
+
+.side-banner-rail__segment::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.side-banner-rail__segment::-webkit-scrollbar-thumb {
+  background: rgba(79, 139, 103, 0.35);
+  border-radius: 999px;
+}
+
+.side-banner-rail__segment::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 139, 103, 0.6);
 }

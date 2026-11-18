@@ -1,8 +1,15 @@
+/*
+  FILE NOTE
+  - Mục đích: Kiểm thử unit cho src/services/sideBanners.js (giới hạn 5–30 banner mỗi bên, tùy chỉnh 10–30, clamp, normalize, resolve, split, banner mặc định).
+  - Liên kết trực tiếp: Store/src/services/sideBanners.js.
+  - Vùng ảnh hưởng khi sửa: Bộ kiểm thử đơn vị logic banner hai bên storefront.
+*/
+
 /**
  * @codex-vn-doc
  * Tệp: test/side-banners.test.js
- * Mục đích: Kiểm thử unit cho src/services/sideBanners.js vòng 3 (làm lại
- * từ đầu): normalize kẹp 5–10, resolve, split theo quy tắc 0.35 chung,
+ * Mục đích: Kiểm thử unit cho src/services/sideBanners.js (làm lại
+ * từ đầu): normalize kẹp 5–30, resolve, split theo quy tắc 0.35 chung,
  * banner mặc định mới, resolve kèm mặc định.
  * Thành phần chính: normalizeSideBanners, resolveSideBanners,
  * splitSideBanners, defaultSideBanners, resolveSideBannersWithDefaults,
@@ -14,8 +21,12 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   DEFAULT_SIDE_BANNER_COUNT,
+  SIDE_BANNER_DEFAULT_COUNT,
+  SIDE_BANNER_MAX_COUNT,
   SIDE_BANNER_MAX_PER_SIDE,
+  SIDE_BANNER_MIN_COUNT,
   SIDE_BANNER_MIN_PER_SIDE,
+  SIDE_BANNERS_MAX,
   clampSideBannerCount,
   defaultSideBanners,
   normalizeSideBanners,
@@ -37,20 +48,26 @@ const products = Array.from({ length: 10 }, (_, index) => ({
 
 const slot = (productId, extra = {}) => ({ productId, title: '', note: '', bg: '', text: '', accent: '', ...extra })
 
-test('giới hạn mới: mỗi bên tối thiểu 5, tối đa 10, mặc định 5', () => {
+test('giới hạn mới: mỗi bên tối thiểu 5, tối đa 30, mặc định 5', () => {
   assert.equal(SIDE_BANNER_MIN_PER_SIDE, 5)
-  assert.equal(SIDE_BANNER_MAX_PER_SIDE, 10)
+  assert.equal(SIDE_BANNER_MAX_PER_SIDE, 30)
   assert.equal(DEFAULT_SIDE_BANNER_COUNT, 5)
+  assert.equal(SIDE_BANNER_MIN_COUNT, 5)
+  assert.equal(SIDE_BANNER_MAX_COUNT, 30)
+  assert.equal(SIDE_BANNER_DEFAULT_COUNT, 5)
+  assert.equal(SIDE_BANNERS_MAX, 30)
 })
 
-test('clampSideBannerCount kẹp 5–10, số không hợp lệ dùng mặc định 5', () => {
+test('clampSideBannerCount kẹp 5–30, số không hợp lệ dùng mặc định 5', () => {
   assert.equal(clampSideBannerCount(3), 5)
   assert.equal(clampSideBannerCount(4), 5)
   assert.equal(clampSideBannerCount(5), 5)
   assert.equal(clampSideBannerCount(7), 7)
   assert.equal(clampSideBannerCount(10), 10)
-  assert.equal(clampSideBannerCount(13), 10)
-  assert.equal(clampSideBannerCount(20), 10)
+  assert.equal(clampSideBannerCount(13), 13)
+  assert.equal(clampSideBannerCount(20), 20)
+  assert.equal(clampSideBannerCount(30), 30)
+  assert.equal(clampSideBannerCount(35), 30)
   assert.equal(clampSideBannerCount(7.8), 7)
   for (const value of [undefined, null, Number.NaN, 'x', {}, []]) {
     assert.equal(clampSideBannerCount(value), 5)
@@ -72,13 +89,18 @@ test('normalize trả rỗng với chuỗi JSON sai, null, số hoặc mảng', 
   }
 })
 
-test('normalize kẹp tối đa 10 mỗi bên (cấu hình cũ 11–20 giữ 10 slot đầu)', () => {
-  const many = Array.from({ length: 25 }, (_, index) => slot(String((index % 10) + 1)))
+test('normalize kẹp tối đa 30 mỗi bên (giữ tối đa 30 slot đầu)', () => {
+  const count25 = Array.from({ length: 25 }, (_, index) => slot(String((index % 10) + 1)))
+  const normalized25 = normalizeSideBanners({ left: count25, right: count25 })
+  assert.equal(normalized25.left.length, 25)
+  assert.equal(normalized25.right.length, 25)
+
+  const many = Array.from({ length: 35 }, (_, index) => slot(String((index % 30) + 1)))
   const normalized = normalizeSideBanners({ left: many, right: many })
-  assert.equal(normalized.left.length, 10)
-  assert.equal(normalized.right.length, 10)
-  // Giữ đúng 10 slot đầu theo thứ tự đã lưu.
-  assert.deepEqual(normalized.left.map(item => item.productId), ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+  assert.equal(normalized.left.length, 30)
+  assert.equal(normalized.right.length, 30)
+  // Giữ đúng 30 slot đầu theo thứ tự đã lưu.
+  assert.deepEqual(normalized.left.map(item => item.productId), many.slice(0, 30).map(item => item.productId))
   const long = normalizeSideBanners({
     left: [slot('1', { title: 'x'.repeat(200), note: 'y'.repeat(300) })],
     right: [],
@@ -222,15 +244,27 @@ test('resolveSideBannersWithDefaults: bên custom giữ nguyên, bên trống d�
   assert.deepEqual(mixed.left.map(item => item.productId), ['1', '2', '3'])
   assert.equal(mixed.right.length, 5)
   assert.deepEqual(mixed.right.map(item => item.productId), ['10', '8', '6', '4', '2'])
-  // Cấu hình cũ 13 slot/bên kẹp về 10, chia 4 trước/6 sau.
-  const legacy = resolveSideBannersWithDefaults({
+  // Cấu hình 13 slot/bên giữ nguyên 13 slot, chia 5 trước/8 sau.
+  const thirteen = resolveSideBannersWithDefaults({
     left: Array.from({ length: 13 }, (_, i) => slot(String((i % 10) + 1))),
     right: Array.from({ length: 13 }, (_, i) => slot(String((i % 10) + 1))),
   }, products)
-  assert.equal(legacy.left.length, 10)
-  assert.equal(legacy.right.length, 10)
+  assert.equal(thirteen.left.length, 13)
+  assert.equal(thirteen.right.length, 13)
   assert.deepEqual(
-    [splitSideBanners(legacy.left).before.length, splitSideBanners(legacy.left).after.length],
-    [4, 6],
+    [splitSideBanners(thirteen.left).before.length, splitSideBanners(thirteen.left).after.length],
+    [5, 8],
+  )
+
+  // Cấu hình tối đa 30 slot/bên giữ nguyên 30 slot, chia 11 trước/19 sau.
+  const thirty = resolveSideBannersWithDefaults({
+    left: Array.from({ length: 30 }, (_, i) => slot(String((i % 10) + 1))),
+    right: Array.from({ length: 30 }, (_, i) => slot(String((i % 10) + 1))),
+  }, products)
+  assert.equal(thirty.left.length, 30)
+  assert.equal(thirty.right.length, 30)
+  assert.deepEqual(
+    [splitSideBanners(thirty.left).before.length, splitSideBanners(thirty.left).after.length],
+    [11, 19],
   )
 })

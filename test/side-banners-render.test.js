@@ -1,3 +1,10 @@
+/*
+  FILE NOTE
+  - Mục đích: Kiểm thử render DOM cho banner hai bên trang chủ (hỗ trợ hiển thị từ 10 đến 30 banner mỗi bên).
+  - Liên kết trực tiếp: Store/src/components/ui/HomePromotionRegion.jsx, Store/src/services/sideBanners.js.
+  - Vùng ảnh hưởng khi sửa: Bộ kiểm thử render DOM dải banner hai bên storefront.
+*/
+
 /**
  * @codex-vn-doc
  * Tệp: test/side-banners-render.test.js
@@ -126,6 +133,8 @@ test('thẻ trong cùng đoạn cao bằng nhau: flex: 1, không span, không st
   assert.match(railCss, /display:\s*flex/)
   assert.match(railCss, /flex-direction:\s*column/)
   assert.match(railCss, /height:\s*100%/)
+  assert.match(railCss, /overflow-y:\s*auto/)
+  assert.ok(!railCss.includes('overscroll-behavior: contain'), 'rail không được khóa cuộn trang (contain)')
   const cardCss = readFileSync(resolve('src/components/ui/SideBannerCard.css'), 'utf8')
   assert.match(cardCss, /flex:\s*1 1 0/)
   assert.ok(!cardCss.includes('span'), 'CSS thẻ không được có span')
@@ -159,7 +168,7 @@ test('mặc định khi chưa có cấu hình: banner sản phẩm mới, mỗi 
     assert.equal(document.querySelectorAll('.home-side-banner--member').length, 0)
     assert.equal(document.querySelectorAll('.home-banner-offer').length, 0)
     assert.equal(document.querySelectorAll('.home-promotion-rail__sale-gap').length, 0)
-    // Hai bên cùng số lượng và cùng chia trước/sau.
+    // Hai bên cùng số lượng và cùng chia trước/sau: 5 mỗi bên -> 2 trước/3 sau.
     for (const side of ['left', 'right']) {
       assert.deepEqual(
         [segmentCards(document, 'home-promotion-region--intro', side, 'before').length,
@@ -187,22 +196,23 @@ test('mặc định khi chưa có cấu hình: banner sản phẩm mới, mỗi 
   }
 })
 
-test('custom 5 mỗi bên: đúng 5 card/bên, chia 2 trước/3 sau, href /products/<id>', () => {
+test('custom 10 mỗi bên: đúng 10 card/bên, chia 4 trước/6 sau, href /products/<id>', () => {
+  const ids10 = Array.from({ length: 10 }, (_, index) => index + 1)
   const appearance = {
     sideBanners: JSON.stringify({
       version: 1,
-      left: slots([1, 2, 3, 4, 5], { accent: '#ffcc00' }),
-      right: slots([6, 7, 8, 9, 10]),
+      left: slots(ids10, { accent: '#ffcc00' }),
+      right: slots(ids10),
     }),
   }
   const dom = domOf(appearance)
   try {
     const document = dom.window.document
-    assert.equal(document.querySelectorAll('.side-banner-card').length, 10)
-    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--intro', 'left', 'before'), ['/products/1', '/products/2'])
-    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--catalog', 'left', 'after'), ['/products/3', '/products/4', '/products/5'])
-    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--intro', 'right', 'before'), ['/products/6', '/products/7'])
-    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--catalog', 'right', 'after'), ['/products/8', '/products/9', '/products/10'])
+    assert.equal(document.querySelectorAll('.side-banner-card').length, 20)
+    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--intro', 'left', 'before'), ['/products/1', '/products/2', '/products/3', '/products/4'])
+    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--catalog', 'left', 'after'), ['/products/5', '/products/6', '/products/7', '/products/8', '/products/9', '/products/10'])
+    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--intro', 'right', 'before'), ['/products/1', '/products/2', '/products/3', '/products/4'])
+    assert.deepEqual(segmentHrefs(document, 'home-promotion-region--catalog', 'right', 'after'), ['/products/5', '/products/6', '/products/7', '/products/8', '/products/9', '/products/10'])
     // Màu accent sau normalize là CHỮ HOA.
     const first = document.querySelector('.home-promotion-rail--left .side-banner-card')
     assert.match(first.getAttribute('style') || '', /#FFCC00/)
@@ -228,19 +238,50 @@ test('chỉ một bên custom thì bên còn lại dùng banner mặc định m�
   }
 })
 
-test('cấu hình cũ 13 slot/bên kẹp về 10, chia 4 trước/6 sau', () => {
+test('cấu hình từ 10 đến 30 banner mỗi bên render đầy đủ và chia đoạn trước/sau sale chuẩn xác', () => {
+  // Test 13 slot/bên: render đúng 13 card/bên (tổng 26 card), chia 5 trước/8 sau.
   const ids13 = Array.from({ length: 13 }, (_, index) => (index % 10) + 1)
-  const appearance = { sideBanners: JSON.stringify({ version: 1, left: slots(ids13), right: slots(ids13) }) }
-  const dom = domOf(appearance)
+  const appearance13 = { sideBanners: JSON.stringify({ version: 1, left: slots(ids13), right: slots(ids13) }) }
+  const dom13 = domOf(appearance13)
   try {
-    const document = dom.window.document
+    const document = dom13.window.document
     for (const side of ['left', 'right']) {
-      assert.equal(segmentCards(document, 'home-promotion-region--intro', side, 'before').length, 4)
-      assert.equal(segmentCards(document, 'home-promotion-region--catalog', side, 'after').length, 6)
+      assert.equal(segmentCards(document, 'home-promotion-region--intro', side, 'before').length, 5)
+      assert.equal(segmentCards(document, 'home-promotion-region--catalog', side, 'after').length, 8)
     }
-    assert.equal(document.querySelectorAll('.side-banner-card').length, 20)
+    assert.equal(document.querySelectorAll('.side-banner-card').length, 26)
   } finally {
-    dom.window.close()
+    dom13.window.close()
+  }
+
+  // Test tối đa 30 slot/bên: render đúng 30 card/bên (tổng 60 card), chia 11 trước/19 sau.
+  const ids30 = Array.from({ length: 30 }, (_, index) => (index % 10) + 1)
+  const appearance30 = { sideBanners: JSON.stringify({ version: 1, left: slots(ids30), right: slots(ids30) }) }
+  const dom30 = domOf(appearance30)
+  try {
+    const document = dom30.window.document
+    for (const side of ['left', 'right']) {
+      assert.equal(segmentCards(document, 'home-promotion-region--intro', side, 'before').length, 11)
+      assert.equal(segmentCards(document, 'home-promotion-region--catalog', side, 'after').length, 19)
+    }
+    assert.equal(document.querySelectorAll('.side-banner-card').length, 60)
+  } finally {
+    dom30.window.close()
+  }
+
+  // Test vượt quá 30 (35 slot/bên): kẹp tối đa 30 slot mỗi bên (tổng 60 card), chia 11 trước/19 sau.
+  const ids35 = Array.from({ length: 35 }, (_, index) => (index % 10) + 1)
+  const appearance35 = { sideBanners: JSON.stringify({ version: 1, left: slots(ids35), right: slots(ids35) }) }
+  const dom35 = domOf(appearance35)
+  try {
+    const document = dom35.window.document
+    for (const side of ['left', 'right']) {
+      assert.equal(segmentCards(document, 'home-promotion-region--intro', side, 'before').length, 11)
+      assert.equal(segmentCards(document, 'home-promotion-region--catalog', side, 'after').length, 19)
+    }
+    assert.equal(document.querySelectorAll('.side-banner-card').length, 60)
+  } finally {
+    dom35.window.close()
   }
 })
 
@@ -281,4 +322,97 @@ test('thứ tự DOM: đoạn trước sale, rồi mục sale, rồi đoạn sau
   } finally {
     dom.window.close()
   }
+})
+
+test('khoảng cách gấp đôi (gap 40px) khi ít banner (<= 10-12 cái) và tiêu chuẩn (gap 20px) khi nhiều banner (20-30 cái)', () => {
+  const railCss = readFileSync(resolve('src/components/ui/SideBannerRail.css'), 'utf8')
+  assert.match(railCss, /gap:\s*40px/, 'CSS phải có khoảng cách gap 40px gấp đôi khi số banner ít')
+  assert.match(railCss, /--side-banner-gap:\s*40px/)
+
+  // 1. Mặc định 5 banner/bên (<= 12): sparse = true cho cả 4 rail segment
+  const domDefault = domOf({})
+  try {
+    const segments = [...domDefault.window.document.querySelectorAll('.side-banner-rail__segment')]
+    assert.equal(segments.length, 4)
+    for (const seg of segments) {
+      assert.equal(seg.getAttribute('data-sparse'), 'true')
+      assert.ok(seg.classList.contains('side-banner-rail__segment--sparse'))
+    }
+  } finally {
+    domDefault.window.close()
+  }
+
+  // 2. Custom 10 banner/bên: sparse = true (gap gấp đôi cho 10 banner mỗi bên)
+  const ids10 = Array.from({ length: 10 }, (_, index) => (index % 10) + 1)
+  const dom10 = domOf({ sideBanners: JSON.stringify({ version: 1, left: slots(ids10), right: slots(ids10) }) })
+  try {
+    const segments = [...dom10.window.document.querySelectorAll('.side-banner-rail__segment')]
+    assert.equal(segments.length, 4)
+    for (const seg of segments) {
+      assert.equal(seg.getAttribute('data-sparse'), 'true')
+      assert.ok(seg.classList.contains('side-banner-rail__segment--sparse'))
+    }
+  } finally {
+    dom10.window.close()
+  }
+
+  // 3. Custom 20 banner/bên: sparse = false (gap tiêu chuẩn 20px, cuộn mượt mà)
+  const ids20 = Array.from({ length: 20 }, (_, index) => (index % 10) + 1)
+  const dom20 = domOf({ sideBanners: JSON.stringify({ version: 1, left: slots(ids20), right: slots(ids20) }) })
+  try {
+    const segments = [...dom20.window.document.querySelectorAll('.side-banner-rail__segment')]
+    assert.equal(segments.length, 4)
+    for (const seg of segments) {
+      assert.equal(seg.getAttribute('data-sparse'), 'false')
+      assert.ok(!seg.classList.contains('side-banner-rail__segment--sparse'))
+    }
+  } finally {
+    dom20.window.close()
+  }
+
+  // 4. Custom 30 banner/bên: sparse = false (gap tiêu chuẩn 20px, cuộn mượt mà)
+  const ids30 = Array.from({ length: 30 }, (_, index) => (index % 10) + 1)
+  const dom30 = domOf({ sideBanners: JSON.stringify({ version: 1, left: slots(ids30), right: slots(ids30) }) })
+  try {
+    const segments = [...dom30.window.document.querySelectorAll('.side-banner-rail__segment')]
+    assert.equal(segments.length, 4)
+    for (const seg of segments) {
+      assert.equal(seg.getAttribute('data-sparse'), 'false')
+      assert.ok(!seg.classList.contains('side-banner-rail__segment--sparse'))
+    }
+  } finally {
+    dom30.window.close()
+  }
+})
+
+test('Home.jsx đưa member-links và MarketBanner vào trong vùng catalog để rail sau chạm mép section visit', () => {
+  const homeSource = readFileSync(resolve('src/pages/Home.jsx'), 'utf8')
+  // Cả member-links và MarketBanner phải nằm bên trong HomePromotionRegion area="catalog"
+  const catalogRegionStart = homeSource.indexOf('area="catalog"')
+  assert.ok(catalogRegionStart > 0, 'Home.jsx phải có HomePromotionRegion area="catalog"')
+  const catalogRegionCloseIndex = homeSource.indexOf('</HomePromotionRegion>', catalogRegionStart)
+  const memberLinksIndex = homeSource.indexOf('className="member-links"')
+  const marketBannerIndex = homeSource.indexOf('<MarketBanner />')
+  const visitStripIndex = homeSource.indexOf('className="visit-strip"')
+
+  assert.ok(memberLinksIndex > 0, 'Home.jsx phải chứa member-links')
+  assert.ok(marketBannerIndex > 0, 'Home.jsx phải chứa MarketBanner')
+  assert.ok(visitStripIndex > 0, 'Home.jsx phải chứa visit-strip')
+
+  assert.ok(
+    memberLinksIndex > catalogRegionStart && memberLinksIndex < catalogRegionCloseIndex,
+    'member-links phải nằm bên trong HomePromotionRegion area="catalog"',
+  )
+  assert.ok(
+    marketBannerIndex > catalogRegionStart && marketBannerIndex < catalogRegionCloseIndex,
+    'MarketBanner phải nằm bên trong HomePromotionRegion area="catalog"',
+  )
+  assert.ok(
+    catalogRegionCloseIndex < visitStripIndex,
+    'section.visit-strip phải nằm ngay sau HomePromotionRegion area="catalog"',
+  )
+
+  const regionCss = readFileSync(resolve('src/components/ui/HomePromotionRegion.css'), 'utf8')
+  assert.match(regionCss, /\.home-promotion-region__after\s*\{[^}]*padding-bottom:\s*32px/)
+  assert.match(regionCss, /\.visit-strip\s*\{[^}]*margin-top:\s*0/)
 })

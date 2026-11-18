@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Trang chủ storefront hiển thị hero, danh mục sản phẩm, banner tiếp thị hai bên và liên kết khám phá.
+  - Liên kết trực tiếp: Store/src/components/ui/HomePromotionRegion.jsx, Store/src/components/ui/ProductCard.jsx, Store/src/components/ui/MarketBanner.jsx.
+  - Vùng ảnh hưởng khi sửa: Bố cục toàn bộ trang chủ storefront, vị trí phân đoạn dải banner tiếp thị và section visit.
+*/
 /**
  * @codex-vn-doc
  * Tệp: src/pages/Home.jsx
@@ -137,13 +143,15 @@ export default function Home({
           />
         })}
       </div>
+      <div className="container home-catalog">
+        <section className="member-links" aria-label={english ? 'Discover more' : 'Khám phá thêm'}>
+          <a href="/membership"><span>{english ? '01 — OMNICART MEMBERSHIP' : '01 — THÀNH VIÊN OMNICART'}</span><h2>{english ? <>More benefits.<br />More joy.</> : <>Thêm quyền lợi.<br />Thêm niềm vui.</>}</h2><p>{english ? 'Explore 4 membership tiers and earn reward points.' : 'Khám phá bốn hạng thành viên tích điểm.'}</p><b>{english ? 'View membership ↗' : 'Xem thành viên ↗'}</b></a>
+          <a href="/rewards"><span>{english ? '02 — OMNICART LUCKY' : '02 — OMNICART LUCKY'}</span><h2>{english ? <>One spin,<br />a small surprise.</> : <>Một vòng quay,<br />một bất ngờ nhỏ.</>}</h2><p>{english ? 'Use your earned spins to unlock vouchers.' : 'Dùng lượt quay đã tích để nhận voucher.'}</p><b>{english ? 'To lucky wheel ↗' : 'Đến vòng quay ↗'}</b></a>
+        </section>
+        <MarketBanner />
+      </div>
     </HomePromotionRegion>
     <div className="container home-catalog">
-      <section className="member-links" aria-label={english ? 'Discover more' : 'Khám phá thêm'}>
-        <a href="/membership"><span>{english ? '01 — OMNICART MEMBERSHIP' : '01 — THÀNH VIÊN OMNICART'}</span><h2>{english ? <>More benefits.<br />More joy.</> : <>Thêm quyền lợi.<br />Thêm niềm vui.</>}</h2><p>{english ? 'Explore 4 membership tiers and earn reward points.' : 'Khám phá bốn hạng thành viên tích điểm.'}</p><b>{english ? 'View membership ↗' : 'Xem thành viên ↗'}</b></a>
-        <a href="/rewards"><span>{english ? '02 — OMNICART LUCKY' : '02 — OMNICART LUCKY'}</span><h2>{english ? <>One spin,<br />a small surprise.</> : <>Một vòng quay,<br />một bất ngờ nhỏ.</>}</h2><p>{english ? 'Use your earned spins to unlock vouchers.' : 'Dùng lượt quay đã tích để nhận voucher.'}</p><b>{english ? 'To lucky wheel ↗' : 'Đến vòng quay ↗'}</b></a>
-      </section>
-      <MarketBanner />
       <section className="visit-strip"><div><p className="eyebrow">{english ? 'OMNICART, CLOSER TO YOU' : 'OMNICART, GẦN BẠN HƠN'}</p><h2>{english ? 'Looking for directions or contact?' : 'Muốn tìm đường hoặc liên hệ?'}</h2></div><a className="button button--soft" href="/contact">{english ? 'View locations & contact ↗' : 'Xem địa chỉ & liên hệ ↗'}</a></section>
     </div>
   </HomePromotionRegion>

@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Bao bọc vùng hiển thị khuyến mãi và điều phối rail banner hai bên (trước và sau mục sale) tại trang chủ.
+  - Liên kết trực tiếp: Store/src/components/ui/SideBannerRail.jsx, Store/src/services/sideBanners.js, Store/src/pages/Home.jsx.
+  - Vùng ảnh hưởng khi sửa: Cấu trúc phân đoạn rail banner trang chủ storefront.
+*/
 import { Children } from 'react'
 import { resolveSideBannersWithDefaults, splitSideBanners } from '../../services/sideBanners'
 import SideBannerRail from './SideBannerRail'
@@ -12,7 +18,7 @@ import './HomePromotionRegion.css'
 //   intro. Render bởi region area="intro".
 // - Đoạn SAU sale (segment="after"): rail tuyệt đối trong vùng
 //   .home-promotion-region__after — phần catalog sau mục Đang giảm giá —
-//   top đúng mép dưới mục sale, bottom đúng mép dưới vùng catalog.
+//   top đúng mép dưới mục sale, kéo dài chạm ngay vạch đường kẻ của section visit.
 //   Render bởi region area="catalog"; mục Đang giảm giá full-width nằm
 //   GIỮA hai vùng nên tự nhiên ngắt cột.
 // - Region area="page" chỉ bọc toàn trang, không render rail nữa.
@@ -37,9 +43,10 @@ export default function HomePromotionRegion({ products, area = 'intro', appearan
   const splitRight = showRails ? splitSideBanners(lists.right) : { before: [], after: [] }
 
   if (showAfterRails) {
-    // Vùng catalog nhận đúng hai con: [mục Đang giảm giá, phần sau sale].
-    // Phần sau sale bọc trong .home-promotion-region__after (position:
-    // relative) để rail đoạn sau neo đúng vào nó, không chạm tới mục sale.
+    // Vùng catalog nhận đúng mục Đang giảm giá và phần sau sale (các hàng catalog,
+    // liên kết thành viên, market banner). Phần sau sale bọc trong
+    // .home-promotion-region__after (position: relative) để rail đoạn sau
+    // neo đúng vào nó, chạm ngay vạch đường kẻ của section.visit-strip.
     const [saleChild, ...afterChildren] = Children.toArray(children)
     return (
       <div className="home-promotion-region home-promotion-region--catalog">
@@ -51,13 +58,25 @@ export default function HomePromotionRegion({ products, area = 'intro', appearan
               className="home-promotion-rail home-promotion-rail--left"
               aria-label="Banner sản phẩm bên trái"
             >
-              <SideBannerRail side="left" segment="after" banners={splitLeft.after} offset={splitLeft.before.length} />
+              <SideBannerRail
+                side="left"
+                segment="after"
+                banners={splitLeft.after}
+                offset={splitLeft.before.length}
+                totalCount={lists.left.length}
+              />
             </aside>
             <aside
               className="home-promotion-rail home-promotion-rail--right"
               aria-label="Banner sản phẩm bên phải"
             >
-              <SideBannerRail side="right" segment="after" banners={splitRight.after} offset={splitRight.before.length} />
+              <SideBannerRail
+                side="right"
+                segment="after"
+                banners={splitRight.after}
+                offset={splitRight.before.length}
+                totalCount={lists.right.length}
+              />
             </aside>
           </div>
         </div>
@@ -71,7 +90,7 @@ export default function HomePromotionRegion({ products, area = 'intro', appearan
         className="home-promotion-rail home-promotion-rail--left"
         aria-label="Banner sản phẩm bên trái"
       >
-        <SideBannerRail side="left" segment="before" banners={splitLeft.before} />
+        <SideBannerRail side="left" segment="before" banners={splitLeft.before} totalCount={lists.left.length} />
       </aside>}
       <div className="home-promotion-region__body">
         {children}
@@ -80,7 +99,7 @@ export default function HomePromotionRegion({ products, area = 'intro', appearan
         className="home-promotion-rail home-promotion-rail--right"
         aria-label="Banner sản phẩm bên phải"
       >
-        <SideBannerRail side="right" segment="before" banners={splitRight.before} />
+        <SideBannerRail side="right" segment="before" banners={splitRight.before} totalCount={lists.right.length} />
       </aside>}
     </div>
   )

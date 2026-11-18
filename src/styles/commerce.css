@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Định kiểu bổ sung cho luồng thương mại (chi tiết sản phẩm, đánh giá, voucher, thành viên, và đồng bộ kích thước mở của khung chat hỗ trợ khách hàng).
+  - Liên kết trực tiếp: src/App.jsx, src/components/ui/CustomerSupport.css
+  - Vùng ảnh hưởng khi sửa: Giao diện thẻ sản phẩm, chi tiết sản phẩm và kích thước cố định khi mở của khung chat khách hàng.
+*/
 .product-card { position: relative; }
 .product-card--sale { border: 0 !important; background: var(--paper) !important; }
 .product-label--sale { font-size: 14.4px !important; }
@@ -42,8 +48,8 @@
 .reward-wallet-list article div { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .reward-wallet-list article button { justify-self: start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--ink); cursor: pointer; }
 .reward-wallet-empty { min-height: 120px; display: grid; place-items: center; border: 1px dashed var(--line); border-radius: 10px; }
-.customer-support--open { width: 507px; }
-.customer-support--open .customer-support__panel { height: min(676px, calc(100dvh - 132px)); }
+.customer-support--open { width: 600px; }
+.customer-support--open .customer-support__panel { height: min(800px, calc(100dvh - 150px)); }
 .home-section--sale::before { content: '✦ ƯU ĐÃI ĐANG CÓ ✦'; display: block; width: fit-content; margin-bottom: 16px; padding: 5px 11px; border-radius: 999px; background: #bd3b2a; color: white; font-size: 12px; font-weight: 900; letter-spacing: .09em; }
 :root[data-theme='dark'] .membership-card { background: #22352a; border-color: #56715b; }
 :root[data-theme='dark'] .membership-card h2, :root[data-theme='dark'] .membership-card strong { color: #f0f8ed; }

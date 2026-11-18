@@ -1,3 +1,10 @@
+/*
+  FILE NOTE
+  - Mục đích: Chuẩn hóa, chia và resolve cấu hình banner hai bên trang chủ lưu trong appearance.sideBanners (hỗ trợ tùy chỉnh từ 10 đến 30 banner mỗi bên).
+  - Liên kết trực tiếp: Store/src/components/ui/HomePromotionRegion.jsx, Store/test/side-banners.test.js, Store/test/side-banners-render.test.js.
+  - Vùng ảnh hưởng khi sửa: Dữ liệu và số lượng banner hai bên trang chủ storefront khách hàng.
+*/
+
 /**
  * @codex-vn-doc
  * Tệp: src/services/sideBanners.js
@@ -12,13 +19,18 @@
  * không đệm thêm sản phẩm vào cấu hình đã lưu, không khử trùng lặp productId.
  */
 
-// Vòng 3 (làm lại từ đầu): mỗi bên 5–10 banner, một số lượng N chung cho
-// cả hai bên. Cấu hình cũ lưu 11–20 banner/bên được kẹp về tối đa 10 khi
-// normalize (giữ 10 slot đầu, theo đúng thứ tự đã lưu).
+// Mỗi bên 5–30 banner, tùy chỉnh trong Quản trị từ 10–30 banner mỗi bên.
+// Cấu hình lưu tối đa 30 banner mỗi bên (giữ 30 slot đầu, theo đúng thứ tự đã lưu).
 export const SIDE_BANNER_MIN_PER_SIDE = 5
-export const SIDE_BANNER_MAX_PER_SIDE = 10
+export const SIDE_BANNER_MAX_PER_SIDE = 30
 // Số banner mặc định mỗi bên khi chưa có cấu hình: 5 (tổng 10).
 export const DEFAULT_SIDE_BANNER_COUNT = 5
+
+// Tên tương thích bổ sung dùng chung với Store-Admin
+export const SIDE_BANNER_MIN_COUNT = SIDE_BANNER_MIN_PER_SIDE
+export const SIDE_BANNER_MAX_COUNT = SIDE_BANNER_MAX_PER_SIDE
+export const SIDE_BANNER_DEFAULT_COUNT = DEFAULT_SIDE_BANNER_COUNT
+export const SIDE_BANNERS_MAX = SIDE_BANNER_MAX_PER_SIDE
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 
@@ -59,9 +71,9 @@ function normalizeSide(value) {
 
 // Chức năng normalizeSideBanners: parse appearance.sideBanners dạng chuỗi JSON
 // hoặc object thành { version: 1, left: [...], right: [...] }.
-// Bỏ slot không có productId hợp lệ, kẹp tối đa 10 mỗi bên (cấu hình cũ
-// 11–20 banner/bên giữ 10 slot đầu theo thứ tự đã lưu), cắt title 120
-// ký tự, note 240 ký tự, chỉ giữ màu #RRGGBB hợp lệ và chuẩn hóa thành chữ hoa.
+// Bỏ slot không có productId hợp lệ, kẹp tối đa 30 mỗi bên (giữ 30 slot đầu
+// theo thứ tự đã lưu), cắt title 120 ký tự, note 240 ký tự, chỉ giữ màu #RRGGBB
+// hợp lệ và chuẩn hóa thành chữ hoa.
 // KHÔNG khử trùng lặp productId: giữ đúng như cấu hình đã lưu.
 export function normalizeSideBanners(value) {
   let parsed = value
@@ -84,7 +96,7 @@ export function normalizeSideBanners(value) {
   }
 }
 
-// Chức năng clampSideBannerCount: kẹp số lượng mỗi bên về 5–10; số không
+// Chức năng clampSideBannerCount: kẹp số lượng mỗi bên về 5–30; số không
 // hợp lệ (NaN, chuỗi, null, undefined) thì dùng mặc định 5.
 export function clampSideBannerCount(count) {
   const number = Number(count)

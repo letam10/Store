@@ -1,3 +1,10 @@
+/*
+  FILE NOTE
+  - Mục đích: Định kiểu thẻ banner sản phẩm hai bên trang chủ (ảnh, tên, giá, nút xem chi tiết).
+  - Liên kết trực tiếp: Store/src/components/ui/SideBannerCard.jsx, Store/src/components/ui/SideBannerRail.jsx.
+  - Vùng ảnh hưởng khi sửa: Kích thước và giao diện các thẻ banner sản phẩm trên trang chủ.
+*/
+
 /* Thẻ banner sản phẩm mới (vòng 3): một thiết kế duy nhất cho cả hai bên.
    Vùng ảnh cao cố định, ảnh giữ tỉ lệ bằng object-fit: contain, không kéo
    giãn. Tên cắt tối đa 2 dòng, ghi chú cắt tối đa 2 dòng — nội dung dài
@@ -11,7 +18,7 @@
   flex-direction: column;
   gap: 12px;
   min-width: 0;
-  min-height: 0;
+  min-height: 260px;
   /* Cao bằng nhau tuyệt đối trong đoạn: rail là flex column, thẻ flex: 1. */
   flex: 1 1 0;
   padding: 16px;
@@ -22,6 +29,7 @@
   text-decoration: none;
   box-shadow: 0 8px 24px #233d2310;
   transition: border-color 160ms ease, box-shadow 160ms ease;
+  overflow: hidden;
 }
 
 .side-banner-card:hover {

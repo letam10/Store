@@ -1,3 +1,10 @@
+/*
+  FILE NOTE
+  - Mục đích: Định kiểu bố cục vùng tiếp thị và dải rail banner trang chủ, căn chỉnh chiều cao và vị trí tiếp giáp chạm ngay vạch đường kẻ section visit.
+  - Liên kết trực tiếp: Store/src/components/ui/HomePromotionRegion.jsx, Store/src/pages/Home.jsx.
+  - Vùng ảnh hưởng khi sửa: Khung hiển thị và căn lề của dải banner tiếp thị hai bên trên màn hình lớn.
+*/
+
 .home-promotion-region__body {
   min-width: 0;
 }
@@ -54,11 +61,21 @@
     padding-bottom: 0;
   }
 
-  /* Vùng neo của đoạn rail SAU sale: phần catalog sau mục Đang giảm giá.
+  /* Vùng neo của đoạn rail SAU sale: phần catalog sau mục Đang giảm giá,
+     bao gồm cả các hàng danh mục, liên kết thành viên và market banner.
      Rail đoạn sau tuyệt đối trong vùng này, top: 0 (đúng mép dưới mục sale),
-     bottom: 0 (đúng mép dưới vùng catalog). */
+     kéo dài chạm ngay mép trên / vạch đường kẻ của section.visit-strip. */
   .home-promotion-region__after {
     position: relative;
+    padding-bottom: 32px;
+  }
+
+  .home-promotion-region--catalog .home-promotion-region__after > .container:last-child .market-banner {
+    margin-bottom: 0;
+  }
+
+  .home-promotion-region--page .visit-strip {
+    margin-top: 0;
   }
 
   .home-promotion-region__body {

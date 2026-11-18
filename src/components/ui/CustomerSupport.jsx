@@ -1,11 +1,9 @@
-/**
- * @codex-vn-doc
- * Tệp: src/components/ui/CustomerSupport.jsx
- * Mục đích: Khung chat hỗ trợ khách hàng, lịch sử hội thoại và trạng thái streaming.
- * Thành phần chính: CustomerSupport.
- * Liên kết trực tiếp: react, ../../api/chat, ../../api/requestGate, ./customerSupportState.
- * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
- */
+/*
+  FILE NOTE
+  - Mục đích: Khung chat hỗ trợ khách hàng, xử lý streaming tin nhắn AI, định dạng văn bản Markdown/ảnh sản phẩm inline, phóng to ảnh lightbox và đảm bảo kích thước mở dứt khoát 600px, panel 800px.
+  - Liên kết trực tiếp: react, ../../api/chat, ../../api/requestGate, ../../services/customerSupportState, ./CustomerSupport.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ giao diện chat CSKH của cửa hàng (Store), popup hỗ trợ, hiển thị tin nhắn và kích thước khung chat.
+*/
 import { useEffect, useRef, useState } from 'react'
 import { apiJson, streamChat } from '../../api/chat'
 import { userMessage } from '../../api/userMessages'
@@ -17,6 +15,151 @@ import './CustomerSupport.css'
 const suggestionsVi = ['Tư vấn sản phẩm', 'Thông tin đơn hàng', 'Chính sách đổi trả']
 const suggestionsEn = ['Product advice', 'Order information', 'Return policy']
 const LEGACY_STORAGE_KEY = 'storeSupportConversationId'
+
+// Làm sạch các dấu sao thừa hoặc sai cấu trúc trước khi hiển thị
+function cleanMarkdownText(text) {
+  if (!text) return ''
+  return String(text)
+    // 1. Chuyển tiêu đề markdown # ## ### thành chữ in đậm
+    .replace(/^#{1,6}\s+(.+)$/gm, '**$1**')
+    // 2. Xử lý đường kẻ ngang hoặc dòng chỉ toàn dấu sao/gạch: '***', '* * *', '---', '___'
+    .replace(/^(\s*)[*_~-](?:\s*[*_~-]){2,}\s*$/gm, '---')
+    // 3. Chuẩn hóa các dạng bullet dị dạng: '* *Nhãn:*' -> '• **Nhãn:**'
+    .replace(/^(\s*)[*•-]\s+\*([^*:\n]+)\*:/gm, (m, sp, p1) => sp + '• **' + p1.trim() + ':**')
+    .replace(/^(\s*)[*•-]\s+\*([^*:\n]+):\*/gm, (m, sp, p1) => sp + '• **' + p1.trim() + ':**')
+    .replace(/^(\s*)[*•-]\s+\*([^*\n]+)\*/gm, (m, sp, p1) => sp + '• **' + p1.trim() + '**')
+    .replace(/^(\s*)[*•-]\s+\*\*([^*\n]+)\*\*/gm, (m, sp, p1) => sp + '• **' + p1.trim() + '**')
+    .replace(/^(\s*)[*•-]\s+[*•-]\s+(?!\*)/gm, '$1• ')
+    .replace(/^(\s*)[*-]\s+(?!\*)/gm, '$1• ')
+    // 4. Xóa dấu sao in đậm/nghiêng không cần thiết quanh con số, phép tính, số thứ tự (hỗ trợ cả dấu chấm, phẩy, chấm than phía sau)
+    .replace(/\*{1,3}(\d+(?:[.,]\d+)*(?:\s*(?:%|k|đ|VND|vnd))?)(?:([.,!?;:])\*{1,3}|\*{1,3}([.,!?;:]?))(?!\w)/gi, (m, num, p1, p2) => num + (p1 || p2 || ''))
+    .replace(/\*{1,3}((?:số|thứ|top|bước|phần|tập)\s+\d+)(?:([.,!?;:])\*{1,3}|\*{1,3}([.,!?;:]?))/gi, (m, ord, p1, p2) => ord + (p1 || p2 || ''))
+    // 5. Thu gọn 3 dấu sao nếu bao quanh nội dung, hoặc loại bỏ dấu sao lẻ thừa ở đầu/cuối dòng
+    .replace(/\*\*\*+([^*]+)\*\*\*+/g, '***$1***')
+    .replace(/\s+\*{1,3}$/gm, '')
+    .replace(/^\*{1,3}\s+/gm, '')
+    // 6. Chuẩn hóa các dạng đường dẫn ảnh về cú pháp Markdown chuẩn ![alt](url)
+    .replace(/(?:[•*-]\s*)?(?:ảnh\s*(?:sản\s*phẩm|minh\s*họa)?|hình\s*(?:ảnh)?(?:\s*sản\s*phẩm)?|image|photo)\s*:\s*\[?(https?:\/\/[^\s\])]+|\/products\/[^\s\])]+\.(?:webp|png|jpe?g|gif|svg))\]?/gi, '![Hình ảnh sản phẩm]($1)')
+    .replace(/(?<!\!)(?:[•*-]\s*)?\[(https?:\/\/[^\s\])]+|\/products\/[^\s\])]+\.(?:webp|png|jpe?g|gif|svg))\]/gi, '![Hình ảnh sản phẩm]($1)')
+    .replace(/(?<!\!)(?:[•*-]\s*)?\[([^\]]*(?:ảnh|hình|image|photo)[^\]]*)\]\((https?:\/\/[^\s)]+|\/products\/[^\s)]+\.(?:webp|png|jpe?g|gif|svg))\)/gi, '![$1]($2)')
+    .replace(/^\s*(?:[•*-]\s*)?(https?:\/\/[^\s)]+|\/products\/[^\s)]+\.(?:webp|png|jpe?g|gif|svg))\s*$/gim, '![Hình ảnh sản phẩm]($1)')
+}
+
+// Phân tách các phần tử inline: ảnh, liên kết, in đậm/nghiêng và văn bản
+function parseInline(text) {
+  if (!text) return []
+  const tokens = []
+  const regex = /!\[([^\]]*)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|\*\*\*([^*]+)\*\*\*|\*\*([^*]+)\*\*|\*([^*\s][^*]*?)\*/g
+  let lastIndex = 0
+  let match
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      tokens.push({ type: 'text', content: text.slice(lastIndex, match.index) })
+    }
+    if (match[1] !== undefined) {
+      tokens.push({ type: 'image', alt: match[1] || 'Hình ảnh sản phẩm', src: match[2] })
+    } else if (match[3] !== undefined) {
+      tokens.push({ type: 'link', text: match[3], url: match[4] })
+    } else if (match[5] !== undefined) {
+      tokens.push({ type: 'boldItalic', text: match[5] })
+    } else if (match[6] !== undefined) {
+      tokens.push({ type: 'bold', text: match[6] })
+    } else if (match[7] !== undefined) {
+      tokens.push({ type: 'italic', text: match[7] })
+    }
+    lastIndex = regex.lastIndex
+  }
+  if (lastIndex < text.length) {
+    tokens.push({ type: 'text', content: text.slice(lastIndex) })
+  }
+  return tokens
+}
+
+function FormattedChatMessage({ content, onPreviewImage }) {
+  if (!content) return null
+  const cleaned = cleanMarkdownText(content)
+  const lines = cleaned.split('\n')
+
+  return (
+    <div className="customer-support__formatted">
+      {lines.map((line, lineIndex) => {
+        const trimmed = line.trim()
+        if (!trimmed) {
+          return <div key={lineIndex} className="customer-support__spacer" />
+        }
+
+        if (trimmed === '---') {
+          return <hr key={lineIndex} className="customer-support__divider" />
+        }
+
+        const tokens = parseInline(line)
+        const hasOnlyImage = tokens.length === 1 && tokens[0].type === 'image'
+
+        return (
+          <div
+            key={lineIndex}
+            className={'customer-support__line' + (hasOnlyImage ? ' customer-support__line--image' : '')}
+          >
+            {tokens.map((token, tokenIndex) => {
+              const key = `t-${lineIndex}-${tokenIndex}`
+              if (token.type === 'image') {
+                return (
+                  <div
+                    key={key}
+                    className="customer-support__image-wrap"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => onPreviewImage?.({ src: token.src, alt: token.alt })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        onPreviewImage?.({ src: token.src, alt: token.alt })
+                      }
+                    }}
+                    title="Bấm để xem ảnh phóng to"
+                  >
+                    <img
+                      src={token.src}
+                      alt={token.alt}
+                      className="customer-support__product-img"
+                      loading="lazy"
+                      onError={(e) => {
+                        const wrap = e.currentTarget.closest('.customer-support__image-wrap')
+                        if (wrap) wrap.style.display = 'none'
+                      }}
+                    />
+                    <span className="customer-support__image-hint">🔍 Phóng to ảnh</span>
+                  </div>
+                )
+              }
+              if (token.type === 'link') {
+                return (
+                  <a key={key} href={token.url} className="customer-support__link">
+                    {token.text}
+                  </a>
+                )
+              }
+              if (token.type === 'bold') {
+                return <strong key={key}>{token.text}</strong>
+              }
+              if (token.type === 'italic') {
+                return <em key={key}>{token.text}</em>
+              }
+              if (token.type === 'boldItalic') {
+                return (
+                  <strong key={key}>
+                    <em>{token.text}</em>
+                  </strong>
+                )
+              }
+              return <span key={key}>{token.content}</span>
+            })}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 // Chức năng localId: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 function localId() {
@@ -55,6 +198,7 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
   const [busy, setBusy] = useState(false)
   const [activity, setActivity] = useState('')
   const [providerStatus, setProviderStatus] = useState(null)
+  const [previewImage, setPreviewImage] = useState(null)
   const accountId = account?.id
   const inputRef = useRef(null)
   const toggleRef = useRef(null)
@@ -67,6 +211,18 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
   useEffect(() => {
     conversationIdRef.current = conversationId
   }, [conversationId])
+
+  useEffect(() => {
+    if (!previewImage) return undefined
+    function onWindowKeyDown(e) {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        setPreviewImage(null)
+      }
+    }
+    window.addEventListener('keydown', onWindowKeyDown)
+    return () => window.removeEventListener('keydown', onWindowKeyDown)
+  }, [previewImage])
 
   useEffect(() => {
     const initialId = initialConversationIdRef.current
@@ -257,15 +413,28 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
 
   // Chức năng handleKeyDown: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function handleKeyDown(event) {
-    if (event.key === 'Escape' && isOpen) {
-      event.stopPropagation()
-      setIsOpen(false)
-      toggleRef.current?.focus()
+    if (event.key === 'Escape') {
+      if (previewImage) {
+        event.stopPropagation()
+        setPreviewImage(null)
+        return
+      }
+      if (isOpen) {
+        event.stopPropagation()
+        setIsOpen(false)
+        toggleRef.current?.focus()
+      }
     }
   }
 
   return (
-    <aside ref={rootRef} className={'customer-support' + (isOpen ? ' customer-support--open' : '')} aria-label={english ? 'Customer support' : 'Hỗ trợ khách hàng'} onKeyDown={handleKeyDown}>
+    <aside
+      ref={rootRef}
+      className={'customer-support' + (isOpen ? ' customer-support--open' : '')}
+      style={isOpen ? { width: 'min(600px, calc(100vw - 32px))' } : undefined}
+      aria-label={english ? 'Customer support' : 'Hỗ trợ khách hàng'}
+      onKeyDown={handleKeyDown}
+    >
       <button className="customer-support__to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} title={english ? 'Back to top' : 'Lên đầu trang'} aria-label={english ? 'Scroll to top' : 'Lên đầu trang ngay'}>↑</button>
       <button ref={toggleRef} className="customer-support__toggle" type="button" aria-label={isOpen ? (english ? 'Collapse customer support' : 'Thu gọn hỗ trợ khách hàng') : (english ? 'Open customer support' : 'Mở hỗ trợ khách hàng')} aria-expanded={isOpen} aria-controls="store-support-panel" onClick={() => { if (!account) onRequireLogin?.(); else setIsOpen((previous) => !previous) }}>
         <span className="customer-support__icon"><SupportIcon /></span>
@@ -274,7 +443,12 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
       </button>
 
       {isOpen && (
-        <section id="store-support-panel" className="customer-support__panel" aria-label={english ? 'Chat with OmniCart' : 'Trò chuyện với OmniCart'}>
+        <section
+          id="store-support-panel"
+          className="customer-support__panel"
+          style={{ height: 'min(800px, calc(100dvh - 150px))', width: '100%', boxSizing: 'border-box' }}
+          aria-label={english ? 'Chat with OmniCart' : 'Trò chuyện với OmniCart'}
+        >
           <div className="customer-support__intro">
             <span>{english ? 'CUSTOMER CARE' : 'CHĂM SÓC KHÁCH HÀNG'}</span>
             <span className="customer-support__badge">{providerStatus?.reachable && providerStatus?.modelAvailable ? `AI Local · ${providerStatus.model || 'qwen3.5:4b'}` : providerStatus ? (english ? 'AI offline' : 'AI chưa kết nối') : (english ? 'Checking AI' : 'Đang kiểm tra AI')}</span>
@@ -294,8 +468,19 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
                 <span className="customer-support__avatar" aria-hidden="true">o.</span>
                 <div className="customer-support__incoming-body">
                   <span className="customer-support__sender">{english ? 'OmniCart · AI Assistant' : 'OmniCart · Trợ lý AI'}</span>
-                  <p className="customer-support__bubble">{hideSourceDisclosure(message.content) || (message.status === 'streaming' ? '…' : message.error || (english ? 'No content.' : 'Không có nội dung.'))}</p>
-                  {message.verified?.text && message.verified.text !== message.content && <div className="customer-support__verified"><strong>{english ? 'Verified OmniCart Data' : 'Dữ liệu OmniCart đã xác minh'}</strong><p>{message.verified.text}</p></div>}
+                  <div className="customer-support__bubble">
+                    {hideSourceDisclosure(message.content) ? (
+                      <FormattedChatMessage content={hideSourceDisclosure(message.content)} onPreviewImage={setPreviewImage} />
+                    ) : (
+                      message.status === 'streaming' ? '…' : (message.error || (english ? 'No content.' : 'Không có nội dung.'))
+                    )}
+                  </div>
+                  {message.verified?.text && message.verified.text !== message.content && (
+                    <div className="customer-support__verified">
+                      <strong>{english ? 'Verified OmniCart Data' : 'Dữ liệu OmniCart đã xác minh'}</strong>
+                      <FormattedChatMessage content={message.verified.text} onPreviewImage={setPreviewImage} />
+                    </div>
+                  )}
                   {(['error', 'incomplete', 'stopped'].includes(message.status)) && <>
                     <small className="customer-support__state">{message.status === 'incomplete' ? (english ? 'Above content not yet marked complete.' : 'Nội dung trên chưa được xác nhận hoàn tất.') : message.error}</small>
                     <button className="customer-support__retry" type="button" disabled={busy} onClick={() => startRequest(message.retryContent, { assistantId: message.id, requestId: message.requestId })}>{english ? 'Retry' : 'Thử lại'}</button>
@@ -320,6 +505,31 @@ function CustomerSupportSession({ account, onRequireLogin, language: propLanguag
             </p>
           </form>
         </section>
+      )}
+
+      {previewImage && (
+        <div
+          className="customer-support__lightbox"
+          onClick={() => setPreviewImage(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={english ? 'Product image preview' : 'Xem ảnh sản phẩm phóng to'}
+        >
+          <div className="customer-support__lightbox-content" onClick={(event) => event.stopPropagation()}>
+            <img src={previewImage.src} alt={previewImage.alt || 'Hình ảnh sản phẩm'} />
+            {previewImage.alt && previewImage.alt !== 'Hình ảnh sản phẩm' && (
+              <p className="customer-support__lightbox-caption">{previewImage.alt}</p>
+            )}
+            <button
+              type="button"
+              className="customer-support__lightbox-close"
+              onClick={() => setPreviewImage(null)}
+              aria-label={english ? 'Close' : 'Đóng'}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
       )}
     </aside>
   )
