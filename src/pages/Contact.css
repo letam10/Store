@@ -493,11 +493,12 @@
 
 /* 6. Partner Brands Grid */
 .contact-brands {
-  padding: 32px;
+  padding: 34px;
   margin: 28px 0;
   border-radius: 20px;
   border: 1px solid var(--line, #dce6dc);
-  box-shadow: 0 6px 24px rgba(24, 54, 42, 0.04);
+  background: var(--paper, #fff);
+  box-shadow: 0 8px 28px rgba(24, 54, 42, 0.05);
 }
 
 .contact-section-heading {
@@ -516,52 +517,56 @@
   line-height: 1.2;
 }
 
-.contact-section-heading > p {
-  max-width: 380px;
-  color: var(--muted, #66766b);
-  font-size: 13px;
-  line-height: 1.65;
-  margin: 0;
-}
-
 .contact-brand-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .contact-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 165px;
   background: var(--cream, #f7f9f6);
-  border: 1px solid var(--line, #e2ece1);
-  border-radius: 16px;
-  padding: 16px 12px;
+  border: 1.5px solid var(--line, #e2ece1);
+  border-radius: 18px;
+  padding: 22px 20px;
   text-align: center;
   min-width: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.2s ease,
-              border-color 0.2s ease;
+  box-shadow: 0 4px 16px rgba(24, 54, 42, 0.03);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease;
 }
 
 .contact-brand:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: var(--accent, #4f8b67);
-  box-shadow: 0 8px 20px rgba(24, 54, 42, 0.08);
+  box-shadow: 0 12px 30px rgba(24, 54, 42, 0.09);
 }
 
 .contact-brand svg {
   width: 100%;
-  height: 64px;
+  height: 60px;
   display: block;
 }
 
 .contact-brand small {
-  display: block;
-  margin-top: 4px;
-  font-size: 10.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
   font-weight: 700;
+  letter-spacing: 0.4px;
   color: var(--muted, #53705a) !important;
-  letter-spacing: 0.3px;
+  background: rgba(36, 92, 67, 0.06);
+  border: 1px solid rgba(36, 92, 67, 0.12);
 }
 
 .contact-brand--omnicart {
@@ -569,21 +574,69 @@
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  background: #091a12 !important;
+  background: linear-gradient(160deg, #0e2b1d 0%, #071710 100%) !important;
   border-color: #26593d !important;
+  box-shadow: 0 6px 22px rgba(7, 23, 16, 0.16) !important;
+}
+
+.contact-brand--omnicart:hover {
+  border-color: #4ade80 !important;
+  box-shadow: 0 12px 32px rgba(7, 23, 16, 0.26) !important;
 }
 
 .contact-brand__omnicart-logo {
   width: auto !important;
-  max-width: 100% !important;
-  height: 64px !important;
+  max-width: 90% !important;
+  height: 60px !important;
   object-fit: contain !important;
   display: block !important;
   margin: 0 auto !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
 }
 
 .contact-brand--omnicart small {
-  color: #71dd9b !important;
+  background: rgba(118, 215, 149, 0.15) !important;
+  border-color: rgba(118, 215, 149, 0.3) !important;
+  color: #76d795 !important;
+}
+
+.contact-brand--vietqr {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(160deg, #ffffff 0%, #f7faf7 100%) !important;
+  border-color: #dce7dc !important;
+  box-shadow: 0 6px 22px rgba(24, 54, 42, 0.05) !important;
+}
+
+.contact-brand--vietqr:hover {
+  border-color: #4f8b67 !important;
+  box-shadow: 0 12px 32px rgba(24, 54, 42, 0.1) !important;
+}
+
+.contact-brand__vietqr-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  width: 100%;
+}
+
+.contact-brand__vietqr-logo {
+  height: 52px !important;
+  max-width: 88% !important;
+  width: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.06));
+}
+
+.contact-brand--vietqr small {
+  background: rgba(36, 92, 67, 0.08) !important;
+  border-color: rgba(36, 92, 67, 0.18) !important;
+  color: #1f5038 !important;
 }
 
 /* 7. FAQ Accordion Section */
@@ -807,6 +860,12 @@
 }
 
 /* Dark mode brand items */
+:root[data-theme='dark'] .contact-brands {
+  background: #11241a !important;
+  border-color: #244634 !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3) !important;
+}
+
 :root[data-theme='dark'] .contact-brand {
   background: #1a3326 !important;
   border-color: #2d4f3b !important;
@@ -822,18 +881,46 @@
 }
 
 :root[data-theme='dark'] .contact-brand small {
+  background: rgba(118, 215, 149, 0.12) !important;
+  border-color: rgba(118, 215, 149, 0.25) !important;
   color: #8be5a8 !important;
 }
 
 :root[data-theme='dark'] .contact-brand--omnicart {
-  background: #06140e !important;
-  border-color: #2e6d4a !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+  background: linear-gradient(160deg, #091c13 0%, #05100b 100%) !important;
+  border-color: #2b6142 !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5) !important;
 }
 
 :root[data-theme='dark'] .contact-brand--omnicart:hover {
   background: #0c2016 !important;
   border-color: #4ade80 !important;
+  box-shadow: 0 10px 28px rgba(74, 222, 128, 0.15) !important;
+}
+
+:root[data-theme='dark'] .contact-brand--vietqr {
+  background: linear-gradient(160deg, #153124 0%, #0f251a 100%) !important;
+  border-color: #2a553c !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root[data-theme='dark'] .contact-brand--vietqr:hover {
+  background: #193a2b !important;
+  border-color: #4ade80 !important;
+  box-shadow: 0 10px 28px rgba(74, 222, 128, 0.15) !important;
+}
+
+:root[data-theme='dark'] .contact-brand--vietqr .contact-brand__vietqr-wrap {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 4px 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme='dark'] .contact-brand--vietqr small {
+  background: rgba(118, 215, 149, 0.15) !important;
+  border-color: rgba(118, 215, 149, 0.3) !important;
+  color: #8be5a8 !important;
 }
 
 /* Dark mode FAQ details */
