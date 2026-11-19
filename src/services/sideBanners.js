@@ -1,6 +1,6 @@
 /*
   FILE NOTE
-  - Mục đích: Chuẩn hóa, chia và resolve cấu hình banner hai bên trang chủ lưu trong appearance.sideBanners (hỗ trợ tùy chỉnh từ 10 đến 30 banner mỗi bên).
+  - Mục đích: Chuẩn hóa, chia và resolve cấu hình banner hai bên trang chủ lưu trong appearance.sideBanners (hỗ trợ tùy chọn 0 banner hoặc từ 10 đến 20 banner mỗi bên).
   - Liên kết trực tiếp: Store/src/components/ui/HomePromotionRegion.jsx, Store/test/side-banners.test.js, Store/test/side-banners-render.test.js.
   - Vùng ảnh hưởng khi sửa: Dữ liệu và số lượng banner hai bên trang chủ storefront khách hàng.
 */
@@ -89,11 +89,13 @@ export function normalizeSideBanners(value) {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     return { version: 1, left: [], right: [] }
   }
-  return {
+  const result = {
     version: 1,
     left: normalizeSide(parsed.left),
     right: normalizeSide(parsed.right),
   }
+  if (parsed.count === 0) result.count = 0
+  return result
 }
 
 // Chức năng clampSideBannerCount: kẹp số lượng mỗi bên về 5–30; số không
@@ -205,10 +207,15 @@ export function defaultSideBanners(products = [], count = DEFAULT_SIDE_BANNER_CO
 
 // Chức năng resolveSideBannersWithDefaults: danh sách banner cuối cùng để
 // render cho mỗi bên — cấu hình đã lưu (đã resolve) nếu bên đó còn slot hợp
-// lệ, còn không thì banner mặc định mới. Trả về { left: [...], right: [...] }
+// lệ, còn không thì banner mặc định mới. Nếu cấu hình lưu rõ count = 0 (ẩn banner),
+// trả về 2 bên mảng rỗng. Trả về { left: [...], right: [...] }
 // luôn là mảng (không null) để rail render thẳng không cần nhánh fallback.
 export function resolveSideBannersWithDefaults(value, products = [], count = DEFAULT_SIDE_BANNER_COUNT) {
-  const resolved = resolveSideBanners(value, products)
+  const normalized = normalizeSideBanners(value)
+  if (normalized.count === 0) {
+    return { left: [], right: [] }
+  }
+  const resolved = resolveSideBanners(normalized, products)
   const defaults = defaultSideBanners(products, count)
   return {
     left: resolved.left ?? defaults.left,

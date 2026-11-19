@@ -1,6 +1,6 @@
 /*
   FILE NOTE
-  - Mục đích: Kiểm thử unit cho src/services/sideBanners.js (giới hạn 5–30 banner mỗi bên, tùy chỉnh 10–30, clamp, normalize, resolve, split, banner mặc định).
+  - Mục đích: Kiểm thử unit cho src/services/sideBanners.js (giới hạn 5–30 banner mỗi bên, tùy chỉnh 10–30, clamp, normalize, resolve, split, banner mặc định, hỗ trợ cấu hình 0 banner ẩn dải rail).
   - Liên kết trực tiếp: Store/src/services/sideBanners.js.
   - Vùng ảnh hưởng khi sửa: Bộ kiểm thử đơn vị logic banner hai bên storefront.
 */
@@ -267,4 +267,13 @@ test('resolveSideBannersWithDefaults: bên custom giữ nguyên, bên trống d�
     [splitSideBanners(thirty.left).before.length, splitSideBanners(thirty.left).after.length],
     [11, 19],
   )
+
+  // Cấu hình 0 banner mỗi bên (count = 0) trả về mảng rỗng ẩn hoàn toàn
+  const zeroObj = resolveSideBannersWithDefaults({ version: 1, count: 0, left: [], right: [] }, products)
+  assert.equal(zeroObj.left.length, 0)
+  assert.equal(zeroObj.right.length, 0)
+
+  const zeroJson = resolveSideBannersWithDefaults('{"version":1,"count":0,"left":[],"right":[]}', products)
+  assert.equal(zeroJson.left.length, 0)
+  assert.equal(zeroJson.right.length, 0)
 })
