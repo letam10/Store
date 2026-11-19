@@ -87,13 +87,12 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   const filtersActive = query.trim() || category !== 'Tất cả' || Number(maxPrice) > 0 || sort !== 'featured' || popularityOnly || favoriteSort || discountOnly
 
   useEffect(() => {
-    // Mỗi lần đổi bộ lọc/danh mục, đưa người dùng về đầu danh sách và trang 1.
+    // Mỗi lần đổi bộ lọc/danh mục, đặt lại về trang 1 nhưng giữ nguyên vị trí cuộn màn hình
     if (!filtersMounted.current) {
       filtersMounted.current = true
       return
     }
     setCurrentPage(1)
-    window.scrollTo?.(0, 0)
   }, [category, query, maxPrice, sort, popularityOnly, favoriteSort, discountOnly])
 
   // Chức năng resetFilters: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
