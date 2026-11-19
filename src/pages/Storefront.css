@@ -1544,7 +1544,9 @@ html[data-theme='dark'] .membership-hero__spin-btn {
   background: color-mix(in srgb, #28583e 78%, transparent) !important;
 }
 
-/* Thiết kế lại section.account-profile: bố cục thẻ nổi bật, tương phản cao, số liệu dạng card riêng biệt không bị đồng màu */
+/* ==========================================================================
+   Account Profile Hero Banner - Giao diện sáng chuẩn mực (Light Mode)
+   ========================================================================== */
 .account-profile.account-profile--redesign {
   display: flex !important;
   justify-content: space-between !important;
@@ -1552,10 +1554,10 @@ html[data-theme='dark'] .membership-hero__spin-btn {
   gap: 28px !important;
   padding: clamp(24px, 4vw, 36px) !important;
   border-radius: 24px !important;
-  background: linear-gradient(135deg, #10261b 0%, #193d2b 55%, #22513a 100%) !important;
-  border: 1.5px solid rgba(110, 195, 142, 0.35) !important;
-  box-shadow: 0 16px 36px rgba(10, 26, 18, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-  color: #f4fff7 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #dce6dc !important;
+  box-shadow: 0 10px 32px rgba(24, 54, 42, 0.05), 0 1px 3px rgba(24, 54, 42, 0.02) !important;
+  color: #18362a !important;
   overflow: hidden !important;
 }
 
@@ -1563,12 +1565,12 @@ html[data-theme='dark'] .membership-hero__spin-btn {
   width: 82px !important;
   height: 82px !important;
   border-radius: 22px !important;
-  background: linear-gradient(135deg, #23593e 0%, #3a7c58 100%) !important;
-  border: 2px solid #a7f3d0 !important;
+  background: linear-gradient(135deg, #266b47 0%, #1a4d33 100%) !important;
+  border: 2px solid #86efac !important;
   color: #ffffff !important;
   font-size: 38px !important;
   font-weight: 900 !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(24, 54, 42, 0.15) !important;
   display: grid !important;
   place-items: center !important;
   flex: none !important;
@@ -1587,24 +1589,24 @@ html[data-theme='dark'] .membership-hero__spin-btn {
   letter-spacing: 0.8px !important;
   padding: 5px 12px !important;
   border-radius: 999px !important;
-  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.4) !important;
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.3) !important;
   display: inline-block !important;
 }
 
 .account-profile--redesign .account-profile__identity h2 {
   margin: 8px 0 4px !important;
-  color: #ffffff !important;
+  color: #18362a !important;
   font-size: clamp(24px, 3.2vw, 36px) !important;
   font-weight: 900 !important;
   letter-spacing: -0.6px !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45) !important;
+  text-shadow: none !important;
 }
 
 .account-profile--redesign .account-profile__identity p {
   margin: 0 !important;
-  color: #bbf7d0 !important;
+  color: #556c5e !important;
   font-size: 14px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 .account-profile--redesign .account-profile__stats {
@@ -1614,8 +1616,8 @@ html[data-theme='dark'] .membership-hero__spin-btn {
 }
 
 .account-profile--redesign .account-profile__stat {
-  background: rgba(12, 32, 22, 0.68) !important;
-  border: 1px solid rgba(134, 239, 172, 0.28) !important;
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
   border-radius: 16px !important;
   padding: 14px 20px !important;
   min-width: 120px !important;
@@ -1624,36 +1626,81 @@ html[data-theme='dark'] .membership-hero__spin-btn {
   flex-direction: column !important;
   justify-content: center !important;
   gap: 4px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(8px) !important;
-  border-left: 1px solid rgba(134, 239, 172, 0.28) !important;
+  box-shadow: 0 2px 8px rgba(24, 54, 42, 0.03) !important;
+  backdrop-filter: none !important;
+  border-left: 1px solid #e2ece1 !important;
 }
 
 .account-profile--redesign .account-profile__stat strong {
-  color: #ffffff !important;
+  color: #18362a !important;
   font-size: clamp(22px, 2.5vw, 28px) !important;
   font-weight: 950 !important;
   letter-spacing: -0.5px !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+  text-shadow: none !important;
   display: block !important;
 }
 
 .account-profile--redesign .account-profile__stat span {
-  color: #86efac !important;
+  color: #4f735e !important;
   font-size: 11.5px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.4px !important;
   display: block !important;
 }
 
-:root[data-theme='dark'] .account-profile.account-profile--redesign {
-  background: linear-gradient(135deg, #0c1e15 0%, #133323 55%, #1b4530 100%) !important;
-  border-color: rgba(74, 222, 128, 0.3) !important;
+/* ==========================================================================
+   Account Profile Hero Banner - Giao diện tối sang trọng (Dark Mode)
+   ========================================================================== */
+:root[data-theme='dark'] .account-profile.account-profile--redesign,
+html[data-theme='dark'] .account-profile.account-profile--redesign {
+  background: linear-gradient(135deg, #10261b 0%, #193d2b 55%, #22513a 100%) !important;
+  border: 1.5px solid rgba(110, 195, 142, 0.35) !important;
+  box-shadow: 0 16px 36px rgba(10, 26, 18, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
   color: #f4fff7 !important;
 }
 
-/* Thanh công cụ đơn hàng div.account-order-toolbar: thiết kế hòa hợp với tone màu xanh giao diện */
+:root[data-theme='dark'] .account-profile--redesign .account-avatar,
+html[data-theme='dark'] .account-profile--redesign .account-avatar {
+  background: linear-gradient(135deg, #23593e 0%, #3a7c58 100%) !important;
+  border: 2px solid #a7f3d0 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__identity h2,
+html[data-theme='dark'] .account-profile--redesign .account-profile__identity h2 {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45) !important;
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__identity p,
+html[data-theme='dark'] .account-profile--redesign .account-profile__identity p {
+  color: #bbf7d0 !important;
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__stat,
+html[data-theme='dark'] .account-profile--redesign .account-profile__stat {
+  background: rgba(12, 32, 22, 0.68) !important;
+  border: 1px solid rgba(134, 239, 172, 0.28) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  border-left: 1px solid rgba(134, 239, 172, 0.28) !important;
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__stat strong,
+html[data-theme='dark'] .account-profile--redesign .account-profile__stat strong {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root[data-theme='dark'] .account-profile--redesign .account-profile__stat span,
+html[data-theme='dark'] .account-profile--redesign .account-profile__stat span {
+  color: #86efac !important;
+}
+
+/* ==========================================================================
+   Thanh công cụ đơn hàng (Order Toolbar) & Thẻ đơn hàng (Order Row)
+   ========================================================================== */
 .account-order-toolbar {
   display: flex !important;
   align-items: center !important;
@@ -1661,17 +1708,10 @@ html[data-theme='dark'] .membership-hero__spin-btn {
   gap: 16px !important;
   padding: 16px 20px !important;
   margin: 20px 0 24px !important;
-  border: 1px solid rgba(82, 142, 104, 0.35) !important;
+  border: 1.5px solid #dce6dc !important;
   border-radius: 14px !important;
-  background: rgba(22, 54, 38, 0.55) !important;
-  backdrop-filter: blur(8px) !important;
-  color: #effff2 !important;
-}
-
-:root[data-theme='dark'] .account-order-toolbar {
-  background: rgba(16, 40, 28, 0.85) !important;
-  border-color: #2e593e !important;
-  color: #effff2 !important;
+  background: #f7f9f6 !important;
+  color: #18362a !important;
 }
 
 .account-order-toolbar .field {
@@ -1685,13 +1725,13 @@ html[data-theme='dark'] .membership-hero__spin-btn {
 .account-order-toolbar .field span {
   font-size: 12px !important;
   font-weight: 700 !important;
-  color: #bbf7d0 !important;
+  color: #556c5e !important;
 }
 
 .account-order-toolbar input[type="search"] {
-  background: rgba(10, 26, 18, 0.65) !important;
-  border: 1px solid #386b4a !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid #d0dfd3 !important;
+  color: #18362a !important;
   border-radius: 10px !important;
   padding: 10px 14px !important;
   font-size: 13px !important;
@@ -1700,34 +1740,59 @@ html[data-theme='dark'] .membership-hero__spin-btn {
 }
 
 .account-order-toolbar input[type="search"]:focus {
-  border-color: #4ade80 !important;
-  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2) !important;
+  border-color: #2f6847 !important;
+  box-shadow: 0 0 0 3px rgba(47, 104, 71, 0.15) !important;
 }
 
 .account-order-toolbar input[type="search"]::placeholder {
-  color: #8bb397 !important;
+  color: #8fa195 !important;
 }
 
 .account-order-toolbar > span {
   font-size: 13px !important;
   font-weight: 600 !important;
-  color: #bbf7d0 !important;
+  color: #556c5e !important;
 }
 
-/* Thiết kế lại article.commerce-order-row: nền phân tầng rõ ràng, thông tin bên trong nhạt hơn dịu mắt */
-.commerce-order-row {
-  padding: 20px !important;
-  border: 1px solid rgba(90, 160, 118, 0.38) !important;
-  border-radius: 18px !important;
-  background: rgba(22, 52, 37, 0.5) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
-  transition: all 0.2s ease !important;
+:root[data-theme='dark'] .account-order-toolbar,
+html[data-theme='dark'] .account-order-toolbar {
+  background: rgba(16, 40, 28, 0.85) !important;
+  border-color: #2e593e !important;
   color: #effff2 !important;
 }
 
-:root[data-theme='dark'] .commerce-order-row {
-  background: rgba(16, 40, 28, 0.7) !important;
-  border-color: rgba(90, 160, 118, 0.38) !important;
+:root[data-theme='dark'] .account-order-toolbar .field span,
+html[data-theme='dark'] .account-order-toolbar .field span {
+  color: #bbf7d0 !important;
+}
+
+:root[data-theme='dark'] .account-order-toolbar input[type="search"],
+html[data-theme='dark'] .account-order-toolbar input[type="search"] {
+  background: rgba(10, 26, 18, 0.65) !important;
+  border: 1px solid #386b4a !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme='dark'] .account-order-toolbar input[type="search"]:focus,
+html[data-theme='dark'] .account-order-toolbar input[type="search"]:focus {
+  border-color: #4ade80 !important;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2) !important;
+}
+
+:root[data-theme='dark'] .account-order-toolbar > span,
+html[data-theme='dark'] .account-order-toolbar > span {
+  color: #bbf7d0 !important;
+}
+
+/* Thẻ đơn hàng commerce-order-row */
+.commerce-order-row {
+  padding: 20px !important;
+  border: 1.5px solid #dce6dc !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(24, 54, 42, 0.04) !important;
+  transition: all 0.2s ease !important;
+  color: #18362a !important;
 }
 
 .commerce-row-head {
@@ -1737,41 +1802,95 @@ html[data-theme='dark'] .membership-hero__spin-btn {
 .commerce-order-row .commerce-center {
   margin-top: 16px !important;
   padding-top: 18px !important;
-  border-top: 1px solid rgba(110, 180, 135, 0.25) !important;
+  border-top: 1px solid #e2ece1 !important;
 }
 
-/* Các khối thông tin con bên trong order row có màu nhạt hơn và phân tách rõ ràng */
 .commerce-order-row .commerce-totals > div,
 .commerce-order-row .commerce-current-items,
 .commerce-order-row .commerce-note,
 .commerce-order-row .commerce-policy,
 .commerce-order-row .commerce-case,
 .commerce-order-row .commerce-payment {
-  background: rgba(38, 86, 59, 0.6) !important;
-  border: 1px solid rgba(134, 239, 172, 0.25) !important;
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
   border-radius: 14px !important;
   padding: 16px 18px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 6px rgba(24, 54, 42, 0.02) !important;
+  color: #18362a !important;
 }
 
 .commerce-order-row .commerce-facts {
-  background: rgba(32, 74, 51, 0.5) !important;
-  border: 1px solid rgba(134, 239, 172, 0.22) !important;
+  background: #f4f8f5 !important;
+  border: 1px solid #e2ece1 !important;
   border-radius: 14px !important;
   padding: 14px 18px !important;
 }
 
 .commerce-order-row .commerce-facts > div {
-  border-bottom-color: rgba(134, 239, 172, 0.16) !important;
+  border-bottom-color: #e2ece1 !important;
 }
 
 .commerce-order-row .commerce-totals small,
 .commerce-order-row .commerce-facts dt {
-  color: #bbf7d0 !important;
+  color: #556c5e !important;
 }
 
 .commerce-order-row .commerce-totals strong,
 .commerce-order-row .commerce-facts dd {
+  color: #18362a !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row,
+html[data-theme='dark'] .commerce-order-row {
+  background: rgba(16, 40, 28, 0.7) !important;
+  border-color: rgba(90, 160, 118, 0.38) !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row .commerce-center,
+html[data-theme='dark'] .commerce-order-row .commerce-center {
+  border-top-color: rgba(110, 180, 135, 0.25) !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row .commerce-totals > div,
+:root[data-theme='dark'] .commerce-order-row .commerce-current-items,
+:root[data-theme='dark'] .commerce-order-row .commerce-note,
+:root[data-theme='dark'] .commerce-order-row .commerce-policy,
+:root[data-theme='dark'] .commerce-order-row .commerce-case,
+:root[data-theme='dark'] .commerce-order-row .commerce-payment,
+html[data-theme='dark'] .commerce-order-row .commerce-totals > div,
+html[data-theme='dark'] .commerce-order-row .commerce-current-items,
+html[data-theme='dark'] .commerce-order-row .commerce-note,
+html[data-theme='dark'] .commerce-order-row .commerce-policy,
+html[data-theme='dark'] .commerce-order-row .commerce-case,
+html[data-theme='dark'] .commerce-order-row .commerce-payment {
+  background: rgba(38, 86, 59, 0.6) !important;
+  border-color: rgba(134, 239, 172, 0.25) !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row .commerce-facts,
+html[data-theme='dark'] .commerce-order-row .commerce-facts {
+  background: rgba(32, 74, 51, 0.5) !important;
+  border-color: rgba(134, 239, 172, 0.22) !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row .commerce-facts > div,
+html[data-theme='dark'] .commerce-order-row .commerce-facts > div {
+  border-bottom-color: rgba(134, 239, 172, 0.16) !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row .commerce-totals small,
+:root[data-theme='dark'] .commerce-order-row .commerce-facts dt,
+html[data-theme='dark'] .commerce-order-row .commerce-totals small,
+html[data-theme='dark'] .commerce-order-row .commerce-facts dt {
+  color: #bbf7d0 !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row .commerce-totals strong,
+:root[data-theme='dark'] .commerce-order-row .commerce-facts dd,
+html[data-theme='dark'] .commerce-order-row .commerce-totals strong,
+html[data-theme='dark'] .commerce-order-row .commerce-facts dd {
   color: #ffffff !important;
 }
 
