@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Trang quản lý tài khoản người dùng, hiển thị thông tin thành viên, mã giảm giá và lịch sử đơn hàng.
+  - Liên kết trực tiếp: Store/src/components/commerce/OrderCenter.jsx, Store/src/pages/Storefront.css, Store/src/services/storefrontState.js
+  - Vùng ảnh hưởng khi sửa: Giao diện trang cá nhân, logic sắp xếp đơn hàng mới nhất và hiển thị hồ sơ khách hàng.
+*/
 import { useEffect, useMemo, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { getMembershipPlan } from '../services/promotions'
@@ -8,6 +14,18 @@ import PaymentNotifications from '../components/commerce/PaymentNotifications.js
 import PendingCheckouts from '../components/commerce/PendingCheckouts.jsx'
 import AccountTwoFactor from '../components/ui/AccountTwoFactor.jsx'
 import './Storefront.css'
+
+function parseOrderTimestamp(order) {
+  const value = order?.createdAt || order?.date || order?.orderDate || order?.createdAtFormatted
+  if (!value) return 0
+  const legacy = String(value).match(/^(\d{2})\/(\d{2})\/(\d{4})(?: (\d{2}):(\d{2})(?::(\d{2}))?)?$/)
+  if (legacy) {
+    const [, dd, mm, yyyy, hh = '00', min = '00', ss = '00'] = legacy
+    return new Date(Number(yyyy), Number(mm) - 1, Number(dd), Number(hh), Number(min), Number(ss)).getTime() || 0
+  }
+  const parsed = Date.parse(value)
+  return Number.isNaN(parsed) ? 0 : parsed
+}
 
 export default function Account({ account, orders = [], membershipTier = 'bronze', wallet = [],
   onLogout, onRefresh, onPaymentComplete, onNavigate, language: propLanguage }) {
@@ -25,7 +43,12 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
     customerApi('/api/customer/security').then(setSecurity).catch(() => {})
   }, [account?.id])
 
-  const visibleOrders = useMemo(() => orders.filter((order) => orderMatches(order, orderQuery)), [orders, orderQuery])
+  const visibleOrders = useMemo(() => {
+    return orders
+      .filter((order) => orderMatches(order, orderQuery))
+      .slice()
+      .sort((a, b) => parseOrderTimestamp(b) - parseOrderTimestamp(a))
+  }, [orders, orderQuery])
   const plan = getMembershipPlan(membershipTier)
   const username = account?.username || (english ? 'Customer' : 'Khách hàng')
   const points = Number(account?.points || 0)

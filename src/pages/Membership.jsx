@@ -1,11 +1,9 @@
-/**
- * @codex-vn-doc
- * Tệp: src/pages/Membership.jsx
- * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
- * Thành phần chính: Membership.
- * Liên kết trực tiếp: ../storefront/promotions.
- * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
- */
+/*
+  FILE NOTE
+  - Mục đích: Trang giao diện Thành viên OmniCart (Membership), quản lý hiển thị thẻ VIP hội viên, thanh tiến trình thăng hạng, số điểm tích lũy, các đặc quyền chiết khấu/điểm/quay thưởng và 4 hạng thành viên Đồng, Bạc, Vàng, Kim Cương.
+  - Liên kết trực tiếp: Store/src/services/promotions.js, Store/src/context/i18n.jsx, Store/src/pages/Storefront.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ trang Thành viên (/membership) trên storefront cho cả tài khoản thành viên và khách.
+*/
 import { getMembershipPlan, membershipPlans } from '../services/promotions'
 import { useLanguage } from '../context/i18n'
 import './Storefront.css'
@@ -140,23 +138,48 @@ export default function Membership({ account, tier = 'bronze', language: propLan
         <>
           <section className={`membership-hero surface membership-hero--${tier}`}>
             <div className="membership-hero__ambient" aria-hidden="true" />
+            <div className="membership-hero__ambient-glow" aria-hidden="true" />
+
             <div className="membership-hero__main">
               <div className="membership-hero__badge-row">
-                <span className="membership-badge">{current.badge}</span>
-                <span className="membership-hero__rank-name">{current.title} Member</span>
+                <div className="membership-hero__icon-bubble" aria-hidden="true">
+                  {tierIcons[tier] || tierIcons.bronze}
+                </div>
+                <div className="membership-hero__badge-meta">
+                  <span className="membership-badge">{current.badge}</span>
+                  <span className="membership-hero__rank-name">{current.title} Member</span>
+                </div>
               </div>
-              <h2>{english ? `Current tier for ${account.username}` : `Hạng hiện tại của ${account.username}`}</h2>
+
+              <div className="membership-hero__title-group">
+                <h2>{english ? `Current tier for ${account.username}` : `Hạng hiện tại của ${account.username}`}</h2>
+                <p className="membership-hero__subtitle">
+                  {english
+                    ? 'Earn points automatically on paid goods after all discounts.'
+                    : 'Tự động tích lũy điểm thưởng và nâng hạng sau khi hoàn tất thanh toán đơn hàng.'}
+                </p>
+              </div>
+
               <div className="membership-hero__points-summary">
-                <span className="membership-hero__points-value">{account.points.toLocaleString(english ? 'en-US' : 'vi-VN')}</span>
-                <span className="membership-hero__points-unit">{english ? 'points · ' : ' điểm · '}</span>
-                <span className="membership-hero__points-desc">{current.description}</span>
+                <div className="membership-hero__points-stat">
+                  <span className="membership-hero__points-value">
+                    {account.points.toLocaleString(english ? 'en-US' : 'vi-VN')}
+                  </span>
+                  <span className="membership-hero__points-unit">{english ? 'points' : 'điểm'}</span>
+                </div>
+                <div className="membership-hero__points-condition">
+                  <span className="membership-hero__points-tag">
+                    {english ? 'Unlock condition' : 'Điều kiện mở khóa'}
+                  </span>
+                  <span className="membership-hero__points-desc">{current.description}</span>
+                </div>
               </div>
 
               {nextPlan ? (
                 <div className="membership-hero__progress-card">
                   <div className="membership-hero__progress-head">
-                    <span>
-                      {english ? 'Progress to ' : 'Tiến trình lên '}
+                    <span className="membership-hero__progress-title">
+                      {english ? 'Progress to ' : 'Tiến trình lên hạng '}
                       <b>{nextPlan.name}</b>
                     </span>
                     <span className="membership-hero__points-needed">
@@ -166,7 +189,7 @@ export default function Membership({ account, tier = 'bronze', language: propLan
                           : 'Đã đủ điểm thăng hạng!'
                         : english
                           ? `${nextPointsRemaining.toLocaleString('en-US')} more points needed`
-                          : `Còn ${nextPointsRemaining.toLocaleString('vi-VN')} điểm nữa`}
+                          : `Còn ${nextPointsRemaining.toLocaleString('vi-VN')} điểm nữa (${progressPercent}%)`}
                     </span>
                   </div>
                   <div className="membership-hero__progress-bar">
@@ -176,35 +199,75 @@ export default function Membership({ account, tier = 'bronze', language: propLan
               ) : (
                 <div className="membership-hero__progress-card membership-hero__progress-card--max">
                   <div className="membership-hero__progress-head">
-                    <span>★ {english ? 'Maximum VIP Tier reached!' : 'Đã đạt thứ hạng cao nhất!'}</span>
-                    <span>{english ? 'Full benefits unlocked' : 'Trọn bộ quyền lợi VIP'}</span>
+                    <span className="membership-hero__progress-title">
+                      ★ {english ? 'Maximum VIP Tier reached!' : 'Đã đạt thứ hạng cao nhất!'}
+                    </span>
+                    <span className="membership-hero__points-needed">
+                      {english ? 'Full benefits unlocked' : 'Trọn bộ quyền lợi VIP'}
+                    </span>
                   </div>
                   <div className="membership-hero__progress-bar">
                     <div className="membership-hero__progress-fill" style={{ width: '100%' }} />
                   </div>
                 </div>
               )}
-
-              <div className="membership-hero__perks-row">
-                <div className="hero-perk-chip">
-                  <span className="hero-perk-chip__label">{english ? 'Discount' : 'Chiết khấu'}</span>
-                  <span className="hero-perk-chip__val">-{current.discount}%</span>
-                </div>
-                <div className="hero-perk-chip">
-                  <span className="hero-perk-chip__label">{english ? 'Multiplier' : 'Hệ số điểm'}</span>
-                  <span className="hero-perk-chip__val">x{current.multiplier}</span>
-                </div>
-                <div className="hero-perk-chip">
-                  <span className="hero-perk-chip__label">{english ? 'Wheel spins' : 'Lượt quay'}</span>
-                  <span className="hero-perk-chip__val">{account.spinCredits || 0}</span>
-                </div>
-              </div>
             </div>
 
             <div className="membership-hero__side">
-              <a className="button button--soft membership-hero__manage-btn" href="/account">
-                {english ? 'Manage account' : 'Quản lý tài khoản'}
-              </a>
+              <div className="membership-hero__side-header">
+                <span className="membership-hero__side-eyebrow">
+                  {english ? 'VIP PRIVILEGES' : 'ĐẶC QUYỀN HẠNG CỦA BẠN'}
+                </span>
+                <span className="membership-hero__side-status">
+                  ★ {english ? 'VIP Active' : 'Đang kích hoạt'}
+                </span>
+              </div>
+
+              <div className="membership-hero__perks-row membership-hero__perks-grid">
+                <div className="hero-perk-card">
+                  <div className="hero-perk-card__icon" aria-hidden="true">🏷️</div>
+                  <div className="hero-perk-card__body">
+                    <span className="hero-perk-card__val">-{current.discount}%</span>
+                    <span className="hero-perk-card__label">{english ? 'Direct discount' : 'Chiết khấu'}</span>
+                    <small className="hero-perk-card__hint">{english ? 'On all orders' : 'Trừ thẳng vào hóa đơn'}</small>
+                  </div>
+                </div>
+
+                <div className="hero-perk-card">
+                  <div className="hero-perk-card__icon" aria-hidden="true">⚡</div>
+                  <div className="hero-perk-card__body">
+                    <span className="hero-perk-card__val">x{current.multiplier}</span>
+                    <span className="hero-perk-card__label">{english ? 'Multiplier' : 'Hệ số điểm'}</span>
+                    <small className="hero-perk-card__hint">{english ? 'Per completed order' : 'Nhân điểm tích lũy'}</small>
+                  </div>
+                </div>
+
+                <div className="hero-perk-card">
+                  <div className="hero-perk-card__icon" aria-hidden="true">🎡</div>
+                  <div className="hero-perk-card__body">
+                    <span className="hero-perk-card__val">{account.spinCredits || 0}</span>
+                    <span className="hero-perk-card__label">{english ? 'Wheel spins' : 'Lượt quay'}</span>
+                    <small className="hero-perk-card__hint">{english ? 'Win vouchers' : 'Vòng quay may mắn'}</small>
+                  </div>
+                </div>
+              </div>
+
+              <div className="membership-hero__actions">
+                <a className="button button--vip-primary membership-hero__manage-btn" href="/account">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span>{english ? 'Manage account' : 'Quản lý tài khoản'}</span>
+                </a>
+                <a className="button button--soft button--vip-secondary membership-hero__spin-btn" href="/rewards">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <polygon points="12 8 8 12 12 16 16 12 12 8" />
+                  </svg>
+                  <span>{english ? 'Play wheel' : 'Vòng quay may mắn'}</span>
+                </a>
+              </div>
             </div>
           </section>
 

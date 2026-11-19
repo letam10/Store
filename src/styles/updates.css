@@ -1,8 +1,8 @@
 /*
   FILE NOTE
   - Mục đích: Bộ quy tắc cải tiến giao diện storefront: hiệu ứng, bố cục giỏ hàng, thông tin tài khoản và giao diện nền tối.
-  - Liên kết trực tiếp: src/App.jsx, src/styles/design.css, src/styles/polish.css
-  - Vùng ảnh hưởng khi sửa: Toàn bộ storefront trong chế độ dark mode, layout catalog, cart và tài khoản.
+  - Liên kết trực tiếp: src/App.jsx, src/styles/design.css, src/styles/polish.css, src/pages/Storefront.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ storefront trong chế độ dark mode, màu sắc thanh tìm kiếm đơn hàng và chi tiết sản phẩm.
 */
 .site-frame,.site-header,.site-footer,.surface,.shop-hero,.shop-hero-art,.field input,.field select,.field textarea{transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 .hero-dots{display:flex;gap:7px;margin-top:13px}.hero-dots button{width:24px;height:8px;border:0;border-radius:8px;background:#9eb29c;cursor:pointer;transition:width .25s,background .25s}.hero-dots button.is-active{width:46px;background:#244d36}
@@ -22,7 +22,7 @@
 :root[data-theme='dark']{--ink:#f8fafc;--paper:#0f172a;--sage:#1e293b;--line:#334155;--accent:#76d795;color-scheme:dark}
 :root[data-theme='dark'] body{background:#0f172a;color:#f8fafc}
 :root[data-theme='dark'] .site-header,:root[data-theme='dark'] .site-footer{background:#0f172acc;color:#f8fafc;border-color:#334155}
-:root[data-theme='dark'] .surface,:root[data-theme='dark'] .account-shortcuts a{background:#1e293b;border-color:#334155;color:#f8fafc}
+:root[data-theme='dark'] .surface:not(.product-detail-full),:root[data-theme='dark'] .account-shortcuts a{background:#1e293b;border-color:#334155;color:#f8fafc}
 :root[data-theme='dark'] h1,:root[data-theme='dark'] h2,:root[data-theme='dark'] h3,:root[data-theme='dark'] h4{color:#f8fafc}
 :root[data-theme='dark'] .muted,:root[data-theme='dark'] .product-category,:root[data-theme='dark'] .eyebrow{color:#94a3b8}
 :root[data-theme='dark'] .product-detail-description,:root[data-theme='dark'] .product-feature-list,:root[data-theme='dark'] .account-voucher-grid p,:root[data-theme='dark'] .account-order-list span,:root[data-theme='dark'] .account-order-list small,:root[data-theme='dark'] .contact-map-card__head p:not(.eyebrow),:root[data-theme='dark'] .account-shortcuts small,:root[data-theme='dark'] .account-logout p{color:#cbd5e1}
@@ -38,7 +38,7 @@
 :root[data-theme='dark'] .shopping-shortcuts,:root[data-theme='dark'] .shopping-shortcuts>a,:root[data-theme='dark'] .account-logout{border-color:#334155}
 :root[data-theme='dark'] .summary-row,:root[data-theme='dark'] .account-order-list article{border-color:#334155}:root[data-theme='dark'] .cart-item--out{background:#090d16;border-color:#334155}
 :root[data-theme='dark'] .cart-select span,:root[data-theme='dark'] .qty-control button,:root[data-theme='dark'] .reward-modal__close{background:#1e293b;color:#f8fafc;border-color:#475569}:root[data-theme='dark'] .cart-select input:not(:checked)+span{color:transparent}
-:root[data-theme='dark'] .product-detail-art,:root[data-theme='dark'] .product-detail-note,:root[data-theme='dark'] .checkout-voucher,:root[data-theme='dark'] .account-order-toolbar,:root[data-theme='dark'] .account-voucher-grid article{background:#1e293b;color:#f8fafc;border-color:#334155}
+:root[data-theme='dark'] .product-detail-art,:root[data-theme='dark'] .product-detail-note,:root[data-theme='dark'] .checkout-voucher,:root[data-theme='dark'] .account-voucher-grid article{background:#1e293b;color:#f8fafc;border-color:#334155}
 :root[data-theme='dark'] .product-detail-service div{background:#1e293b}:root[data-theme='dark'] .product-detail-service{background:#334155}
 :root[data-theme='dark'] .customer-support__panel{background:#1e293b;border-color:#334155}:root[data-theme='dark'] .customer-support__bubble{background:#334155;color:#f8fafc}:root[data-theme='dark'] .customer-support__composer{background:#1e293b;border-color:#475569}:root[data-theme='dark'] .customer-support__composer input{color:#f8fafc}:root[data-theme='dark'] .customer-support__suggestions button,:root[data-theme='dark'] .customer-support__badge{background:#334155;color:#f8fafc;border-color:#475569}
 :root[data-theme='dark'] .reward-modal{background:#1e293b;color:#f8fafc}

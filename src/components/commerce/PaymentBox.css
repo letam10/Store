@@ -1,4 +1,10 @@
 /*
+  FILE NOTE
+  - Mục đích: Định kiểu giao diện thanh toán chuyển khoản ngân hàng (VietQR modal, đồng hồ đếm ngược, chi tiết đối soát).
+  - Liên kết trực tiếp: Store/src/components/commerce/BankPaymentCard.jsx, Store/src/pages/Storefront.css
+  - Vùng ảnh hưởng khi sửa: Modal QR thanh toán chuyển khoản, căn lề thông tin chuyển khoản sang trái.
+*/
+/*
   OmniCart - Bank Payment (VietQR) Modal Stylesheet
   Redesigned for banking card aesthetics, glowing timers, seamless dark mode,
   crystal clear typography, and zero unwanted decorative borders.
@@ -294,11 +300,11 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--theme-text, #17382c);
-  text-align: right;
+  text-align: left;
   overflow-wrap: anywhere;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
 }
 

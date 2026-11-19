@@ -5,6 +5,9 @@
   - Vùng ảnh hưởng khi sửa: Giao diện header trên mọi trang, thanh tìm kiếm và gợi ý sản phẩm, thanh lọc danh mục sản phẩm, tính tương phản và thẩm mỹ tổng thể.
 */
 :root{--store-ink:#0f172a;--store-paper:#f8fafc;--store-line:#cbd5e1;--store-accent:#4f8b67}
+select, .field select, select option, .dropdown-menu, .dropdown-menu__trigger, .dropdown-menu__value, .dropdown-menu__panel, .dropdown-menu__option {
+  text-align: left !important;
+}
 .site-header{background:color-mix(in srgb,var(--paper) 92%,transparent);box-shadow:0 10px 30px rgba(15, 23, 42, 0.06)}
 .site-header .header-inner{display:flex!important;grid-template-columns:none!important;grid-template-rows:none!important;width:min(1540px,calc(100% - 42px));min-height:78px;padding:9px 0;gap:clamp(12px,1.5vw,26px)}
 .header-inner .brand{display:inline-flex!important;align-items:center;gap:9px;flex:0 0 auto;font-size:0!important;letter-spacing:0!important}

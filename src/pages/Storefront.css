@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Bộ định kiểu CSS cho toàn bộ Storefront (Catalog, ProductDetail, Cart, Checkout, Account, Order Center và Membership Hero VIP).
+  - Liên kết trực tiếp: Store/src/pages/Membership.jsx, Store/src/pages/Account.jsx, Store/src/pages/ProductDetail.jsx, Store/src/styles/theme.css
+  - Vùng ảnh hưởng khi sửa: Bố cục, màu sắc của Account Profile, Order Toolbar, Order Rows, Chi tiết sản phẩm (product-detail-full) và Đánh giá (detail-reviews-panel).
+*/
 .catalog-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 190px 190px;gap:14px;padding:18px}.catalog-filter-meta{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}.category-pills{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px}.category-pills button{border:1px solid #dce4dd;background:#fff;border-radius:999px;padding:9px 15px;color:#56665d;cursor:pointer}.category-pills button.is-active{background:#17382c;color:#fff;border-color:#17382c}.catalog-grid{margin-bottom:28px}.contact-grid,.location-grid,.cart-layout,.checkout-layout,.account-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}.info-card{padding:26px}.info-card h2{margin:4px 0 12px;font-size:24px}.contact-list{display:grid;gap:12px;margin-top:22px}.contact-list a,.contact-list span{display:flex;gap:10px;text-decoration:none;color:#45554b}.location-card{padding:26px;display:grid;gap:9px}.location-card .location-icon{font-size:34px}.location-card small{color:#76837b}.cart-list{display:grid;gap:12px}.cart-item{display:grid;grid-template-columns:82px 1fr auto;gap:16px;align-items:center;padding:14px}.cart-item__art{height:82px;border-radius:14px;background:#edf1eb;display:grid;place-items:center;font-size:38px}.cart-item h3{margin:0 0 5px}.cart-item small{color:#758078}.qty-control{display:flex;align-items:center;gap:8px}.qty-control button{width:32px;height:32px;border:1px solid #dbe3dc;border-radius:9px;background:#fff;cursor:pointer}.summary-card{padding:24px;align-self:start;position:sticky;top:100px}.summary-row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #edf0ec}.summary-row--total{font-size:20px;font-weight:800;border-bottom:0;padding-top:18px}.summary-card .button{width:100%;margin-top:16px}.checkout-card,.account-card{padding:26px}.order-success{padding:44px;text-align:center}.order-success>span{font-size:52px}.order-code{display:inline-flex;margin:8px 0 12px;padding:6px 10px;border-radius:999px;background:#edf3ee;font-weight:800}.order-saving{margin:0 auto 10px;color:#315f46;font-weight:800}.account-badge{display:inline-flex;padding:7px 10px;background:#e9f1ea;border-radius:999px;color:#45624e;font-size:11px}.not-found{text-align:center;padding:100px 20px}.not-found h1{font-size:72px;margin:0}.page-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.checkout-progress{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;color:#8a968f;font-size:11px}.checkout-progress span{padding:7px 10px;border-radius:999px;background:#eef2ee}.checkout-progress .is-done{color:#52725d;background:#e3eee5}.checkout-progress .is-active{color:#fff;background:#17382c}.checkout-assurance{display:grid;gap:5px;margin:18px 0;color:#64736a;font-size:10px}.checkout-disclaimer{margin-top:12px;color:#7a867e;font-size:10px;line-height:1.5}.form-success{margin-top:12px;padding:10px 12px;border-radius:10px;background:#e7f2e9;color:#315f46;font-size:11px}.catalog-suggestions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:14px 0 0;color:#748078;font-size:10px}.catalog-suggestions button{border:0;background:transparent;color:#365846;padding:3px 5px;text-decoration:underline;cursor:pointer}.catalog-reset{border:0;background:transparent;color:#7d554b;text-decoration:underline;cursor:pointer;font-size:10px}.qty-control .remove-item{width:auto;padding:0 8px;border-color:#eadbd8;color:#9b4b43;font-size:10px}.fulfillment-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px;padding:0;border:0}.fulfillment-picker legend{grid-column:1/-1;margin-bottom:6px;color:#526158;font-size:12px;font-weight:800}.fulfillment-picker label{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:13px;border:1px solid #dce4dd;border-radius:12px;background:#fbfcfa;cursor:pointer}.fulfillment-picker label.is-active{border-color:#6f9b7c;background:#eef5ef;box-shadow:inset 0 0 0 1px #6f9b7c}.fulfillment-picker input{margin-top:3px;accent-color:#17382c}.fulfillment-picker span{display:grid;gap:3px}.fulfillment-picker b{font-size:12px}.fulfillment-picker small{color:#718078;font-size:9px;line-height:1.4}.breadcrumbs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;color:#77847c;font-size:11px}.breadcrumbs a{text-decoration:none}.product-detail-layout{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(360px,1.1fr);gap:44px;align-items:center}.product-detail-art{min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;border-radius:28px;background:#e6ece1}.product-detail-art--sand{background:#efe6d9}.product-detail-art--blue{background:#e2eaf0}.product-detail-art--rose{background:#f0e3df}.product-detail-art>span{font-size:140px}.product-detail-art small{padding:7px 11px;border-radius:999px;background:#ffffffaa}.product-detail-info h1{margin:8px 0 14px;font-size:clamp(38px,5vw,60px);line-height:1;letter-spacing:-2px}.product-detail-price{display:block;font-size:24px;margin-bottom:18px}.product-detail-description{max-width:590px;color:#65736a;font-size:15px}.product-feature-list{display:grid;gap:9px;padding:0;list-style:none;margin:24px 0;color:#4e6155}.product-detail-actions{display:flex;gap:10px;flex-wrap:wrap}.product-detail-note{display:grid;gap:3px;margin-top:22px;padding:13px 14px;border-radius:12px;background:#f0f3ef;color:#6b786f;font-size:10px}.product-detail-service{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:40px;overflow:hidden;background:#e5e9e4}.product-detail-service div{display:grid;gap:5px;padding:20px;background:#fff}.product-detail-service b{font-size:12px}.product-detail-service span{color:#748078;font-size:10px}.product-member-line{display:flex;align-items:center;justify-content:space-between;gap:12px}.membership-badge{display:inline-flex;padding:6px 9px;border-radius:999px;background:#17382c;color:#fff;font-size:9px;font-weight:800;letter-spacing:.7px}.product-vouchers{display:grid;gap:8px;margin:20px 0}.product-vouchers__head{display:flex;justify-content:space-between;gap:12px;align-items:center}.product-vouchers__head b{font-size:12px}.product-vouchers__head a{color:#476450;font-size:9px}.product-vouchers>button{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:11px;border:1px dashed #cfdacf;border-radius:11px;background:#fbfcfa;text-align:left;cursor:pointer}.product-vouchers>button.is-selected{border-style:solid;border-color:#6d9b7b;background:#eef5ef}.product-vouchers code{font-weight:800}.product-vouchers small{grid-column:1/-1;color:#768279;font-size:9px}.voucher-saved{margin:12px 0 0;color:#41614c;font-size:10px}.checkout-voucher{margin:0 0 18px;padding:14px;border:1px solid #e1e6e1;border-radius:13px;background:#f9fbf8}.checkout-voucher__head{display:flex;justify-content:space-between;align-items:center;gap:12px}.checkout-voucher__head>div{display:flex;align-items:center;gap:8px}.checkout-voucher__head a{font-size:9px;color:#476450}.checkout-voucher__input{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:11px}.checkout-voucher__input input{border:1px solid #d5dfd5;border-radius:9px;padding:10px;background:#fff}.checkout-voucher__input button{border:0;border-radius:9px;padding:0 13px;background:#17382c;color:#fff;cursor:pointer}.checkout-voucher__quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.checkout-voucher__quick button{border:1px solid #d5dfd5;border-radius:999px;padding:5px 8px;background:#fff;color:#45614d;font-size:9px;cursor:pointer}.checkout-voucher>small{display:block;margin-top:9px;color:#78847c;font-size:8px;line-height:1.45}.voucher-valid,.voucher-invalid{margin:8px 0 0;font-size:9px;font-weight:700}.voucher-valid{color:#3f6b4d}.voucher-invalid{color:#9b5147}.account-tier-line{display:flex;align-items:center;gap:8px;margin-bottom:9px}.account-tier-line small{color:#768279}.account-orders{margin-top:20px;padding:26px}.account-orders__head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:18px}.account-orders__head h2{margin:4px 0 0}.account-orders__head>span{font-size:11px;color:#728078}.account-order-toolbar{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:14px;padding:12px;border-radius:12px;background:#f7f9f6}.account-order-toolbar .field{width:min(420px,100%)}.account-order-toolbar>span{color:#758179;font-size:10px;white-space:nowrap}.account-order-list{display:grid;gap:10px}.account-order-list article{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:center;padding:14px;border:1px solid #e5e9e5;border-radius:12px}.account-order-list article>div{display:grid;gap:3px}.account-order-list small,.account-order-list span{color:#748078;font-size:10px}.account-order-list strong{font-size:13px}.account-order-empty{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px;border:1px dashed #dce4dd;border-radius:12px;color:#66746c;font-size:11px}.account-order-empty button{border:0;background:transparent;color:#315f46;text-decoration:underline;cursor:pointer}.membership-hero{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:24px;margin-bottom:18px}.membership-hero h2{margin:7px 0}.membership-hero p{color:#718078}.membership-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.membership-card{display:grid;gap:18px;padding:24px;border:1px solid #dfe5df;border-radius:18px;background:#fff}.membership-card.is-current{border-color:#7da088;box-shadow:inset 0 0 0 1px #7da088}.membership-card>div:first-child>span{font-size:9px;font-weight:900;letter-spacing:1px}.membership-card h2{margin:5px 0}.membership-card p,.membership-card li{color:#718078;font-size:10px}.membership-card ul{display:grid;gap:7px;padding:0;list-style:none}.membership-price{font-size:17px;font-weight:800}.membership-card button:disabled{opacity:.55;cursor:not-allowed}.membership-disclaimer{margin-top:18px;padding:13px;border-radius:12px;background:#fff6df;color:#735e27;font-size:9px;line-height:1.5}.rewards-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px}.rewards-wheel-card,.rewards-info{padding:28px}.rewards-wheel-card{display:grid;justify-items:center;gap:16px}.customer-wheel{position:relative;width:min(330px,90vw);aspect-ratio:1}.customer-wheel__pointer{position:absolute;z-index:2;top:-4px;left:50%;transform:translateX(-50%);font-size:30px}.customer-wheel__disc{width:100%;height:100%;position:relative;border:12px solid #fff;border-radius:50%;background:conic-gradient(#d9e7da 0 60deg,#f2e7ce 60deg 120deg,#dbe5ed 120deg 180deg,#eadbd8 180deg 240deg,#e7e1ef 240deg 300deg,#dce9e3 300deg);box-shadow:0 18px 45px #1737281c;transition:transform 1s cubic-bezier(.2,.8,.2,1)}.customer-wheel__disc span{position:absolute;left:50%;top:50%;font-size:12px;font-weight:900;transform-origin:0 0}.customer-wheel__disc span:nth-child(1){transform:rotate(30deg) translate(100px) rotate(-30deg)}.customer-wheel__disc span:nth-child(2){transform:rotate(90deg) translate(100px) rotate(-90deg)}.customer-wheel__disc span:nth-child(3){transform:rotate(150deg) translate(100px) rotate(-150deg)}.customer-wheel__disc span:nth-child(4){transform:rotate(210deg) translate(100px) rotate(-210deg)}.customer-wheel__disc span:nth-child(5){transform:rotate(270deg) translate(100px) rotate(-270deg)}.customer-wheel__disc span:nth-child(6){transform:rotate(330deg) translate(100px) rotate(-330deg)}.rewards-wheel-card>small,.rewards-info>p{color:#748078}.rewards-info h2{margin:10px 0}.reward-result{display:grid;gap:7px;margin-top:20px;padding:16px;border-radius:14px;background:#eef5ef}.reward-result code{justify-self:start;padding:6px 9px;border-radius:8px;background:#fff;font-weight:900}.reward-result small,.reward-result p{color:#65756b}@media(max-width:900px){.catalog-toolbar{grid-template-columns:1fr 1fr}.catalog-toolbar .field:first-child{grid-column:1/-1}.membership-grid{grid-template-columns:1fr}.rewards-layout{grid-template-columns:1fr}}@media(max-width:820px){.product-detail-layout{grid-template-columns:1fr;gap:26px}.product-detail-art{min-height:360px}.product-detail-service{grid-template-columns:1fr}.account-order-list article{grid-template-columns:1fr 1fr}}@media(max-width:760px){.catalog-toolbar,.contact-grid,.location-grid,.cart-layout,.checkout-layout,.account-layout{grid-template-columns:1fr}.catalog-toolbar .field:first-child{grid-column:auto}.summary-card{position:static}.cart-item{grid-template-columns:64px 1fr}.cart-item__art{height:64px}.qty-control{grid-column:1/-1;justify-content:flex-end}.account-order-toolbar{align-items:stretch;flex-direction:column}.membership-hero{align-items:flex-start;flex-direction:column}}@media(max-width:560px){.fulfillment-picker{grid-template-columns:1fr}.account-order-list article{grid-template-columns:1fr}.product-detail-art>span{font-size:100px}.customer-wheel__disc span:nth-child(n){font-size:10px}}
 .reward-selected{margin-top:14px;padding:9px 11px;border-radius:10px;background:#f2f5ef;color:#4b6352;font-size:10px}.reward-result__actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.reward-result__actions .button{padding:9px 12px;font-size:10px}.account-wallet{margin-top:20px;padding:26px}.account-orders__head>a{color:#476450;font-size:10px}.account-voucher-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.account-voucher-grid article{display:grid;gap:9px;padding:14px;border:1px dashed #d0dad1;border-radius:12px;background:#fbfcfa}.account-voucher-grid article.is-selected{border-style:solid;border-color:#6f9c7c;background:#eef5ef}.account-voucher-grid article>div{display:flex;justify-content:space-between;gap:10px;align-items:center}.account-voucher-grid span{font-weight:800;font-size:11px}.account-voucher-grid code{font-weight:900}.account-voucher-grid p{color:#748078;font-size:9px}.account-voucher-grid button{justify-self:start;border:1px solid #d7e0d8;border-radius:8px;padding:7px 9px;background:#fff;color:#3d6149;font-size:9px;cursor:pointer}@media(max-width:620px){.account-voucher-grid{grid-template-columns:1fr}}
 /* ProductDetail + Account redesign: fixed media frames, clear hierarchy and responsive cards. */
@@ -213,10 +219,11 @@ html[data-theme='dark'] .product-detail-actions .button--soft--active { backgrou
   margin-bottom: 24px;
 }
 
-:root[data-theme='dark'] .membership-guest-gate {
-  background: radial-gradient(120% 120% at 50% 0%, rgba(16, 185, 129, 0.14) 0%, rgba(15, 23, 42, 0.95) 75%);
-  border-color: rgba(52, 211, 153, 0.25);
-  box-shadow: 0 24px 56px -16px rgba(0, 0, 0, 0.6);
+:root[data-theme='dark'] .membership-guest-gate,
+html[data-theme='dark'] .membership-guest-gate {
+  background: radial-gradient(120% 120% at 50% 0%, rgba(16, 185, 129, 0.22) 0%, #10281e 55%, #0b1a13 100%) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+  box-shadow: 0 24px 56px -16px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
 }
 
 .membership-guest-gate__emblem {
@@ -301,9 +308,10 @@ html[data-theme='dark'] .product-detail-actions .button--soft--active { backgrou
   transition: all 0.2s ease;
 }
 
-:root[data-theme='dark'] .guest-perk-item {
-  background: rgba(30, 41, 59, 0.55);
-  border-color: rgba(255, 255, 255, 0.08);
+:root[data-theme='dark'] .guest-perk-item,
+html[data-theme='dark'] .guest-perk-item {
+  background: rgba(18, 44, 32, 0.75);
+  border-color: rgba(52, 211, 153, 0.22);
 }
 
 .guest-perk-item:hover {
@@ -326,8 +334,9 @@ html[data-theme='dark'] .product-detail-actions .button--soft--active { backgrou
   margin-bottom: 2px;
 }
 
-:root[data-theme='dark'] .guest-perk-item strong {
-  color: #f1f5f9;
+:root[data-theme='dark'] .guest-perk-item strong,
+html[data-theme='dark'] .guest-perk-item strong {
+  color: #edf7ef;
 }
 
 .guest-perk-item p {
@@ -337,8 +346,9 @@ html[data-theme='dark'] .product-detail-actions .button--soft--active { backgrou
   margin: 0;
 }
 
-:root[data-theme='dark'] .guest-perk-item p {
-  color: #94a3b8;
+:root[data-theme='dark'] .guest-perk-item p,
+html[data-theme='dark'] .guest-perk-item p {
+  color: #a8c4af;
 }
 
 .membership-auth-actions {
@@ -411,245 +421,667 @@ html[data-theme='dark'] .product-detail-actions .button--soft--active { backgrou
 .account-voucher-grid article p,
 .account-voucher-grid article code{overflow-wrap:anywhere;word-break:break-word}
 
-/* MEMBERSHIP HERO (LOGGED IN) */
+/* MEMBERSHIP HERO (LOGGED IN) - REDESIGNED VIP SECTION */
 .membership-hero {
   position: relative;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  padding: 36px 40px;
-  border-radius: 26px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(255, 255, 255, 0.95) 60%);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  box-shadow: 0 16px 40px -12px rgba(16, 185, 129, 0.12);
-  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(350px, 1fr);
+  gap: clamp(24px, 3.5vw, 44px);
+  align-items: stretch;
+  padding: clamp(30px, 3.8vw, 46px);
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(235, 248, 239, 0.95) 0%, rgba(255, 255, 255, 0.98) 55%, rgba(226, 244, 232, 0.88) 100%);
+  border: 1.5px solid rgba(79, 139, 103, 0.32);
+  box-shadow: 0 18px 45px -12px rgba(24, 54, 42, 0.12), 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin-bottom: 32px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-:root[data-theme='dark'] .membership-hero {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, #0f172a 70%);
-  border-color: rgba(52, 211, 153, 0.3);
-  box-shadow: 0 20px 48px -14px rgba(0, 0, 0, 0.6);
+:root[data-theme='dark'] .membership-hero,
+html[data-theme='dark'] .membership-hero {
+  background: linear-gradient(135deg, #16382a 0%, #102a20 52%, #0b1d16 100%) !important;
+  border-color: rgba(118, 185, 138, 0.35) !important;
+  box-shadow: 0 24px 58px -14px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: #edf7ef !important;
+}
+
+/* Ambient glow & light accents */
+.membership-hero__ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  background: radial-gradient(circle at 10% 20%, rgba(52, 211, 153, 0.14) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 45%);
+}
+
+.membership-hero__ambient-glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.15) 0%, transparent 70%);
+  filter: blur(24px);
+}
+
+/* Tier-specific luxury finishes (harmonious with botanical green base) */
+.membership-hero--bronze {
+  border-color: rgba(217, 119, 6, 0.35);
+  background: linear-gradient(135deg, #fdf8f2 0%, #f7eee2 52%, #fefcf9 100%);
+}
+:root[data-theme='dark'] .membership-hero--bronze,
+html[data-theme='dark'] .membership-hero--bronze {
+  background: linear-gradient(135deg, #242b1e 0%, #172219 50%, #0d1712 100%) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
 }
 
 .membership-hero--silver {
   border-color: rgba(148, 163, 184, 0.4);
+  background: linear-gradient(135deg, #f8fafc 0%, #edf3f7 50%, #ffffff 100%);
 }
-.membership-hero--gold {
-  border-color: rgba(245, 158, 11, 0.45);
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(255, 255, 255, 0.95) 60%);
-}
-:root[data-theme='dark'] .membership-hero--gold {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, #1c1917 70%);
-}
-.membership-hero--diamond {
-  border-color: rgba(6, 182, 212, 0.45);
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(255, 255, 255, 0.95) 60%);
-}
-:root[data-theme='dark'] .membership-hero--diamond {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.16) 0%, #082f49 70%);
+:root[data-theme='dark'] .membership-hero--silver,
+html[data-theme='dark'] .membership-hero--silver {
+  background: linear-gradient(135deg, #1d3329 0%, #12251d 50%, #0b1a13 100%) !important;
+  border-color: rgba(148, 163, 184, 0.35) !important;
 }
 
+.membership-hero--gold {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: linear-gradient(135deg, #fffdf2 0%, #fdf5d6 50%, #ffffff 100%);
+}
+:root[data-theme='dark'] .membership-hero--gold,
+html[data-theme='dark'] .membership-hero--gold {
+  background: linear-gradient(135deg, #2a3a22 0%, #1b2d1f 50%, #0e1e14 100%) !important;
+  border-color: rgba(250, 204, 21, 0.45) !important;
+}
+
+/* Diamond: Radiant Jade & Emerald glow matching customer theme */
+.membership-hero--diamond {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: linear-gradient(135deg, #ebfaf1 0%, #ddf6e8 48%, #eaf6fc 100%);
+  box-shadow: 0 20px 50px -12px rgba(16, 185, 129, 0.22);
+}
+:root[data-theme='dark'] .membership-hero--diamond,
+html[data-theme='dark'] .membership-hero--diamond {
+  background: linear-gradient(135deg, #184433 0%, #102e22 50%, #081d16 100%) !important;
+  border-color: #34d399 !important;
+  box-shadow: 0 24px 62px -14px rgba(0, 0, 0, 0.8), 0 0 32px -6px rgba(52, 211, 153, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Left Main Section */
 .membership-hero__main {
-  flex: 1;
-  min-width: 0;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: center;
+  gap: 18px;
+  min-width: 0;
 }
 
 .membership-hero__badge-row {
   display: flex;
   align-items: center;
+  gap: 14px;
+}
+
+.membership-hero__icon-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1.5px solid rgba(79, 139, 103, 0.28);
+  box-shadow: 0 6px 16px rgba(24, 54, 42, 0.08);
+  flex-shrink: 0;
+}
+
+:root[data-theme='dark'] .membership-hero__icon-bubble,
+html[data-theme='dark'] .membership-hero__icon-bubble {
+  background: #193e2e;
+  border-color: rgba(52, 211, 153, 0.35);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.membership-hero__icon-bubble .membership-tier-svg {
+  width: 28px;
+  height: 28px;
+}
+
+.membership-hero--diamond .membership-hero__icon-bubble {
+  color: #059669;
+}
+:root[data-theme='dark'] .membership-hero--diamond .membership-hero__icon-bubble,
+html[data-theme='dark'] .membership-hero--diamond .membership-hero__icon-bubble {
+  color: #34d399;
+}
+
+.membership-hero--gold .membership-hero__icon-bubble {
+  color: #d97706;
+}
+:root[data-theme='dark'] .membership-hero--gold .membership-hero__icon-bubble,
+html[data-theme='dark'] .membership-hero--gold .membership-hero__icon-bubble {
+  color: #fbbf24;
+}
+
+.membership-hero--silver .membership-hero__icon-bubble {
+  color: #475569;
+}
+:root[data-theme='dark'] .membership-hero--silver .membership-hero__icon-bubble,
+html[data-theme='dark'] .membership-hero--silver .membership-hero__icon-bubble {
+  color: #cbd5e1;
+}
+
+.membership-hero--bronze .membership-hero__icon-bubble {
+  color: #b45309;
+}
+:root[data-theme='dark'] .membership-hero--bronze .membership-hero__icon-bubble,
+html[data-theme='dark'] .membership-hero--bronze .membership-hero__icon-bubble {
+  color: #fde68a;
+}
+
+.membership-hero__badge-meta {
+  display: flex;
+  align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.membership-hero__badge-meta .membership-badge {
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  margin-bottom: 0;
 }
 
 .membership-hero__rank-name {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--muted);
 }
 
-:root[data-theme='dark'] .membership-hero__rank-name {
-  color: #94a3b8;
+:root[data-theme='dark'] .membership-hero__rank-name,
+html[data-theme='dark'] .membership-hero__rank-name {
+  color: #a8c4af;
+}
+
+.membership-hero__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .membership-hero h2 {
-  font-size: clamp(22px, 3vw, 28px);
+  font-size: clamp(24px, 3vw, 34px);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
   color: var(--ink);
   margin: 0;
 }
 
-:root[data-theme='dark'] .membership-hero h2 {
+:root[data-theme='dark'] .membership-hero h2,
+html[data-theme='dark'] .membership-hero h2 {
   color: #f8fafc;
 }
 
+.membership-hero__subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+:root[data-theme='dark'] .membership-hero__subtitle,
+html[data-theme='dark'] .membership-hero__subtitle {
+  color: #a8c4af;
+}
+
+/* Points Summary Banner */
 .membership-hero__points-summary {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  font-size: 15px;
-  color: var(--muted);
+  gap: 16px 24px;
+  padding: 14px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(79, 139, 103, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+:root[data-theme='dark'] .membership-hero__points-summary,
+html[data-theme='dark'] .membership-hero__points-summary {
+  background: rgba(14, 38, 28, 0.75);
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.membership-hero__points-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .membership-hero__points-value {
-  font-size: 24px;
-  font-weight: 800;
+  font-size: clamp(34px, 4.2vw, 48px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
   color: #059669;
-  letter-spacing: -0.02em;
 }
 
-:root[data-theme='dark'] .membership-hero__points-value {
+:root[data-theme='dark'] .membership-hero__points-value,
+html[data-theme='dark'] .membership-hero__points-value {
   color: #34d399;
+  text-shadow: 0 0 24px rgba(52, 211, 153, 0.35);
 }
 
 .membership-hero__points-unit {
+  font-size: 16px;
   font-weight: 700;
   color: var(--ink);
 }
 
-:root[data-theme='dark'] .membership-hero__points-unit {
-  color: #f1f5f9;
+:root[data-theme='dark'] .membership-hero__points-unit,
+html[data-theme='dark'] .membership-hero__points-unit {
+  color: #edf7ef;
+}
+
+.membership-hero__points-condition {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-left: 2px solid rgba(79, 139, 103, 0.2);
+  padding-left: 18px;
+}
+
+:root[data-theme='dark'] .membership-hero__points-condition,
+html[data-theme='dark'] .membership-hero__points-condition {
+  border-color: rgba(52, 211, 153, 0.22);
+}
+
+.membership-hero__points-tag {
+  display: inline-flex;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+:root[data-theme='dark'] .membership-hero__points-tag,
+html[data-theme='dark'] .membership-hero__points-tag {
+  background: rgba(52, 211, 153, 0.16);
+  color: #34d399;
 }
 
 .membership-hero__points-desc {
+  font-size: 13.5px;
   color: var(--muted);
+  font-weight: 500;
 }
 
-:root[data-theme='dark'] .membership-hero__points-desc {
-  color: #94a3b8;
+:root[data-theme='dark'] .membership-hero__points-desc,
+html[data-theme='dark'] .membership-hero__points-desc {
+  color: #a8c4af;
 }
 
 /* Progress card inside hero */
 .membership-hero__progress-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-width: 580px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 10px;
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(79, 139, 103, 0.18);
   backdrop-filter: blur(8px);
-  margin-top: 4px;
 }
 
-:root[data-theme='dark'] .membership-hero__progress-card {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(255, 255, 255, 0.08);
+:root[data-theme='dark'] .membership-hero__progress-card,
+html[data-theme='dark'] .membership-hero__progress-card {
+  background: rgba(13, 36, 26, 0.7);
+  border-color: rgba(52, 211, 153, 0.2);
 }
 
 .membership-hero__progress-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 13px;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--ink);
 }
 
-:root[data-theme='dark'] .membership-hero__progress-head {
+:root[data-theme='dark'] .membership-hero__progress-head,
+html[data-theme='dark'] .membership-hero__progress-head {
   color: #f1f5f9;
 }
 
-.membership-hero__points-needed {
-  font-weight: 700;
+.membership-hero__progress-title b {
   color: #059669;
 }
 
-:root[data-theme='dark'] .membership-hero__points-needed {
+:root[data-theme='dark'] .membership-hero__progress-title b,
+html[data-theme='dark'] .membership-hero__progress-title b {
+  color: #34d399;
+}
+
+.membership-hero__points-needed {
+  font-weight: 800;
+  font-size: 13.5px;
+  color: #059669;
+}
+
+:root[data-theme='dark'] .membership-hero__points-needed,
+html[data-theme='dark'] .membership-hero__points-needed {
   color: #34d399;
 }
 
 .membership-hero__progress-bar {
   width: 100%;
-  height: 8px;
+  height: 12px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
-:root[data-theme='dark'] .membership-hero__progress-bar {
-  background: rgba(255, 255, 255, 0.12);
+:root[data-theme='dark'] .membership-hero__progress-bar,
+html[data-theme='dark'] .membership-hero__progress-bar {
+  background: rgba(0, 0, 0, 0.38);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .membership-hero__progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #10b981, #059669);
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(90deg, #059669 0%, #10b981 50%, #34d399 100%);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.5);
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Chips row */
-.membership-hero__perks-row {
+.membership-hero__progress-card--max .membership-hero__progress-fill {
+  background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+}
+
+/* Right Side: VIP Privileges Showcase & Actions */
+.membership-hero__side {
+  position: relative;
+  z-index: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 6px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(79, 139, 103, 0.22);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px -6px rgba(24, 54, 42, 0.06);
 }
 
-.hero-perk-chip {
+:root[data-theme='dark'] .membership-hero__side,
+html[data-theme='dark'] .membership-hero__side {
+  background: rgba(14, 36, 26, 0.78);
+  border-color: rgba(52, 211, 153, 0.25);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5);
+}
+
+.membership-hero__side-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(79, 139, 103, 0.16);
+}
+
+:root[data-theme='dark'] .membership-hero__side-header,
+html[data-theme='dark'] .membership-hero__side-header {
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+.membership-hero__side-eyebrow {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--theme-muted);
+}
+
+:root[data-theme='dark'] .membership-hero__side-eyebrow,
+html[data-theme='dark'] .membership-hero__side-eyebrow {
+  color: #a8c4af;
+}
+
+.membership-hero__side-status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 4px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  font-size: 13px;
-}
-
-:root[data-theme='dark'] .hero-perk-chip {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(52, 211, 153, 0.25);
-}
-
-.hero-perk-chip__label {
-  color: var(--muted);
-}
-
-:root[data-theme='dark'] .hero-perk-chip__label {
-  color: #94a3b8;
-}
-
-.hero-perk-chip__val {
+  font-size: 11px;
   font-weight: 800;
+  background: rgba(16, 185, 129, 0.15);
   color: #059669;
 }
 
-:root[data-theme='dark'] .hero-perk-chip__val {
+:root[data-theme='dark'] .membership-hero__side-status,
+html[data-theme='dark'] .membership-hero__side-status {
+  background: rgba(52, 211, 153, 0.18);
   color: #34d399;
 }
 
-.membership-hero__manage-btn {
-  white-space: nowrap;
-  padding: 12px 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  color: var(--ink);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
+/* Perks Grid */
+.membership-hero__perks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0;
 }
 
-:root[data-theme='dark'] .membership-hero__manage-btn {
-  background: #1e293b;
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #f1f5f9;
+.hero-perk-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(79, 139, 103, 0.18);
+  box-shadow: 0 4px 12px rgba(24, 54, 42, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+:root[data-theme='dark'] .hero-perk-card,
+html[data-theme='dark'] .hero-perk-card {
+  background: #143325;
+  border-color: rgba(52, 211, 153, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.hero-perk-card:hover {
+  transform: translateY(-3px);
+  border-color: #10b981;
+  box-shadow: 0 10px 24px -6px rgba(16, 185, 129, 0.25);
+}
+
+:root[data-theme='dark'] .hero-perk-card:hover,
+html[data-theme='dark'] .hero-perk-card:hover {
+  border-color: #34d399;
+  box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.6);
+}
+
+.hero-perk-card__icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.hero-perk-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  width: 100%;
+}
+
+.hero-perk-card__val {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: #059669;
+}
+
+:root[data-theme='dark'] .hero-perk-card__val,
+html[data-theme='dark'] .hero-perk-card__val {
+  color: #34d399;
+}
+
+.hero-perk-card__label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+:root[data-theme='dark'] .hero-perk-card__label,
+html[data-theme='dark'] .hero-perk-card__label {
+  color: #edf7ef;
+}
+
+.hero-perk-card__hint {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+:root[data-theme='dark'] .hero-perk-card__hint,
+html[data-theme='dark'] .hero-perk-card__hint {
+  color: #a8c4af;
+}
+
+/* Actions in hero */
+.membership-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.membership-hero__manage-btn,
+.membership-hero__spin-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-size: 14.5px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.membership-hero__manage-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 8px 22px -4px rgba(16, 185, 129, 0.45);
 }
 
 .membership-hero__manage-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 12px 26px -4px rgba(16, 185, 129, 0.6);
+  filter: brightness(1.06);
+}
+
+.membership-hero__spin-btn {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1.5px solid rgba(16, 185, 129, 0.32);
+  color: #059669 !important;
+}
+
+:root[data-theme='dark'] .membership-hero__spin-btn,
+html[data-theme='dark'] .membership-hero__spin-btn {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(52, 211, 153, 0.38);
+  color: #34d399 !important;
+}
+
+.membership-hero__spin-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(16, 185, 129, 0.22);
   border-color: #10b981;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.2);
+}
+
+/* Responsive breakpoints for membership hero */
+@media (max-width: 1040px) {
+  .membership-hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 28px 24px;
+  }
+}
+
+@media (max-width: 680px) {
+  .membership-hero__perks-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .hero-perk-card {
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+  }
+  .hero-perk-card__body {
+    align-items: flex-start;
+  }
+  .membership-hero__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .membership-hero__manage-btn,
+  .membership-hero__spin-btn {
+    width: 100%;
+  }
+  .membership-hero__points-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .membership-hero__points-condition {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid rgba(79, 139, 103, 0.2);
+    padding-top: 10px;
+    width: 100%;
+  }
 }
 
 /* 4 TIER CARDS GRID */
@@ -1113,51 +1545,336 @@ html[data-theme='dark'] .product-detail-actions .button--soft--active { backgrou
   background: color-mix(in srgb, #28583e 78%, transparent) !important;
 }
 
-/* Hồ sơ đầu trang cần chữ đậm và tương phản rõ trên nền xanh sáng. */
-.account-profile--redesign {
-  color: #123b26;
+/* Thiết kế lại section.account-profile: bố cục thẻ nổi bật, tương phản cao, số liệu dạng card riêng biệt không bị đồng màu */
+.account-profile.account-profile--redesign {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 28px !important;
+  padding: clamp(24px, 4vw, 36px) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #10261b 0%, #193d2b 55%, #22513a 100%) !important;
+  border: 1.5px solid rgba(110, 195, 142, 0.35) !important;
+  box-shadow: 0 16px 36px rgba(10, 26, 18, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  color: #f4fff7 !important;
+  overflow: hidden !important;
+}
+
+.account-profile--redesign .account-avatar {
+  width: 82px !important;
+  height: 82px !important;
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, #23593e 0%, #3a7c58 100%) !important;
+  border: 2px solid #a7f3d0 !important;
+  color: #ffffff !important;
+  font-size: 38px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
+  display: grid !important;
+  place-items: center !important;
+  flex: none !important;
+}
+
+.account-profile--redesign .account-profile__identity {
+  min-width: 0 !important;
+  flex: 1 !important;
 }
 
 .account-profile--redesign .membership-badge {
-  background: #0c3a25;
-  color: #f4fff6;
-  font-weight: 900;
+  background: linear-gradient(135deg, #d97706, #f59e0b) !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.8px !important;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.4) !important;
+  display: inline-block !important;
 }
 
-.account-profile--redesign .account-profile__identity h2,
-.account-profile--redesign .account-profile__stat strong {
-  color: #123b26;
-  font-weight: 950;
-  text-shadow: 0 1px 0 rgb(255 255 255 / 28%);
+.account-profile--redesign .account-profile__identity h2 {
+  margin: 8px 0 4px !important;
+  color: #ffffff !important;
+  font-size: clamp(24px, 3.2vw, 36px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.6px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45) !important;
 }
 
-.account-profile--redesign .account-profile__identity p,
-.account-profile--redesign .account-profile__stat span {
-  color: #245d3a;
-  font-weight: 750;
+.account-profile--redesign .account-profile__identity p {
+  margin: 0 !important;
+  color: #bbf7d0 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.account-profile--redesign .account-profile__stats {
+  display: flex !important;
+  gap: 14px !important;
+  align-items: stretch !important;
 }
 
 .account-profile--redesign .account-profile__stat {
-  border-left-color: rgb(36 93 58 / 42%);
+  background: rgba(12, 32, 22, 0.68) !important;
+  border: 1px solid rgba(134, 239, 172, 0.28) !important;
+  border-radius: 16px !important;
+  padding: 14px 20px !important;
+  min-width: 120px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+  border-left: 1px solid rgba(134, 239, 172, 0.28) !important;
 }
 
-:root[data-theme='dark'] .account-profile--redesign {
-  color: #f4fff6;
+.account-profile--redesign .account-profile__stat strong {
+  color: #ffffff !important;
+  font-size: clamp(22px, 2.5vw, 28px) !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.5px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+  display: block !important;
 }
 
-:root[data-theme='dark'] .account-profile--redesign .account-profile__identity h2,
-:root[data-theme='dark'] .account-profile--redesign .account-profile__stat strong {
-  color: #f4fff6;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 20%);
+.account-profile--redesign .account-profile__stat span {
+  color: #86efac !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  display: block !important;
 }
 
-:root[data-theme='dark'] .account-profile--redesign .account-profile__identity p,
-:root[data-theme='dark'] .account-profile--redesign .account-profile__stat span {
-  color: #d9efde;
+:root[data-theme='dark'] .account-profile.account-profile--redesign {
+  background: linear-gradient(135deg, #0c1e15 0%, #133323 55%, #1b4530 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+  color: #f4fff7 !important;
 }
 
-:root[data-theme='dark'] .account-profile--redesign .account-profile__stat {
-  border-left-color: rgb(181 219 189 / 40%);
+/* Thanh công cụ đơn hàng div.account-order-toolbar: thiết kế hòa hợp với tone màu xanh giao diện */
+.account-order-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  padding: 16px 20px !important;
+  margin: 20px 0 24px !important;
+  border: 1px solid rgba(82, 142, 104, 0.35) !important;
+  border-radius: 14px !important;
+  background: rgba(22, 54, 38, 0.55) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .account-order-toolbar {
+  background: rgba(16, 40, 28, 0.85) !important;
+  border-color: #2e593e !important;
+  color: #effff2 !important;
+}
+
+.account-order-toolbar .field {
+  flex: 1 !important;
+  max-width: 440px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.account-order-toolbar .field span {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #bbf7d0 !important;
+}
+
+.account-order-toolbar input[type="search"] {
+  background: rgba(10, 26, 18, 0.65) !important;
+  border: 1px solid #386b4a !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  outline: none !important;
+  transition: border-color 0.2s ease !important;
+}
+
+.account-order-toolbar input[type="search"]:focus {
+  border-color: #4ade80 !important;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2) !important;
+}
+
+.account-order-toolbar input[type="search"]::placeholder {
+  color: #8bb397 !important;
+}
+
+.account-order-toolbar > span {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #bbf7d0 !important;
+}
+
+/* Thiết kế lại article.commerce-order-row: nền phân tầng rõ ràng, thông tin bên trong nhạt hơn dịu mắt */
+.commerce-order-row {
+  padding: 20px !important;
+  border: 1px solid rgba(90, 160, 118, 0.38) !important;
+  border-radius: 18px !important;
+  background: rgba(22, 52, 37, 0.5) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .commerce-order-row {
+  background: rgba(16, 40, 28, 0.7) !important;
+  border-color: rgba(90, 160, 118, 0.38) !important;
+}
+
+.commerce-row-head {
+  padding-bottom: 12px !important;
+}
+
+.commerce-order-row .commerce-center {
+  margin-top: 16px !important;
+  padding-top: 18px !important;
+  border-top: 1px solid rgba(110, 180, 135, 0.25) !important;
+}
+
+/* Các khối thông tin con bên trong order row có màu nhạt hơn và phân tách rõ ràng */
+.commerce-order-row .commerce-totals > div,
+.commerce-order-row .commerce-current-items,
+.commerce-order-row .commerce-note,
+.commerce-order-row .commerce-policy,
+.commerce-order-row .commerce-case,
+.commerce-order-row .commerce-payment {
+  background: rgba(38, 86, 59, 0.6) !important;
+  border: 1px solid rgba(134, 239, 172, 0.25) !important;
+  border-radius: 14px !important;
+  padding: 16px 18px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.commerce-order-row .commerce-facts {
+  background: rgba(32, 74, 51, 0.5) !important;
+  border: 1px solid rgba(134, 239, 172, 0.22) !important;
+  border-radius: 14px !important;
+  padding: 14px 18px !important;
+}
+
+.commerce-order-row .commerce-facts > div {
+  border-bottom-color: rgba(134, 239, 172, 0.16) !important;
+}
+
+.commerce-order-row .commerce-totals small,
+.commerce-order-row .commerce-facts dt {
+  color: #bbf7d0 !important;
+}
+
+.commerce-order-row .commerce-totals strong,
+.commerce-order-row .commerce-facts dd {
+  color: #ffffff !important;
+}
+
+/* Thiết kế lại section.surface.product-detail-full và section#reviews.surface.product-detail-full.detail-reviews-panel đồng bộ màu giao diện xanh */
+section.surface.product-detail-full,
+section#reviews.surface.product-detail-full.detail-reviews-panel {
+  background: #13281f !important;
+  border: 1.5px solid #28543a !important;
+  color: #effff2 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 12px 36px rgba(10, 26, 18, 0.35) !important;
+}
+
+.product-detail-full__heading {
+  border-bottom: 1px solid #28543a !important;
+}
+
+.product-detail-full__heading h2 {
+  color: #ffffff !important;
+}
+
+.product-detail-full__heading .eyebrow {
+  color: #76b98a !important;
+}
+
+.product-detail-full__heading > span,
+.detail-reviews-panel .reviews-subtitle {
+  color: #a8c4af !important;
+}
+
+.product-detail-full .detail-block {
+  border-bottom-color: #244833 !important;
+}
+
+.product-detail-full .detail-specifications {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 24px;
+}
+
+.product-detail-full .detail-specifications > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(22, 50, 36, 0.55);
+  border: 1px solid rgba(80, 150, 105, 0.25);
+  border-radius: 10px;
+}
+
+.product-detail-full .detail-specifications dt {
+  color: #a8c4af !important;
+}
+
+.product-detail-full .detail-specifications dd {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.product-detail-full .detail-feature-cards li {
+  background: rgba(22, 50, 36, 0.55) !important;
+  border: 1px solid rgba(80, 150, 105, 0.25) !important;
+  border-radius: 12px !important;
+  padding: 14px 18px !important;
+  color: #effff2 !important;
+}
+
+.product-detail-full .detail-feature-cards li span {
+  color: #76b98a !important;
+}
+
+.detail-reviews-panel .detail-rating-summary {
+  background: #173224 !important;
+  border: 1px solid #2b563c !important;
+  border-radius: 20px !important;
+  color: #effff2 !important;
+}
+
+.detail-reviews-panel .detail-rating-summary > strong {
+  color: #ffffff !important;
+}
+
+.detail-reviews-panel .review-filter-panel {
+  background: #173224 !important;
+  border: 1px solid #2b563c !important;
+  color: #effff2 !important;
+}
+
+.detail-reviews-panel .detail-review-form {
+  background: #173224 !important;
+  border: 1px solid #2b563c !important;
+  color: #effff2 !important;
+}
+
+.detail-reviews-panel .detail-review-list article {
+  background: #173224 !important;
+  border: 1px solid #2b563c !important;
+  color: #effff2 !important;
+}
+
+.detail-reviews-panel .detail-review-empty {
+  background: #173224 !important;
+  color: #effff2 !important;
 }
 
 .catalog-pagination {

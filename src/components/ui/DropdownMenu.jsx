@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Thành phần DropdownMenu tùy biến cho storefront, hỗ trợ phím điều hướng và căn lề chuẩn.
+  - Liên kết trực tiếp: Store/src/components/ui/DropdownMenu.css
+  - Vùng ảnh hưởng khi sửa: Toàn bộ dropdown lựa chọn và sắp xếp trên storefront.
+*/
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import './DropdownMenu.css'
 

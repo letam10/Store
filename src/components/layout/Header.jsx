@@ -146,7 +146,24 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
     <header ref={headerRef} className="site-header">
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <div className="container header-inner">
-        <a className="brand" href="/" aria-label="OmniCart - trang chủ"><span className="brand__mark" aria-hidden="true">✦</span><span className="brand__word">{brandName}<span>.</span></span><small>{appearance.brandTagline || 'EVERYDAY'}</small></a>
+        <a className="brand" href="/" aria-label="OmniCart - trang chủ">
+          <span className="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 36 36" width="30" height="30" fill="none" aria-hidden="true" style={{ display: 'block' }}>
+              <rect x="1" y="1" width="34" height="34" rx="10" fill="url(#h-brand-bg)" stroke="#52aa7a" strokeWidth="1.2"/>
+              <circle cx="16" cy="16" r="6.2" stroke="#fff" strokeWidth="3.6" fill="none" strokeLinecap="round"/>
+              <circle cx="24.5" cy="24.5" r="4.2" fill="#5fe39d" stroke="#fff" strokeWidth="1.2"/>
+              <defs>
+                <linearGradient id="h-brand-bg" x1="0" y1="0" x2="36" y2="36">
+                  <stop stopColor="#143d2c"/>
+                  <stop offset="0.55" stopColor="#226344"/>
+                  <stop offset="1" stopColor="#358b5e"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </span>
+          <span className="brand__word">{brandName}<span>.</span></span>
+          <small>{appearance.brandTagline || 'EVERYDAY'}</small>
+        </a>
         <div className="header-search-shell" ref={searchShellRef}>
         <form className="site-search header-inline-search" action="/products" method="get" role="search" onFocus={() => setSuggestionsOpen(true)} onSubmit={() => setSuggestionsOpen(false)}>
           <label className="sr-only" htmlFor="header-inline-search-input">Tìm sản phẩm</label>

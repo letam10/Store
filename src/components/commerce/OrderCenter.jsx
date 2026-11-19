@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Trung tâm xử lý và hiển thị đơn hàng khách hàng (chi tiết đơn, thanh toán, đổi/trả/hủy, lịch sử).
+  - Liên kết trực tiếp: Store/src/pages/Account.jsx, Store/src/components/commerce/OrderCenter.css
+  - Vùng ảnh hưởng khi sửa: Danh sách và chi tiết đơn hàng khách hàng trên trang cá nhân.
+*/
 import { useEffect, useRef, useState } from 'react'
 import { customerApi } from '../../api/customer'
 import PaymentBox from './PaymentBox'

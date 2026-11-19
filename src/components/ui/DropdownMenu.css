@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Định kiểu CSS cho DropdownMenu trên storefront, hỗ trợ responsive, hiệu ứng và căn trái/giữa.
+  - Liên kết trực tiếp: Store/src/components/ui/DropdownMenu.jsx
+  - Vùng ảnh hưởng khi sửa: Menu lựa chọn, panel danh sách và các option trên storefront.
+*/
 .dropdown-menu {
   position: relative;
   width: 100%;
@@ -59,6 +65,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   letter-spacing: -0.1px;
+  text-align: left !important;
 }
 
 /* Elegant circular chip caret */
