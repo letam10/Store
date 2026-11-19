@@ -51,7 +51,7 @@
 .customer-support--open { width: 600px; }
 .customer-support--open .customer-support__panel { height: min(800px, calc(100dvh - 150px)); }
 .home-section--sale::before { content: '✦ ƯU ĐÃI ĐANG CÓ ✦'; display: block; width: fit-content; margin-bottom: 16px; padding: 5px 11px; border-radius: 999px; background: #bd3b2a; color: white; font-size: 12px; font-weight: 900; letter-spacing: .09em; }
-:root[data-theme='dark'] .membership-card { background: #22352a; border-color: #56715b; }
+:root[data-theme='dark'] .membership-card { border-color: #56715b; }
 :root[data-theme='dark'] .membership-card h2, :root[data-theme='dark'] .membership-card strong { color: #f0f8ed; }
 :root[data-theme='dark'] .membership-card p, :root[data-theme='dark'] .membership-card li { color: #c9d9c8; }
 :root[data-theme='dark'] .detail-admin-reply { background: #294834; }

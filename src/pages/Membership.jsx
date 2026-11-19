@@ -68,11 +68,6 @@ export default function Membership({ account, tier = 'bronze', language: propLan
           <p className="eyebrow">{english ? 'MEMBERSHIP TIER' : 'HẠNG THÀNH VIÊN'}</p>
           <h1>{english ? 'OmniCart Membership' : 'Thành viên OmniCart'}</h1>
         </div>
-        <p className="muted">
-          {english
-            ? 'Points are automatically earned on paid goods after all discounts.'
-            : 'Tích điểm tự động từ số tiền hàng hóa đã thanh toán sau mọi mã giảm giá.'}
-        </p>
       </header>
 
       {isGuest ? (

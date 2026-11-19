@@ -1,8 +1,8 @@
 /*
   FILE NOTE
-  - Mục đích: Header chính của Store, điều hướng menu, thanh tìm kiếm thông minh với gợi ý sản phẩm mẫu ngay dưới thanh tìm kiếm, bộ chọn giao diện/ngôn ngữ và trạng thái giỏ hàng/tài khoản.
+  - Mục đích: Header chính của Store, hiển thị logo thương hiệu OmniCart (ảnh vuông), điều hướng menu, thanh tìm kiếm thông minh với gợi ý sản phẩm mẫu ngay dưới thanh tìm kiếm, bộ chọn giao diện/ngôn ngữ và trạng thái giỏ hàng/tài khoản.
   - Liên kết trực tiếp: src/App.jsx, src/data/products.js, src/services/promotions.js, src/components/layout/Header.css, src/styles/polish.css
-  - Vùng ảnh hưởng khi sửa: Toàn bộ header trang chủ và các trang storefront, trải nghiệm tìm kiếm gợi ý, điều hướng menu.
+  - Vùng ảnh hưởng khi sửa: Toàn bộ header trang chủ và các trang storefront, nhận diện logo OmniCart, trải nghiệm tìm kiếm gợi ý, điều hướng menu.
 */
 import { useEffect, useRef, useState } from 'react'
 import { products as defaultProducts } from '../../data/products'
@@ -68,7 +68,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
     ['/membership', appearance.navMembership || 'Thành viên'],
     ['/contact', appearance.navContact || 'Địa chỉ & liên hệ'],
   ]
-  const brandName = appearance.brandName || 'OmniCart'
+  const brandName = (appearance.brandName && appearance.brandName !== 'OmiCart') ? appearance.brandName : 'OmniCart'
   const searchPlaceholder = appearance.headerSearchPlaceholder || 'Tìm sản phẩm, danh mục…'
 
   // Truyền chiều cao thật cho các vùng sticky, kể cả khi menu/ngôn ngữ đổi kích thước.
@@ -147,19 +147,8 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <div className="container header-inner">
         <a className="brand" href="/" aria-label="OmniCart - trang chủ">
-          <span className="brand__mark" aria-hidden="true">
-            <svg viewBox="0 0 36 36" width="30" height="30" fill="none" aria-hidden="true" style={{ display: 'block' }}>
-              <rect x="1" y="1" width="34" height="34" rx="10" fill="url(#h-brand-bg)" stroke="#52aa7a" strokeWidth="1.2"/>
-              <circle cx="16" cy="16" r="6.2" stroke="#fff" strokeWidth="3.6" fill="none" strokeLinecap="round"/>
-              <circle cx="24.5" cy="24.5" r="4.2" fill="#5fe39d" stroke="#fff" strokeWidth="1.2"/>
-              <defs>
-                <linearGradient id="h-brand-bg" x1="0" y1="0" x2="36" y2="36">
-                  <stop stopColor="#143d2c"/>
-                  <stop offset="0.55" stopColor="#226344"/>
-                  <stop offset="1" stopColor="#358b5e"/>
-                </linearGradient>
-              </defs>
-            </svg>
+          <span className="brand__mark has-image" aria-hidden="true">
+            <img src="/brand-logo-square.jpg" alt="OmniCart" className="brand__logo-img" width="42" height="42" />
           </span>
           <span className="brand__word">{brandName}<span>.</span></span>
           <small>{appearance.brandTagline || 'EVERYDAY'}</small>

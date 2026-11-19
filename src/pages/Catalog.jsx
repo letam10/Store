@@ -127,7 +127,6 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
         <p className="eyebrow">{english ? 'Product Catalog' : 'Danh sách hàng hóa'}</p>
         <h1>{english ? 'Choose what suits you best.' : 'Chọn món phù hợp với bạn.'}</h1>
       </div>
-      <p className="muted">{english ? `Showing ${totalCount === 0 ? 0 : `${startIndex + 1}–${endIndex}`} of ${totalCount} products` : `Hiển thị ${totalCount === 0 ? 0 : `${startIndex + 1}–${endIndex}`}/${totalCount} sản phẩm`}</p>
     </header>
     <div className="catalog-layout">
       <aside ref={sidebarRef} className={'catalog-sidebar surface' + (filtersOpen ? ' is-open' : '')} aria-label="Bộ lọc sản phẩm">

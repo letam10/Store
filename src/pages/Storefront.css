@@ -1389,7 +1389,6 @@ html[data-theme='dark'] .membership-hero__spin-btn {
 :root[data-theme='dark'] .membership-card > strong {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.08);
-  color: #94a3b8 !important;
 }
 
 .membership-card.is-current > strong {

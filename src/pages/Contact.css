@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Định kiểu giao diện trang Liên hệ (Contact), thông tin cửa hàng, form gửi lời nhắn và khối thương hiệu đối tác cùng logo đầy đủ OmniCart.
+  - Liên kết trực tiếp: src/pages/Contact.jsx, src/components/ui/ContactForm.jsx
+  - Vùng ảnh hưởng khi sửa: Bố cục, màu sắc và độ tương phản sáng/tối của trang Liên hệ, khối contact-brands.
+*/
 /* ==========================================================================
    OmniCart Contact Page - Modern Luxury Emerald Aesthetic
    ========================================================================== */
@@ -558,6 +564,28 @@
   letter-spacing: 0.3px;
 }
 
+.contact-brand--omnicart {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #091a12 !important;
+  border-color: #26593d !important;
+}
+
+.contact-brand__omnicart-logo {
+  width: auto !important;
+  max-width: 100% !important;
+  height: 64px !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.contact-brand--omnicart small {
+  color: #71dd9b !important;
+}
+
 /* 7. FAQ Accordion Section */
 .contact-faq {
   padding: 34px;
@@ -795,6 +823,17 @@
 
 :root[data-theme='dark'] .contact-brand small {
   color: #8be5a8 !important;
+}
+
+:root[data-theme='dark'] .contact-brand--omnicart {
+  background: #06140e !important;
+  border-color: #2e6d4a !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+}
+
+:root[data-theme='dark'] .contact-brand--omnicart:hover {
+  background: #0c2016 !important;
+  border-color: #4ade80 !important;
 }
 
 /* Dark mode FAQ details */
