@@ -1775,103 +1775,270 @@ html[data-theme='dark'] .membership-hero__spin-btn {
   color: #ffffff !important;
 }
 
-/* Thiết kế lại section.surface.product-detail-full và section#reviews.surface.product-detail-full.detail-reviews-panel đồng bộ màu giao diện xanh */
+/* ==========================================================================
+   Product Detail Full & Reviews Panel - Giao diện sáng chuẩn mực (Light Mode)
+   ========================================================================== */
 section.surface.product-detail-full,
 section#reviews.surface.product-detail-full.detail-reviews-panel {
-  background: #13281f !important;
-  border: 1.5px solid #28543a !important;
-  color: #effff2 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #dce6dc !important;
+  color: #18362a !important;
   border-radius: 24px !important;
-  box-shadow: 0 12px 36px rgba(10, 26, 18, 0.35) !important;
+  box-shadow: 0 10px 32px rgba(24, 54, 42, 0.05) !important;
 }
 
 .product-detail-full__heading {
-  border-bottom: 1px solid #28543a !important;
+  border-bottom: 1px solid #e2ece1 !important;
 }
 
 .product-detail-full__heading h2 {
-  color: #ffffff !important;
+  color: #18362a !important;
 }
 
 .product-detail-full__heading .eyebrow {
-  color: #76b98a !important;
+  color: #2f6847 !important;
 }
 
 .product-detail-full__heading > span,
 .detail-reviews-panel .reviews-subtitle {
-  color: #a8c4af !important;
+  color: #66766b !important;
 }
 
 .product-detail-full .detail-block {
-  border-bottom-color: #244833 !important;
+  border-bottom-color: #e2ece1 !important;
+}
+
+.product-detail-full .detail-block h2 {
+  color: #18362a !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+}
+
+.product-detail-full .detail-block p {
+  color: #33483c !important;
+  line-height: 1.75 !important;
 }
 
 .product-detail-full .detail-specifications {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  border: none !important;
 }
 
-.product-detail-full .detail-specifications > div {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: rgba(22, 50, 36, 0.55);
-  border: 1px solid rgba(80, 150, 105, 0.25);
-  border-radius: 10px;
+.product-detail-full .detail-specifications > div,
+.detail-specifications > div,
+.detail-specifications > div:nth-child(odd) {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 16px !important;
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
+  border-radius: 12px !important;
 }
 
-.product-detail-full .detail-specifications dt {
-  color: #a8c4af !important;
+.product-detail-full .detail-specifications dt,
+.detail-specifications dt {
+  color: #556c5e !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
 }
 
-.product-detail-full .detail-specifications dd {
-  color: #ffffff !important;
+.product-detail-full .detail-specifications dd,
+.detail-specifications dd {
+  color: #18362a !important;
   font-weight: 700 !important;
+  font-size: 13.5px !important;
 }
 
 .product-detail-full .detail-feature-cards li {
-  background: rgba(22, 50, 36, 0.55) !important;
-  border: 1px solid rgba(80, 150, 105, 0.25) !important;
-  border-radius: 12px !important;
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
+  border-radius: 14px !important;
   padding: 14px 18px !important;
-  color: #effff2 !important;
+  color: #18362a !important;
 }
 
 .product-detail-full .detail-feature-cards li span {
-  color: #76b98a !important;
+  color: #2f6847 !important;
+  font-weight: 800 !important;
+}
+
+.detail-gallery button {
+  background: #f7f9f6 !important;
+  border: 1.5px solid #e2ece1 !important;
+  border-radius: 12px !important;
+}
+
+.detail-gallery button[aria-pressed='true'] {
+  border-color: #2f6847 !important;
+  box-shadow: 0 0 0 2px #4f8b67 !important;
 }
 
 .detail-reviews-panel .detail-rating-summary {
-  background: #173224 !important;
-  border: 1px solid #2b563c !important;
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
   border-radius: 20px !important;
-  color: #effff2 !important;
+  color: #18362a !important;
 }
 
 .detail-reviews-panel .detail-rating-summary > strong {
-  color: #ffffff !important;
+  color: #18362a !important;
 }
 
 .detail-reviews-panel .review-filter-panel {
-  background: #173224 !important;
-  border: 1px solid #2b563c !important;
-  color: #effff2 !important;
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
+  color: #18362a !important;
 }
 
 .detail-reviews-panel .detail-review-form {
-  background: #173224 !important;
-  border: 1px solid #2b563c !important;
-  color: #effff2 !important;
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
+  color: #18362a !important;
 }
 
 .detail-reviews-panel .detail-review-list article {
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
+  color: #18362a !important;
+}
+
+.detail-reviews-panel .detail-review-empty {
+  background: #f7f9f6 !important;
+  border: 1px solid #e2ece1 !important;
+  color: #18362a !important;
+}
+
+/* ==========================================================================
+   Product Detail Full & Reviews Panel - Giao diện tối đồng bộ (Dark Mode)
+   ========================================================================== */
+:root[data-theme='dark'] section.surface.product-detail-full,
+:root[data-theme='dark'] section#reviews.surface.product-detail-full.detail-reviews-panel,
+html[data-theme='dark'] section.surface.product-detail-full,
+html[data-theme='dark'] section#reviews.surface.product-detail-full.detail-reviews-panel {
+  background: #13281f !important;
+  border: 1.5px solid #28543a !important;
+  color: #effff2 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 12px 36px rgba(10, 26, 18, 0.45) !important;
+}
+
+:root[data-theme='dark'] .product-detail-full__heading,
+html[data-theme='dark'] .product-detail-full__heading {
+  border-bottom: 1px solid #28543a !important;
+}
+
+:root[data-theme='dark'] .product-detail-full__heading h2,
+html[data-theme='dark'] .product-detail-full__heading h2 {
+  color: #ffffff !important;
+}
+
+:root[data-theme='dark'] .product-detail-full__heading .eyebrow,
+html[data-theme='dark'] .product-detail-full__heading .eyebrow {
+  color: #76b98a !important;
+}
+
+:root[data-theme='dark'] .product-detail-full__heading > span,
+:root[data-theme='dark'] .detail-reviews-panel .reviews-subtitle,
+html[data-theme='dark'] .product-detail-full__heading > span,
+html[data-theme='dark'] .detail-reviews-panel .reviews-subtitle {
+  color: #a8c4af !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-block,
+html[data-theme='dark'] .product-detail-full .detail-block {
+  border-bottom-color: #244833 !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-block h2,
+html[data-theme='dark'] .product-detail-full .detail-block h2 {
+  color: #ffffff !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-block p,
+html[data-theme='dark'] .product-detail-full .detail-block p {
+  color: #d1e7d5 !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-specifications > div,
+:root[data-theme='dark'] .detail-specifications > div,
+:root[data-theme='dark'] .detail-specifications > div:nth-child(odd),
+html[data-theme='dark'] .product-detail-full .detail-specifications > div,
+html[data-theme='dark'] .detail-specifications > div,
+html[data-theme='dark'] .detail-specifications > div:nth-child(odd) {
+  background: rgba(22, 50, 36, 0.65) !important;
+  border: 1px solid rgba(80, 150, 105, 0.3) !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-specifications dt,
+:root[data-theme='dark'] .detail-specifications dt,
+html[data-theme='dark'] .product-detail-full .detail-specifications dt,
+html[data-theme='dark'] .detail-specifications dt {
+  color: #a8c4af !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-specifications dd,
+:root[data-theme='dark'] .detail-specifications dd,
+html[data-theme='dark'] .product-detail-full .detail-specifications dd,
+html[data-theme='dark'] .detail-specifications dd {
+  color: #ffffff !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-feature-cards li,
+html[data-theme='dark'] .product-detail-full .detail-feature-cards li {
+  background: rgba(22, 50, 36, 0.65) !important;
+  border: 1px solid rgba(80, 150, 105, 0.3) !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .product-detail-full .detail-feature-cards li span,
+html[data-theme='dark'] .product-detail-full .detail-feature-cards li span {
+  color: #76b98a !important;
+}
+
+:root[data-theme='dark'] .detail-gallery button,
+html[data-theme='dark'] .detail-gallery button {
+  background: #173224 !important;
+  border-color: #2b563c !important;
+}
+
+:root[data-theme='dark'] .detail-reviews-panel .detail-rating-summary,
+html[data-theme='dark'] .detail-reviews-panel .detail-rating-summary {
   background: #173224 !important;
   border: 1px solid #2b563c !important;
   color: #effff2 !important;
 }
 
-.detail-reviews-panel .detail-review-empty {
+:root[data-theme='dark'] .detail-reviews-panel .detail-rating-summary > strong,
+html[data-theme='dark'] .detail-reviews-panel .detail-rating-summary > strong {
+  color: #ffffff !important;
+}
+
+:root[data-theme='dark'] .detail-reviews-panel .review-filter-panel,
+html[data-theme='dark'] .detail-reviews-panel .review-filter-panel {
+  background: #173224 !important;
+  border: 1px solid #2b563c !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .detail-reviews-panel .detail-review-form,
+html[data-theme='dark'] .detail-reviews-panel .detail-review-form {
+  background: #173224 !important;
+  border: 1px solid #2b563c !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .detail-reviews-panel .detail-review-list article,
+html[data-theme='dark'] .detail-reviews-panel .detail-review-list article {
+  background: #173224 !important;
+  border: 1px solid #2b563c !important;
+  color: #effff2 !important;
+}
+
+:root[data-theme='dark'] .detail-reviews-panel .detail-review-empty,
+html[data-theme='dark'] .detail-reviews-panel .detail-review-empty {
   background: #173224 !important;
   color: #effff2 !important;
 }
