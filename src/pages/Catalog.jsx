@@ -44,8 +44,8 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
   const [query, setQuery] = useState(params.get('q') || '')
   const [sort, setSort] = useState(params.get('sort') || 'featured')
-  const [popularityOnly, setPopularityOnly] = useState(params.get('sort') === 'popular')
-  const [favoriteSort, setFavoriteSort] = useState(params.get('sort') === 'favorite')
+  const [popularityOnly, setPopularityOnly] = useState(params.get('popular') === '1' || params.get('sort') === 'popular')
+  const [favoriteOnly, setFavoriteOnly] = useState(params.get('favorite') === '1' || params.get('sort') === 'favorite')
   const [maxPrice, setMaxPrice] = useState(0)
   const [discountOnly, setDiscountOnly] = useState(params.get('discount') === '1')
   const [currentPage, setCurrentPage] = useState(() => {
@@ -72,19 +72,41 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
   }, [])
   const categories = ['Tất cả', ...new Set(products.map((item) => item.category))]
   const visible = useMemo(() => {
-    // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-    const list = filterProducts(products, { category, query, maxPrice }).filter((item) =>
-      !discountOnly || item.discountPercent > 0)
-    if (popularityOnly) return [...list].sort((a, b) => Number(b.viewCount || 0) - Number(a.viewCount || 0))
-    if (favoriteSort) return [...list].sort((a, b) => Number(b.favoriteCount || 0) - Number(a.favoriteCount || 0) || Number(b.viewCount || 0) - Number(a.viewCount || 0))
+    // 1. Lọc theo danh mục, từ khóa tìm kiếm và giá tối đa
+    let list = filterProducts(products, { category, query, maxPrice })
+
+    // 2. Lọc sản phẩm giảm giá
+    if (discountOnly) {
+      list = list.filter((item) => Number(item.discountPercent || 0) > 0 || (item.originalPrice && item.originalPrice > item.price))
+    }
+
+    // 3. Chỉ sản phẩm phổ biến (có lượt xem > 0)
+    if (popularityOnly) {
+      list = list.filter((item) => Number(item.viewCount || 0) > 0)
+    }
+
+    // 4. Chỉ sản phẩm yêu thích (nằm trong danh sách yêu thích của người dùng)
+    if (favoriteOnly) {
+      const favSet = new Set((favoriteIds || []).map(String))
+      list = list.filter((item) => favSet.has(String(item.id)))
+    }
+
+    // 5. Áp dụng sắp xếp
     if (sort === 'price-asc') return [...list].sort((a, b) => a.price - b.price)
     if (sort === 'price-desc') return [...list].sort((a, b) => b.price - a.price)
-    if (sort === 'popular') return [...list].sort((a, b) => b.viewCount - a.viewCount)
-    if (sort === 'discount') return [...list].sort((a, b) => b.discountPercent - a.discountPercent)
+    if (sort === 'popular') return [...list].sort((a, b) => Number(b.viewCount || 0) - Number(a.viewCount || 0))
+    if (sort === 'discount') return [...list].sort((a, b) => Number(b.discountPercent || 0) - Number(a.discountPercent || 0))
+    if (sort === 'favorite') return [...list].sort((a, b) => Number(b.favoriteCount || 0) - Number(a.favoriteCount || 0) || Number(b.viewCount || 0) - Number(a.viewCount || 0))
+
+    // Nếu không chọn sắp xếp cụ thể nhưng có tích "Chỉ sản phẩm phổ biến", ưu tiên xếp theo lượt xem giảm dần
+    if (popularityOnly) {
+      return [...list].sort((a, b) => Number(b.viewCount || 0) - Number(a.viewCount || 0))
+    }
+
     return list
-  }, [products, category, query, maxPrice, sort, popularityOnly, favoriteSort, discountOnly])
-  // Lệnh tích hợp: gọi mạng hoặc dữ liệu bên ngoài; cần xử lý timeout, lỗi và dữ liệu rỗng.
-  const filtersActive = query.trim() || category !== 'Tất cả' || Number(maxPrice) > 0 || sort !== 'featured' || popularityOnly || favoriteSort || discountOnly
+  }, [products, category, query, maxPrice, sort, popularityOnly, favoriteOnly, discountOnly, favoriteIds])
+
+  const filtersActive = query.trim() || category !== 'Tất cả' || Number(maxPrice) > 0 || sort !== 'featured' || popularityOnly || favoriteOnly || discountOnly
 
   useEffect(() => {
     // Mỗi lần đổi bộ lọc/danh mục, đặt lại về trang 1 nhưng giữ nguyên vị trí cuộn màn hình
@@ -93,7 +115,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
       return
     }
     setCurrentPage(1)
-  }, [category, query, maxPrice, sort, popularityOnly, favoriteSort, discountOnly])
+  }, [category, query, maxPrice, sort, popularityOnly, favoriteOnly, discountOnly])
 
   // Chức năng resetFilters: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function resetFilters() {
@@ -103,7 +125,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
     setMaxPrice(0)
     setSort('featured')
     setPopularityOnly(false)
-    setFavoriteSort(false)
+    setFavoriteOnly(false)
     setDiscountOnly(false)
     setCurrentPage(1)
   }
@@ -139,8 +161,8 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
         </fieldset>
         <div className="catalog-checkbox-group">
           <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { closeDropdownMenus(); setDiscountOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Discounted products only' : 'Lọc sản phẩm giảm giá'}</label>
-          <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setPopularityOnly(checked); setFavoriteSort(false); setSort(checked ? 'popular' : 'featured'); setCurrentPage(1) }} />{english ? 'Popular products only' : 'Chỉ sản phẩm phổ biến'}</label>
-          <label className="catalog-checkbox"><input type="checkbox" checked={favoriteSort} onChange={(event) => { const checked = event.target.checked; closeDropdownMenus(); setFavoriteSort(checked); setPopularityOnly(false); setSort(checked ? 'favorite' : 'featured'); setCurrentPage(1) }} />{english ? 'Favorited products only' : 'Chỉ sản phẩm yêu thích'}</label>
+          <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { closeDropdownMenus(); setPopularityOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Popular products only' : 'Chỉ sản phẩm phổ biến'}</label>
+          <label className="catalog-checkbox"><input type="checkbox" checked={favoriteOnly} onChange={(event) => { closeDropdownMenus(); setFavoriteOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Favorited products only' : 'Chỉ sản phẩm yêu thích'}</label>
         </div>
         <label className="field"><span>{english ? 'Max price' : 'Giá tối đa'}</span><DropdownMenu value={maxPrice} options={localizedMaxPriceOptions} ariaLabel={english ? 'Max price' : 'Giá tối đa'} onChange={(nextPrice) => { closeDropdownMenus(); setMaxPrice(Number(nextPrice)); setCurrentPage(1) }} /></label>
         <label className="field"><span>{english ? 'Sort by' : 'Sắp xếp'}</span><DropdownMenu value={sort} options={localizedSortOptions} ariaLabel={english ? 'Sort products' : 'Sắp xếp sản phẩm'} onChange={(nextSort) => { closeDropdownMenus(); setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setCurrentPage(1) }} /></label>
@@ -153,7 +175,7 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
           </div>
           <span>{totalCount > 0 ? (english ? `Page ${safePage}/${totalPages} · ${totalCount} items` : `Trang ${safePage}/${totalPages} · ${totalCount} sản phẩm`) : (english ? '0 items' : '0 sản phẩm')}</span>
         </div>
-        <div className="product-grid catalog-grid">{pagedProducts.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} isFavorite={favoriteIds.includes(String(product.id))} onToggleFavorite={onToggleFavorite} />)}</div>
+        {pagedProducts.length > 0 && <div className="product-grid catalog-grid">{pagedProducts.map((product) => <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} isFavorite={favoriteIds.includes(String(product.id))} onToggleFavorite={onToggleFavorite} />)}</div>}
         {totalPages > 1 && (
           <nav className="catalog-pagination" aria-label={english ? 'Product pagination' : 'Phân trang sản phẩm'}>
             <button
@@ -218,7 +240,13 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
             </button>
           </nav>
         )}
-        {visible.length === 0 && <div className="surface empty-panel"><h2>{english ? 'No products found' : 'Không tìm thấy sản phẩm'}</h2><p className="muted">{english ? 'Try different keywords or clear filters.' : 'Thử từ khóa khác hoặc bỏ bộ lọc.'}</p><button className="button button--soft" type="button" onClick={resetFilters}>{english ? 'Clear filters' : 'Xóa bộ lọc'}</button></div>}
+        {visible.length === 0 && (
+          <div className="surface empty-panel">
+            <h2>{favoriteOnly && (!favoriteIds || favoriteIds.length === 0) ? (english ? 'No favorited products yet' : 'Chưa có sản phẩm yêu thích nào') : (english ? 'No products found' : 'Không tìm thấy sản phẩm')}</h2>
+            <p className="muted">{favoriteOnly && (!favoriteIds || favoriteIds.length === 0) ? (english ? 'Click the heart icon on any product to add it to your favorites list.' : 'Hãy nhấn biểu tượng trái tim trên sản phẩm để thêm vào danh sách yêu thích của bạn.') : (english ? 'Try different keywords or clear filters.' : 'Thử từ khóa khác hoặc bỏ bộ lọc.')}</p>
+            <button className="button button--soft" type="button" onClick={resetFilters}>{english ? 'Clear filters' : 'Xóa bộ lọc'}</button>
+          </div>
+        )}
       </div>
     </div>
     <p className="muted catalog-attribution">{english ? 'Product images and information from' : 'Ảnh và thông tin sản phẩm từ'} <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>) {english ? 'and' : 'và'} <a href="https://dummyjson.com/docs/products" target="_blank" rel="noopener noreferrer">DummyJSON</a>. {english ? 'Prices and stock confirmed at order time.' : 'Giá và tồn kho được xác nhận khi đặt hàng.'}</p>
