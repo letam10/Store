@@ -1,8 +1,8 @@
 /*
   FILE NOTE
-  - Mục đích: Định kiểu bố cục cho đoạn rail banner hai bên trang chủ, hỗ trợ cuộn mượt mà khi có nhiều banner (10-30 banner mỗi bên) và tự động tăng gấp đôi khoảng cách (gap) khi số banner ít.
-  - Liên kết trực tiếp: Store/src/components/ui/SideBannerRail.jsx, Store/src/components/ui/HomePromotionRegion.jsx.
-  - Vùng ảnh hưởng khi sửa: Bố cục hiển thị dải banner bên trái và bên phải ở trang chủ.
+  - Mục đích: Định kiểu bố cục cho đoạn rail banner hai bên trang chủ, hỗ trợ cuộn mượt mà khi có nhiều banner (10-30 banner mỗi bên), tự động tăng gấp đôi khoảng cách (gap) khi số banner ít, và thanh cuộn đồng bộ theo màu theme.
+  - Liên kết trực tiếp: Store/src/components/ui/SideBannerRail.jsx, Store/src/components/ui/HomePromotionRegion.jsx, Store/src/styles/theme.css.
+  - Vùng ảnh hưởng khi sửa: Bố cục hiển thị dải banner bên trái và bên phải ở trang chủ và màu sắc thanh cuộn.
 */
 
 /* Một đoạn rail banner (vòng 3): flex column lấp đầy vùng neo, các thẻ
@@ -20,7 +20,7 @@
   overscroll-behavior: auto;
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: rgba(79, 139, 103, 0.4) transparent;
+  scrollbar-color: color-mix(in srgb, var(--theme-accent, #4f8b67) 40%, transparent) transparent;
   padding: 4px 6px 12px 6px;
   box-sizing: border-box;
 }
@@ -42,10 +42,10 @@
 }
 
 .side-banner-rail__segment::-webkit-scrollbar-thumb {
-  background: rgba(79, 139, 103, 0.35);
+  background: color-mix(in srgb, var(--theme-accent, #4f8b67) 35%, transparent);
   border-radius: 999px;
 }
 
 .side-banner-rail__segment::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 139, 103, 0.6);
+  background: color-mix(in srgb, var(--theme-accent, #4f8b67) 60%, transparent);
 }

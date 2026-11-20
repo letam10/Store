@@ -1,3 +1,10 @@
+/*
+  FILE NOTE
+  - Mục đích: Định kiểu bố cục ngăn xếp banner hai bên trang chủ, hỗ trợ kế thừa màu sắc theme cửa hàng (Light/Dark).
+  - Liên kết trực tiếp: Store/src/components/ui/SideBannerCard.css, Store/src/styles/theme.css.
+  - Vùng ảnh hưởng khi sửa: Bố cục ngăn xếp và các kiểu lớp banner hai bên trang chủ.
+*/
+
 .home-side-banner-stack {
   display: grid;
   grid-auto-rows: max-content;
@@ -64,9 +71,9 @@
 }
 
 .home-side-banner {
-  --banner-ink: #294331;
-  --banner-muted: #526247;
-  --banner-price: #934619;
+  --banner-ink: var(--theme-text, #294331);
+  --banner-muted: var(--theme-muted, #526247);
+  --banner-price: var(--theme-accent-strong, var(--theme-accent, #934619));
   position: relative;
   display: flex;
   flex-direction: column;
@@ -76,13 +83,13 @@
   height: auto;
   flex: none;
   padding: 22px;
-  border: 1px solid #d7dabe;
-  border-radius: 24px;
-  background: linear-gradient(145deg, #fbf3de, #e8ecd5);
+  border: 1px solid var(--theme-border, #d7dabe);
+  border-radius: var(--radius-card, 24px);
+  background: linear-gradient(145deg, var(--theme-surface, #fbf3de), var(--theme-surface-alt, #eaf1e8));
   color: var(--banner-ink);
   text-decoration: none;
-  box-shadow: 0 8px 24px #233d2310;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--theme-text, #233d23) 8%, transparent);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
 
 .home-side-banner:hover {
@@ -243,11 +250,11 @@
 }
 
 :root[data-theme='dark'] .home-side-banner--store {
-  --banner-ink: #f0f5e7;
-  --banner-muted: #c7d8b9;
-  --banner-price: #f3c981;
-  border-color: #445d3d;
-  background: linear-gradient(145deg, #344a30, #233b2d);
+  --banner-ink: var(--theme-text, #f0f5e7);
+  --banner-muted: var(--theme-muted, #c7d8b9);
+  --banner-price: var(--theme-accent, #f3c981);
+  border-color: var(--theme-border, #445d3d);
+  background: linear-gradient(145deg, var(--theme-surface, #344a30), var(--theme-surface-alt, #233b2d));
 }
 
 @container home-banners (max-width: 230px) {

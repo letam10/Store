@@ -1,3 +1,9 @@
+/*
+  FILE NOTE
+  - Mục đích: Hiển thị thẻ banner sản phẩm hai bên trang chủ; hỗ trợ màu custom riêng (nếu có) hoặc tự động kế thừa màu sắc theme cửa hàng.
+  - Liên kết trực tiếp: Store/src/components/ui/SideBannerCard.css, Store/src/components/ui/SideBannerRail.jsx.
+  - Vùng ảnh hưởng khi sửa: Cấu trúc thẻ banner sản phẩm hai bên trang chủ và cách áp dụng inline style màu sắc.
+*/
 import './SideBannerCard.css'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
