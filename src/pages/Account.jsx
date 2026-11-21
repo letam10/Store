@@ -1,9 +1,10 @@
 /*
   FILE NOTE
-  - Mục đích: Trang quản lý tài khoản người dùng, hiển thị thông tin thành viên, mã giảm giá và lịch sử đơn hàng.
+  - Mục đích: Trang quản lý tài khoản người dùng, hiển thị thông tin thành viên, mã giảm giá, lịch sử đơn hàng, nút Đổi Mật Khẩu và Đăng Xuất.
   - Liên kết trực tiếp: Store/src/components/commerce/OrderCenter.jsx, Store/src/pages/Storefront.css, Store/src/services/storefrontState.js
-  - Vùng ảnh hưởng khi sửa: Giao diện trang cá nhân, logic sắp xếp đơn hàng mới nhất và hiển thị hồ sơ khách hàng.
+  - Vùng ảnh hưởng khi sửa: Giao diện trang cá nhân, nút đổi mật khẩu, đăng xuất và hiển thị hồ sơ khách hàng.
 */
+
 import { useEffect, useMemo, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { getMembershipPlan } from '../services/promotions'
@@ -85,6 +86,25 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
       onRefresh={onRefresh}
     />
 
-    <footer className="account-logout account-logout--redesign"><div><p className="eyebrow">{english ? 'Session' : 'Phiên đăng nhập'}</p><strong>{english ? 'Sign out from Store' : 'Đăng xuất khỏi Store'}</strong><p>{english ? 'Your points, vouchers and orders are securely saved in your account.' : 'Điểm, mã giảm giá và đơn hàng được lưu trên tài khoản của bạn.'}</p></div><button type="button" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button></footer>
+    <footer className="account-logout account-logout--redesign">
+      <div>
+        <p className="eyebrow">{english ? 'Session' : 'Phiên đăng nhập'}</p>
+        <strong>{english ? 'Sign out from Store' : 'Đăng xuất khỏi Store'}</strong>
+        <p>{english ? 'Your points, vouchers and orders are securely saved in your account.' : 'Điểm, mã giảm giá và đơn hàng được lưu trên tài khoản của bạn.'}</p>
+      </div>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={() => {
+            if (onNavigate) onNavigate('/forgot-password')
+            else window.location.href = '/forgot-password'
+          }}
+        >
+          {english ? 'Change Password' : 'Đổi Mật Khẩu'}
+        </button>
+        <button type="button" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button>
+      </div>
+    </footer>
   </div>
 }
