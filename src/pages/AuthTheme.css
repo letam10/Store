@@ -187,8 +187,14 @@ html[data-theme='dark'] .auth-panel::before {
 }
 :root[data-theme='dark'] .auth-back { color: #76d795 !important; }
 :root[data-theme='dark'] .auth-back:hover { color: #a3f7be !important; }
-:root[data-theme='dark'] .auth-mark { color: #edf7ef !important; }
-:root[data-theme='dark'] .auth-mark span { color: #76d795 !important; }
+:root[data-theme='dark'] .auth-mark {
+  color: #ffffff !important;
+  text-shadow: 0 0 16px rgba(74, 222, 128, 0.85), 0 0 32px rgba(74, 222, 128, 0.45), 0 2px 4px rgba(0, 0, 0, 0.9) !important;
+}
+:root[data-theme='dark'] .auth-mark span {
+  color: #4ade80 !important;
+  text-shadow: 0 0 16px #4ade80, 0 0 30px rgba(74, 222, 128, 0.8) !important;
+}
 :root[data-theme='dark'] .auth-kicker { color: #76d795 !important; }
 :root[data-theme='dark'] .auth-panel h1 { color: #edf7ef !important; }
 :root[data-theme='dark'] .auth-intro { color: #a3c4b1 !important; }
