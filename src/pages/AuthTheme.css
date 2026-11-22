@@ -5,10 +5,80 @@
     linear-gradient(130deg, #ecfdf5 0%, #f0fdf4 52%, #e2e8f0 100%);
 }
 
+@property --auth-rainbow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes authRainbowLedChase {
+  0% {
+    --auth-rainbow-angle: 0deg;
+  }
+  100% {
+    --auth-rainbow-angle: 360deg;
+  }
+}
+
 .auth-panel {
-  border-color: rgb(255 255 255 / 85%);
-  background: rgb(255 255 255 / 94%);
-  box-shadow: 0 24px 70px rgba(47, 104, 71, 0.16), 0 4px 16px rgb(0 0 0 / 4%);
+  position: relative !important;
+  z-index: 1 !important;
+  border: 3px solid transparent !important;
+  border-radius: 28px !important;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.96)),
+    conic-gradient(
+      from var(--auth-rainbow-angle),
+      #ff0055 0%,
+      #ff7700 7.1%,
+      #ffee00 14.3%,
+      #00ff66 21.4%,
+      #00d4ff 28.6%,
+      #0066ff 35.7%,
+      #9900ff 42.9%,
+      #ff0055 50%,
+      #ff7700 57.1%,
+      #ffee00 64.3%,
+      #00ff66 71.4%,
+      #00d4ff 78.6%,
+      #0066ff 85.7%,
+      #9900ff 92.9%,
+      #ff0055 100%
+    ) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  animation: authRainbowLedChase 3.2s linear infinite !important;
+  box-shadow: 0 24px 70px rgba(47, 104, 71, 0.16), 0 4px 16px rgb(0 0 0 / 4%) !important;
+}
+
+.auth-panel::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -4px !important;
+  border-radius: 32px !important;
+  background: conic-gradient(
+    from var(--auth-rainbow-angle),
+    #ff0055 0%,
+    #ff7700 7.1%,
+    #ffee00 14.3%,
+    #00ff66 21.4%,
+    #00d4ff 28.6%,
+    #0066ff 35.7%,
+    #9900ff 42.9%,
+    #ff0055 50%,
+    #ff7700 57.1%,
+    #ffee00 64.3%,
+    #00ff66 71.4%,
+    #00d4ff 78.6%,
+    #0066ff 85.7%,
+    #9900ff 92.9%,
+    #ff0055 100%
+  ) !important;
+  filter: blur(14px) !important;
+  opacity: 0.5 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  animation: authRainbowLedChase 3.2s linear infinite !important;
 }
 
 .auth-back { color: #2f6847; }
@@ -47,10 +117,35 @@
     radial-gradient(circle at 88% 82%, #18432f 0, transparent 38%),
     linear-gradient(130deg, #0a1711 0%, #102419 52%, #14281f 100%) !important;
 }
-:root[data-theme='dark'] .auth-panel {
-  background: rgb(20 40 31 / 96%) !important;
-  border-color: rgba(118, 215, 149, 0.22) !important;
-  box-shadow: 0 24px 70px rgb(0 0 0 / 65%), 0 4px 20px rgb(0 0 0 / 30%) !important;
+:root[data-theme='dark'] .auth-panel,
+html[data-theme='dark'] .auth-panel {
+  background-image: 
+    linear-gradient(rgba(18, 38, 28, 0.97), rgba(18, 38, 28, 0.97)),
+    conic-gradient(
+      from var(--auth-rainbow-angle),
+      #ff0055 0%,
+      #ff7700 7.1%,
+      #ffee00 14.3%,
+      #00ff66 21.4%,
+      #00d4ff 28.6%,
+      #0066ff 35.7%,
+      #9900ff 42.9%,
+      #ff0055 50%,
+      #ff7700 57.1%,
+      #ffee00 64.3%,
+      #00ff66 71.4%,
+      #00d4ff 78.6%,
+      #0066ff 85.7%,
+      #9900ff 92.9%,
+      #ff0055 100%
+    ) !important;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 70%), 0 4px 20px rgb(0 0 0 / 40%) !important;
+}
+
+:root[data-theme='dark'] .auth-panel::before,
+html[data-theme='dark'] .auth-panel::before {
+  opacity: 0.72 !important;
+  filter: blur(18px) !important;
 }
 :root[data-theme='dark'] .auth-back { color: #76d795 !important; }
 :root[data-theme='dark'] .auth-back:hover { color: #a3f7be !important; }
