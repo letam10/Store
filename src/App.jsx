@@ -22,6 +22,7 @@ import ProductDetail from './pages/ProductDetail'
 import Contact from './pages/Contact'
 import Cart from './pages/Cart'
 import { LanguageContext, translateCategory } from './context/i18n'
+import { useMembershipPolicy, resolveTierFromPolicy } from './services/membershipPolicy'
 import Checkout from './pages/Checkout'
 import Account from './pages/Account'
 import Favorites from './pages/Favorites'
@@ -73,7 +74,8 @@ export default function App() {
   const navigationAction = useRef('initial')
   const viewedLocation = useRef(null)
   const products = useMemo(() => enrichProducts(offers), [offers])
-  const promotionOverview = useMemo(() => storePromotionOverview(products, wallet, account, favoriteIds), [products, wallet, account, favoriteIds])
+  const { policy: membershipPolicy } = useMembershipPolicy()
+  const promotionOverview = useMemo(() => storePromotionOverview(products, wallet, account, favoriteIds, Date.now(), membershipPolicy), [products, wallet, account, favoriteIds, membershipPolicy])
   const route = routeName(location.pathname)
   const accountId = account?.id == null ? null : String(account.id)
   const themeDocument = useMemo(() => normalizeTheme(appearance.theme), [appearance.theme])
@@ -304,7 +306,7 @@ export default function App() {
     setSelectedVoucherCodes([])
     refreshCustomer()
   }
-  const membershipTier = account?.tier || 'bronze'
+  const membershipTier = account ? resolveTierFromPolicy(account.points, membershipPolicy).id : 'bronze'
   function paymentComplete(state) {
     setNotice({
       message: language === 'en'
@@ -373,17 +375,17 @@ export default function App() {
   else if (route === 'contact') page = <Contact language={language} appearance={appearance} products={products} account={account} onRequireLogin={() => requireLogin('/contact')} />
   else if (route === 'cart') page = <Cart language={language} cart={liveCart} products={products} account={account} onQuantity={updateQuantity} onToggle={toggleCartItem} onAddToCart={addToCart} onRequireLogin={() => requireLogin('/cart')} onNavigate={navigate} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'checkout') page = <Checkout language={language} search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} onCatalogRefresh={refreshCatalog} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onApplyVoucherCode={applyVoucherCode} onComplete={completeOrder} />
-  else if (route === 'membership') page = <Membership language={language} account={account} tier={membershipTier} />
+  else if (route === 'checkout') page = <Checkout language={language} search={location.search} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} onCatalogRefresh={refreshCatalog} cart={selectedCart} account={account} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onApplyVoucherCode={applyVoucherCode} onComplete={completeOrder} membershipPolicy={membershipPolicy} />
+  else if (route === 'membership') page = <Membership language={language} account={account} tier={membershipTier} membershipPolicy={membershipPolicy} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'rewards') page = <Rewards language={language} account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} />
+  else if (route === 'rewards') page = <Rewards language={language} account={account} tier={membershipTier} wallet={wallet} onReward={refreshCustomer} onRequireLogin={requireLogin} onToggleVoucher={toggleVoucher} selectedVoucherCodes={selectedVoucherCodes} membershipPolicy={membershipPolicy} />
   else if (route === 'favorites') page = <Favorites language={language} account={account} products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-  else if (route === 'account') page = <Account language={language} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} />
+  else if (route === 'account') page = <Account language={language} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} membershipPolicy={membershipPolicy} />
 
   return <LanguageContext.Provider value={languageContextValue}>
     <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
-      {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} />}
+      {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} membershipPolicy={membershipPolicy} />}
       <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
         onChangeCapture={clearValidation}>
         <div key={location.pathname} className="page-transition-wrapper">

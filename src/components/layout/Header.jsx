@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { products as defaultProducts } from '../../data/products'
 import { getMembershipPlan } from '../../services/promotions'
+import { useMembershipPolicy } from '../../services/membershipPolicy'
 import { productMatches } from '../../services/storefrontState'
 import { translateCategory } from '../../context/i18n'
 import './Header.css'
@@ -49,7 +50,9 @@ function SearchSuggestions({ items, query, onSelect, id }) {
 }
 
 // Chức năng Header: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange }) {
+export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, membershipPolicy: propPolicy }) {
+  const { policy: hookPolicy } = useMembershipPolicy()
+  const policy = propPolicy || hookPolicy
   const [searchOpen, setSearchOpen] = useState(false)
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
@@ -170,10 +173,10 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
             <button type="button" className="account-link account-menu__trigger" aria-label={'Mở tài khoản ' + account.username} aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title="Mở trang cá nhân">
-              <span className="account-link__avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span><span className="account-link__name">{getMembershipPlan(membershipTier).badge + ' · ' + account.username}</span><span className="account-menu__caret" aria-hidden="true">▾</span>
+              <span className="account-link__avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span><span className="account-link__name">{getMembershipPlan(membershipTier, policy).badge + ' · ' + account.username}</span><span className="account-menu__caret" aria-hidden="true">▾</span>
             </button>
             {accountOpen && <div className="account-menu__dropdown" role="menu" aria-label="Bảng tổng quan người dùng">
-              <p className="account-menu__hello">Xin chào, <b>{account.username}</b> · {getMembershipPlan(membershipTier).badge}</p>
+              <p className="account-menu__hello">Xin chào, <b>{account.username}</b> · {getMembershipPlan(membershipTier, policy).badge}</p>
               <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">🏠</span><span className="account-menu__label">Bảng tổng quan / Tài khoản của tôi</span></a>
               <a role="menuitem" href="/account" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">📦</span><span className="account-menu__label">Đơn hàng của bạn</span></a>
               <a role="menuitem" href="/favorites" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">❤️</span><span className="account-menu__label">Sản phẩm yêu thích</span></a>

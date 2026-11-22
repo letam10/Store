@@ -1,15 +1,14 @@
-/**
- * @codex-vn-doc
- * Tệp: src/pages/Checkout.jsx
- * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
- * Thành phần chính: Checkout.
- * Liên kết trực tiếp: react, ../api/customer, ../storefront/promotions, ../storefront/state, ../data/shipping.
- * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
- */
+/*
+  FILE NOTE
+  - Mục đích: Trang Thanh toán & xác nhận đơn hàng (Checkout), tính chiết khấu theo voucher và hạng thành viên đồng bộ động từ /api/storefront/membership.
+  - Liên kết trực tiếp: src/services/membershipPolicy.js, src/services/promotions.js, src/components/commerce/PaymentBox.jsx
+  - Vùng ảnh hưởng khi sửa: Toàn bộ quy trình thanh toán, báo giá chiết khấu, hiển thị VietQR và xác nhận đơn hàng.
+*/
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { userMessage } from '../api/userMessages'
 import { getMembershipPlan } from '../services/promotions'
+import { useMembershipPolicy } from '../services/membershipPolicy'
 import { cartTotal } from '../services/storefrontState'
 import { DOMESTIC_REGIONS } from '../data/shipping'
 import { useLanguage, translateVoucherLabel } from '../context/i18n'
@@ -26,10 +25,13 @@ const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND
 // Chức năng Checkout: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
 export default function Checkout({ cart: currentCart, account, membershipTier = 'bronze', wallet = [],
   selectedVoucherCodes = [], onCatalogRefresh,
-  onToggleVoucher, onApplyVoucherCode, onComplete, onRefresh, search = '', onNavigate, onPaymentComplete, language: propLanguage }) {
+  onToggleVoucher, onApplyVoucherCode, onComplete, onRefresh, search = '', onNavigate, onPaymentComplete, language: propLanguage, membershipPolicy: propPolicy }) {
   const { language: contextLanguage, english: contextEnglish } = useLanguage()
   const language = propLanguage || contextLanguage || 'vi'
   const english = language === 'en' || contextEnglish
+
+  const { policy: hookPolicy } = useMembershipPolicy()
+  const policy = propPolicy || hookPolicy
 
   const paymentOptions = [
     { value: 'bank_transfer', label: english ? 'Bank Transfer / QR' : 'Chuyển khoản / QR' },
@@ -65,7 +67,7 @@ export default function Checkout({ cart: currentCart, account, membershipTier = 
   const [busy, setBusy] = useState(false)
   const items = useMemo(() => cart.map((item) => ({ id: item.id, quantity: item.quantity })), [cart])
   const itemKey = JSON.stringify(items)
-  const plan = getMembershipPlan(membershipTier)
+  const plan = getMembershipPlan(membershipTier, policy)
   const request = { items, fulfillment, region, distanceKm: 0, weightKg: Number(weightKg), voucherCodes: selectedVoucherCodes }
   const quoteKey = JSON.stringify(request)
   const quote = quoteResult?.quoteKey === quoteKey ? quoteResult : null

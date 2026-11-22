@@ -1,11 +1,11 @@
 /*
   FILE NOTE
-  - Mục đích: Trang giao diện Thành viên OmniCart (Membership), quản lý hiển thị thẻ VIP hội viên, thanh tiến trình thăng hạng, số điểm tích lũy, các đặc quyền chiết khấu/điểm/quay thưởng và 4 hạng thành viên Đồng, Bạc, Vàng, Kim Cương.
-  - Liên kết trực tiếp: Store/src/services/promotions.js, Store/src/context/i18n.jsx, Store/src/pages/Storefront.css
-  - Vùng ảnh hưởng khi sửa: Toàn bộ trang Thành viên (/membership) trên storefront cho cả tài khoản thành viên và khách.
+  - Mục đích: Trang giao diện Thành viên OmniCart (Membership), quản lý hiển thị thẻ VIP hội viên, thanh tiến trình thăng hạng, số điểm tích lũy, các đặc quyền chiết khấu/điểm/quay thưởng và 4 hạng thành viên Đồng, Bạc, Vàng, Kim Cương đồng bộ theo API /api/storefront/membership.
+  - Liên kết trực tiếp: src/services/membershipPolicy.js, src/services/promotions.js, src/context/i18n.js
+  - Vùng ảnh hưởng khi sửa: Toàn bộ giao diện trang /membership, thẻ thành viên, quyền lợi và thanh tiến độ lên hạng của khách hàng.
 */
-import { getMembershipPlan, membershipPlans } from '../services/promotions'
 import { useLanguage } from '../context/i18n'
+import { useMembershipPolicy, formatPoints, resolveTierFromPolicy } from '../services/membershipPolicy'
 import './Storefront.css'
 
 const tierIcons = {
@@ -28,38 +28,52 @@ const tierIcons = {
     <svg className="membership-tier-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
       <circle cx="2" cy="4" r="1" fill="currentColor" />
-      <circle cx="8" cy="11" r="1" fill="currentColor" />
       <circle cx="12" cy="4" r="1" fill="currentColor" />
-      <circle cx="16" cy="11" r="1" fill="currentColor" />
       <circle cx="22" cy="4" r="1" fill="currentColor" />
     </svg>
   ),
   diamond: (
     <svg className="membership-tier-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 3h12l4 6-10 13L2 9Z" />
-      <path d="M11 3 8 9l4 13 4-13-3-6" />
+      <path d="M6 3h12l4 6-10 12L2 9z" />
+      <path d="M11 3 8 9l4 12 4-12-3-6" />
       <path d="M2 9h20" />
     </svg>
-  ),
+  )
 }
 
-// Chức năng Membership: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Membership({ account, tier = 'bronze', language: propLanguage }) {
+export default function Membership({ account, tier = 'bronze', language: propLanguage, membershipPolicy: propPolicy }) {
   const { language: contextLanguage, english: contextEnglish } = useLanguage()
   const language = propLanguage || contextLanguage || 'vi'
   const english = language === 'en' || contextEnglish
 
-  const current = getMembershipPlan(tier)
+  const { policy: hookPolicy } = useMembershipPolicy()
+  const policy = propPolicy || hookPolicy
+
+  const tiers = policy?.tiers || []
+  const currentTierId = String(account ? resolveTierFromPolicy(account.points, policy).id : (tier || 'bronze')).toLowerCase()
+  const current = tiers.find((t) => t.id === currentTierId) || tiers[0] || {
+    id: 'bronze',
+    englishLabel: 'BRONZE',
+    name: 'Đồng',
+    subtitle: 'Hạng mặc định, miễn phí.',
+    minPoints: 0,
+    discountPercent: 0,
+    multiplier: 1.0,
+    benefits: []
+  }
+
   const isGuest = !account
 
-  // Calculate next tier progress if logged in
-  const currentIndex = membershipPlans.findIndex((p) => p.id === current.id)
-  const nextPlan = membershipPlans[currentIndex + 1] || null
+  // Tính toán tiến trình lên hạng tiếp theo
+  const currentIndex = tiers.findIndex((p) => p.id === current.id)
+  const nextPlan = tiers[currentIndex + 1] || null
   const userPoints = Number(account?.points || 0)
-  const nextPointsRemaining = nextPlan ? Math.max(0, nextPlan.points - userPoints) : 0
+  const nextPointsRemaining = nextPlan ? Math.max(0, nextPlan.minPoints - userPoints) : 0
   const progressPercent = nextPlan
-    ? Math.min(100, Math.max(0, Math.round(((userPoints - current.points) / Math.max(1, nextPlan.points - current.points)) * 100)))
+    ? Math.min(100, Math.max(0, Math.round(((userPoints - current.minPoints) / Math.max(1, nextPlan.minPoints - current.minPoints)) * 100)))
     : 100
+
+  const maxDiscount = Math.max(0, ...tiers.map((t) => t.discountPercent || 0))
 
   return (
     <div className="container page-shell membership-page">
@@ -93,14 +107,14 @@ export default function Membership({ account, tier = 'bronze', language: propLan
             <div className="guest-perk-item">
               <span className="guest-perk-icon">🎁</span>
               <div>
-                <strong>{english ? '1 point per 1,000 ₫' : 'Tích 1 điểm / 1.000 ₫'}</strong>
+                <strong>{english ? `1 point per ${formatPoints(policy.goodsPerBasePoint, 'en-US')} ₫` : `Tích 1 điểm / ${formatPoints(policy.goodsPerBasePoint)} ₫`}</strong>
                 <p>{english ? 'Auto accumulated from checkout' : 'Tự động tích sau khi thanh toán'}</p>
               </div>
             </div>
             <div className="guest-perk-item">
               <span className="guest-perk-icon">🏷️</span>
               <div>
-                <strong>{english ? 'Up to 5% discount' : 'Chiết khấu tới 5%'}</strong>
+                <strong>{english ? `Up to ${maxDiscount}% discount` : `Chiết khấu tới ${maxDiscount}%`}</strong>
                 <p>{english ? 'Applied instantly on all orders' : 'Giảm trực tiếp theo từng hạng'}</p>
               </div>
             </div>
@@ -108,14 +122,14 @@ export default function Membership({ account, tier = 'bronze', language: propLan
               <span className="guest-perk-icon">🎡</span>
               <div>
                 <strong>{english ? 'Free lucky spins' : 'Lượt quay trúng thưởng'}</strong>
-                <p>{english ? 'Earn spins to win vouchers' : 'Tặng thêm lượt quay may mắn'}</p>
+                <p>{english ? `Every ${formatPoints(policy.goodsPerSpin, 'en-US')} ₫ gets 1 spin` : `Mỗi ${formatPoints(policy.goodsPerSpin)} ₫ nhận 1 lượt quay`}</p>
               </div>
             </div>
             <div className="guest-perk-item">
               <span className="guest-perk-icon">👑</span>
               <div>
-                <strong>{english ? '4 Exclusive Tiers' : '4 Hạng đặc quyền'}</strong>
-                <p>{english ? 'Bronze, Silver, Gold, Diamond' : 'Đồng, Bạc, Vàng, Kim Cương'}</p>
+                <strong>{english ? `${tiers.length} Exclusive Tiers` : `${tiers.length} Hạng đặc quyền`}</strong>
+                <p>{tiers.map((t) => t.name).join(', ')}</p>
               </div>
             </div>
           </div>
@@ -131,18 +145,18 @@ export default function Membership({ account, tier = 'bronze', language: propLan
         </section>
       ) : (
         <>
-          <section className={`membership-hero surface membership-hero--${tier}`}>
+          <section className={`membership-hero surface membership-hero--${current.id}`}>
             <div className="membership-hero__ambient" aria-hidden="true" />
             <div className="membership-hero__ambient-glow" aria-hidden="true" />
 
             <div className="membership-hero__main">
               <div className="membership-hero__badge-row">
                 <div className="membership-hero__icon-bubble" aria-hidden="true">
-                  {tierIcons[tier] || tierIcons.bronze}
+                  {tierIcons[current.id] || tierIcons.bronze}
                 </div>
                 <div className="membership-hero__badge-meta">
-                  <span className="membership-badge">{current.badge}</span>
-                  <span className="membership-hero__rank-name">{current.title} Member</span>
+                  <span className="membership-badge">{current.englishLabel}</span>
+                  <span className="membership-hero__rank-name">{current.name} ({current.englishLabel}) Member</span>
                 </div>
               </div>
 
@@ -166,7 +180,7 @@ export default function Membership({ account, tier = 'bronze', language: propLan
                   <span className="membership-hero__points-tag">
                     {english ? 'Unlock condition' : 'Điều kiện mở khóa'}
                   </span>
-                  <span className="membership-hero__points-desc">{current.description}</span>
+                  <span className="membership-hero__points-desc">{current.subtitle}</span>
                 </div>
               </div>
 
@@ -222,7 +236,7 @@ export default function Membership({ account, tier = 'bronze', language: propLan
                 <div className="hero-perk-card">
                   <div className="hero-perk-card__icon" aria-hidden="true">🏷️</div>
                   <div className="hero-perk-card__body">
-                    <span className="hero-perk-card__val">-{current.discount}%</span>
+                    <span className="hero-perk-card__val">-{current.discountPercent}%</span>
                     <span className="hero-perk-card__label">{english ? 'Direct discount' : 'Chiết khấu'}</span>
                     <small className="hero-perk-card__hint">{english ? 'On all orders' : 'Trừ thẳng vào hóa đơn'}</small>
                   </div>
@@ -231,7 +245,7 @@ export default function Membership({ account, tier = 'bronze', language: propLan
                 <div className="hero-perk-card">
                   <div className="hero-perk-card__icon" aria-hidden="true">⚡</div>
                   <div className="hero-perk-card__body">
-                    <span className="hero-perk-card__val">x{current.multiplier}</span>
+                    <span className="hero-perk-card__val">x{String(current.multiplier).replace('.', ',')}</span>
                     <span className="hero-perk-card__label">{english ? 'Multiplier' : 'Hệ số điểm'}</span>
                     <small className="hero-perk-card__hint">{english ? 'Per completed order' : 'Nhân điểm tích lũy'}</small>
                   </div>
@@ -267,8 +281,8 @@ export default function Membership({ account, tier = 'bronze', language: propLan
           </section>
 
           <div className="membership-grid">
-            {membershipPlans.map((plan) => {
-              const isCurrentTier = plan.id === tier
+            {tiers.map((plan) => {
+              const isCurrentTier = plan.id === current.id
               return (
                 <article
                   key={plan.id}
@@ -281,20 +295,20 @@ export default function Membership({ account, tier = 'bronze', language: propLan
                   )}
 
                   <div className="membership-card__top">
-                    <div className="membership-card__header-icon">{tierIcons[plan.id]}</div>
+                    <div className="membership-card__header-icon">{tierIcons[plan.id] || tierIcons.bronze}</div>
                     <div className="membership-card__title-group">
-                      <span className="membership-card__english">{plan.title}</span>
+                      <span className="membership-card__english">{plan.englishLabel}</span>
                       <h2>{plan.name}</h2>
                     </div>
-                    <p className="membership-card__desc">{plan.description}</p>
+                    <p className="membership-card__desc">{plan.subtitle}</p>
                   </div>
 
                   <div className="membership-price">
-                    {plan.points === 0
+                    {plan.minPoints === 0
                       ? english
                         ? 'Free'
                         : 'Miễn phí'
-                      : plan.points.toLocaleString(english ? 'en-US' : 'vi-VN') + (english ? ' points' : ' điểm')}
+                      : formatPoints(plan.minPoints, english ? 'en-US' : 'vi-VN') + (english ? ' points' : ' điểm')}
                   </div>
 
                   <ul className="membership-card__benefits">
@@ -311,10 +325,10 @@ export default function Membership({ account, tier = 'bronze', language: propLan
                       ? english
                         ? 'Current tier'
                         : 'Hạng hiện tại'
-                      : account.points < plan.points
+                      : account.points < plan.minPoints
                         ? english
-                          ? `Need ${(plan.points - account.points).toLocaleString('en-US')} more points`
-                          : 'Còn ' + (plan.points - account.points).toLocaleString('vi-VN') + ' điểm'
+                          ? `Need ${(plan.minPoints - account.points).toLocaleString('en-US')} more points`
+                          : 'Còn ' + (plan.minPoints - account.points).toLocaleString('vi-VN') + ' điểm'
                         : english
                           ? 'Achieved'
                           : 'Đã vượt mốc'}
@@ -326,11 +340,7 @@ export default function Membership({ account, tier = 'bronze', language: propLan
 
           <p className="membership-disclaimer">
             <span className="membership-disclaimer__icon" aria-hidden="true">ℹ</span>
-            <span>
-              {english
-                ? 'Only confirmed goods payment after discounts counts; shipping and service fees are excluded. Each full 1,000 ₫ earns 1 base point. Apply the tier multiplier saved at checkout, then drop fractional points. Exchanges and returns adjust the points for that order.'
-                : 'Chỉ tính tiền hàng đã thanh toán sau giảm giá, không gồm phí vận chuyển và phí dịch vụ. Mỗi 1.000 ₫ tròn nhận 1 điểm cơ bản; 999 ₫ không cộng điểm. Sau đó nhân quyền lợi hạng tại lúc đặt đơn và bỏ phần lẻ điểm. Đổi/trả hàng sẽ điều chỉnh điểm của đơn tương ứng.'}
-            </span>
+            <span>{policy.footerNote}</span>
           </p>
         </>
       )}

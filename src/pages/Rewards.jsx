@@ -1,16 +1,15 @@
-/**
- * @codex-vn-doc
- * Tệp: src/pages/Rewards.jsx
- * Mục đích: Trang React hiển thị và điều phối luồng nghiệp vụ của storefront/admin.
- * Thành phần chính: Rewards.
- * Liên kết trực tiếp: react, ../api/customer, ../storefront/promotions, ../storefront/rewardWheel.
- * Cẩn trọng: khi sửa hàm, route, state, schema hoặc export phải kiểm tra các tệp gọi nó; các nhánh lỗi, dữ liệu rỗng, hủy request và dữ liệu không hợp lệ phải giữ đúng hợp đồng hiện tại.
- */
+/*
+  FILE NOTE
+  - Mục đích: Vòng quay may mắn nhận mã giảm giá hàng hóa và vận chuyển, số tiền nhận lượt quay đồng bộ theo chính sách /api/storefront/membership.
+  - Liên kết trực tiếp: src/services/membershipPolicy.js, src/services/promotions.js, src/utils/rewardWheel.js
+  - Vùng ảnh hưởng khi sửa: Trang Vòng quay may mắn (/rewards), chú thích số tiền nhận lượt quay và ví voucher của khách hàng.
+*/
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { userMessage } from '../api/userMessages'
 import RewardWheelLabels from '../components/ui/RewardWheelLabels'
 import { getMembershipPlan } from '../services/promotions'
+import { useMembershipPolicy, formatPoints } from '../services/membershipPolicy'
 import { landingRotation, rewardSectors, sectorPath, sectorResult } from '../utils/rewardWheel'
 import { useLanguage, translateVoucherLabel } from '../context/i18n'
 import './Storefront.css'
@@ -18,11 +17,14 @@ import './Rewards.css'
 
 const date = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short' })
 
-// Chức năng Rewards: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Rewards({ account, tier = 'bronze', wallet = [], onReward, onRequireLogin, selectedVoucherCodes = [], onToggleVoucher, language: propLanguage }) {
+export default function Rewards({ account, tier = 'bronze', wallet = [], onReward, onRequireLogin, selectedVoucherCodes = [], onToggleVoucher, language: propLanguage, membershipPolicy: propPolicy }) {
   const { language: contextLanguage, english: contextEnglish } = useLanguage()
   const language = propLanguage || contextLanguage || 'vi'
   const english = language === 'en' || contextEnglish
+
+  const { policy: hookPolicy } = useMembershipPolicy()
+  const policy = propPolicy || hookPolicy
+
   const [rotation, setRotation] = useState({ goods: 0, shipping: 0 })
   const [result, setResult] = useState(null)
   const [spinning, setSpinning] = useState(null)
@@ -48,12 +50,11 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
     const node = walletRef.current
     if (node) node.scrollBy({ top: direction * Math.max(84, node.clientHeight - 84), behavior: 'smooth' })
   }
-  const plan = getMembershipPlan(tier)
+  const plan = getMembershipPlan(tier, policy)
   const credits = balance && balance.account === account ? balance.remaining : account?.spinCredits || 0
   useEffect(() => () => clearTimeout(timer.current), [])
   useEffect(() => { if (result) closeRef.current?.focus() }, [result])
 
-  // Chức năng finish: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function finish() {
     if (!pending.current) return
     clearTimeout(timer.current)
@@ -62,12 +63,11 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
     setSpinning(null)
   }
 
-  // Chức năng spin: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   async function spin(wheel) {
-    if (!account) { onRequireLogin?.(); return }
+    if (!account) { onRequireLogin?.('/rewards'); return }
     if (spinGate.current) return
-    // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
-    if (credits < 1) { setError('Bạn không có lượt để quay.'); return }
+    if (spinning || result) return
+    if (credits < 1) { setError(english ? 'You do not have any spins left.' : 'Bạn không có lượt để quay.'); return }
     spinGate.current = true
     setSpinning(wheel)
     setResult(null)
@@ -76,20 +76,20 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
       const outcome = await customerApi('/api/customer/spin', { method: 'POST', csrfToken: account.csrfToken, body: JSON.stringify({ wheel }) })
       const sectors = rewardSectors(wheel)
       setBalance({ account, remaining: outcome.spinCredits })
-      const sector = sectors[outcome.index]
+      const sector = sectors[outcome.sectorIndex ?? outcome.index]
       pending.current = sectorResult(sector, outcome.voucher)
       const milliseconds = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : 5000
       setDuration(milliseconds)
       setRotation((current) => ({ ...current, [wheel]: landingRotation(current[wheel], sector.id, sectors.length) }))
       timer.current = setTimeout(finish, milliseconds === 0 ? 0 : milliseconds + 100)
-    } catch (failure) {
-      setError(userMessage(failure, 'Chưa quay được vòng quay. Vui lòng thử lại.'))
+    }
+    catch (failure) {
+      setError(userMessage(failure, english ? 'Could not spin the wheel. Please try again.' : 'Chưa quay được vòng quay. Vui lòng thử lại.'))
       setSpinning(null)
       spinGate.current = false
     }
   }
 
-  // Chức năng closeResult: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
   function closeResult() {
     spinGate.current = false
     setResult(null)
@@ -97,7 +97,7 @@ export default function Rewards({ account, tier = 'bronze', wallet = [], onRewar
   }
 
   return <div className="container page-shell rewards-page">
-    <header className="page-head"><div><p className="eyebrow">OmniCart Lucky</p><h1>{english ? 'Two lucky wheels. One shared balance.' : 'Hai vòng quay. Chung một ví lượt.'}</h1></div><p className="muted">{english ? 'Earn one spin for every 100,000 ₫ of paid goods.' : 'Mỗi 100.000 ₫ tiền hàng hóa đã thanh toán nhận một lượt quay.'}</p></header>
+    <header className="page-head"><div><p className="eyebrow">OmniCart Lucky</p><h1>{english ? 'Two lucky wheels. One shared balance.' : 'Hai vòng quay. Chung một ví lượt.'}</h1></div><p className="muted">{english ? `Earn one spin for every ${formatPoints(policy.goodsPerSpin, 'en-US')} ₫ of paid goods.` : `Mỗi ${formatPoints(policy.goodsPerSpin)} ₫ tiền hàng hóa đã thanh toán nhận một lượt quay.`}</p></header>
     <div className="shared-spin-balance" aria-live="polite"><span>✦</span><div><strong>{english ? `${credits} shared lucky spins` : `${credits} lượt quay dùng chung`}</strong><p>{english ? 'Pick goods voucher or shipping voucher. Every spin on either wheel uses 1 spin.' : 'Chọn mã giảm giá hàng hóa hoặc mã giảm giá vận chuyển. Mỗi lần quay ở bất kỳ vòng nào đều dùng 1 lượt.'}</p></div><a href="/products">{english ? 'Earn more spins →' : 'Tích thêm lượt →'}</a></div>
     {error && <p className="form-error" role="alert">{error}</p>}
     <div className="rewards-workspace">

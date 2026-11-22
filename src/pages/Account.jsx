@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { customerApi } from '../api/customer'
 import { getMembershipPlan } from '../services/promotions'
+import { useMembershipPolicy } from '../services/membershipPolicy'
 import { orderMatches } from '../services/storefrontState'
 import { useLanguage } from '../context/i18n'
 import { CustomerOrders } from '../components/commerce/OrderCenter'
@@ -29,10 +30,13 @@ function parseOrderTimestamp(order) {
 }
 
 export default function Account({ account, orders = [], membershipTier = 'bronze', wallet = [],
-  onLogout, onRefresh, onPaymentComplete, onNavigate, language: propLanguage }) {
+  onLogout, onRefresh, onPaymentComplete, onNavigate, language: propLanguage, membershipPolicy: propPolicy }) {
   const { language: contextLanguage, english: contextEnglish } = useLanguage()
   const language = propLanguage || contextLanguage || 'vi'
   const english = language === 'en' || contextEnglish
+
+  const { policy: hookPolicy } = useMembershipPolicy()
+  const policy = propPolicy || hookPolicy
 
   const [orderQuery, setOrderQuery] = useState('')
   const [security, setSecurity] = useState(null)
@@ -50,7 +54,7 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
       .slice()
       .sort((a, b) => parseOrderTimestamp(b) - parseOrderTimestamp(a))
   }, [orders, orderQuery])
-  const plan = getMembershipPlan(membershipTier)
+  const plan = getMembershipPlan(membershipTier, policy)
   const username = account?.username || (english ? 'Customer' : 'Khách hàng')
   const points = Number(account?.points || 0)
   const spinCredits = Number(account?.spinCredits || 0)
@@ -93,6 +97,7 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
         <p>{english ? 'Your points, vouchers and orders are securely saved in your account.' : 'Điểm, mã giảm giá và đơn hàng được lưu trên tài khoản của bạn.'}</p>
       </div>
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <button type="button" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button>
         <button
           type="button"
           className="button button--secondary"
@@ -103,7 +108,6 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
         >
           {english ? 'Change Password' : 'Đổi Mật Khẩu'}
         </button>
-        <button type="button" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button>
       </div>
     </footer>
   </div>
