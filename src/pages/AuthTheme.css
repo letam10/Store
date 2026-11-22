@@ -1,10 +1,50 @@
 /* Palette auth đồng bộ theo ngôn ngữ xanh ngọc, xanh rừng (forest/emerald) và xám mát của thương hiệu Store. */
 .auth-screen {
-  background-image: var(--auth-bg-url, url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"/%3E')) !important;
-  background-position: center center !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  padding: 24px !important;
+  overflow: hidden !important;
+  background: #06120b !important;
+}
+
+.auth-video-bg {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.auth-video-bg iframe {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 100vw !important;
+  height: 56.25vw !important;
+  min-height: 100vh !important;
+  min-width: 177.78vh !important;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: none !important;
+  border: 0 !important;
+  filter: saturate(1.15) brightness(0.9) !important;
+}
+
+.auth-video-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: radial-gradient(circle at center, rgba(10, 23, 17, 0.25) 0%, rgba(10, 23, 17, 0.55) 100%) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+:root[data-theme='dark'] .auth-video-overlay {
+  background: radial-gradient(circle at center, rgba(10, 23, 17, 0.45) 0%, rgba(10, 23, 17, 0.75) 100%) !important;
 }
 
 @property --auth-rainbow-angle {
@@ -24,7 +64,7 @@
 
 .auth-panel {
   position: relative !important;
-  z-index: 1 !important;
+  z-index: 2 !important;
   border: 1px solid rgba(226, 232, 240, 0.9) !important;
   border-radius: 28px !important;
   background: rgba(255, 255, 255, 0.96) !important;
@@ -120,11 +160,7 @@
 .auth-help a:hover, .auth-links a:hover { color: #1b4d36 !important; }
 
 /* Dark mode dùng bản tối của cùng palette xanh rừng và xám đen sang trọng. */
-:root[data-theme='dark'] .auth-screen {
-  background-image: 
-    linear-gradient(rgba(10, 23, 17, 0.45), rgba(10, 23, 17, 0.45)),
-    var(--auth-bg-url, url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"/%3E')) !important;
-}
+
 :root[data-theme='dark'] .auth-panel,
 html[data-theme='dark'] .auth-panel {
   background: rgba(18, 38, 28, 0.97) !important;

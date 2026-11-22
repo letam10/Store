@@ -149,8 +149,18 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
     else if (input.validity.tooShort) input.setCustomValidity('Vui lòng nhập ít nhất ' + input.minLength + ' ký tự.')
   }
 
-  return <div className="auth-screen" style={{ '--auth-bg-url': "url('/auth-bg.png')" }}>
-    <div className="auth-panel">
+  return (
+    <div className="auth-screen">
+      <div className="auth-video-bg" aria-hidden="true">
+        <iframe
+          src="https://www.youtube.com/embed/2qeTbiQ57C0?autoplay=1&mute=1&loop=1&playlist=2qeTbiQ57C0&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1"
+          title="Background video"
+          allow="autoplay; encrypted-media"
+          tabIndex="-1"
+        />
+        <div className="auth-video-overlay" />
+      </div>
+      <div className="auth-panel">
       <div className="auth-topbar">
         <a className="auth-back" href="/">← Về cửa hàng</a>
       </div>
@@ -192,4 +202,5 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       <p className="auth-disclaimer">Tài khoản được quản lý bởi hệ thống OmniCart. Không dùng lại mật khẩu của dịch vụ khác.</p>
     </div>
   </div>
+  )
 }
