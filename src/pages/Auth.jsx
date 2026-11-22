@@ -149,7 +149,7 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
     else if (input.validity.tooShort) input.setCustomValidity('Vui lòng nhập ít nhất ' + input.minLength + ' ký tự.')
   }
 
-  return <div className="auth-screen">
+  return <div className="auth-screen" style={{ '--auth-bg-url': "url('/auth-bg.png')" }}>
     <div className="auth-panel">
       <div className="auth-topbar">
         <a className="auth-back" href="/">← Về cửa hàng</a>

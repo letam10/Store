@@ -1,8 +1,10 @@
 /* Palette auth đồng bộ theo ngôn ngữ xanh ngọc, xanh rừng (forest/emerald) và xám mát của thương hiệu Store. */
 .auth-screen {
-  background: radial-gradient(circle at 12% 15%, #d1fae5 0, transparent 35%),
-    radial-gradient(circle at 88% 82%, #e0f2fe 0, transparent 40%),
-    linear-gradient(130deg, #ecfdf5 0%, #f0fdf4 52%, #e2e8f0 100%);
+  background-image: var(--auth-bg-url, url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"/%3E')) !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
 }
 
 @property --auth-rainbow-angle {
@@ -73,7 +75,7 @@
   -webkit-mask-composite: xor !important;
   mask-composite: exclude !important;
   pointer-events: none !important;
-  animation: authRainbowLedChase 3s linear infinite !important;
+  animation: authRainbowLedChase 6s linear infinite !important;
 }
 
 .auth-panel::before {
@@ -119,9 +121,9 @@
 
 /* Dark mode dùng bản tối của cùng palette xanh rừng và xám đen sang trọng. */
 :root[data-theme='dark'] .auth-screen {
-  background: radial-gradient(circle at 12% 15%, #143525 0, transparent 35%),
-    radial-gradient(circle at 88% 82%, #18432f 0, transparent 38%),
-    linear-gradient(130deg, #0a1711 0%, #102419 52%, #14281f 100%) !important;
+  background-image: 
+    linear-gradient(rgba(10, 23, 17, 0.45), rgba(10, 23, 17, 0.45)),
+    var(--auth-bg-url, url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"/%3E')) !important;
 }
 :root[data-theme='dark'] .auth-panel,
 html[data-theme='dark'] .auth-panel {
