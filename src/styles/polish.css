@@ -1518,11 +1518,7 @@ select, select option {
    ========================================================================== */
 
 /* Khoảng cách phân tách giữa các form và panel khi mở chức năng */
-.detail-review-form,
-.contact-form-card,
-.account-card,
-.account-form,
-.order-card {
+.detail-review-form {
   margin: 22px 0 !important;
   clear: both !important;
 }
@@ -1539,6 +1535,17 @@ select, select option {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   border-radius: 24px !important;
+}
+
+/* Đảm bảo hai box trang liên hệ (thông tin liên hệ và form gửi lời nhắn) luôn bằng phẳng, cân đối mép trên */
+.contact-content-grid {
+  align-items: start !important;
+}
+
+.contact-content-grid > .contact-info,
+.contact-content-grid > .contact-form-card {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 /* Tương phản phân lớp Form & Panel ở Light mode */
