@@ -1520,12 +1520,25 @@ select, select option {
 /* Khoảng cách phân tách giữa các form và panel khi mở chức năng */
 .detail-review-form,
 .contact-form-card,
-.checkout-card,
 .account-card,
 .account-form,
 .order-card {
   margin: 22px 0 !important;
   clear: both !important;
+}
+
+/* Đảm bảo hai box trang thanh toán (checkout form và tóm tắt đơn) luôn bằng phẳng, cân đối mép trên */
+.checkout-layout {
+  align-items: start !important;
+}
+
+.checkout-layout > .checkout-card,
+.checkout-layout > .summary-card,
+.checkout-layout form.checkout-card,
+.checkout-layout aside.summary-card {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  border-radius: 24px !important;
 }
 
 /* Tương phản phân lớp Form & Panel ở Light mode */
