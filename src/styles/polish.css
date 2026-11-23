@@ -1513,5 +1513,82 @@ select, select option {
   border-radius: 6px !important;
 }
 
+/* ==========================================================================
+   CHUẨN HÓA FORM & PANEL: KHOẢNG CÁCH, TƯƠNG PHẢN PHÂN LỚP & ĐỒNG BỘ THEME
+   ========================================================================== */
+
+/* Khoảng cách phân tách giữa các form và panel khi mở chức năng */
+.detail-review-form,
+.contact-form-card,
+.checkout-card,
+.account-card,
+.account-form,
+.order-card {
+  margin: 22px 0 !important;
+  clear: both !important;
+}
+
+/* Tương phản phân lớp Form & Panel ở Light mode */
+.detail-review-form {
+  background: linear-gradient(175deg, #f3f8f5 0%, #eaf2ed 100%) !important;
+  border: 1.5px solid #bcd8c5 !important;
+  border-radius: 16px !important;
+  padding: 22px !important;
+  box-shadow: 0 6px 20px rgba(24, 60, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+.detail-review-form label {
+  color: #163e29 !important;
+  font-weight: 700 !important;
+}
+
+.detail-review-form select,
+.detail-review-form textarea {
+  background: #ffffff !important;
+  border: 1.5px solid #bcd7c5 !important;
+  border-radius: 10px !important;
+  color: #123421 !important;
+  box-shadow: 0 1px 3px rgba(18, 50, 35, 0.05) !important;
+}
+
+.detail-review-form select:focus,
+.detail-review-form textarea:focus {
+  border-color: #2e8658 !important;
+  box-shadow: 0 0 0 3px rgba(46, 134, 88, 0.18) !important;
+}
+
+/* Đồng bộ Dark mode cho các panel & form trên Storefront */
+:root[data-theme='dark'] .detail-review-form,
+html[data-theme='dark'] .detail-review-form {
+  background: linear-gradient(165deg, #132a1e 0%, #0c1a13 100%) !important;
+  border: 1.5px solid #285438 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  color: #eaf6ee !important;
+}
+
+:root[data-theme='dark'] .detail-review-form label,
+html[data-theme='dark'] .detail-review-form label {
+  color: #bbf0cc !important;
+}
+
+:root[data-theme='dark'] .detail-review-form select,
+:root[data-theme='dark'] .detail-review-form textarea,
+html[data-theme='dark'] .detail-review-form select,
+html[data-theme='dark'] .detail-review-form textarea {
+  background: #08150f !important;
+  border: 1.5px solid #275238 !important;
+  color: #f0faf3 !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+:root[data-theme='dark'] .detail-review-form select:focus,
+:root[data-theme='dark'] .detail-review-form textarea:focus,
+html[data-theme='dark'] .detail-review-form select:focus,
+html[data-theme='dark'] .detail-review-form textarea:focus {
+  border-color: #4ade80 !important;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25) !important;
+}
+
+
 
 
