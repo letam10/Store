@@ -164,16 +164,21 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       <div className="auth-topbar">
         <a className="auth-back" href="/">← Về cửa hàng</a>
       </div>
-      <span className="auth-mark">OmniCart<span>.</span></span>
-      <p className="auth-kicker">MỘT GÓC RIÊNG CỦA BẠN</p>
+      <div className="auth-brand">
+        <img src="/brand-logo-square.jpg" alt="OmniCart" className="auth-brand-logo" />
+        <span className="auth-mark">OmniCart<span>.</span></span>
+      </div>
+      <p className="auth-kicker">{view === 'forgot' ? 'KHÔI PHỤC TÀI KHOẢN' : view === 'reset' ? 'ĐẶT LẠI MẬT KHẨU' : 'MỘT GÓC RIÊNG CỦA BẠN'}</p>
       <div className="auth-header-stage" key={'header-' + view}>
         <h1>{view === 'register' ? 'Tạo tài khoản mới.' : view === 'forgot' ? 'Quên mật khẩu?' : view === 'reset' ? 'Đặt lại mật khẩu' : 'Chào mừng trở lại.'}</h1>
-        <p className="auth-intro">{view === 'register' ? 'Tạo tài khoản để nhận ưu đãi, điểm thưởng và hóa đơn điện tử gửi về email.' : view === 'forgot' ? 'Nhập email để nhận link đặt lại (30 phút).' : view === 'reset' ? 'Dán token từ email và đặt mật khẩu mới.' : 'Đăng nhập để xem đơn hàng và ưu đãi của bạn.'}</p>
+        <p className="auth-intro">{view === 'register' ? 'Tạo tài khoản để nhận ưu đãi, điểm thưởng và hóa đơn điện tử gửi về email.' : view === 'forgot' ? 'Nhập email để nhận link đặt lại mật khẩu trong 30 phút.' : view === 'reset' ? 'Dán token từ email và đặt mật khẩu mới.' : 'Đăng nhập để xem đơn hàng và ưu đãi của bạn.'}</p>
       </div>
-      <div className="auth-tabs" role="tablist" aria-label="Truy cập tài khoản">
-        <button type="button" role="tab" aria-selected={view === 'login'} className={view === 'login' ? 'is-active' : ''} onClick={() => switchAuthView('login')}>Đăng nhập</button>
-        <button type="button" role="tab" aria-selected={view === 'register'} className={view === 'register' ? 'is-active' : ''} onClick={() => switchAuthView('register')}>Đăng ký</button>
-      </div>
+      {(view === 'login' || view === 'register') && (
+        <div className="auth-tabs" role="tablist" aria-label="Truy cập tài khoản">
+          <button type="button" role="tab" aria-selected={view === 'login'} className={view === 'login' ? 'is-active' : ''} onClick={() => switchAuthView('login')}>Đăng nhập</button>
+          <button type="button" role="tab" aria-selected={view === 'register'} className={view === 'register' ? 'is-active' : ''} onClick={() => switchAuthView('register')}>Đăng ký</button>
+        </div>
+      )}
       <div className={'auth-form-stage auth-form-stage--' + view} key={view + (needTwoFactor ? '-2fa' : '')}>
       {needTwoFactor && view === 'login' ? <form onSubmit={verifyTwoFactor}>
         <label>Mã xác thực 2 lớp<input value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" required placeholder="123456" /></label>
@@ -184,13 +189,13 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       </form> : <form onSubmit={submit} onInvalid={showValidation} onInput={(event) => event.target.setCustomValidity('')}>
         {view === 'register' && <><label>Họ tên / tên tài khoản<input name="username" autoComplete="username" minLength="2" required placeholder="Tên bạn muốn dùng" /></label><label>Email<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label></>}
         {view === 'login' && <label>Tên tài khoản hoặc email<input name="username" autoComplete="username" required placeholder="Nhập tên hoặc email" /></label>}
-        {view === 'forgot' && <label>Email tài khoản cục bộ<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
+        {view === 'forgot' && <label>Email tài khoản<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
         {view === 'reset' && <><label>Token từ email<input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="token" /></label><label>Mật khẩu mới<input name="newPassword" type="password" autoComplete="new-password" minLength="8" required /></label></>}
         {view !== 'forgot' && view !== 'reset' && <label>Mật khẩu<input name="password" type="password" autoComplete={view === 'register' ? 'new-password' : 'current-password'} minLength="8" required placeholder="Ít nhất 8 ký tự" /></label>}
         {view === 'login' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>Quên mật khẩu?</a>}
-        {view === 'forgot' && <a className="auth-forgot" href={'/login?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('login') }}>Về đăng nhập</a>}
-        {view === 'reset' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>Gửi lại link</a>}
         <button type="submit" disabled={busy}>{busy ? 'Đang xử lý…' : view === 'register' ? 'Tạo tài khoản' : view === 'forgot' ? 'Gửi link đặt lại' : view === 'reset' ? 'Đổi mật khẩu' : 'Đăng nhập'}</button>
+        {view === 'forgot' && <a className="auth-forgot auth-forgot--return" href={'/login?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('login') }}>← Về đăng nhập</a>}
+        {view === 'reset' && <a className="auth-forgot auth-forgot--return" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>← Gửi lại link</a>}
         {error && <p className="auth-error" role="alert">{error}</p>}
         {message && <p className="auth-message" role="status">{message}</p>}
       </form>}
