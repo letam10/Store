@@ -249,6 +249,5 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
         )}
       </div>
     </div>
-    <p className="muted catalog-attribution">{english ? 'Product images and information from' : 'Ảnh và thông tin sản phẩm từ'} <a href="https://amazon-berkeley-objects.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">Amazon Berkeley Objects</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>) {english ? 'and' : 'và'} <a href="https://dummyjson.com/docs/products" target="_blank" rel="noopener noreferrer">DummyJSON</a>. {english ? 'Prices and stock confirmed at order time.' : 'Giá và tồn kho được xác nhận khi đặt hàng.'}</p>
   </div>
 }
