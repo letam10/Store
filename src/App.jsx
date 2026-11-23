@@ -85,7 +85,8 @@ export default function App() {
   const hasTheme = Boolean(appearance.theme && typeof appearance.theme === 'object')
   const accentColor = hasTheme ? themePalette['--accent'] : /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : themePalette['--accent']
   const protectedPage = ['account', 'checkout', 'change-password'].includes(route)
-  const isAuth = route === 'auth' || route === 'change-password' || (protectedPage && !account)
+  const isAuth = route === 'auth' || (protectedPage && !account)
+  const isAuthLayout = isAuth || route === 'change-password'
   const liveCart = useMemo(() => cart.map((item) => {
     const currentProduct = products.find((product) => String(product.id) === String(item.id))
     return { ...item, ...currentProduct, quantity: item.quantity, selected: item.selected === true }
@@ -386,19 +387,19 @@ export default function App() {
   else if (route === 'change-password') page = <ChangePassword language={language} account={account} onNavigate={navigate} />
 
   return <LanguageContext.Provider value={languageContextValue}>
-    <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
-      {!isAuth && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} membershipPolicy={membershipPolicy} />}
+    <div className={'site-frame' + (isAuthLayout ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
+      {!isAuthLayout && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} membershipPolicy={membershipPolicy} />}
       <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
         onChangeCapture={clearValidation}>
         <div key={location.pathname} className="page-transition-wrapper">
-          {!isAuth && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
+          {!isAuthLayout && ['home', 'products', 'favorites', 'rewards', 'membership', 'contact'].includes(route)
             ? <StorePromotions route={route} overview={promotionOverview} account={account}
               selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher}>{page}</StorePromotions> : page}
         </div>
       </main>
-      {!isAuth && <Footer appearance={appearance} language={language} />}
-      {!isAuth && notice && createPortal(<StoreNotice notice={notice} onClose={() => setNotice('')} />, document.body)}
-      {!isAuth && <CustomerSupport account={account} onRequireLogin={requireLogin} language={language} />}
+      {!isAuthLayout && <Footer appearance={appearance} language={language} />}
+      {!isAuthLayout && notice && createPortal(<StoreNotice notice={notice} onClose={() => setNotice('')} />, document.body)}
+      {!isAuthLayout && <CustomerSupport account={account} onRequireLogin={requireLogin} language={language} />}
     </div>
   </LanguageContext.Provider>
 }
