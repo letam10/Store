@@ -311,6 +311,38 @@
   transition: background-color 5000s ease-in-out 0s !important;
 }
 
+.auth-input-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.auth-input-wrap input {
+  padding-right: 48px !important;
+}
+
+.auth-eye-btn {
+  position: absolute !important;
+  right: 12px !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: #a3c4b1 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.auth-eye-btn:hover {
+  color: #4ade80 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
 .auth-forgot {
   justify-self: end;
   color: #86efac !important;

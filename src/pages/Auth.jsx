@@ -45,6 +45,8 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
   const [googleStatus, setGoogleStatus] = useState('loading')
   const googleReady = googleStatus === 'ready'
   const [resetToken, setResetToken] = useState(query.get('token') || '')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showResetPassword, setShowResetPassword] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -104,7 +106,11 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       onLogin(payload.account)
       onNavigate(next.startsWith('/') && !next.startsWith('//') ? next : '/account')
     } catch (failure) {
-      setError(userMessage(failure))
+      if (view === 'login' && (failure.status === 401 || failure.code === 'LOGIN_FAILED' || failure.code === 'INVALID_CREDENTIALS' || failure.code === 'UNAUTHENTICATED')) {
+        setError(english ? 'The password you entered is incorrect. Please check again.' : 'Mật khẩu bạn nhập đã sai. Vui lòng kiểm tra lại.')
+      } else {
+        setError(userMessage(failure))
+      }
     } finally {
       setBusy(false)
     }
@@ -190,8 +196,68 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
         {view === 'register' && <><label>Họ tên / tên tài khoản<input name="username" autoComplete="username" minLength="2" required placeholder="Tên bạn muốn dùng" /></label><label>Email<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label></>}
         {view === 'login' && <label>Tên tài khoản hoặc email<input name="username" autoComplete="username" required placeholder="Nhập tên hoặc email" /></label>}
         {view === 'forgot' && <label>Email tài khoản<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
-        {view === 'reset' && <><label>Token từ email<input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="token" /></label><label>Mật khẩu mới<input name="newPassword" type="password" autoComplete="new-password" minLength="8" required /></label></>}
-        {view !== 'forgot' && view !== 'reset' && <label>Mật khẩu<input name="password" type="password" autoComplete={view === 'register' ? 'new-password' : 'current-password'} minLength="8" required placeholder="Ít nhất 8 ký tự" /></label>}
+        {view === 'reset' && <>
+          <label><span>Token từ email</span><input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="token" /></label>
+          <label>
+            <span>Mật khẩu mới</span>
+            <div className="auth-input-wrap">
+              <input name="newPassword" type={showResetPassword ? 'text' : 'password'} autoComplete="new-password" minLength="8" required placeholder="Ít nhất 8 ký tự" />
+              <button
+                type="button"
+                className="auth-eye-btn"
+                onClick={() => setShowResetPassword(!showResetPassword)}
+                aria-label={showResetPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                tabIndex="-1"
+              >
+                {showResetPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </label>
+        </>}
+        {view !== 'forgot' && view !== 'reset' && (
+          <label>
+            <span>Mật khẩu</span>
+            <div className="auth-input-wrap">
+              <input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete={view === 'register' ? 'new-password' : 'current-password'}
+                minLength="8"
+                required
+                placeholder={view === 'register' ? 'Tạo mật khẩu ít nhất 8 ký tự' : 'Nhập mật khẩu'}
+              />
+              <button
+                type="button"
+                className="auth-eye-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                tabIndex="-1"
+              >
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </label>
+        )}
         {view === 'login' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>Quên mật khẩu?</a>}
         <button type="submit" disabled={busy}>{busy ? 'Đang xử lý…' : view === 'register' ? 'Tạo tài khoản' : view === 'forgot' ? 'Gửi link đặt lại' : view === 'reset' ? 'Đổi mật khẩu' : 'Đăng nhập'}</button>
         {view === 'forgot' && <a className="auth-forgot auth-forgot--return" href={'/login?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('login') }}>← Về đăng nhập</a>}
