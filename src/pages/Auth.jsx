@@ -107,7 +107,7 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       onNavigate(next.startsWith('/') && !next.startsWith('//') ? next : '/account')
     } catch (failure) {
       if (view === 'login' && (failure.status === 401 || failure.code === 'LOGIN_FAILED' || failure.code === 'INVALID_CREDENTIALS' || failure.code === 'UNAUTHENTICATED')) {
-        setError(english ? 'The password you entered is incorrect. Please check again.' : 'Mật khẩu bạn nhập đã sai. Vui lòng kiểm tra lại.')
+        setError(english ? 'Incorrect username or password. Please check again.' : 'Tên đăng nhập hoặc mật khẩu đã sai. Vui lòng kiểm tra lại.')
       } else {
         setError(userMessage(failure))
       }
