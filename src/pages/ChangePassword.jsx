@@ -19,11 +19,24 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
   const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [capsLockActive, setCapsLockActive] = useState(false)
+  const [isShaking, setIsShaking] = useState(false)
 
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [success, setSuccess] = useState(false)
   const [countdown, setCountdown] = useState(4)
+
+  function handleKeyModifier(event) {
+    if (event.getModifierState) {
+      setCapsLockActive(event.getModifierState('CapsLock'))
+    }
+  }
+
+  function triggerShake() {
+    setIsShaking(true)
+    setTimeout(() => setIsShaking(false), 500)
+  }
 
   // Đánh giá độ mạnh mật khẩu theo thang 0 - 4 điểm
   const passwordStrength = useMemo(() => {
@@ -74,21 +87,25 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
 
     if (!currentPassword) {
       setError(english ? 'Please enter your current password.' : 'Vui lòng nhập mật khẩu hiện tại.')
+      triggerShake()
       return
     }
 
     if (newPassword.length < 8) {
       setError(english ? 'New password must have at least 8 characters.' : 'Mật khẩu mới phải có ít nhất 8 ký tự.')
+      triggerShake()
       return
     }
 
     if (newPassword === currentPassword) {
       setError(english ? 'New password cannot be the same as your current password.' : 'Mật khẩu mới không được trùng với mật khẩu hiện tại.')
+      triggerShake()
       return
     }
 
     if (newPassword !== confirmPassword) {
       setError(english ? 'Password confirmation does not match.' : 'Mật khẩu xác nhận không khớp với mật khẩu mới.')
+      triggerShake()
       return
     }
 
@@ -105,6 +122,7 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
       setSuccess(true)
     } catch (failure) {
       setError(userMessage(failure))
+      triggerShake()
     } finally {
       setBusy(false)
     }
@@ -122,7 +140,7 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
         <div className="auth-video-overlay" />
       </div>
 
-      <div className="change-pwd-panel">
+      <div className={'change-pwd-panel' + (isShaking ? ' is-shaking' : '')}>
         <div className="change-pwd-topbar">
           <button type="button" className="change-pwd-back" onClick={handleBack}>
             ← {english ? 'Back to profile' : 'Về trang cá nhân'}
@@ -168,10 +186,14 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
               <label>
                 <span>{english ? 'Current password' : 'Mật khẩu hiện tại'}</span>
                 <div className="change-pwd-input-wrap">
+                  <svg className="change-pwd-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <input
+                    className="has-icon has-eye"
                     type={showCurrent ? 'text' : 'password'}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
+                    onKeyDown={handleKeyModifier}
+                    onKeyUp={handleKeyModifier}
                     required
                     placeholder={english ? 'Enter current password' : 'Nhập mật khẩu đang dùng'}
                     autoComplete="current-password"
@@ -201,10 +223,14 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
               <label>
                 <span>{english ? 'New password' : 'Mật khẩu mới'}</span>
                 <div className="change-pwd-input-wrap">
+                  <svg className="change-pwd-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <input
+                    className="has-icon has-eye"
                     type={showNew ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
+                    onKeyDown={handleKeyModifier}
+                    onKeyUp={handleKeyModifier}
                     required
                     minLength="8"
                     placeholder={english ? 'At least 8 characters' : 'Tối thiểu 8 ký tự'}
@@ -231,6 +257,13 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
                   </button>
                 </div>
               </label>
+
+              {capsLockActive && (
+                <div className="change-pwd-caps-hint" role="status">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0-12 5 5m-5-5-5 5M5 21h14"/></svg>
+                  <span>Caps Lock đang bật</span>
+                </div>
+              )}
 
               {newPassword && (
                 <div className="change-pwd-strength">
@@ -266,10 +299,14 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
               <label>
                 <span>{english ? 'Confirm new password' : 'Xác nhận mật khẩu mới'}</span>
                 <div className="change-pwd-input-wrap">
+                  <svg className="change-pwd-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <input
+                    className="has-icon has-eye"
                     type={showConfirm ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    onKeyDown={handleKeyModifier}
+                    onKeyUp={handleKeyModifier}
                     required
                     minLength="8"
                     placeholder={english ? 'Re-type new password' : 'Nhập lại mật khẩu mới'}
@@ -306,8 +343,12 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
 
               {error && <p className="auth-error" role="alert">{error}</p>}
 
-              <button type="submit" disabled={busy} className="change-pwd-submit">
-                {busy ? (english ? 'Updating…' : 'Đang cập nhật…') : (english ? 'Update Password' : 'Cập nhật mật khẩu')}
+              <button type="submit" disabled={busy} className={'change-pwd-submit' + (busy ? ' is-busy' : '')}>
+                {busy ? (
+                  <><span className="change-pwd-spinner" aria-hidden="true" /><span>{english ? 'Updating…' : 'Đang cập nhật…'}</span></>
+                ) : (
+                  english ? 'Update Password' : 'Cập nhật mật khẩu'
+                )}
               </button>
 
               <button type="button" className="change-pwd-cancel" onClick={handleBack}>

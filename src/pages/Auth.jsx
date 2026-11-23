@@ -47,6 +47,34 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
   const [resetToken, setResetToken] = useState(query.get('token') || '')
   const [showPassword, setShowPassword] = useState(false)
   const [showResetPassword, setShowResetPassword] = useState(false)
+  const [capsLockActive, setCapsLockActive] = useState(false)
+  const [isShaking, setIsShaking] = useState(false)
+  const [passwordInput, setPasswordInput] = useState('')
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) document.body.classList.add('auth-tab-hidden')
+      else document.body.classList.remove('auth-tab-hidden')
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
+
+  function handleKeyModifier(event) {
+    if (event.getModifierState) {
+      setCapsLockActive(event.getModifierState('CapsLock'))
+    }
+  }
+
+  function calcPasswordScore(pass) {
+    if (!pass) return 0
+    let score = 0
+    if (pass.length >= 8) score++
+    if (/[A-Z]/.test(pass)) score++
+    if (/[0-9]/.test(pass)) score++
+    if (/[^A-Za-z0-9]/.test(pass)) score++
+    return score
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -106,6 +134,8 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       onLogin(payload.account)
       onNavigate(next.startsWith('/') && !next.startsWith('//') ? next : '/account')
     } catch (failure) {
+      setIsShaking(true)
+      setTimeout(() => setIsShaking(false), 500)
       if (view === 'login' && (failure.status === 401 || failure.code === 'LOGIN_FAILED' || failure.code === 'INVALID_CREDENTIALS' || failure.code === 'UNAUTHENTICATED')) {
         setError(english ? 'Incorrect username or password. Please check again.' : 'Tên đăng nhập hoặc mật khẩu đã sai. Vui lòng kiểm tra lại.')
       } else {
@@ -126,6 +156,8 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       onLogin(payload.account)
       onNavigate(next.startsWith('/') && !next.startsWith('//') ? next : '/account')
     } catch (failure) {
+      setIsShaking(true)
+      setTimeout(() => setIsShaking(false), 500)
       setError(userMessage(failure))
     } finally {
       setBusy(false)
@@ -157,6 +189,11 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
 
   return (
     <div className="auth-screen">
+      <div className="auth-ambient-glow" aria-hidden="true">
+        <div className="auth-glow-orb auth-glow-orb--1" />
+        <div className="auth-glow-orb auth-glow-orb--2" />
+        <div className="auth-glow-orb auth-glow-orb--3" />
+      </div>
       <div className="auth-video-bg" aria-hidden="true">
         <iframe
           src="https://www.youtube.com/embed/2qeTbiQ57C0?autoplay=1&mute=1&loop=1&playlist=2qeTbiQ57C0&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1"
@@ -166,7 +203,7 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
         />
         <div className="auth-video-overlay" />
       </div>
-      <div className="auth-panel">
+      <div className={'auth-panel' + (isShaking ? ' is-shaking' : '')}>
       <div className="auth-topbar">
         <a className="auth-back" href="/">← Về cửa hàng</a>
       </div>
@@ -190,10 +227,13 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
         <label className="auth-field">
           <span className="auth-field-label">Mã xác thực 2 lớp</span>
           <div className="auth-input-wrap">
-            <input value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" required placeholder="123456" />
+            <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <input className="has-icon" value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" required placeholder="123456" />
           </div>
         </label>
-        <button type="submit" disabled={busy || !challengeId}>{busy ? 'Đang xử lý…' : 'Xác nhận 2 lớp'}</button>
+        <button type="submit" disabled={busy || !challengeId} className={busy ? 'is-busy' : ''}>
+          {busy ? <><span className="auth-spinner" aria-hidden="true" /><span>Đang xử lý…</span></> : 'Xác nhận 2 lớp'}
+        </button>
         <button type="button" onClick={() => { setNeedTwoFactor(false); setChallengeId('') }}>Quay lại</button>
         {error && <p className="auth-error" role="alert">{error}</p>}
         {message && <p className="auth-message" role="status">{message}</p>}
@@ -202,13 +242,15 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
           <label className="auth-field">
             <span className="auth-field-label">Họ tên / tên tài khoản</span>
             <div className="auth-input-wrap">
-              <input name="username" autoComplete="username" minLength="2" required placeholder="Tên bạn muốn dùng" />
+              <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input className="has-icon" name="username" autoComplete="username" minLength="2" required placeholder="Tên bạn muốn dùng" />
             </div>
           </label>
           <label className="auth-field">
             <span className="auth-field-label">Email</span>
             <div className="auth-input-wrap">
-              <input name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
+              <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <input className="has-icon" name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
             </div>
           </label>
         </>}
@@ -216,7 +258,8 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
           <label className="auth-field">
             <span className="auth-field-label">Tên tài khoản hoặc email</span>
             <div className="auth-input-wrap">
-              <input name="username" autoComplete="username" required placeholder="Nhập tên tài khoản hoặc email" />
+              <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input className="has-icon" name="username" autoComplete="username" required placeholder="Nhập tên tài khoản hoặc email" />
             </div>
           </label>
         )}
@@ -224,7 +267,8 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
           <label className="auth-field">
             <span className="auth-field-label">Email tài khoản</span>
             <div className="auth-input-wrap">
-              <input name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
+              <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <input className="has-icon" name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
             </div>
           </label>
         )}
@@ -232,13 +276,26 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
           <label className="auth-field">
             <span className="auth-field-label">Token từ email</span>
             <div className="auth-input-wrap">
-              <input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="Nhập mã token từ email" />
+              <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              <input className="has-icon" value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="Nhập mã token từ email" />
             </div>
           </label>
           <label className="auth-field">
             <span className="auth-field-label">Mật khẩu mới</span>
             <div className="auth-input-wrap">
-              <input name="newPassword" type={showResetPassword ? 'text' : 'password'} autoComplete="new-password" minLength="8" required placeholder="Ít nhất 8 ký tự" />
+              <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input
+                className="has-icon has-eye"
+                name="newPassword"
+                type={showResetPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                minLength="8"
+                required
+                placeholder="Ít nhất 8 ký tự"
+                onChange={(e) => setPasswordInput(e.target.value)}
+                onKeyDown={handleKeyModifier}
+                onKeyUp={handleKeyModifier}
+              />
               <button
                 type="button"
                 className="auth-eye-btn"
@@ -259,6 +316,28 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
                 )}
               </button>
             </div>
+            {capsLockActive && (
+              <div className="auth-caps-hint" role="status">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0-12 5 5m-5-5-5 5M5 21h14"/></svg>
+                <span>Caps Lock đang bật</span>
+              </div>
+            )}
+            {passwordInput && (
+              <div className="auth-strength-meter">
+                <div className="auth-strength-meter__bars">
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 1 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 2 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 3 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 4 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                </div>
+                <span className="auth-strength-meter__label">
+                  {calcPasswordScore(passwordInput) <= 1 ? (english ? 'Weak' : 'Mật khẩu yếu') :
+                   calcPasswordScore(passwordInput) === 2 ? (english ? 'Fair' : 'Trung bình') :
+                   calcPasswordScore(passwordInput) === 3 ? (english ? 'Good' : 'Khá mạnh') :
+                   (english ? 'Strong' : 'Rất mạnh')}
+                </span>
+              </div>
+            )}
           </label>
         </>}
         {view !== 'forgot' && view !== 'reset' && (
@@ -272,13 +351,18 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
               <span className="auth-field-label">Mật khẩu</span>
             )}
             <div className="auth-input-wrap">
+              <svg className="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               <input
+                className="has-icon has-eye"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete={view === 'register' ? 'new-password' : 'current-password'}
                 minLength="8"
                 required
                 placeholder={view === 'register' ? 'Tạo mật khẩu ít nhất 8 ký tự' : 'Nhập mật khẩu'}
+                onChange={view === 'register' ? (e) => setPasswordInput(e.target.value) : undefined}
+                onKeyDown={handleKeyModifier}
+                onKeyUp={handleKeyModifier}
               />
               <button
                 type="button"
@@ -300,9 +384,37 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
                 )}
               </button>
             </div>
+            {capsLockActive && (
+              <div className="auth-caps-hint" role="status">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0-12 5 5m-5-5-5 5M5 21h14"/></svg>
+                <span>Caps Lock đang bật</span>
+              </div>
+            )}
+            {view === 'register' && passwordInput && (
+              <div className="auth-strength-meter">
+                <div className="auth-strength-meter__bars">
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 1 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 2 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 3 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                  <div className={'auth-strength-meter__bar ' + (calcPasswordScore(passwordInput) >= 4 ? 'is-active level-' + calcPasswordScore(passwordInput) : '')} />
+                </div>
+                <span className="auth-strength-meter__label">
+                  {calcPasswordScore(passwordInput) <= 1 ? (english ? 'Weak' : 'Mật khẩu yếu') :
+                   calcPasswordScore(passwordInput) === 2 ? (english ? 'Fair' : 'Trung bình') :
+                   calcPasswordScore(passwordInput) === 3 ? (english ? 'Good' : 'Khá mạnh') :
+                   (english ? 'Strong' : 'Rất mạnh')}
+                </span>
+              </div>
+            )}
           </label>
         )}
-        <button type="submit" disabled={busy}>{busy ? 'Đang xử lý…' : view === 'register' ? 'Tạo tài khoản' : view === 'forgot' ? 'Gửi link đặt lại' : view === 'reset' ? 'Đổi mật khẩu' : 'Đăng nhập'}</button>
+        <button type="submit" disabled={busy} className={busy ? 'is-busy' : ''}>
+          {busy ? (
+            <><span className="auth-spinner" aria-hidden="true" /><span>Đang xử lý…</span></>
+          ) : (
+            view === 'register' ? 'Tạo tài khoản' : view === 'forgot' ? 'Gửi link đặt lại' : view === 'reset' ? 'Đổi mật khẩu' : 'Đăng nhập'
+          )}
+        </button>
         {view === 'forgot' && <a className="auth-forgot auth-forgot--return" href={'/login?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('login') }}>← Về đăng nhập</a>}
         {view === 'reset' && <a className="auth-forgot auth-forgot--return" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>← Gửi lại link</a>}
         {error && <p className="auth-error" role="alert">{error}</p>}
