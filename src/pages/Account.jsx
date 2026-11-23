@@ -97,7 +97,7 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
         <p>{english ? 'Your points, vouchers and orders are securely saved in your account.' : 'Điểm, mã giảm giá và đơn hàng được lưu trên tài khoản của bạn.'}</p>
       </div>
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-        <button type="button" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button>
+        <button type="button" className="button button--secondary" onClick={onLogout}>{english ? 'Sign out' : 'Đăng xuất'}</button>
         <button
           type="button"
           className="button button--secondary"

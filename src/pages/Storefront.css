@@ -130,7 +130,17 @@ html[data-theme='dark'] .product-detail-actions .button--soft--active { backgrou
 .account-logout--redesign .eyebrow { margin:0 0 4px; }
 .account-logout--redesign strong { display:block; font-size:19px; }
 .account-logout--redesign p { margin:5px 0 0; }
-.account-logout--redesign button { min-height:42px; }
+.account-logout--redesign button { min-height:42px; transition: all 0.2s ease; }
+.account-logout--redesign button:hover {
+  background: #204c3b !important;
+  color: #ffffff !important;
+  border-color: #204c3b !important;
+}
+:root[data-theme='dark'] .account-logout--redesign button:hover {
+  background: linear-gradient(135deg, #235c46, #4f8b67) !important;
+  color: #ffffff !important;
+  border-color: #4f8b67 !important;
+}
 :root[data-theme='dark'] .product-detail-page { --detail-ink:#e6f1e7; --detail-muted:#b8d0bc; --detail-line:#385442; --detail-panel:#1e3326; }
 :root[data-theme='dark'] .product-detail-layout--redesign .product-detail-art { background:#233c2c; border-color:#3f5d47; }
 :root[data-theme='dark'] .product-detail-art__frame,:root[data-theme='dark'] .product-detail-thumbnails button { background:#f7faf6; }
