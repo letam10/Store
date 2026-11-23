@@ -187,19 +187,56 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
       )}
       <div className={'auth-form-stage auth-form-stage--' + view} key={view + (needTwoFactor ? '-2fa' : '')}>
       {needTwoFactor && view === 'login' ? <form onSubmit={verifyTwoFactor}>
-        <label>Mã xác thực 2 lớp<input value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" required placeholder="123456" /></label>
+        <label className="auth-field">
+          <span className="auth-field-label">Mã xác thực 2 lớp</span>
+          <div className="auth-input-wrap">
+            <input value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} inputMode="numeric" autoComplete="one-time-code" required placeholder="123456" />
+          </div>
+        </label>
         <button type="submit" disabled={busy || !challengeId}>{busy ? 'Đang xử lý…' : 'Xác nhận 2 lớp'}</button>
         <button type="button" onClick={() => { setNeedTwoFactor(false); setChallengeId('') }}>Quay lại</button>
         {error && <p className="auth-error" role="alert">{error}</p>}
         {message && <p className="auth-message" role="status">{message}</p>}
       </form> : <form onSubmit={submit} onInvalid={showValidation} onInput={(event) => event.target.setCustomValidity('')}>
-        {view === 'register' && <><label>Họ tên / tên tài khoản<input name="username" autoComplete="username" minLength="2" required placeholder="Tên bạn muốn dùng" /></label><label>Email<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label></>}
-        {view === 'login' && <label>Tên tài khoản hoặc email<input name="username" autoComplete="username" required placeholder="Nhập tên hoặc email" /></label>}
-        {view === 'forgot' && <label>Email tài khoản<input name="email" type="email" autoComplete="email" required placeholder="you@example.com" /></label>}
+        {view === 'register' && <>
+          <label className="auth-field">
+            <span className="auth-field-label">Họ tên / tên tài khoản</span>
+            <div className="auth-input-wrap">
+              <input name="username" autoComplete="username" minLength="2" required placeholder="Tên bạn muốn dùng" />
+            </div>
+          </label>
+          <label className="auth-field">
+            <span className="auth-field-label">Email</span>
+            <div className="auth-input-wrap">
+              <input name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
+            </div>
+          </label>
+        </>}
+        {view === 'login' && (
+          <label className="auth-field">
+            <span className="auth-field-label">Tên tài khoản hoặc email</span>
+            <div className="auth-input-wrap">
+              <input name="username" autoComplete="username" required placeholder="Nhập tên tài khoản hoặc email" />
+            </div>
+          </label>
+        )}
+        {view === 'forgot' && (
+          <label className="auth-field">
+            <span className="auth-field-label">Email tài khoản</span>
+            <div className="auth-input-wrap">
+              <input name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
+            </div>
+          </label>
+        )}
         {view === 'reset' && <>
-          <label><span>Token từ email</span><input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="token" /></label>
-          <label>
-            <span>Mật khẩu mới</span>
+          <label className="auth-field">
+            <span className="auth-field-label">Token từ email</span>
+            <div className="auth-input-wrap">
+              <input value={resetToken} onChange={(event) => setResetToken(event.target.value)} required placeholder="Nhập mã token từ email" />
+            </div>
+          </label>
+          <label className="auth-field">
+            <span className="auth-field-label">Mật khẩu mới</span>
             <div className="auth-input-wrap">
               <input name="newPassword" type={showResetPassword ? 'text' : 'password'} autoComplete="new-password" minLength="8" required placeholder="Ít nhất 8 ký tự" />
               <button
@@ -225,8 +262,15 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
           </label>
         </>}
         {view !== 'forgot' && view !== 'reset' && (
-          <label>
-            <span>Mật khẩu</span>
+          <label className="auth-field">
+            {view === 'login' ? (
+              <div className="auth-field-header">
+                <span className="auth-field-label">Mật khẩu</span>
+                <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>Quên mật khẩu?</a>
+              </div>
+            ) : (
+              <span className="auth-field-label">Mật khẩu</span>
+            )}
             <div className="auth-input-wrap">
               <input
                 name="password"
@@ -258,7 +302,6 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
             </div>
           </label>
         )}
-        {view === 'login' && <a className="auth-forgot" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>Quên mật khẩu?</a>}
         <button type="submit" disabled={busy}>{busy ? 'Đang xử lý…' : view === 'register' ? 'Tạo tài khoản' : view === 'forgot' ? 'Gửi link đặt lại' : view === 'reset' ? 'Đổi mật khẩu' : 'Đăng nhập'}</button>
         {view === 'forgot' && <a className="auth-forgot auth-forgot--return" href={'/login?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('login') }}>← Về đăng nhập</a>}
         {view === 'reset' && <a className="auth-forgot auth-forgot--return" href={'/forgot-password?next=' + encodeURIComponent(next)} onClick={(event) => { event.preventDefault(); switchAuthView('forgot') }}>← Gửi lại link</a>}
@@ -266,10 +309,19 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
         {message && <p className="auth-message" role="status">{message}</p>}
       </form>}
       </div>
-      {view === 'login' && !needTwoFactor && <div className="auth-google auth-google-stage"><button type="button" onClick={startGoogle} disabled={!googleReady} title={googleReady ? 'Đăng nhập bằng Google' : 'Trạng thái kết nối đăng nhập Google'}>
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.13C3.25 21.31 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.26C.46 8.18 0 9.99 0 12s.46 3.82 1.26 5.42l4.02-3.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.69 1.26 6.58l4.02 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/></svg>
-        <span>{googleReady ? 'Đăng nhập bằng Google' : googleStatus === 'loading' ? 'Đang kiểm tra đăng nhập Google…' : googleStatus === 'unavailable' ? 'Chưa kết nối được máy chủ' : 'Đăng nhập Google chưa được bật'}</span>
-      </button></div>}
+      {view === 'login' && !needTwoFactor && (
+        <div className="auth-google-section">
+          <div className="auth-divider">
+            <span>hoặc</span>
+          </div>
+          <div className="auth-google auth-google-stage">
+            <button type="button" onClick={startGoogle} disabled={!googleReady} title={googleReady ? 'Đăng nhập bằng Google' : 'Trạng thái kết nối đăng nhập Google'}>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.13C3.25 21.31 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.26C.46 8.18 0 9.99 0 12s.46 3.82 1.26 5.42l4.02-3.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.69 1.26 6.58l4.02 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/></svg>
+              <span>{googleReady ? 'Đăng nhập bằng Google' : googleStatus === 'loading' ? 'Đang kiểm tra đăng nhập Google…' : googleStatus === 'unavailable' ? 'Chưa kết nối được máy chủ' : 'Đăng nhập Google chưa được bật'}</span>
+            </button>
+          </div>
+        </div>
+      )}
       <p className="auth-disclaimer">Tài khoản được quản lý bởi hệ thống OmniCart. Không dùng lại mật khẩu của dịch vụ khác.</p>
     </div>
   </div>
