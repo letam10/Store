@@ -29,6 +29,7 @@ import Favorites from './pages/Favorites'
 import Auth from './pages/Auth'
 import Membership from './pages/Membership'
 import Rewards from './pages/Rewards'
+import ChangePassword from './pages/ChangePassword'
 import NotFound from './pages/NotFound'
 import { enrichProducts } from './services/catalog'
 import { apiEndpoint, apiCredentials } from './api/endpoint'
@@ -83,8 +84,8 @@ export default function App() {
   const themePalette = useMemo(() => themeVariables(themeDocument, theme), [themeDocument, theme])
   const hasTheme = Boolean(appearance.theme && typeof appearance.theme === 'object')
   const accentColor = hasTheme ? themePalette['--accent'] : /^#[0-9a-f]{6}$/i.test(appearance.accentColor || '') ? appearance.accentColor : themePalette['--accent']
-  const protectedPage = ['account', 'checkout'].includes(route)
-  const isAuth = route === 'auth' || (protectedPage && !account)
+  const protectedPage = ['account', 'checkout', 'change-password'].includes(route)
+  const isAuth = route === 'auth' || route === 'change-password' || (protectedPage && !account)
   const liveCart = useMemo(() => cart.map((item) => {
     const currentProduct = products.find((product) => String(product.id) === String(item.id))
     return { ...item, ...currentProduct, quantity: item.quantity, selected: item.selected === true }
@@ -382,6 +383,7 @@ export default function App() {
   else if (route === 'favorites') page = <Favorites language={language} account={account} products={products} favoriteIds={favoriteIds} onToggleFavorite={toggleFavorite} onAddToCart={addToCart} />
   // Edge case: điều kiện ngay sau chú thích là chốt bảo vệ; dữ liệu thiếu, sai, hết hạn, bị hủy hoặc không an toàn phải dừng tại đây.
   else if (route === 'account') page = <Account language={language} onNavigate={navigate} onPaymentComplete={paymentComplete} onRefresh={refreshCustomer} account={account} orders={orders} membershipTier={membershipTier} wallet={wallet} selectedVoucherCodes={selectedVoucherCodes} onToggleVoucher={toggleVoucher} onLogout={logout} membershipPolicy={membershipPolicy} />
+  else if (route === 'change-password') page = <ChangePassword language={language} account={account} onNavigate={navigate} />
 
   return <LanguageContext.Provider value={languageContextValue}>
     <div className={'site-frame' + (isAuth ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>

@@ -102,8 +102,8 @@ export default function Account({ account, orders = [], membershipTier = 'bronze
           type="button"
           className="button button--secondary"
           onClick={() => {
-            if (onNavigate) onNavigate('/forgot-password')
-            else window.location.href = '/forgot-password'
+            if (onNavigate) onNavigate('/change-password')
+            else window.location.href = '/change-password'
           }}
         >
           {english ? 'Change Password' : 'Đổi Mật Khẩu'}

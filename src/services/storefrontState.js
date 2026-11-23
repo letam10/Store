@@ -123,6 +123,7 @@ export function routeName(pathname) {
   if (path === '/rewards') return 'rewards'
   if (path === '/account') return 'account'
   if (path === '/favorites') return 'favorites'
+  if (path === '/change-password') return 'change-password'
   if (path === '/login' || path === '/register' || path === '/forgot-password' || path === '/reset-password') return 'auth'
   return 'not-found'
 }
