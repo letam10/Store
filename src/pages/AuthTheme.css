@@ -11,6 +11,7 @@
   background: #06120b !important;
 }
 
+.auth-photo-bg,
 .auth-video-bg {
   position: fixed !important;
   inset: 0 !important;
@@ -19,6 +20,17 @@
   overflow: hidden !important;
   pointer-events: none !important;
   z-index: 0 !important;
+}
+
+.auth-photo-bg__image,
+.auth-video-bg img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  filter: saturate(1.1) brightness(0.85) !important;
 }
 
 .auth-video-bg iframe {
@@ -35,6 +47,7 @@
   filter: saturate(1.15) brightness(0.9) !important;
 }
 
+.auth-photo-overlay,
 .auth-video-overlay {
   position: absolute !important;
   inset: 0 !important;
@@ -43,6 +56,7 @@
   z-index: 1 !important;
 }
 
+:root[data-theme='dark'] .auth-photo-overlay,
 :root[data-theme='dark'] .auth-video-overlay {
   background: radial-gradient(circle at center, rgba(10, 23, 17, 0.45) 0%, rgba(10, 23, 17, 0.75) 100%) !important;
 }

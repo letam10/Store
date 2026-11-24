@@ -130,14 +130,9 @@ export default function ChangePassword({ account, onNavigate, language = 'vi' })
 
   return (
     <div className="change-pwd-screen">
-      <div className="auth-video-bg" aria-hidden="true">
-        <iframe
-          src="https://www.youtube.com/embed/2qeTbiQ57C0?autoplay=1&mute=1&loop=1&playlist=2qeTbiQ57C0&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1"
-          title="Background video"
-          allow="autoplay; encrypted-media"
-          tabIndex="-1"
-        />
-        <div className="auth-video-overlay" />
+      <div className="auth-photo-bg" aria-hidden="true">
+        <img src="/auth-bg.jpg" alt="" className="auth-photo-bg__image" />
+        <div className="auth-photo-overlay" />
       </div>
 
       <div className={'change-pwd-panel' + (isShaking ? ' is-shaking' : '')}>
