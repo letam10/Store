@@ -1,3 +1,13 @@
+/*
+  FILE NOTE
+  - Mục đích: Trang Tất cả sản phẩm (Catalog) cho Storefront OmniCart, điều phối tìm kiếm, bộ lọc danh mục/giá/giảm giá/phổ biến/yêu thích, phân trang và sắp xếp.
+  - Sửa lỗi: Khắc phục lỗi mục 'Chỉ xem hàng yêu thích' khi chọn sắp xếp hoặc bấm lọc:
+    + Loại bỏ ReferenceError biến không tồn tại `setFavoriteSort` trong dropdown Sắp xếp.
+    + Khi chọn 'Yêu thích nhiều nhất' hoặc tích 'Chỉ xem hàng yêu thích', kích hoạt chính xác `setFavoriteOnly(true)` và lọc đúng các sản phẩm yêu thích (theo danh sách yêu thích cá nhân hoặc lượt yêu thích).
+    + Chuẩn hóa nhãn hiển thị bộ lọc 'Chỉ xem hàng yêu thích' (Favorited products only).
+  - Liên kết trực tiếp: src/App.jsx, src/components/ui/ProductCard.jsx, src/services/catalog.js, src/services/storefrontState.js
+  - Vùng ảnh hưởng khi sửa: Trang Tất cả sản phẩm /products, danh sách lọc sản phẩm hiển thị, phân trang và sắp xếp.
+*/
 /**
  * @codex-vn-doc
  * Tệp: src/pages/Catalog.jsx
@@ -85,10 +95,10 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
       list = list.filter((item) => Number(item.viewCount || 0) > 0)
     }
 
-    // 4. Chỉ sản phẩm yêu thích (nằm trong danh sách yêu thích của người dùng)
+    // 4. Chỉ sản phẩm yêu thích (nằm trong danh sách yêu thích của người dùng hoặc có lượt yêu thích)
     if (favoriteOnly) {
       const favSet = new Set((favoriteIds || []).map(String))
-      list = list.filter((item) => favSet.has(String(item.id)))
+      list = list.filter((item) => favSet.has(String(item.id)) || (favSet.size === 0 && Number(item.favoriteCount || 0) > 0))
     }
 
     // 5. Áp dụng sắp xếp
@@ -162,10 +172,10 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
         <div className="catalog-checkbox-group">
           <label className="catalog-checkbox"><input type="checkbox" checked={discountOnly} onChange={(event) => { closeDropdownMenus(); setDiscountOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Discounted products only' : 'Lọc sản phẩm giảm giá'}</label>
           <label className="catalog-checkbox"><input type="checkbox" checked={popularityOnly} onChange={(event) => { closeDropdownMenus(); setPopularityOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Popular products only' : 'Chỉ sản phẩm phổ biến'}</label>
-          <label className="catalog-checkbox"><input type="checkbox" checked={favoriteOnly} onChange={(event) => { closeDropdownMenus(); setFavoriteOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Favorited products only' : 'Chỉ sản phẩm yêu thích'}</label>
+          <label className="catalog-checkbox"><input type="checkbox" checked={favoriteOnly} onChange={(event) => { closeDropdownMenus(); setFavoriteOnly(event.target.checked); setCurrentPage(1) }} />{english ? 'Favorited products only' : 'Chỉ xem hàng yêu thích'}</label>
         </div>
         <label className="field"><span>{english ? 'Max price' : 'Giá tối đa'}</span><DropdownMenu value={maxPrice} options={localizedMaxPriceOptions} ariaLabel={english ? 'Max price' : 'Giá tối đa'} onChange={(nextPrice) => { closeDropdownMenus(); setMaxPrice(Number(nextPrice)); setCurrentPage(1) }} /></label>
-        <label className="field"><span>{english ? 'Sort by' : 'Sắp xếp'}</span><DropdownMenu value={sort} options={localizedSortOptions} ariaLabel={english ? 'Sort products' : 'Sắp xếp sản phẩm'} onChange={(nextSort) => { closeDropdownMenus(); setSort(nextSort); setPopularityOnly(nextSort === 'popular'); setFavoriteSort(nextSort === 'favorite'); setCurrentPage(1) }} /></label>
+        <label className="field"><span>{english ? 'Sort by' : 'Sắp xếp'}</span><DropdownMenu value={sort} options={localizedSortOptions} ariaLabel={english ? 'Sort products' : 'Sắp xếp sản phẩm'} onChange={(nextSort) => { closeDropdownMenus(); setSort(nextSort); setPopularityOnly(nextSort === 'popular'); if (nextSort === 'favorite') setFavoriteOnly(true); setCurrentPage(1) }} /></label>
       </div></aside>
       <div className="catalog-results">
         <div className="catalog-results__head">
@@ -242,8 +252,8 @@ export default function Catalog({ products, search, onAddToCart, favoriteIds = [
         )}
         {visible.length === 0 && (
           <div className="surface empty-panel">
-            <h2>{favoriteOnly && (!favoriteIds || favoriteIds.length === 0) ? (english ? 'No favorited products yet' : 'Chưa có sản phẩm yêu thích nào') : (english ? 'No products found' : 'Không tìm thấy sản phẩm')}</h2>
-            <p className="muted">{favoriteOnly && (!favoriteIds || favoriteIds.length === 0) ? (english ? 'Click the heart icon on any product to add it to your favorites list.' : 'Hãy nhấn biểu tượng trái tim trên sản phẩm để thêm vào danh sách yêu thích của bạn.') : (english ? 'Try different keywords or clear filters.' : 'Thử từ khóa khác hoặc bỏ bộ lọc.')}</p>
+            <h2>{favoriteOnly ? (english ? 'No favorited products yet' : 'Chưa có sản phẩm yêu thích nào') : (english ? 'No products found' : 'Không tìm thấy sản phẩm')}</h2>
+            <p className="muted">{favoriteOnly ? (english ? 'Click the heart icon on any product to add it to your favorites list.' : 'Hãy nhấn biểu tượng trái tim trên sản phẩm để thêm vào danh sách yêu thích của bạn.') : (english ? 'Try different keywords or clear filters.' : 'Thử từ khóa khác hoặc bỏ bộ lọc.')}</p>
             <button className="button button--soft" type="button" onClick={resetFilters}>{english ? 'Clear filters' : 'Xóa bộ lọc'}</button>
           </div>
         )}
