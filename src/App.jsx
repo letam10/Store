@@ -1,8 +1,8 @@
 /*
   FILE NOTE
-  - Mục đích: Điều phối luồng ứng dụng Store React: quản lý router, giỏ hàng, phiên tài khoản, theme, danh mục và bắt buộc đăng nhập khi thêm giỏ hàng.
-  - Liên kết trực tiếp: src/components/layout/Header.jsx, src/components/layout/Footer.jsx, src/pages/Home.jsx, src/pages/Catalog.jsx, src/pages/ProductDetail.jsx, src/pages/Auth.jsx, src/pages/Cart.jsx
-  - Vùng ảnh hưởng khi sửa: Toàn bộ vòng đời ứng dụng, các route công khai và bảo vệ, luồng thêm sản phẩm vào giỏ hàng.
+  - Mục đích: Điều phối luồng ứng dụng Store React: quản lý router, giỏ hàng, phiên tài khoản, theme, danh mục (đồng bộ tức thì với Admin) và bắt buộc đăng nhập khi thêm giỏ hàng.
+  - Liên kết trực tiếp: src/components/layout/Header.jsx, src/components/layout/Footer.jsx, src/pages/Home.jsx, src/pages/Catalog.jsx, src/pages/ProductDetail.jsx, src/pages/Auth.jsx, src/pages/Cart.jsx, src/services/catalog.js
+  - Vùng ảnh hưởng khi sửa: Toàn bộ vòng đời ứng dụng, các route công khai và bảo vệ, đồng bộ catalog khi Admin thêm/xóa sản phẩm.
 */
 import { consumeCheckoutDraft, subtractCheckoutItems } from './utils/checkoutDrafts'
 import StorePromotions, { PromotionBoard } from './components/ui/StorePromotions'
@@ -67,6 +67,7 @@ export default function App() {
   const [language, setLanguage] = useState(() => localStorage.getItem('storeLanguageV1') || 'vi')
   useEffect(() => installVietnameseValidation(language), [language])
   const [offers, setOffers] = useState([])
+  const [catalogLoaded, setCatalogLoaded] = useState(false)
   const [appearance, setAppearance] = useState({})
   const [location, setLocation] = useState(currentLocation)
   const scrollPositions = useRef(new Map())
@@ -74,7 +75,7 @@ export default function App() {
   const cartAccountId = useRef(null)
   const navigationAction = useRef('initial')
   const viewedLocation = useRef(null)
-  const products = useMemo(() => enrichProducts(offers), [offers])
+  const products = useMemo(() => enrichProducts(offers, { fullCatalog: catalogLoaded }), [offers, catalogLoaded])
   const { policy: membershipPolicy } = useMembershipPolicy()
   const promotionOverview = useMemo(() => storePromotionOverview(products, wallet, account, favoriteIds, Date.now(), membershipPolicy), [products, wallet, account, favoriteIds, membershipPolicy])
   const route = routeName(location.pathname)
@@ -97,8 +98,9 @@ export default function App() {
       const response = await fetch(apiEndpoint('/api/storefront/catalog?details=1'), { signal, credentials: apiCredentials, cache: 'no-store' })
       if (!response.ok) return false
       const payload = await response.json()
-      if (!Array.isArray(payload.products)) return false
+      if (!Array.isArray(payload.products) || payload.products.length === 0) return false
       setOffers(payload.products)
+      setCatalogLoaded(true)
       return true
     } catch {
       return false
@@ -215,8 +217,32 @@ export default function App() {
     const initialTimer = setTimeout(() => { refreshCatalog(controller.signal) }, 0)
     const reloadCatalog = () => { refreshCatalog() }
     window.addEventListener('focus', reloadCatalog)
+    const onStorage = (event) => {
+      if (event.key === 'store_catalog_version') {
+        reloadCatalog()
+      }
+    }
+    window.addEventListener('storage', onStorage)
+    let channel
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        channel = new window.BroadcastChannel('omnicart_catalog')
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'CATALOG_UPDATED') {
+            reloadCatalog()
+          }
+        }
+      }
+    } catch {}
     const timer = setInterval(reloadCatalog, 30000)
-    return () => { controller.abort(); window.removeEventListener('focus', reloadCatalog); clearTimeout(initialTimer); clearInterval(timer) }
+    return () => {
+      controller.abort()
+      window.removeEventListener('focus', reloadCatalog)
+      window.removeEventListener('storage', onStorage)
+      if (channel) channel.close()
+      clearTimeout(initialTimer)
+      clearInterval(timer)
+    }
   }, [refreshCatalog])
 
   useEffect(() => {

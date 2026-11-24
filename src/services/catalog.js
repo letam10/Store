@@ -1,3 +1,10 @@
+/*
+  FILE NOTE
+  - Mục đích: Chuẩn hóa catalog, phân loại danh mục, tính giá ưu đãi, xếp hạng sản phẩm và làm giàu dữ liệu sản phẩm từ API database (đồng bộ thêm/xóa/sửa sản phẩm).
+  - Liên kết trực tiếp: Store/src/data/products.js, Store/src/App.jsx, Store/src/pages/Catalog.jsx, Store/src/pages/Home.jsx
+  - Vùng ảnh hưởng khi sửa: Dữ liệu sản phẩm hiển thị trên toàn bộ Storefront (Trang chủ, Danh mục, Chi tiết sản phẩm, Giỏ hàng).
+*/
+
 /**
  * @codex-vn-doc
  * Tệp: src/services/catalog.js
@@ -56,15 +63,34 @@ export function salePrice(price, discountPercent = 0) {
 }
 
 // Chức năng enrichProducts: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export function enrichProducts(offers = []) {
+export function enrichProducts(offers = [], options = {}) {
   const byId = new Map(offers.map((offer) => [String(offer.id), offer]))
-  const sourceIds = new Set(sourceProducts.map((product) => String(product.id)))
-  const apiProducts = offers.filter((product) => product && product.name && !sourceIds.has(String(product.id)))
-  return [...sourceProducts, ...apiProducts].map((product) => {
-    const offer = byId.get(String(product.id))
-    const currentProduct = { ...product, ...offer }
-    const discountPercent = Number(offer?.discountPercent ?? product.discountPercent ?? 0)
-    const originalPrice = Number(offer?.price ?? product.originalPrice ?? product.price)
+  const sourceById = new Map(sourceProducts.map((product) => [String(product.id), product]))
+  const isFullCatalog = (options.fullCatalog !== undefined ? Boolean(options.fullCatalog) : offers.length > 50) && Array.isArray(offers) && offers.length > 0
+
+  let baseList
+  if (isFullCatalog) {
+    // Khi danh mục được nạp từ database (fullCatalog với dữ liệu thực), danh sách từ API (offers) là Single Source of Truth.
+    // Bất kỳ sản phẩm nào bị Admin xóa trong DB sẽ không còn xuất hiện ở Storefront.
+    baseList = offers.map((offer) => {
+      const source = sourceById.get(String(offer.id)) || {}
+      return { ...source, ...offer }
+    })
+  } else {
+    // Fallback cho chế độ offline hoặc test đơn vị khi offers chỉ là override cục bộ
+    const sourceIds = new Set(sourceProducts.map((product) => String(product.id)))
+    const apiProducts = offers.filter((product) => product && product.name && !sourceIds.has(String(product.id)))
+    baseList = [...sourceProducts, ...apiProducts].map((product) => {
+      const offer = byId.get(String(product.id))
+      return { ...product, ...offer }
+    })
+  }
+
+  return baseList.map((product) => {
+    const offer = byId.get(String(product.id)) || {}
+    const currentProduct = product
+    const discountPercent = Number(offer?.discountPercent ?? currentProduct.discountPercent ?? 0)
+    const originalPrice = Number(offer?.price ?? currentProduct.originalPrice ?? currentProduct.price)
     return {
       ...currentProduct,
       label: /\bdemo\b/i.test(currentProduct.label || '') ? (currentProduct.label || '').replace(/\bdemo\b/ig, '').trim() || 'Hàng mới' : currentProduct.label,
@@ -75,10 +101,10 @@ export function enrichProducts(offers = []) {
       // The API normally supplies the managed stock value. Keep the same
       // default for the local demo fallback so guests cannot add unlimited
       // quantities when the backend is temporarily unavailable.
-      stockCount: Number(offer?.stockCount ?? product.stockCount ?? 20),
-      viewCount: offer?.viewCount ?? 0,
+      stockCount: Number(offer?.stockCount ?? currentProduct.stockCount ?? 20),
+      viewCount: offer?.viewCount ?? currentProduct.viewCount ?? 0,
       // Giữ tổng lượt yêu thích từ API để bộ lọc Catalog xếp hạng đúng cả sản phẩm nền.
-      favoriteCount: offer?.favoriteCount ?? product.favoriteCount ?? 0,
+      favoriteCount: offer?.favoriteCount ?? currentProduct.favoriteCount ?? 0,
     }
   })
 }
