@@ -30,7 +30,10 @@
   height: 100% !important;
   object-fit: cover !important;
   object-position: center !important;
-  filter: saturate(1.1) brightness(0.85) !important;
+  image-rendering: auto !important;
+  filter: saturate(1.08) brightness(0.88) !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
 }
 
 .auth-video-bg iframe {
