@@ -64,7 +64,7 @@ export default function App() {
   const [favoriteIds, setFavoriteIds] = useState([])
   const [selectedVoucherCodes, setSelectedVoucherCodes] = useState([])
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light')
-  const [language, setLanguage] = useState('vi')
+  const [language, setLanguage] = useState(() => localStorage.getItem('storeLanguageV1') || 'vi')
   useEffect(() => installVietnameseValidation(language), [language])
   const [offers, setOffers] = useState([])
   const [appearance, setAppearance] = useState({})
@@ -121,7 +121,10 @@ export default function App() {
     Object.entries(themePalette).forEach(([name, value]) => root.style.setProperty(name, value))
     root.style.setProperty('--accent', accentColor)
   }, [accentColor, theme, themePalette, themePreset])
-  useEffect(() => { localStorage.removeItem('storeLanguageV1'); document.documentElement.lang = 'vi' }, [])
+  useEffect(() => {
+    localStorage.setItem('storeLanguageV1', language)
+    document.documentElement.lang = language
+  }, [language])
   const reconcilePaidCart = useCallback((customerId, paidOrders) => {
     if (customerId == null) return
     const owner = String(customerId)
@@ -388,7 +391,7 @@ export default function App() {
 
   return <LanguageContext.Provider value={languageContextValue}>
     <div className={'site-frame' + (isAuthLayout ? ' site-frame--auth' : '')} style={{ '--accent': accentColor }} onClick={handleLink} onSubmitCapture={handleSearch}>
-      {!isAuthLayout && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} membershipPolicy={membershipPolicy} />}
+      {!isAuthLayout && <Header appearance={appearance} products={products} cartCount={cartCount(cart)} account={account} membershipTier={membershipTier} theme={theme} onThemeChange={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')} membershipPolicy={membershipPolicy} language={language} onLanguageChange={setLanguage} />}
       <main id="main-content" onInvalidCapture={showValidation} onInputCapture={clearValidation}
         onChangeCapture={clearValidation}>
         <div key={location.pathname} className="page-transition-wrapper">

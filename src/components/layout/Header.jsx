@@ -9,7 +9,7 @@ import { products as defaultProducts } from '../../data/products'
 import { getMembershipPlan } from '../../services/promotions'
 import { useMembershipPolicy } from '../../services/membershipPolicy'
 import { productMatches } from '../../services/storefrontState'
-import { translateCategory } from '../../context/i18n'
+import { translateCategory, translations, useLanguage } from '../../context/i18n'
 import './Header.css'
 
 const fallbackPictures = { 1: 'headphones', 2: 'bag', 3: 'watch', 4: 'cup' }
@@ -50,9 +50,17 @@ function SearchSuggestions({ items, query, onSelect, id }) {
 }
 
 // Chức năng Header: xử lý dữ liệu theo hợp đồng của hàm; kiểm tra đầu vào, nhánh lỗi và kết quả trước khi trả cho nơi gọi.
-export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, membershipPolicy: propPolicy }) {
+export default function Header({ appearance = {}, products = defaultProducts, cartCount, account, membershipTier = 'bronze', theme = 'light', onThemeChange, membershipPolicy: propPolicy, language: propLanguage, onLanguageChange }) {
   const { policy: hookPolicy } = useMembershipPolicy()
   const policy = propPolicy || hookPolicy
+  const langCtx = useLanguage()
+  const language = propLanguage || langCtx?.language || 'vi'
+  const handleLanguageToggle = () => {
+    const next = language === 'en' ? 'vi' : 'en'
+    if (onLanguageChange) onLanguageChange(next)
+    else langCtx?.setLanguage?.(next)
+  }
+  const t = translations[language] || translations.vi
   const [searchOpen, setSearchOpen] = useState(false)
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
@@ -64,15 +72,15 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
   const headerRef = useRef(null)
   const pathname = window.location.pathname
   const links = [
-    ['/', appearance.navHome || 'Trang chủ'],
-    ['/products', appearance.navProducts || 'Hàng hóa'],
-    ['/favorites', appearance.navFavorites || 'Yêu thích'],
-    ['/rewards', appearance.navRewards || 'May mắn'],
-    ['/membership', appearance.navMembership || 'Thành viên'],
-    ['/contact', appearance.navContact || 'Địa chỉ & liên hệ'],
+    ['/', (language === 'en' ? t.navHome : appearance.navHome) || t.navHome],
+    ['/products', (language === 'en' ? t.navProducts : appearance.navProducts) || t.navProducts],
+    ['/favorites', (language === 'en' ? t.navFavorites : appearance.navFavorites) || t.navFavorites],
+    ['/rewards', (language === 'en' ? t.navRewards : appearance.navRewards) || t.navRewards],
+    ['/membership', (language === 'en' ? t.navMembership : appearance.navMembership) || t.navMembership],
+    ['/contact', (language === 'en' ? t.navContact : appearance.navContact) || t.navContact],
   ]
   const brandName = (appearance.brandName && appearance.brandName !== 'OmiCart') ? appearance.brandName : 'OmniCart'
-  const searchPlaceholder = appearance.headerSearchPlaceholder || 'Tìm sản phẩm, danh mục…'
+  const searchPlaceholder = (language === 'en' ? t.headerSearchPlaceholder : appearance.headerSearchPlaceholder) || t.headerSearchPlaceholder
 
   // Truyền chiều cao thật cho các vùng sticky, kể cả khi menu/ngôn ngữ đổi kích thước.
   useEffect(() => {
@@ -147,7 +155,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
 
   return <>
     <header ref={headerRef} className="site-header">
-      <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
+      <a className="skip-link" href="#main-content">{language === 'en' ? 'Skip navigation' : 'Bỏ qua điều hướng'}</a>
       <div className="container header-inner">
         <a className="brand" href="/" aria-label="OmniCart - trang chủ">
           <span className="brand__mark has-image" aria-hidden="true">
@@ -166,11 +174,21 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
         </div>
         <nav id="header-navigation" className={'header-nav' + (menuOpen ? ' is-open' : '')} aria-label="Điều hướng chính">
           {links.map(([href, label]) => <a key={href} href={href} aria-current={pathname === href ? 'page' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
-          <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? 'Tài khoản của bạn' : 'Đăng nhập / Đăng ký'}</a>
+          <a className="mobile-account-link" href="/account" onClick={() => setMenuOpen(false)}>{account ? (language === 'en' ? 'Your account' : 'Tài khoản của bạn') : (language === 'en' ? 'Sign in / Register' : 'Đăng nhập / Đăng ký')}</a>
         </nav>
         <div className="header-actions">
           <button className="header-search-trigger" type="button" aria-label="Mở tìm kiếm" aria-expanded={searchOpen} onClick={() => { setMenuOpen(false); setSearchOpen(true); setSuggestionsOpen(true); setAccountOpen(false) }}><SearchIcon /></button>
           <button className="theme-switch" type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Giao diện tối" onClick={onThemeChange} title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}><span className="theme-switch__icon" aria-hidden="true">☀</span><span className="theme-switch__track" aria-hidden="true"><span className="theme-switch__thumb" /></span><span className="theme-switch__icon" aria-hidden="true">☾</span></button>
+          <button
+            type="button"
+            className="lang-switch"
+            onClick={handleLanguageToggle}
+            title={language === 'en' ? 'Chuyển sang Tiếng Việt' : 'Switch to English'}
+            aria-label={language === 'en' ? 'Chuyển sang Tiếng Việt' : 'Switch to English'}
+          >
+            <span className="lang-switch__globe" aria-hidden="true">🌐</span>
+            <span className="lang-switch__code">{language === 'en' ? 'EN' : 'VI'}</span>
+          </button>
           {account?.username ? <div ref={accountRef} className={'account-menu' + (accountOpen ? ' is-open' : '')}>
             <button type="button" className="account-link account-menu__trigger" aria-label={'Mở tài khoản ' + account.username} aria-haspopup="menu" aria-expanded={accountOpen} onClick={() => { setMenuOpen(false); setSearchOpen(false); setAccountOpen((current) => !current) }} title="Mở trang cá nhân">
               <span className="account-link__avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span><span className="account-link__name">{getMembershipPlan(membershipTier, policy).badge + ' · ' + account.username}</span><span className="account-menu__caret" aria-hidden="true">▾</span>
@@ -184,7 +202,7 @@ export default function Header({ appearance = {}, products = defaultProducts, ca
               <a role="menuitem" href="/membership" onClick={() => setAccountOpen(false)}><span className="account-menu__icon" aria-hidden="true">⭐</span><span className="account-menu__label">Hạng thành viên</span></a>
             </div>}
           </div> : <a className="account-link" href="/account" aria-label="Đăng nhập tài khoản"><span className="account-link__avatar" aria-hidden="true">♙</span><span className="account-link__name">Đăng nhập</span></a>}
-          <a className="cart-count" href="/cart" aria-label={'Giỏ hàng có ' + cartCount + ' sản phẩm'}><span aria-hidden="true">🛒</span><span className="cart-count__text">Giỏ hàng</span><b>{cartCount}</b></a>
+          <a className="cart-count" href="/cart" aria-label={(language === 'en' ? 'Cart with ' : 'Giỏ hàng có ') + cartCount + (language === 'en' ? ' items' : ' sản phẩm')}><span aria-hidden="true">🛒</span><span className="cart-count__text">{language === 'en' ? 'Cart' : 'Giỏ hàng'}</span><b>{cartCount}</b></a>
           <button className="header-menu-trigger" type="button" aria-controls="header-navigation" aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'} aria-expanded={menuOpen} onClick={() => { setSearchOpen(false); setMenuOpen((current) => !current) }}>☰</button>
         </div>
       </div>

@@ -131,3 +131,62 @@
 .search-suggestion:hover .search-suggestion__arrow {
   transform: translate(2px, -2px);
 }
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--anim-duration-fast, 180ms) var(--anim-ease-out, ease-out);
+  user-select: none;
+}
+.lang-switch:hover {
+  transform: scale(1.03);
+  border-color: #245c43;
+  color: #245c43;
+  background: #ffffff;
+}
+.lang-switch:active {
+  transform: scale(0.96);
+}
+.lang-switch__globe {
+  font-size: 14px;
+  line-height: 1;
+}
+.lang-switch__code {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+:root[data-theme='dark'] .lang-switch {
+  background: #1e293b;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+:root[data-theme='dark'] .lang-switch:hover {
+  border-color: #76d795;
+  color: #76d795;
+  background: #0f172a;
+}
+@media (max-width: 700px) {
+  .lang-switch {
+    height: 40px;
+    padding: 0 8px;
+    font-size: 12px;
+    gap: 4px;
+  }
+}
+@media (max-width: 440px) {
+  .lang-switch {
+    height: 36px;
+    padding: 0 6px;
+  }
+}
