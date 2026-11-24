@@ -22,6 +22,8 @@
   z-index: 0 !important;
 }
 
+.auth-video-bg__media,
+.auth-video-bg video,
 .auth-photo-bg__image,
 .auth-video-bg img {
   position: absolute !important;

@@ -194,9 +194,17 @@ export default function Auth({ mode, next = '/account', onLogin, onNavigate, lan
         <div className="auth-glow-orb auth-glow-orb--2" />
         <div className="auth-glow-orb auth-glow-orb--3" />
       </div>
-      <div className="auth-photo-bg" aria-hidden="true">
-        <img src="/auth-bg.jpg" alt="" className="auth-photo-bg__image" />
-        <div className="auth-photo-overlay" />
+      <div className="auth-video-bg" aria-hidden="true">
+        <video
+          className="auth-video-bg__media"
+          src="/auth-bg.mp4"
+          poster="/auth-bg.jpg"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className="auth-video-overlay" />
       </div>
       <div className={'auth-panel' + (isShaking ? ' is-shaking' : '')}>
       <div className="auth-topbar">
